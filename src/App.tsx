@@ -14,6 +14,18 @@ import { AquaAlertPage } from "./pages/aqua/AquaAlertPage"
 import { AquaResponsePage } from "./pages/aqua/AquaResponsePage"
 import { AquaMonitoringPage } from "./pages/aqua/AquaMonitoringPage"
 import { AquaClosurePage } from "./pages/aqua/AquaClosurePage"
+import { CoastHomePage } from "./pages/coast/CoastHomePage"
+import { CoastEventDetailPage } from "./pages/coast/CoastEventDetailPage"
+import { CoastAlertPage } from "./pages/coast/CoastAlertPage"
+import { CoastDispatchPage } from "./pages/coast/CoastDispatchPage"
+import { CoastMonitoringPage } from "./pages/coast/CoastMonitoringPage"
+import { CoastClosurePage } from "./pages/coast/CoastClosurePage"
+import { RiverHomePage } from "./pages/river/RiverHomePage"
+import { RiverAnalysisPage } from "./pages/river/RiverAnalysisPage"
+import { RiverAlertPage } from "./pages/river/RiverAlertPage"
+import { RiverControlPage } from "./pages/river/RiverControlPage"
+import { RiverDispatchPage } from "./pages/river/RiverDispatchPage"
+import { RiverClosurePage } from "./pages/river/RiverClosurePage"
 
 export default function App() {
   return (
@@ -35,30 +47,20 @@ export default function App() {
         <Route path="/aqua/monitoring" element={<AquaMonitoringPage />} />
         <Route path="/aqua/closure" element={<AquaClosurePage />} />
 
-        <Route
-          path="/coast"
-          element={
-            <PlaceholderServicePage
-              title="연안 안전 — 위험행동 관제"
-              description="AI CCTV·AIoT 스마트폴 기반 연안 위험행동 탐지, 현장 경보 및 해경 공조"
-              flowSource="연안_안전관리시스템_유저플로우.html"
-              screenCount={17}
-              domainColor="#0d9488"
-            />
-          }
-        />
-        <Route
-          path="/river"
-          element={
-            <PlaceholderServicePage
-              title="하천 범람 — 예측 및 경보"
-              description="강우레이더·수위센서 기반 하천 범람 예측, 현장 통제 및 대피 공조"
-              flowSource="하천_범람예측_경보_시스템_유저플로우.html"
-              screenCount={13}
-              domainColor="#0284c7"
-            />
-          }
-        />
+        <Route path="/coast" element={<CoastHomePage />} />
+        <Route path="/coast/events" element={<CoastEventDetailPage />} />
+        <Route path="/coast/alerts" element={<CoastAlertPage />} />
+        <Route path="/coast/dispatch" element={<CoastDispatchPage />} />
+        <Route path="/coast/monitoring" element={<CoastMonitoringPage />} />
+        <Route path="/coast/closure" element={<CoastClosurePage />} />
+
+        <Route path="/river" element={<RiverHomePage />} />
+        <Route path="/river/analysis" element={<RiverAnalysisPage />} />
+        <Route path="/river/alert" element={<RiverAlertPage />} />
+        <Route path="/river/control" element={<RiverControlPage />} />
+        <Route path="/river/dispatch" element={<RiverDispatchPage />} />
+        <Route path="/river/closure" element={<RiverClosurePage />} />
+
         <Route
           path="/reports"
           element={
