@@ -55,10 +55,9 @@ export const riskMarkers: RiskMarker[] = [
   { id: "iho", name: "이호 해수욕장", x: 96, y: 118, level: "danger", domain: "coast" },
   { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "caution", domain: "coast" },
   { id: "sagye", name: "사계 해안", x: 92, y: 246, level: "warning", domain: "coast" },
-  { id: "seogwipo-farm", name: "서귀포 양식장", x: 168, y: 238, level: "caution", domain: "aqua", value: "27.8°C" },
-  { id: "seongsan-farm", name: "성산 양식장", x: 268, y: 150, level: "safe", domain: "aqua", value: "24.3°C" },
-  { id: "hangyeong-farm", name: "한경 양식장", x: 48, y: 178, level: "safe", domain: "aqua", value: "23.9°C" },
-  { id: "daejeong-farm", name: "대정 양식장", x: 66, y: 226, level: "offline", domain: "aqua", value: "점검중" },
+  { id: "hangyeong-geumdeung", name: "한경 금등", x: 50, y: 168, level: "safe", domain: "aqua", value: "24.7°C" },
+  { id: "hangyeong-yongsu", name: "한경 용수", x: 44, y: 192, level: "safe", domain: "aqua", value: "25.8°C" },
+  { id: "daejeong-ilgwa", name: "대정 일과", x: 70, y: 232, level: "caution", domain: "aqua", value: "26.8°C" },
 ]
 
 export const timeSeries: TimeSeriesReading[] = [
