@@ -5,6 +5,15 @@ import { DashboardPage } from "./pages/DashboardPage"
 import { MonitoringPage } from "./pages/MonitoringPage"
 import { PlaceholderServicePage } from "./pages/PlaceholderServicePage"
 import { RequireAuth } from "./routes/RequireAuth"
+import { AquaHomePage } from "./pages/aqua/AquaHomePage"
+import { AquaDataPage } from "./pages/aqua/AquaDataPage"
+import { AquaPredictionPage } from "./pages/aqua/AquaPredictionPage"
+import { AquaFarmsPage } from "./pages/aqua/AquaFarmsPage"
+import { AquaFarmDetailPage } from "./pages/aqua/AquaFarmDetailPage"
+import { AquaAlertPage } from "./pages/aqua/AquaAlertPage"
+import { AquaResponsePage } from "./pages/aqua/AquaResponsePage"
+import { AquaMonitoringPage } from "./pages/aqua/AquaMonitoringPage"
+import { AquaClosurePage } from "./pages/aqua/AquaClosurePage"
 
 export default function App() {
   return (
@@ -15,18 +24,17 @@ export default function App() {
       <Route element={<RequireAuth />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/monitoring" element={<MonitoringPage />} />
-        <Route
-          path="/aqua"
-          element={
-            <PlaceholderServicePage
-              title="양식장 대응 — 저염분수·고수온 예측"
-              description="AI 하이브리드 예측 기반 저염분수·고수온 경보 및 양식장 e-SOP 대응"
-              flowSource="저염분수_고수온_예측_시스템_플로우.html"
-              screenCount={31}
-              domainColor="#7c3aed"
-            />
-          }
-        />
+
+        <Route path="/aqua" element={<AquaHomePage />} />
+        <Route path="/aqua/data" element={<AquaDataPage />} />
+        <Route path="/aqua/prediction" element={<AquaPredictionPage />} />
+        <Route path="/aqua/farms" element={<AquaFarmsPage />} />
+        <Route path="/aqua/farms/:farmId" element={<AquaFarmDetailPage />} />
+        <Route path="/aqua/alerts" element={<AquaAlertPage />} />
+        <Route path="/aqua/response" element={<AquaResponsePage />} />
+        <Route path="/aqua/monitoring" element={<AquaMonitoringPage />} />
+        <Route path="/aqua/closure" element={<AquaClosurePage />} />
+
         <Route
           path="/coast"
           element={
