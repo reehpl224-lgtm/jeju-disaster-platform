@@ -25,7 +25,10 @@
 **4단계 — 하천 범람 예측·경보**
 - 대시보드, 상황 분석, 경보 발송 현황, 현장 통제 관리, 출동 요청, 종료 보고
 
-**남은 범위**: 이력·보고서(진입 스텁만 구현)
+**5단계 — 이력·보고서**
+- 이력·보고서 조회(필터·검색·도메인별 카운트) → 상황 종료 보고서 상세(타임라인, e-SOP 승인 이력, 기관 공조 결과, 첨부 증빙)
+
+4개 유저플로우 와이어프레임(총 82개 화면·상태) 전체를 프론트엔드 프로토타입으로 구현 완료.
 
 ## 데모 로그인
 
@@ -55,19 +58,20 @@ src/
     ui/         # Card, KpiCard, RiskBadge, JejuRiskMap, riskStyles
     aqua/       # AquaSubNav, StageTracker, ChecklistRow (양식장 전용)
     shared/     # DomainSubNav (연안·하천 공용 서브 내비게이션)
-  data/         # mockAuth, mockDashboard, mockMonitoring, mockAqua, mockCoast, mockRiver
+  data/         # mockAuth, mockDashboard, mockMonitoring, mockAqua, mockCoast, mockRiver, mockReports
   pages/
     aqua/       # 양식장 대응 9개 화면
     coast/      # 연안 안전 6개 화면
     river/      # 하천 범람 6개 화면
-    (root)/     # LoginPage, ForbiddenPage, DashboardPage, MonitoringPage, PlaceholderServicePage
+    reports/    # 이력·보고서 2개 화면
+    (root)/     # LoginPage, ForbiddenPage, DashboardPage, MonitoringPage
   routes/       # RequireAuth (인증 가드)
-  types/        # domain.ts, aqua.ts, coast.ts, river.ts
+  types/        # domain.ts, aqua.ts, coast.ts, river.ts, reports.ts
 ```
 
 ## 다음 단계
 
-- 이력·보고서 화면 상세 구현
 - 필요 시 실제 GIS 지도 연동(현재는 커스텀 SVG/플레이스홀더로 대체)
+- 실제 백엔드 API 연동 및 인증 체계 전환
 
 설계 결정은 `docs/superpowers/specs/`에 기록합니다.

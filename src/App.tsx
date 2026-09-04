@@ -3,8 +3,9 @@ import { LoginPage } from "./pages/LoginPage"
 import { ForbiddenPage } from "./pages/ForbiddenPage"
 import { DashboardPage } from "./pages/DashboardPage"
 import { MonitoringPage } from "./pages/MonitoringPage"
-import { PlaceholderServicePage } from "./pages/PlaceholderServicePage"
 import { RequireAuth } from "./routes/RequireAuth"
+import { ReportsListPage } from "./pages/reports/ReportsListPage"
+import { ReportDetailPage } from "./pages/reports/ReportDetailPage"
 import { AquaHomePage } from "./pages/aqua/AquaHomePage"
 import { AquaDataPage } from "./pages/aqua/AquaDataPage"
 import { AquaPredictionPage } from "./pages/aqua/AquaPredictionPage"
@@ -61,18 +62,8 @@ export default function App() {
         <Route path="/river/dispatch" element={<RiverDispatchPage />} />
         <Route path="/river/closure" element={<RiverClosurePage />} />
 
-        <Route
-          path="/reports"
-          element={
-            <PlaceholderServicePage
-              title="이력·보고서"
-              description="상황 종료 보고서 및 전체 대응 이력 조회"
-              flowSource="플랫폼_사용자_유저플로우.html"
-              screenCount={2}
-              domainColor="#0f172a"
-            />
-          }
-        />
+        <Route path="/reports" element={<ReportsListPage />} />
+        <Route path="/reports/:incidentId" element={<ReportDetailPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Route>
 
