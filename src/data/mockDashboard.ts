@@ -3,6 +3,7 @@ import type {
   AiInsight,
   KpiCard,
   RecentAction,
+  RiskLevel,
   RiskMarker,
   TimeSeriesReading,
 } from "../types/domain"
@@ -98,4 +99,29 @@ export const sixHourSeries = [
   { time: "07:00", 한천수위: 2.02, 산지천수위: 1.55, 이호수온: 28.0 },
   { time: "08:00", 한천수위: 2.19, 산지천수위: 1.68, 이호수온: 28.2 },
   { time: "09:00", 한천수위: 2.34, 산지천수위: 1.87, 이호수온: 28.4 },
+]
+
+export const weatherTimeline: { time: string; level: RiskLevel }[] = [
+  { time: "05:00", level: "safe" },
+  { time: "06:00", level: "safe" },
+  { time: "07:00", level: "safe" },
+  { time: "08:00", level: "caution" },
+  { time: "09:00", level: "warning" },
+  { time: "10:00", level: "warning" },
+  { time: "11:00", level: "danger" },
+  { time: "12:00", level: "warning" },
+  { time: "13:00", level: "caution" },
+  { time: "14:00", level: "caution" },
+  { time: "15:00", level: "safe" },
+]
+
+export const weatherTimelineNow = "09:47"
+
+export const dashboardSensors = [
+  { id: "sn1", name: "한천 수위센서 #SJ-01", type: "하천", location: "한천교 인근", value: "2.34 m", status: "warning" as RiskLevel, updatedAt: "09:47" },
+  { id: "sn2", name: "산지천 수위센서 #SJ-02", type: "하천", location: "산지천 하류", value: "1.87 m", status: "caution" as RiskLevel, updatedAt: "09:46" },
+  { id: "sn3", name: "제주 강우레이더", type: "기상", location: "제주지방기상청", value: "강우 없음", status: "safe" as RiskLevel, updatedAt: "09:47" },
+  { id: "sn4", name: "이호 해양관측부이", type: "연안·양식장", location: "이호 앞바다", value: "수온 28.4°C", status: "warning" as RiskLevel, updatedAt: "09:40" },
+  { id: "sn5", name: "협재 AIoT 스마트폴", type: "연안", location: "협재해수욕장", value: "파고 1.2 m", status: "safe" as RiskLevel, updatedAt: "09:45" },
+  { id: "sn6", name: "사계 염분센서", type: "양식장", location: "사계 해안", value: "29.1 psu", status: "caution" as RiskLevel, updatedAt: "09:30" },
 ]

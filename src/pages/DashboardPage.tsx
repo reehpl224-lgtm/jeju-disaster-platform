@@ -4,9 +4,11 @@ import { Card } from "../components/ui/Card"
 import { KpiCard } from "../components/ui/KpiCard"
 import { JejuRiskMap } from "../components/ui/JejuRiskMap"
 import { RiskBadge } from "../components/ui/RiskBadge"
+import { WeatherTimeline } from "../components/ui/WeatherTimeline"
 import {
   agencyStatuses,
   aiInsights,
+  dashboardSensors,
   kpiCards,
   lastSyncedAt,
   predictionConfidence,
@@ -15,6 +17,8 @@ import {
   sensorCrossCheck,
   sixHourSeries,
   timeSeries,
+  weatherTimeline,
+  weatherTimelineNow,
 } from "../data/mockDashboard"
 
 const AGENCY_STATUS_LABEL: Record<(typeof agencyStatuses)[number]["status"], string> = {
@@ -87,6 +91,29 @@ export function DashboardPage() {
           </div>
         </Card>
       </div>
+
+      <Card title="기상 타임라인" subtitle="강우·해양 위험 강도 추이 (최근 관측 기준)">
+        <WeatherTimeline points={weatherTimeline} now={weatherTimelineNow} />
+      </Card>
+
+      <Card title="센서 정보" subtitle="관측소별 실시간 값">
+        <ul className="flex flex-col divide-y divide-border-subtle">
+          {dashboardSensors.map((sensor) => (
+            <li key={sensor.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+              <div>
+                <p className="font-medium text-white/80">{sensor.name}</p>
+                <p className="text-xs text-white/35">
+                  {sensor.type} · {sensor.location}
+                </p>
+              </div>
+              <div className="text-right">
+                <RiskBadge level={sensor.status} label={sensor.value} />
+                <p className="mt-1 text-[11px] text-white/35">최종 갱신 {sensor.updatedAt}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
 
       <Card title="센서 시계열 검증 — 강우·수위·해양" subtitle="최근 6시간">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

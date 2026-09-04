@@ -10,7 +10,7 @@ export interface MockUser {
 const STORAGE_KEY = "jeju-ax-session"
 
 const DEMO_USERS: Record<string, MockUser> = {
-  "jeju-ax": { orgId: "jeju-ax", name: "김도현", org: "제주특별자치도 재난대응1팀", role: "operator" },
+  "jeju-ax": { orgId: "jeju-ax", name: "홍길동", org: "제주특별자치도 재난대응1팀", role: "operator" },
   "guest": { orgId: "guest", name: "체험 계정", org: "권한 미승인", role: "restricted" },
 }
 
