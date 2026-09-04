@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+
+  /* 위험 등급 색상 (전 서비스 공통 시맨틱 토큰) */
+  --color-risk-danger: #dc2626;
+  --color-risk-danger-bg: #fef2f2;
+  --color-risk-warning: #ea580c;
+  --color-risk-warning-bg: #fff7ed;
+  --color-risk-caution: #d97706;
+  --color-risk-caution-bg: #fffbeb;
+  --color-risk-safe: #16a34a;
+  --color-risk-safe-bg: #f0fdf4;
+  --color-risk-info: #2563eb;
+  --color-risk-info-bg: #eff6ff;
+  --color-risk-offline: #6b7280;
+  --color-risk-offline-bg: #f9fafb;
+
+  /* 브랜드 / 서비스 도메인 색상 */
+  --color-brand: #0f172a;
+  --color-brand-accent: #2563eb;
+  --color-domain-river: #0284c7;
+  --color-domain-coast: #0d9488;
+  --color-domain-aqua: #7c3aed;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+  background: var(--color-slate-50);
+  color: var(--color-slate-900);
+}
+
+#root {
+  min-height: 100svh;
+}
