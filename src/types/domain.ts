@@ -22,6 +22,8 @@ export interface RiskMarker {
   y: number
   level: RiskLevel
   domain: "river" | "coast" | "aqua"
+  /** 양식장 수온 등 관측값 콜아웃에 표시할 값 (예: "24.7°C", "점검중") */
+  value?: string
 }
 
 export interface TimeSeriesReading {

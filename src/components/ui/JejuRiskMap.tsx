@@ -1,5 +1,4 @@
-import type { RiskMarker } from "../../types/domain"
-import { riskStyles } from "./riskStyles"
+import type { RiskLevel, RiskMarker } from "../../types/domain"
 
 const DOMAIN_LABEL: Record<RiskMarker["domain"], string> = {
   river: "하천",
@@ -7,7 +6,28 @@ const DOMAIN_LABEL: Record<RiskMarker["domain"], string> = {
   aqua: "양식장",
 }
 
+const MARKER_COLOR: Record<RiskLevel, string> = {
+  danger: "var(--color-risk-danger)",
+  warning: "var(--color-risk-warning)",
+  caution: "var(--color-risk-caution)",
+  safe: "var(--color-risk-safe)",
+  info: "var(--color-risk-info)",
+  offline: "var(--color-risk-offline)",
+}
+
+const CALLOUT_FILL: Record<RiskLevel, string> = {
+  danger: "#3a1414",
+  warning: "#3a2414",
+  caution: "#3a3414",
+  safe: "#16321a",
+  info: "#132a3a",
+  offline: "#2a2a2a",
+}
+
 export function JejuRiskMap({ markers }: { markers: RiskMarker[] }) {
+  const aquaMarkers = markers.filter((m) => m.domain === "aqua" && m.value)
+  const otherMarkers = markers.filter((m) => !(m.domain === "aqua" && m.value))
+
   return (
     <div className="relative h-72 w-full sm:h-80">
       <svg
@@ -31,18 +51,12 @@ export function JejuRiskMap({ markers }: { markers: RiskMarker[] }) {
           한라산
         </text>
 
-        {markers.map((marker) => {
-          const style = riskStyles[marker.level]
+        {otherMarkers.map((marker) => {
+          const color = MARKER_COLOR[marker.level]
           return (
             <g key={marker.id}>
-              <circle
-                cx={marker.x}
-                cy={marker.y}
-                r="9"
-                className={style.dot}
-                fillOpacity="0.25"
-              />
-              <circle cx={marker.x} cy={marker.y} r="4.5" className={style.dot} />
+              <circle cx={marker.x} cy={marker.y} r="9" fill={color} fillOpacity="0.25" />
+              <circle cx={marker.x} cy={marker.y} r="4.5" fill={color} />
               <text
                 x={marker.x}
                 y={marker.y - 12}
@@ -54,15 +68,46 @@ export function JejuRiskMap({ markers }: { markers: RiskMarker[] }) {
               >
                 {marker.name}
               </text>
+              <text x={marker.x} y={marker.y + 18} fontSize="8" textAnchor="middle" fill="white" fillOpacity="0.4">
+                {DOMAIN_LABEL[marker.domain]}
+              </text>
+            </g>
+          )
+        })}
+
+        {/* 양식장 수온 콜아웃 — 제주특별자치도 해양수산연구원 '양식장 수온' 화면 참고 */}
+        {aquaMarkers.map((marker) => {
+          const color = MARKER_COLOR[marker.level]
+          const boxW = 54
+          const boxH = 26
+          const boxX = marker.x - boxW / 2
+          const boxY = marker.y - 44
+          return (
+            <g key={marker.id}>
+              <line x1={marker.x} y1={marker.y} x2={marker.x} y2={boxY + boxH} stroke="white" strokeOpacity="0.3" strokeWidth="1" />
+              <circle cx={marker.x} cy={marker.y} r="4" fill={color} />
+              <rect
+                x={boxX}
+                y={boxY}
+                width={boxW}
+                height={boxH}
+                rx="5"
+                fill={CALLOUT_FILL[marker.level]}
+                stroke={color}
+                strokeWidth="1"
+              />
+              <text x={marker.x} y={boxY + 10} fontSize="7" textAnchor="middle" fill="white" fillOpacity="0.7">
+                {marker.name}
+              </text>
               <text
                 x={marker.x}
-                y={marker.y + 18}
-                fontSize="8"
+                y={boxY + 21}
+                fontSize={marker.value === "점검중" ? 8 : 11}
+                fontWeight={700}
                 textAnchor="middle"
-                fill="white"
-                fillOpacity="0.4"
+                fill={color}
               >
-                {DOMAIN_LABEL[marker.domain]}
+                {marker.value}
               </text>
             </g>
           )
