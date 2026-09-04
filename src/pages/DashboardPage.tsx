@@ -1,10 +1,13 @@
+import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../components/ui/Card"
 import { KpiCard } from "../components/ui/KpiCard"
 import { JejuRiskMap } from "../components/ui/JejuRiskMap"
+import { MapToolbox } from "../components/ui/MapToolbox"
 import { RiskBadge } from "../components/ui/RiskBadge"
 import { WeatherTimeline } from "../components/ui/WeatherTimeline"
+import type { RiskMarker } from "../types/domain"
 import {
   agencyStatuses,
   aiInsights,
@@ -27,7 +30,20 @@ const AGENCY_STATUS_LABEL: Record<(typeof agencyStatuses)[number]["status"], str
   down: "⚠ 장애",
 }
 
+const MAP_DOMAIN_FILTERS: { id: RiskMarker["domain"] | "all"; label: string }[] = [
+  { id: "all", label: "전체" },
+  { id: "river", label: "하천" },
+  { id: "coast", label: "연안" },
+  { id: "aqua", label: "양식장" },
+]
+
 export function DashboardPage() {
+  const [mapDomain, setMapDomain] = useState<RiskMarker["domain"] | "all">("all")
+  const filteredMarkers = useMemo(
+    () => (mapDomain === "all" ? riskMarkers : riskMarkers.filter((m) => m.domain === mapDomain)),
+    [mapDomain],
+  )
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -62,8 +78,27 @@ export function DashboardPage() {
           title="위험 위치 및 영향 범위 — 제주 전역 GIS"
           subtitle="레이어: 강우·수위·해류 · 갱신 09:47 / 5분 주기"
           className="xl:col-span-2"
+          action={
+            <div className="flex gap-1.5">
+              {MAP_DOMAIN_FILTERS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setMapDomain(f.id)}
+                  className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
+                    mapDomain === f.id ? "bg-accent text-black" : "border border-border-subtle text-white/60 hover:bg-inset"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          }
         >
-          <JejuRiskMap markers={riskMarkers} />
+          <div className="relative">
+            <MapToolbox />
+            <JejuRiskMap markers={filteredMarkers} />
+          </div>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
             <span className="font-semibold text-white/30">범례</span>
             <RiskBadge level="danger" />
