@@ -12,7 +12,7 @@ export const lastSyncedAt = "2026-09-04 09:47"
 export const kpiCards: KpiCard[] = [
   {
     id: "river",
-    title: "하천 범람 위험",
+    title: "하천 범람 상태",
     level: "warning",
     headline: "경계 2 / 주의 1",
     detail: "감시 하천 14개소",
@@ -21,7 +21,7 @@ export const kpiCards: KpiCard[] = [
   },
   {
     id: "coast",
-    title: "연안 위험",
+    title: "연안 안전 상태",
     level: "danger",
     headline: "위험 3 / 감시 5",
     detail: "탐지 이벤트 7건",
@@ -30,7 +30,7 @@ export const kpiCards: KpiCard[] = [
   },
   {
     id: "aqua",
-    title: "양식장 해양 위험",
+    title: "염분·수온 상태",
     level: "caution",
     headline: "고수온 주의 2",
     detail: "영향 양식장 18개소",

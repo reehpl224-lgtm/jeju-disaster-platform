@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom"
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "통합 대시보드", icon: "🗺️" },
-  { to: "/aqua", label: "양식장 대응", icon: "🌡️" },
+  { to: "/aqua", label: "염분·수온 상태", icon: "🌡️" },
   { to: "/coast", label: "연안 안전", icon: "🌊" },
   { to: "/river", label: "하천 범람", icon: "🌧️" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
