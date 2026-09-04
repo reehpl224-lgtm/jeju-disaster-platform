@@ -5,7 +5,7 @@ import type { MockUser } from "../../data/mockAuth"
 
 export function AppShell({ user }: { user: MockUser }) {
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-base">
       <Sidebar />
       <div className="flex min-h-screen flex-1 flex-col">
         <TopBar user={user} />

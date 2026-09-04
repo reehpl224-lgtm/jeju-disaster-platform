@@ -20,13 +20,14 @@ export function JejuRiskMap({ markers }: { markers: RiskMarker[] }) {
         {/* 간략화된 제주도 외곽선 (실제 좌표 아님 · 데모용) */}
         <path
           d="M40 150 C 42 110, 90 78, 150 74 C 190 71, 230 78, 262 100 C 288 118, 292 145, 280 168 C 270 188, 250 195, 236 178 C 224 200, 200 224, 168 236 C 140 246, 108 244, 84 226 C 58 208, 38 188, 40 150 Z"
-          fill="var(--color-slate-100)"
-          stroke="var(--color-slate-300)"
-          strokeWidth="2"
+          fill="var(--color-inset)"
+          stroke="var(--color-accent)"
+          strokeWidth="1.5"
+          strokeOpacity="0.6"
         />
         {/* 한라산 표기 */}
-        <circle cx="164" cy="152" r="4" fill="var(--color-slate-400)" />
-        <text x="172" y="156" fontSize="9" fill="var(--color-slate-400)">
+        <circle cx="164" cy="152" r="4" fill="white" fillOpacity="0.3" />
+        <text x="172" y="156" fontSize="9" fill="white" fillOpacity="0.4">
           한라산
         </text>
 
@@ -47,7 +48,8 @@ export function JejuRiskMap({ markers }: { markers: RiskMarker[] }) {
                 y={marker.y - 12}
                 fontSize="9"
                 textAnchor="middle"
-                fill="var(--color-slate-600)"
+                fill="white"
+                fillOpacity="0.85"
                 fontWeight={600}
               >
                 {marker.name}
@@ -57,7 +59,8 @@ export function JejuRiskMap({ markers }: { markers: RiskMarker[] }) {
                 y={marker.y + 18}
                 fontSize="8"
                 textAnchor="middle"
-                fill="var(--color-slate-400)"
+                fill="white"
+                fillOpacity="0.4"
               >
                 {DOMAIN_LABEL[marker.domain]}
               </text>

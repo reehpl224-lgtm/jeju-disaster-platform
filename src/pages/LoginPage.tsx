@@ -7,6 +7,7 @@ export function LoginPage() {
   const existing = getCurrentUser()
   const [orgId, setOrgId] = useState("")
   const [password, setPassword] = useState("")
+  const [otp, setOtp] = useState("")
   const [error, setError] = useState<string | null>(null)
 
   if (existing) {
@@ -16,7 +17,7 @@ export function LoginPage() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!orgId.trim() || !password.trim()) {
-      setError("기관 ID와 비밀번호를 입력해 주세요.")
+      setError("사원번호와 비밀번호를 입력해 주세요.")
       return
     }
     const user = login(orgId.trim())
@@ -24,69 +25,84 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-      <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-6 flex items-center gap-2">
-          <span className="text-2xl">🚨</span>
-          <h1 className="text-lg font-bold text-slate-900">제주 재난 대응 플랫폼 로그인</h1>
+    <div className="flex min-h-screen items-center justify-center bg-base p-4">
+      <div className="w-full max-w-sm rounded-2xl border border-border-subtle bg-panel p-8">
+        <div className="mb-1 flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-base">🚨</span>
+          <h1 className="text-lg font-bold text-white">재난관리 플랫폼</h1>
         </div>
+        <p className="mb-6 text-sm font-medium text-white/50">로그인</p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <p className="text-xs font-semibold text-slate-400">기관 계정으로 로그인</p>
-
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium text-slate-600">기관 ID</span>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="flex items-center gap-1.5 font-medium text-white/60">🪪 사원번호</span>
             <input
               value={orgId}
               onChange={(e) => setOrgId(e.target.value)}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
-              placeholder="예: jeju-ax"
+              className="rounded-lg border border-border-subtle bg-inset px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-accent"
+              placeholder="사원번호를 입력하세요 (예: jeju-ax)"
             />
           </label>
 
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium text-slate-600">비밀번호</span>
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="flex items-center gap-1.5 font-medium text-white/60">🔑 비밀번호</span>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400"
-              placeholder="비밀번호"
+              className="rounded-lg border border-border-subtle bg-inset px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-accent"
+              placeholder="비밀번호를 입력하세요"
             />
+          </label>
+
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="flex items-center gap-1.5 font-medium text-white/60">🛡️ OTP</span>
+            <div className="flex gap-2">
+              <input
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="min-w-0 flex-1 rounded-lg border border-border-subtle bg-inset px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-accent"
+                placeholder="OTP를 입력하세요 (데모: 생략 가능)"
+              />
+              <button
+                type="button"
+                className="shrink-0 rounded-lg border border-accent px-3 text-xs font-bold text-accent transition hover:bg-accent-soft"
+              >
+                OTP 발신
+              </button>
+            </div>
           </label>
 
           {error && <p className="text-xs font-medium text-risk-danger">{error}</p>}
 
           <button
             type="submit"
-            className="rounded-lg bg-slate-900 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700"
+            className="mt-2 rounded-full bg-accent py-2.5 text-sm font-bold text-black transition hover:bg-accent-hover"
           >
             로그인
           </button>
 
-          <div className="flex items-center gap-2 text-xs text-slate-300">
-            <span className="h-px flex-1 bg-slate-200" />
-            또는
-            <span className="h-px flex-1 bg-slate-200" />
-          </div>
-
           <button
             type="button"
-            onClick={() => navigate("/dashboard")}
-            className="rounded-lg border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+            className="rounded-full border border-border-subtle py-2.5 text-sm font-semibold text-white/60 transition hover:bg-inset"
           >
-            SSO 로그인 (공동행정망)
+            비밀번호 초기화
           </button>
         </form>
 
-        <p className="mt-6 text-xs text-slate-400">
-          계정이 없으신가요? <span className="font-medium text-slate-600 underline">관리자 승인 신청</span>
-        </p>
+        <div className="mt-6 space-y-0.5 text-[11px] text-white/35">
+          <p>
+            장애시, 비상연락망: <span className="font-semibold text-white/50">000-0000-0000</span>
+          </p>
+          <p>
+            유지보수 사업자: <span className="font-semibold text-white/50">000-0000-0000</span>
+          </p>
+        </div>
 
-        <div className="mt-4 rounded-lg bg-slate-50 p-3 text-[11px] leading-relaxed text-slate-400">
-          데모 계정 — 기관 ID <code className="rounded bg-white px-1 py-0.5">jeju-ax</code>: 담당자 로그인 · 기관 ID{" "}
-          <code className="rounded bg-white px-1 py-0.5">guest</code>: 권한 없는 계정 체험. 비밀번호는 아무 값이나
-          입력하세요.
+        <div className="mt-4 rounded-lg bg-inset p-3 text-[11px] leading-relaxed text-white/40">
+          데모 계정 — 사원번호 <code className="rounded bg-black/30 px-1 py-0.5 text-accent">jeju-ax</code>: 담당자
+          로그인 · 사원번호 <code className="rounded bg-black/30 px-1 py-0.5 text-accent">guest</code>: 권한 없는
+          계정 체험. 비밀번호·OTP는 임의 값 또는 공란으로 진행하세요.
         </div>
       </div>
     </div>
