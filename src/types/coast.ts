@@ -10,6 +10,13 @@ export interface CoastEvent {
   status: string
 }
 
+export const COAST_TYPE_LABEL: Record<string, string> = {
+  "익수 의심": "Person_In_Water",
+  "위험구역 진입": "Danger_Zone_Person",
+  "이안류 감지": "Rip_Current",
+  "월파 경보": "Overtopping",
+}
+
 export interface CoastFieldAlert {
   id: string
   location: string

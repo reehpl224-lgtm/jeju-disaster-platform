@@ -13,6 +13,10 @@ import type {
 
 export const aquaSummary = {
   lastUpdated: "14:32",
+  targetArea: "제주 서남부 한경·대정 육상양식장",
+  spatialResolution: "1km 이하",
+  aiLabels: ["Low_Salinity_Plume", "High_Temp_Water"],
+  salinityThreshold: "25.0 psu 이하",
   activeRisk: { count: 3, detail: "저염분수 1 · 고수온 1 · 복합 1" },
   pendingApproval: { count: 2, detail: "주의 승인 1 · 경보 승인 1" },
   affectedFarms: { count: 17, detail: "고위험 5 · 주의 8 · 관심 4" },
@@ -25,14 +29,14 @@ export const aquaJourneys = [
   { id: "farms", label: "영향 양식장", desc: "17개소 위험권 · 전일 대비 +3개소", href: "/aqua/farms" },
   { id: "alerts", label: "경보 승인", desc: "경계 3단계 · 승인 요청 대기 중", href: "/aqua/alerts" },
   { id: "response", label: "e-SOP 대응", desc: "2단계 주의 · 조치 2건 진행 중", href: "/aqua/response" },
-  { id: "monitoring", label: "실시간 모니터링", desc: "표층 수온 29.2℃ · 염분 28.4psu", href: "/aqua/monitoring" },
+  { id: "monitoring", label: "실시간 모니터링", desc: "표층 수온 28.6℃ · 염분 24.8psu", href: "/aqua/monitoring" },
 ]
 
 export const aquaDataSources: AquaDataSource[] = [
   { id: "s1", name: "해수온 부이 — 제주 북부·남부", detail: "표층 수온·염분 관측", updatedAt: "14:30", cycle: "10분", status: "error", qualityScore: 41, note: "이상값 다수 포함" },
   { id: "s2", name: "위성 영상 (Sentinel-2 — 저염분 추적)", detail: "해색·염분 추정", updatedAt: "06:20", cycle: "6시간", status: "normal", qualityScore: 93, note: "구름량 12%" },
   { id: "s3", name: "AI CCTV 탐지 메타데이터 — 연안 6개소", detail: "위험행동 탐지", updatedAt: "14:49", cycle: "실시간", status: "delayed", qualityScore: 82, note: "마지막 수신 14분 경과" },
-  { id: "s4", name: "수위 센서 — 한천·산지천·병문천", detail: "하천 수위", updatedAt: "14:50", cycle: "1분", status: "normal", qualityScore: 95, note: "누락 0건" },
+  { id: "s4", name: "수위 센서 — 효돈천(돈내코·쇠소깍)", detail: "하천 수위", updatedAt: "14:50", cycle: "1분", status: "normal", qualityScore: 95, note: "누락 0건" },
   { id: "s5", name: "강우 레이더 (기상청 API)", detail: "강수량", updatedAt: "14:52", cycle: "5분", status: "normal", qualityScore: 98, note: "누락 0건" },
   { id: "s6", name: "GIS 레이어 — 침수 예측 격자", detail: "침수 예측", updatedAt: "14:45", cycle: "10분", status: "normal", qualityScore: 97, note: "누락 0건" },
   { id: "s7", name: "현장 수동 관측 — 도청·서귀포시", detail: "강우·수위 교차검증", updatedAt: "13:00", cycle: "1시간", status: "missing", qualityScore: null, note: "금일 2회차 미수신" },
@@ -56,8 +60,8 @@ export const aquaRiskState = {
   headline: "저염분수 제주 서부 해역 접근 확인",
   confidence: 87,
   updatedAt: "14:32",
-  lowSalinity: { eta: "D-2 / 16시간 후", time: "2025-07-14 06:00", location: "한경면 해역 1.2km 전방" },
-  highTemp: { eta: "D-4 / 38시간 후", time: "2025-07-16 04:00", location: "성산·표선 해역 북동 방향 진행" },
+  lowSalinity: { eta: "D-2 / 16시간 후", time: "2026-09-06 06:00", location: "한경면 해역 1.2km 전방" },
+  highTemp: { eta: "D-4 / 38시간 후", time: "2026-09-08 04:00", location: "대정읍 해역 남서 방향 진행" },
   affectedFarmCount: 17,
   affectedFarmDelta: "전일 대비 +3개소 추가",
 }
@@ -77,21 +81,21 @@ export const aquaQualityMetrics: AquaQualityMetric[] = [
 ]
 
 export const aquaFarms: AquaFarm[] = [
-  { id: "f1", name: "성산 전복 양식장 A", region: "성산읍", species: "전복·소라", level: "danger", riskType: "저염분수+고수온", etaHours: 18, salinity: 28.1, temperature: 30.2 },
-  { id: "f2", name: "표선 넙치 양식장 B", region: "표선면", species: "넙치", level: "danger", riskType: "고수온", etaHours: 20, temperature: 30.5 },
-  { id: "f3", name: "구좌 미역 양식장 C", region: "구좌읍", species: "미역·톳", level: "warning", riskType: "저염분수", etaHours: 28, salinity: 28.9 },
-  { id: "f4", name: "한림 광어 양식장 D", region: "한림읍", species: "광어", level: "warning", riskType: "고수온", etaHours: 32, temperature: 29.6 },
-  { id: "f5", name: "대정 해삼 양식장 E", region: "대정읍", species: "해삼·전복", level: "caution", riskType: "저염분수", etaHours: 48, salinity: 29.5 },
-  { id: "f6", name: "남원 돌돔 양식장 F", region: "남원읍", species: "돌돔", level: "caution", riskType: "복합", etaHours: 52, salinity: 29.8, temperature: 29.1 },
+  { id: "f1", name: "한경 금등 전복 양식장", region: "한경면 금등리", species: "전복·소라", level: "danger", riskType: "저염분수+고수온", etaHours: 18, salinity: 24.1, temperature: 30.2 },
+  { id: "f2", name: "대정 일과 넙치 양식장", region: "대정읍 일과리", species: "넙치", level: "danger", riskType: "고수온", etaHours: 20, temperature: 30.5 },
+  { id: "f3", name: "한경 용수 미역 양식장", region: "한경면 용수리", species: "미역·톳", level: "warning", riskType: "저염분수", etaHours: 28, salinity: 24.9 },
+  { id: "f4", name: "한경 신창 광어 양식장", region: "한경면 신창리", species: "광어", level: "warning", riskType: "고수온", etaHours: 32, temperature: 29.6 },
+  { id: "f5", name: "대정 무릉 해삼 양식장", region: "대정읍 무릉리", species: "해삼·전복", level: "caution", riskType: "저염분수", etaHours: 48, salinity: 25.4 },
+  { id: "f6", name: "대정 영락 돌돔 양식장", region: "대정읍 영락리", species: "돌돔", level: "caution", riskType: "복합", etaHours: 52, salinity: 25.6, temperature: 29.1 },
   {
     id: "f7",
-    name: "한림 1호 양식장",
-    region: "제주시 한림읍 귀덕리",
+    name: "한경 조수 1호 양식장",
+    region: "제주시 한경면 조수리",
     species: "전복 / 넙치",
     level: "caution",
     riskType: "저염분수 유입 예측",
     etaHours: 12,
-    salinity: 27.3,
+    salinity: 24.5,
     temperature: 24.2,
     manager: "김○○ (010-****-1234)",
     phone: "010-****-1234",
@@ -113,7 +117,7 @@ export const aquaAlertDraft = {
   affectedFarms: 14,
   affectedPopulation: "약 2,300명",
   eta: "15:50 (약 88분 후)",
-  affectedArea: "한림 ~ 애월 연안",
+  affectedArea: "한경 ~ 대정 연안",
   channels: ["문자(CBS·SMS)", "재난안전앱", "현장 단말", "상황판"],
   smsTarget: 1842,
   appTarget: 976,
@@ -137,13 +141,13 @@ export const aquaAlertDraft = {
 }
 
 export const aquaResponseState = {
-  title: "저염분수·고수온 위험 — 서귀포 해역",
+  title: "저염분수·고수온 위험 — 한경·대정 해역",
   level: "주의",
   grade: "2단계 / 주의",
-  location: "서귀포 해역 · 영향 양식장 3개소",
+  location: "한경·대정 해역 · 영향 양식장 3개소",
   detectedAt: "2026-09-04 09:22",
   eta: "D-2 / 16시간 후",
-  salinity: "28.4 psu / 기준 30.0 psu",
+  salinity: "24.6 psu / 기준 25.0 psu",
   temperature: "29.8 °C / 기준 28.0 °C",
   radius: "약 1.2 km",
 }
@@ -166,28 +170,29 @@ export const aquaChecklist: AquaChecklistItem[] = [
 
 export const aquaAgencyRows: AquaAgencyRow[] = [
   { id: "ag1", agency: "제주특별자치도 재난안전과", role: "총괄 승인", approve: "완료", execute: "완료", receive: "완료" },
-  { id: "ag2", agency: "서귀포시 수산정책과", role: "현장 안내", execute: "진행 중", approve: "완료", receive: "완료" },
-  { id: "ag3", agency: "제주해양수산연구원", role: "예측 검증", approve: "완료", execute: "완료", receive: "대기" },
+  { id: "ag2", agency: "제주시 한경면사무소", role: "한경 현장 안내", execute: "진행 중", approve: "완료", receive: "완료" },
+  { id: "ag3", agency: "서귀포시 대정읍사무소", role: "대정 현장 안내", execute: "진행 중", approve: "완료", receive: "완료" },
+  { id: "ag4", agency: "제주특별자치도 해양수산연구원", role: "예측 검증", approve: "완료", execute: "완료", receive: "대기" },
 ]
 
 export const aquaMonitoringState = {
-  waterLevel: { label: "하천 수위", value: "한천 +2.4m / 경계 2.0m", level: "danger" as const, tag: "초과" },
+  waterLevel: { label: "하천 수위", value: "효돈천(쇠소깍) +2.4m / 경계 2.0m", level: "danger" as const, tag: "초과" },
   rainfall: { label: "강우량", value: "현재 38mm/h · 1시간 누적 72mm", level: "caution" as const, tag: "기준 초과" },
-  coast: { label: "연안 위험", value: "이호 방파제 파고 3.1m", level: "warning" as const, tag: "월파 위험" },
-  ocean: { label: "양식장 해양환경", value: "표층 수온 29.2°C · 염분 28.4psu", level: "caution" as const, tag: "고수온 진입" },
+  coast: { label: "연안 위험", value: "협재 방파제 파고 3.1m", level: "warning" as const, tag: "월파 위험" },
+  ocean: { label: "양식장 해양환경", value: "표층 수온 28.6°C · 염분 24.8psu", level: "caution" as const, tag: "저염분수 진입" },
 }
 
 export const aquaMonitoringEvents: AquaTimelineEntry[] = [
-  { id: "e1", time: "14:28", title: "한천 수위 경계 초과 감지 — 자동 e-SOP 경계 2단계 진입 · 담당자 확인 대기" },
-  { id: "e2", time: "14:20", title: "이호 CCTV — 방파제 진입 2명 탐지 — 현장 경보 실행 · 담당자: 박관제" },
-  { id: "e3", time: "14:15", title: "서귀포 표층 수온 임계값 초과 — e-SOP 주의 1단계 승인 · 담당자: 이해양" },
+  { id: "e1", time: "14:28", title: "효돈천(쇠소깍) 수위 경계 초과 감지 — 자동 e-SOP 경계 2단계 진입 · 담당자 확인 대기" },
+  { id: "e2", time: "14:20", title: "협재 CCTV — 방파제 진입 2명 탐지 — 현장 경보 실행 · 담당자: 박관제" },
+  { id: "e3", time: "14:15", title: "대정 표층 수온 임계값 초과 — e-SOP 주의 1단계 승인 · 담당자: 이해양" },
   { id: "e4", time: "14:08", title: "수위 센서 #7 데이터 품질 저하 — 이중화 센서 전환 완료 · 담당자: 최장비" },
   { id: "e5", time: "13:55", title: "양식장 어가 맞춤 안내 발송 — 수신 확인 34 / 미확인 6 · 재발송 예정" },
 ]
 
 export const aquaClosureSummary = {
   type: "저염분수·고수온 위험",
-  location: "서귀포 해역 · 영향 양식장 3개소",
+  location: "한경·대정 해역 · 영향 양식장 3개소",
   startedAt: "2026-09-04 09:22",
   endedAt: "2026-09-04 14:47",
   finalGrade: "[주의 2등급] 관심 해제",
@@ -195,7 +200,7 @@ export const aquaClosureSummary = {
 }
 
 export const aquaClosureTimeline: AquaTimelineEntry[] = [
-  { id: "ct1", time: "09:22", title: "[탐지] 해양 부이 염분 임계값 초과 — 서귀포 남부" },
+  { id: "ct1", time: "09:22", title: "[탐지] 해양 부이 염분 임계값 초과 — 한경면 해역" },
   { id: "ct2", time: "09:35", title: "[경보] e-SOP 주의 단계 승인 — 담당자 이해양" },
   { id: "ct3", time: "10:11", title: "[안내] 어가 맞춤 SOP 안내 발송 완료 (34개소)" },
   { id: "ct4", time: "11:30", title: "[검증] 위성 관측 보정 데이터 반영 · 신뢰도 87%" },
@@ -204,12 +209,12 @@ export const aquaClosureTimeline: AquaTimelineEntry[] = [
 ]
 
 export const aquaClosurePrediction = {
-  predictedSalinity: "28.1 psu",
-  actualSalinity: "28.6 psu",
-  error: "+0.5 psu (과소 예측)",
+  predictedSalinity: "24.3 psu",
+  actualSalinity: "24.9 psu",
+  error: "+0.6 psu (과소 예측)",
   reasoning: [
     "[위성] GOCI-II 해색 산출물 — 저염분수 확산 범위 확인",
-    "[부이] 서귀포 남부 해양관측부이 실측값 정상 수신·교차검증 완료",
+    "[부이] 한경면 해양관측부이 실측값 정상 수신·교차검증 완료",
     "[모델] HYCOM·ROMS 앙상블 신뢰도 87% — 위성 관측과 일치",
     "[GIS] 영향 반경 약 1.2km — 양식장 3개소 포함",
   ],

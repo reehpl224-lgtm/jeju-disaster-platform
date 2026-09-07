@@ -153,7 +153,8 @@ export function DashboardPage() {
       <Card title="센서 시계열 검증 — 강우·수위·해양" subtitle="최근 6시간">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {timeSeries.map((reading) => {
-            const over = reading.value >= reading.threshold
+            const over =
+              reading.worseWhen === "below" ? reading.value <= reading.threshold : reading.value >= reading.threshold
             return (
               <div key={reading.label} className="rounded-lg border border-border-subtle bg-inset p-3">
                 <p className="text-xs font-medium text-white/40">{reading.label}</p>
@@ -177,9 +178,9 @@ export function DashboardPage() {
               <YAxis tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
               <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 11, color: "#ffffffaa" }} />
-              <Line type="monotone" dataKey="한천수위" stroke="#0054a3" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="산지천수위" stroke="#8ec21f" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="이호수온" stroke="#f2731a" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="돈내코수위" stroke="#0054a3" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="쇠소깍수위" stroke="#8ec21f" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="함덕수온" stroke="#f2731a" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

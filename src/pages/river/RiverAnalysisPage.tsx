@@ -6,6 +6,7 @@ import {
   riverCctv,
   riverDataConfidence,
   riverImpact,
+  riverInfra,
   riverRiskBasis,
   riverSensorCheck,
 } from "../../data/mockRiver"
@@ -14,7 +15,7 @@ export function RiverAnalysisPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-bold text-white">상황 분석 — 산지천</h1>
+        <h1 className="text-xl font-bold text-white">상황 분석 — 효돈천(쇠소깍)</h1>
         <p className="mt-1 text-sm text-white/50">위험 근거 데이터 및 센서 교차 검증</p>
       </div>
 
@@ -29,7 +30,7 @@ export function RiverAnalysisPage() {
         </div>
       </Card>
 
-      <Card title="수위 시계열 예측 (산지천 · 향후 3시간)">
+      <Card title="수위 시계열 예측 (효돈천 쇠소깍 · 향후 3시간)">
         <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
           수위 시계열 차트 — 관측값·예측값·경계선 표시
         </div>
@@ -82,6 +83,14 @@ export function RiverAnalysisPage() {
           <MiniStat label="강우레이더" value={riverDataConfidence.radar} />
           <MiniStat label="현장 영상" value={riverDataConfidence.video} />
           <MiniStat label="종합 신뢰도" value={riverDataConfidence.overall} highlight />
+        </div>
+      </Card>
+
+      <Card title="레거시 연계 데이터" subtitle={riverInfra.legacy.note}>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <MiniStat label="제주시 침수정보센서" value={`${riverInfra.legacy.jeju}개소`} />
+          <MiniStat label="서귀포시 침수정보센서" value={`${riverInfra.legacy.seogwipo}개소`} />
+          <MiniStat label="총 연계 규모" value={`${riverInfra.legacy.total}개소`} highlight />
         </div>
       </Card>
     </div>

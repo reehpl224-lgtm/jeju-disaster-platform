@@ -31,6 +31,8 @@ export interface TimeSeriesReading {
   value: number
   threshold: number
   unit: string
+  /** 위험 방향 — "above": 임계값 이상이면 위험(기본값), "below": 임계값 이하이면 위험(예: 염분) */
+  worseWhen?: "above" | "below"
 }
 
 export interface AiInsight {

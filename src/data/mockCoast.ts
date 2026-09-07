@@ -2,6 +2,10 @@ import type { CoastAgencyStatus, CoastEvent, CoastFieldAlert, TimelineEntry } fr
 
 export const coastSummary = {
   lastUpdated: "14:32:07",
+  targetArea: "함덕·삼양·협재 해수욕장",
+  infra: "AIoT 스마트폴 신설 (지능형 CCTV + 기상센서 + 경보스피커)",
+  permitNote: "공유수면 점용허가 등 인허가 절차 필요 (스마트폴 신설 구간)",
+  aiLabels: ["Person_In_Water", "Danger_Zone_Person", "Rip_Current", "Overtopping"],
   activeEvents: { count: 7, detail: "🔴 고위험 3건 포함" },
   unconfirmedEvents: { count: 4, detail: "⚠ 즉시 검토 필요" },
   coordination: { count: 2, detail: "🔵 해경 출동 1건" },
@@ -12,37 +16,37 @@ export const coastAiInsights = [
   {
     id: "ai1",
     level: "danger" as const,
-    title: "익수 의심 — 중문해수욕장 북서 30m",
-    basis: "영상 탐지 · AIoT 스마트폴 수온·파고 이상",
+    title: "익수 의심 — 함덕해수욕장 북서 30m",
+    basis: "영상 탐지(Person_In_Water) · AIoT 스마트폴 수온·파고 이상",
     match: "사고 이력 유사도 92%",
   },
   {
     id: "ai2",
     level: "warning" as const,
-    title: "이안류 감지 — 함덕해수욕장",
-    basis: "해상 센서 유속 급변",
+    title: "이안류 감지 — 삼양해수욕장",
+    basis: "해상 센서 유속 급변(Rip_Current)",
     match: "GIS 이안류 위험구역 내 위치",
   },
 ]
 
 export const coastEvents: CoastEvent[] = [
-  { id: "e1", level: "danger", type: "익수 의심", source: "AI CCTV · 스마트폴", location: "중문해수욕장", time: "14:28", status: "미확인" },
-  { id: "e2", level: "danger", type: "무단 방파제 진입", source: "AI CCTV", location: "성산일출봉 방파제", time: "14:15", status: "경보 실행 중" },
-  { id: "e3", level: "danger", type: "표류 의심", source: "해상 센서 · GIS", location: "협재해수욕장 외해", time: "14:09", status: "해경 공조 진행" },
-  { id: "e4", level: "warning", type: "이안류 감지", source: "해상 센서", location: "함덕해수욕장", time: "13:55", status: "미확인" },
-  { id: "e5", level: "warning", type: "고파랑 경보", source: "기상 센서 · GIS", location: "제주 서부 연안", time: "13:40", status: "현장 경보 완료" },
+  { id: "e1", level: "danger", type: "익수 의심", source: "AI CCTV · 스마트폴", location: "함덕해수욕장", time: "14:28", status: "미확인" },
+  { id: "e2", level: "danger", type: "위험구역 진입", source: "AI CCTV", location: "삼양해수욕장 방파제", time: "14:15", status: "경보 실행 중" },
+  { id: "e3", level: "danger", type: "이안류 감지", source: "해상 센서 · GIS", location: "협재해수욕장 외해", time: "14:09", status: "해경 공조 진행" },
+  { id: "e4", level: "warning", type: "이안류 감지", source: "해상 센서", location: "삼양해수욕장", time: "13:55", status: "미확인" },
+  { id: "e5", level: "warning", type: "월파 경보", source: "기상 센서 · GIS", location: "협재해수욕장", time: "13:40", status: "현장 경보 완료" },
 ]
 
 export const coastFieldAlerts: CoastFieldAlert[] = [
-  { id: "f1", location: "중문해수욕장", level: "danger", time: "14:28 발령", detail: "스피커·경광등 작동 중" },
-  { id: "f2", location: "성산 방파제", level: "danger", time: "14:15 발령", detail: "현장 단말 수신 확인" },
-  { id: "f3", location: "함덕해수욕장", level: "warning", time: "13:55 발령", detail: "문자·앱 전파 완료" },
+  { id: "f1", location: "함덕해수욕장", level: "danger", time: "14:28 발령", detail: "스피커·경광등 작동 중" },
+  { id: "f2", location: "삼양해수욕장 방파제", level: "danger", time: "14:15 발령", detail: "현장 단말 수신 확인" },
+  { id: "f3", location: "협재해수욕장", level: "warning", time: "13:55 발령", detail: "문자·앱 전파 완료" },
 ]
 
 export const coastAgencyStatuses: CoastAgencyStatus[] = [
-  { id: "a1", agency: "해경 출동", status: "출동 중", detail: "협재 표류 — 출동 중 (14:12 요청)", level: "info" },
-  { id: "a2", agency: "해경 대기", status: "승인 대기", detail: "중문 익수 — 출동 대기 승인 대기", level: "caution" },
-  { id: "a3", agency: "소방 대기", status: "현장 접수", detail: "성산 방파제 — 현장 접수 완료", level: "offline" },
+  { id: "a1", agency: "해경 출동", status: "출동 중", detail: "협재 이안류 — 출동 중 (14:12 요청)", level: "info" },
+  { id: "a2", agency: "해경 대기", status: "승인 대기", detail: "함덕 익수 — 출동 대기 승인 대기", level: "caution" },
+  { id: "a3", agency: "소방 대기", status: "현장 접수", detail: "삼양 방파제 — 현장 접수 완료", level: "offline" },
 ]
 
 export const coastEventDetail = {
@@ -53,20 +57,20 @@ export const coastEventDetail = {
   detectedAt: "2026-09-04 14:32:07",
   grade: "▲ 3등급 / 고위험",
   source: "AI CCTV #EC-07 · AIoT 스마트폴 SP-03",
-  zone: "제주시 이호해수욕장 북측 방파제",
+  zone: "제주시 삼양해수욕장 북측 방파제",
   reviewer: "김민준 (연안관제팀)",
   reviewStatus: "검토 대기",
-  location: "북위 33.5021° 동경 126.4639°",
+  location: "북위 33.5183° 동경 126.5721°",
   radius: "약 250 m",
-  nearbyCoast: "이호테우해변 · 도두항 방파제",
+  nearbyCoast: "삼양포구 · 원당봉 인근 방파제",
   ripCurrentZone: "구간 C-2 (고위험)",
-  relatedRiver: "한천 하구 (범람 경계)",
-  nearbyFarms: "이호 해상가두리 3개소",
+  relatedRiver: "화북천 하구 (관심 단계)",
+  nearbyFarms: "인근 해상 양식시설 없음",
   waveZone: "방파제 북단 40 m",
   rainSummary: { value: "10분 누적 강우 42 mm", detail: "수위 편차 +1.8 m (경보 기준 초과)", updatedAt: "14:30" },
   waveSummary: { value: "유의 파고 3.2 m", detail: "조위 +0.47 m (고조 진행 중)", updatedAt: "14:28" },
   ripCurrentRisk: { value: "AI 모델 위험 지수 0.87 / 1.0", detail: "과거 유사 패턴 3건 매칭", confidence: "신뢰도 92%" },
-  detection: { class: "탐지 클래스: 방파제 진입 인원 2명", confidence: "탐지 신뢰도 88% · 원본 마스킹 처리" },
+  detection: { class: "탐지 클래스: Danger_Zone_Person (방파제 진입 인원 2명)", confidence: "탐지 신뢰도 88% · 원본 마스킹 처리" },
   sensorCrossCheck: [
     { id: "sc1", name: "조류 센서 CS-04", status: "정상" },
     { id: "sc2", name: "수온 부이 BU-11", status: "데이터 지연 12분" },
@@ -123,8 +127,8 @@ export const coastClosure = {
   title: "연안 위험 탐지 및 현장 경보",
   status: "종료 완료",
   confirmedBy: "관제 담당자 김제주 · 2026-09-04 17:42",
-  type: "익수 위험 · 방파제 무단 진입",
-  location: "제주시 이호해수욕장 북단 방파제",
+  type: "익수 위험 · 위험구역 진입",
+  location: "제주시 함덕해수욕장 북단 방파제",
   duration: "1시간 23분",
   durationDetail: "최초 감지 16:19 → 종료 승인 17:42",
   agencies: "해경 출동 완료 · 소방 지원 완료",

@@ -6,6 +6,7 @@ import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { COAST_NAV } from "./coastNav"
 import { coastAgencyStatuses, coastAiInsights, coastEvents, coastFieldAlerts, coastSummary } from "../../data/mockCoast"
 import { riskMarkers } from "../../data/mockDashboard"
+import { COAST_TYPE_LABEL } from "../../types/coast"
 
 export function CoastHomePage() {
   const coastMarkers = riskMarkers.filter((m) => m.domain === "coast")
@@ -18,6 +19,32 @@ export function CoastHomePage() {
       </div>
 
       <DomainSubNav items={COAST_NAV} />
+
+      <Card>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div>
+            <p className="text-xs text-white/35">실증 대상지</p>
+            <p className="mt-0.5 font-medium text-white/80">{coastSummary.targetArea}</p>
+          </div>
+          <div className="sm:col-span-2">
+            <p className="text-xs text-white/35">신설 인프라</p>
+            <p className="mt-0.5 font-medium text-white/80">{coastSummary.infra}</p>
+          </div>
+          <div>
+            <p className="text-xs text-white/35">AI 탐지 라벨</p>
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {coastSummary.aiLabels.map((label) => (
+                <code key={label} className="rounded bg-inset px-1.5 py-0.5 text-[11px] text-accent">
+                  {label}
+                </code>
+              ))}
+            </div>
+          </div>
+        </div>
+        <p className="mt-3 rounded-lg border border-risk-caution/30 bg-risk-caution-bg px-3 py-2 text-xs text-risk-caution">
+          ⚠ {coastSummary.permitNote}
+        </p>
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
@@ -80,7 +107,12 @@ export function CoastHomePage() {
               <div className="flex items-center gap-2">
                 <RiskBadge level={event.level} solid />
                 <div>
-                  <p className="font-medium text-white/85">{event.type}</p>
+                  <p className="font-medium text-white/85">
+                    {event.type}{" "}
+                    <code className="ml-1 rounded bg-inset px-1 py-0.5 text-[10px] text-accent">
+                      {COAST_TYPE_LABEL[event.type] ?? "-"}
+                    </code>
+                  </p>
                   <p className="text-xs text-white/35">
                     {event.source} · {event.location}
                   </p>

@@ -13,6 +13,33 @@ export function AquaHomePage() {
 
       <AquaSubNav />
 
+      <Card>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div>
+            <p className="text-xs text-white/35">실증 대상지</p>
+            <p className="mt-0.5 font-medium text-white/80">{aquaSummary.targetArea}</p>
+          </div>
+          <div>
+            <p className="text-xs text-white/35">공간 해상도 목표</p>
+            <p className="mt-0.5 font-medium text-white/80">{aquaSummary.spatialResolution}</p>
+          </div>
+          <div>
+            <p className="text-xs text-white/35">저염분수 경보 임계값</p>
+            <p className="mt-0.5 font-medium text-white/80">{aquaSummary.salinityThreshold}</p>
+          </div>
+          <div>
+            <p className="text-xs text-white/35">AI 탐지 라벨</p>
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {aquaSummary.aiLabels.map((label) => (
+                <code key={label} className="rounded bg-inset px-1.5 py-0.5 text-[11px] text-accent">
+                  {label}
+                </code>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
           <p className="text-xs font-medium text-white/40">활성 위험</p>

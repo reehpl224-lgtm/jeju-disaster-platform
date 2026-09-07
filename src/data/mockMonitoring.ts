@@ -38,7 +38,7 @@ export const incidentLog: IncidentLogEntry[] = [
     level: "warning",
     title: "연안 AIoT 스마트폴 SP-022 오프라인",
     detail: "마지막 수신: 08:55 · 오프라인 47분",
-    impact: "영향: 이호해수욕장 감지 영역 공백",
+    impact: "영향: 삼양해수욕장 감지 영역 공백",
     time: "08:55",
   },
   {

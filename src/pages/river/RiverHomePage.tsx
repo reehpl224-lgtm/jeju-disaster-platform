@@ -3,7 +3,7 @@ import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { RIVER_NAV } from "./riverNav"
-import { riverApprovalHistory, riverSopStage, riverStatuses } from "../../data/mockRiver"
+import { riverApprovalHistory, riverInfra, riverSopStage, riverStatuses, riverTarget } from "../../data/mockRiver"
 
 export function RiverHomePage() {
   return (
@@ -15,8 +15,36 @@ export function RiverHomePage() {
 
       <DomainSubNav items={RIVER_NAV} />
 
+      <Card>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div>
+            <p className="text-xs text-white/35">실증 대상지</p>
+            <p className="mt-0.5 font-medium text-white/80">{riverTarget.area}</p>
+          </div>
+          <div>
+            <p className="text-xs text-white/35">목표</p>
+            <p className="mt-0.5 font-medium text-white/80">{riverTarget.accuracyGoal}</p>
+            <p className="text-white/60">{riverTarget.leadTimeGoal}</p>
+          </div>
+          <div>
+            <p className="text-xs text-white/35">신설 인프라</p>
+            <p className="mt-0.5 font-medium text-white/80">{riverInfra.newBuild.join(" · ")}</p>
+          </div>
+          <div>
+            <p className="text-xs text-white/35">AI 탐지 라벨</p>
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {riverTarget.aiLabels.map((label) => (
+                <code key={label} className="rounded bg-inset px-1.5 py-0.5 text-[11px] text-accent">
+                  {label}
+                </code>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
+
       <Card title="하천 위험 요약">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {riverStatuses.map((river) => (
             <div key={river.id} className="rounded-lg border border-border-subtle p-4">
               <div className="flex items-center justify-between">

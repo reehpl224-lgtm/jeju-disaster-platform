@@ -15,8 +15,8 @@ export function RiverControlPage() {
 
       <DomainSubNav items={RIVER_NAV} />
 
-      <Card title="하천별 통제 현황">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <Card title="효돈천 구간별 통제 현황">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {riverControlRows.map((row) => (
             <div key={row.id} className="rounded-lg border border-border-subtle p-3">
               <p className="text-sm font-bold text-white/85">{row.river}</p>
