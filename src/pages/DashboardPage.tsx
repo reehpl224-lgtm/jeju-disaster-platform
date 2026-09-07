@@ -23,6 +23,17 @@ import {
   weatherTimeline,
   weatherTimelineNow,
 } from "../data/mockDashboard"
+import {
+  currentWeather,
+  disasterAlerts,
+  disasterIncidents,
+  disasterResponseTeams,
+  shelters,
+} from "../data/mockIncidents"
+
+function formatHM(iso: string) {
+  return iso.slice(11, 16)
+}
 
 const AGENCY_STATUS_LABEL: Record<(typeof agencyStatuses)[number]["status"], string> = {
   connected: "● 연결",
@@ -186,6 +197,87 @@ export function DashboardPage() {
           </ResponsiveContainer>
         </div>
       </Card>
+
+      <Card
+        title="제주 전역 재난 현황"
+        subtitle={`기온 ${currentWeather.temperatureC}℃ · 강수 ${currentWeather.rainfallMm}mm · 풍속 ${currentWeather.windSpeedMs}m/s · 습도 ${currentWeather.humidityPercent}% (관측 ${formatHM(currentWeather.observedAt)})`}
+        action={
+          <span className="rounded-full border border-border-subtle px-2 py-0.5 text-[10px] font-semibold text-white/40">
+            시뮬레이션 데이터
+          </span>
+        }
+      >
+        <p className="text-xs text-white/35">3대 실증서비스(양식장·연안·하천)와 별개로 도 전역 호우·강풍·산불 등 일반 재난 신고 현황을 종합합니다.</p>
+        <ul className="mt-3 flex flex-col divide-y divide-border-subtle">
+          {disasterIncidents.map((incident) => (
+            <li key={incident.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
+              <div className="flex items-center gap-2">
+                <RiskBadge level={incident.severity} solid />
+                <div>
+                  <p className="font-medium text-white/85">
+                    [{incident.type}] {incident.title}
+                  </p>
+                  <p className="text-xs text-white/35">
+                    {incident.region} · {incident.location} · 담당 {incident.assignedTeam}
+                    {incident.affectedPeople > 0 ? ` · 영향 인원 ${incident.affectedPeople}명` : ""}
+                  </p>
+                  <p className="text-xs text-white/35">{incident.action}</p>
+                </div>
+              </div>
+              <div className="text-right text-xs text-white/40">
+                <p className="font-semibold text-white/60">{incident.status}</p>
+                <p>{formatHM(incident.reportedAt)} 접수</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <Card title="종합 경보 발령">
+          <ul className="flex flex-col gap-2.5">
+            {disasterAlerts.map((alert) => (
+              <li key={alert.id} className="rounded-lg border border-border-subtle p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <RiskBadge level={alert.level} label={alert.title} />
+                  <span className="text-[11px] text-white/35">{formatHM(alert.issuedAt)}~{formatHM(alert.expiresAt)}</span>
+                </div>
+                <p className="mt-1.5 text-xs text-white/50">{alert.target} · {alert.message}</p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card title="대피소 현황">
+          <ul className="flex flex-col gap-2.5">
+            {shelters.map((shelter) => (
+              <li key={shelter.id} className="rounded-lg border border-border-subtle p-3 text-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-medium text-white/80">{shelter.name}</p>
+                  <RiskBadge level="safe" label={shelter.status} />
+                </div>
+                <p className="mt-1 text-xs text-white/35">{shelter.address}</p>
+                <p className="mt-1 text-xs text-white/50">수용 {shelter.currentOccupancy} / {shelter.capacity}명</p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card title="현장 대응팀 현황">
+          <ul className="flex flex-col gap-2.5">
+            {disasterResponseTeams.map((team) => (
+              <li key={team.id} className="rounded-lg border border-border-subtle p-3 text-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-medium text-white/80">{team.name}</p>
+                  <RiskBadge level={team.status === "출동중" ? "info" : "offline"} label={team.status} />
+                </div>
+                <p className="mt-1 text-xs text-white/35">{team.agency} · {team.members}명</p>
+                <p className="mt-1 text-[11px] text-white/35">최종 교신 {formatHM(team.lastContactAt)}</p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="기관별 대응 상태">
