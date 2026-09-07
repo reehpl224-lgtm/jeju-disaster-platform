@@ -2,44 +2,25 @@ import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../components/ui/Card"
-import { KpiCard } from "../components/ui/KpiCard"
 import { JejuRiskMap } from "../components/ui/JejuRiskMap"
 import { MapToolbox } from "../components/ui/MapToolbox"
 import { RiskBadge } from "../components/ui/RiskBadge"
-import { WeatherTimeline } from "../components/ui/WeatherTimeline"
+import { ServiceStatusCard } from "../components/ui/ServiceStatusCard"
+import { GisIconRail, type GisRailKey } from "../components/ui/GisIconRail"
+import { GisSidePanel } from "../components/ui/GisSidePanel"
+import { GisTimelinePanel } from "../components/ui/GisTimelinePanel"
 import type { RiskMarker } from "../types/domain"
 import {
-  agencyStatuses,
   aiInsights,
-  dashboardSensors,
-  kpiCards,
   lastSyncedAt,
   predictionConfidence,
-  recentActions,
   riskMarkers,
   sensorCrossCheck,
+  serviceStatusCards,
   sixHourSeries,
   timeSeries,
-  weatherTimeline,
-  weatherTimelineNow,
 } from "../data/mockDashboard"
-import {
-  currentWeather,
-  disasterAlerts,
-  disasterIncidents,
-  disasterResponseTeams,
-  shelters,
-} from "../data/mockIncidents"
-
-function formatHM(iso: string) {
-  return iso.slice(11, 16)
-}
-
-const AGENCY_STATUS_LABEL: Record<(typeof agencyStatuses)[number]["status"], string> = {
-  connected: "● 연결",
-  delayed: "⚠ 지연",
-  down: "⚠ 장애",
-}
+import { currentWeather } from "../data/mockIncidents"
 
 const MAP_DOMAIN_FILTERS: { id: RiskMarker["domain"] | "all"; label: string }[] = [
   { id: "all", label: "전체" },
@@ -50,6 +31,7 @@ const MAP_DOMAIN_FILTERS: { id: RiskMarker["domain"] | "all"; label: string }[] 
 
 export function DashboardPage() {
   const [mapDomain, setMapDomain] = useState<RiskMarker["domain"] | "all">("all")
+  const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
   const filteredMarkers = useMemo(
     () => (mapDomain === "all" ? riskMarkers : riskMarkers.filter((m) => m.domain === mapDomain)),
     [mapDomain],
@@ -78,88 +60,65 @@ export function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {kpiCards.map((card) => (
-          <KpiCard key={card.id} card={card} />
+      <Card
+        title="위험 위치 및 영향 범위 — 제주 전역 GIS"
+        subtitle={`기온 ${currentWeather.temperatureC}℃ · 강수 ${currentWeather.rainfallMm}mm · 풍속 ${currentWeather.windSpeedMs}m/s · 습도 ${currentWeather.humidityPercent}% · 갱신 09:47 / 5분 주기`}
+        action={
+          <div className="flex gap-1.5">
+            {MAP_DOMAIN_FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setMapDomain(f.id)}
+                className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
+                  mapDomain === f.id ? "bg-accent text-black" : "border border-border-subtle text-white/60 hover:bg-inset"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        }
+      >
+        <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
+          <JejuRiskMap markers={filteredMarkers} className="relative h-full w-full" />
+          <MapToolbox />
+          <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
+          {activeRailKey && <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} />}
+          <GisTimelinePanel />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+          <span className="font-semibold text-white/30">범례</span>
+          <RiskBadge level="danger" />
+          <RiskBadge level="alert" />
+          <RiskBadge level="warning" />
+          <RiskBadge level="caution" />
+          <RiskBadge level="safe" />
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {serviceStatusCards.map((card) => (
+          <ServiceStatusCard key={card.id} card={card} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card
-          title="위험 위치 및 영향 범위 — 제주 전역 GIS"
-          subtitle="레이어: 강우·수위·해류 · 갱신 09:47 / 5분 주기"
-          className="xl:col-span-2"
-          action={
-            <div className="flex gap-1.5">
-              {MAP_DOMAIN_FILTERS.map((f) => (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setMapDomain(f.id)}
-                  className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
-                    mapDomain === f.id ? "bg-accent text-black" : "border border-border-subtle text-white/60 hover:bg-inset"
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          }
-        >
-          <div className="relative">
-            <MapToolbox />
-            <JejuRiskMap markers={filteredMarkers} />
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
-            <span className="font-semibold text-white/30">범례</span>
-            <RiskBadge level="danger" />
-            <RiskBadge level="alert" />
-            <RiskBadge level="warning" />
-            <RiskBadge level="caution" />
-            <RiskBadge level="safe" />
-          </div>
-        </Card>
-
-        <Card title="AI 분석 근거 및 데이터 출처" subtitle={`예측 신뢰도: 고신뢰 (${predictionConfidence.percent}%)`}>
-          <ul className="flex flex-col gap-3">
-            {aiInsights.map((insight) => (
-              <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-3">
-                <p className="text-sm font-semibold text-white/80">{insight.title}</p>
-                <p className="mt-0.5 text-xs text-white/40">{insight.basis}</p>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 rounded-lg border border-border-subtle p-3 text-xs text-white/50">
-            <p className="font-semibold text-white/70">센서 이상 교차검증</p>
-            <p className="mt-1">
-              정상 {sensorCrossCheck.normal} / 장애 {sensorCrossCheck.fault} / 누락 {sensorCrossCheck.missing}
-            </p>
-            <p className="mt-1 text-white/35">장애·누락 데이터는 위험 경보와 별도 표시됩니다.</p>
-          </div>
-        </Card>
-      </div>
-
-      <Card title="기상 타임라인" subtitle="강우·해양 위험 강도 추이 (최근 관측 기준)">
-        <WeatherTimeline points={weatherTimeline} now={weatherTimelineNow} />
-      </Card>
-
-      <Card title="센서 정보" subtitle="관측소별 실시간 값">
-        <ul className="flex flex-col divide-y divide-border-subtle">
-          {dashboardSensors.map((sensor) => (
-            <li key={sensor.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
-              <div>
-                <p className="font-medium text-white/80">{sensor.name}</p>
-                <p className="text-xs text-white/35">
-                  {sensor.type} · {sensor.location}
-                </p>
-              </div>
-              <div className="text-right">
-                <RiskBadge level={sensor.status} label={sensor.value} />
-                <p className="mt-1 text-[11px] text-white/35">최종 갱신 {sensor.updatedAt}</p>
-              </div>
+      <Card title="AI 분석 근거 및 데이터 출처" subtitle={`예측 신뢰도: 고신뢰 (${predictionConfidence.percent}%)`}>
+        <ul className="flex flex-col gap-3">
+          {aiInsights.map((insight) => (
+            <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-3">
+              <p className="text-sm font-semibold text-white/80">{insight.title}</p>
+              <p className="mt-0.5 text-xs text-white/40">{insight.basis}</p>
             </li>
           ))}
         </ul>
+        <div className="mt-4 rounded-lg border border-border-subtle p-3 text-xs text-white/50">
+          <p className="font-semibold text-white/70">센서 이상 교차검증</p>
+          <p className="mt-1">
+            정상 {sensorCrossCheck.normal} / 장애 {sensorCrossCheck.fault} / 누락 {sensorCrossCheck.missing}
+          </p>
+          <p className="mt-1 text-white/35">장애·누락 데이터는 위험 경보와 별도 표시됩니다.</p>
+        </div>
       </Card>
 
       <Card title="센서 시계열 검증 — 강우·수위·해양" subtitle="최근 6시간">
@@ -197,133 +156,6 @@ export function DashboardPage() {
           </ResponsiveContainer>
         </div>
       </Card>
-
-      <Card
-        title="제주 전역 재난 현황"
-        subtitle={`기온 ${currentWeather.temperatureC}℃ · 강수 ${currentWeather.rainfallMm}mm · 풍속 ${currentWeather.windSpeedMs}m/s · 습도 ${currentWeather.humidityPercent}% (관측 ${formatHM(currentWeather.observedAt)})`}
-        action={
-          <span className="rounded-full border border-border-subtle px-2 py-0.5 text-[10px] font-semibold text-white/40">
-            시뮬레이션 데이터
-          </span>
-        }
-      >
-        <p className="text-xs text-white/35">3대 실증서비스(양식장·연안·하천)와 별개로 도 전역 호우·강풍·산불 등 일반 재난 신고 현황을 종합합니다.</p>
-        <ul className="mt-3 flex flex-col divide-y divide-border-subtle">
-          {disasterIncidents.map((incident) => (
-            <li key={incident.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
-              <div className="flex items-center gap-2">
-                <RiskBadge level={incident.severity} solid />
-                <div>
-                  <p className="font-medium text-white/85">
-                    [{incident.type}] {incident.title}
-                  </p>
-                  <p className="text-xs text-white/35">
-                    {incident.region} · {incident.location} · 담당 {incident.assignedTeam}
-                    {incident.affectedPeople > 0 ? ` · 영향 인원 ${incident.affectedPeople}명` : ""}
-                  </p>
-                  <p className="text-xs text-white/35">{incident.action}</p>
-                </div>
-              </div>
-              <div className="text-right text-xs text-white/40">
-                <p className="font-semibold text-white/60">{incident.status}</p>
-                <p>{formatHM(incident.reportedAt)} 접수</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </Card>
-
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="종합 경보 발령">
-          <ul className="flex flex-col gap-2.5">
-            {disasterAlerts.map((alert) => (
-              <li key={alert.id} className="rounded-lg border border-border-subtle p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <RiskBadge level={alert.level} label={alert.title} />
-                  <span className="text-[11px] text-white/35">{formatHM(alert.issuedAt)}~{formatHM(alert.expiresAt)}</span>
-                </div>
-                <p className="mt-1.5 text-xs text-white/50">{alert.target} · {alert.message}</p>
-              </li>
-            ))}
-          </ul>
-        </Card>
-
-        <Card title="대피소 현황">
-          <ul className="flex flex-col gap-2.5">
-            {shelters.map((shelter) => (
-              <li key={shelter.id} className="rounded-lg border border-border-subtle p-3 text-sm">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-medium text-white/80">{shelter.name}</p>
-                  <RiskBadge level="safe" label={shelter.status} />
-                </div>
-                <p className="mt-1 text-xs text-white/35">{shelter.address}</p>
-                <p className="mt-1 text-xs text-white/50">수용 {shelter.currentOccupancy} / {shelter.capacity}명</p>
-              </li>
-            ))}
-          </ul>
-        </Card>
-
-        <Card title="현장 대응팀 현황">
-          <ul className="flex flex-col gap-2.5">
-            {disasterResponseTeams.map((team) => (
-              <li key={team.id} className="rounded-lg border border-border-subtle p-3 text-sm">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-medium text-white/80">{team.name}</p>
-                  <RiskBadge level={team.status === "출동중" ? "info" : "offline"} label={team.status} />
-                </div>
-                <p className="mt-1 text-xs text-white/35">{team.agency} · {team.members}명</p>
-                <p className="mt-1 text-[11px] text-white/35">최종 교신 {formatHM(team.lastContactAt)}</p>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="기관별 대응 상태">
-          <ul className="flex flex-col divide-y divide-border-subtle">
-            {agencyStatuses.map((agency) => (
-              <li key={agency.id} className="flex items-center justify-between gap-2 py-2.5 text-sm">
-                <div>
-                  <p className="font-medium text-white/80">{agency.agency}</p>
-                  <p className="text-xs text-white/35">{agency.role}</p>
-                </div>
-                <div className="text-right">
-                  <p
-                    className={`text-xs font-semibold ${agency.status === "down" ? "text-risk-danger" : "text-risk-safe"}`}
-                  >
-                    {AGENCY_STATUS_LABEL[agency.status]}
-                  </p>
-                  <p className="text-[11px] text-white/35">{agency.lastAction}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Card>
-
-        <Card
-          title="최근 승인·조치 사건"
-          action={
-            <Link to="/reports" className="text-xs font-semibold text-white/50 hover:text-accent">
-              전체 이력 조회 →
-            </Link>
-          }
-        >
-          <ul className="flex flex-col divide-y divide-border-subtle">
-            {recentActions.map((action) => (
-              <li key={action.id} className="py-2.5 text-sm">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-medium text-white/80">{action.title}</p>
-                  <span className="shrink-0 text-xs text-white/35">{action.time}</span>
-                </div>
-                <p className="mt-0.5 text-xs text-white/35">
-                  담당: {action.owner} · {action.note}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </div>
     </div>
   )
 }

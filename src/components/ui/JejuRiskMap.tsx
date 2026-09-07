@@ -30,12 +30,12 @@ function hasAquaCallout(m: RiskMarker) {
   return m.domain === "aqua" && (m.value || m.temperature || m.salinity)
 }
 
-export function JejuRiskMap({ markers }: { markers: RiskMarker[] }) {
+export function JejuRiskMap({ markers, className }: { markers: RiskMarker[]; className?: string }) {
   const aquaMarkers = markers.filter(hasAquaCallout)
   const otherMarkers = markers.filter((m) => !hasAquaCallout(m))
 
   return (
-    <div className="relative h-72 w-full sm:h-80">
+    <div className={className ?? "relative h-72 w-full sm:h-80"}>
       <svg
         viewBox="0 0 320 300"
         preserveAspectRatio="xMidYMid meet"

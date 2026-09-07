@@ -1,7 +1,6 @@
 import type {
   AgencyStatus,
   AiInsight,
-  KpiCard,
   RecentAction,
   RiskLevel,
   RiskMarker,
@@ -10,43 +9,17 @@ import type {
 
 export const lastSyncedAt = "2026-09-04 09:47"
 
-export const kpiCards: KpiCard[] = [
-  {
-    id: "river",
-    title: "하천 범람 상태",
-    level: "alert",
-    headline: "경계 2 / 주의 1",
-    detail: "감시 하천 14개소",
-    href: "/river",
-    ctaLabel: "하천 범람 예측",
-  },
-  {
-    id: "coast",
-    title: "연안 안전 상태",
-    level: "danger",
-    headline: "심각 3 / 감시 5",
-    detail: "탐지 이벤트 7건",
-    href: "/coast",
-    ctaLabel: "연안 위험 관제",
-  },
-  {
-    id: "aqua",
-    title: "염분·수온 상태",
-    level: "danger",
-    headline: "심각 5 · 경계 8",
-    detail: "영향 양식장 18개소",
-    href: "/aqua",
-    ctaLabel: "해양 위험 예측",
-  },
-  {
-    id: "agency",
-    title: "기관 공조 상태",
-    level: "info",
-    headline: "출동 2 / 대기 4",
-    detail: "도·서귀포시 공동 대응",
-    href: "/reports",
-    ctaLabel: "공조 현황 보기",
-  },
+/** GIS 지도 하단 서비스 카드 그리드 — 참고 솔루션(demo-10.muhanit.kr) GIS 상황 화면의 주의/경계/심각 카운트 카드 구조 */
+export const serviceStatusCards: {
+  id: string
+  title: string
+  icon: string
+  href: string
+  counts: { warning: number; alert: number; danger: number }
+}[] = [
+  { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 1, alert: 2, danger: 0 } },
+  { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 7, alert: 7, danger: 5 } },
+  { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 2, alert: 0, danger: 3 } },
 ]
 
 export const riskMarkers: RiskMarker[] = [
