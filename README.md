@@ -39,7 +39,7 @@
 
 - React 19 + TypeScript + Vite
 - Tailwind CSS v4 — 다크 테마(`base` #1D1D1D · `panel` #272727 · `inset` #303233 · `accent` #8EC21F)
-  및 시맨틱 위험등급 색상 토큰(위험/경계/주의/정상/정보/오프라인)
+  및 시맨틱 위험등급 색상 토큰(정상/관심/주의/경계/위험 5단계 + 정보/오프라인)
 - react-router-dom (클라이언트 라우팅), recharts (시계열 차트)
 - 인증은 sessionStorage 기반 목업이며 실제 백엔드는 없음
 
@@ -75,3 +75,10 @@ src/
 - 실제 백엔드 API 연동 및 인증 체계 전환
 
 설계 결정은 `docs/superpowers/specs/`에 기록합니다.
+
+## AI 도구와 함께 개발하기
+
+이 프로젝트는 Claude Code 외에 Manus AI, Gemini 등 다른 AI 코딩 도구도 함께 사용해 개발합니다.
+확정된 실증 대상지·임계값 같은 "바꾸면 안 되는 사실", 위험등급 5단계 체계, 알려진 미해결 이슈,
+Git 협업 규칙은 **[AGENTS.md](./AGENTS.md)**에 정리되어 있습니다. 어떤 도구로 작업하든 시작 전에
+먼저 읽어주세요.
