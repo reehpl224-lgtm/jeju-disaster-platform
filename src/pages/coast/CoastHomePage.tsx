@@ -76,9 +76,10 @@ export function CoastHomePage() {
           <JejuRiskMap markers={coastMarkers} />
           <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
             <span className="font-semibold text-white/30">범례</span>
-            <RiskBadge level="danger" label="고위험" />
-            <RiskBadge level="warning" label="주의" />
-            <RiskBadge level="caution" label="관찰" />
+            <RiskBadge level="danger" />
+            <RiskBadge level="warning" />
+            <RiskBadge level="caution" />
+            <RiskBadge level="safe" />
             <RiskBadge level="info" label="공조 진행" />
           </div>
         </Card>
