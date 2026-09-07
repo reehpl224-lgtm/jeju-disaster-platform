@@ -14,7 +14,7 @@ export function AquaFarmsPage() {
 
       <AquaSubNav />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <Card>
           <p className="text-xs font-medium text-white/40">영향 양식장</p>
           <p className="mt-1 text-xl font-bold text-white">총 {aquaFarmTotals.total}개소</p>
@@ -25,10 +25,14 @@ export function AquaFarmsPage() {
         </Card>
         <Card>
           <p className="text-xs font-medium text-white/40">경계</p>
-          <p className="mt-1 text-xl font-bold text-risk-warning">{aquaFarmTotals.warning}개소</p>
+          <p className="mt-1 text-xl font-bold text-risk-alert">{aquaFarmTotals.alert}개소</p>
         </Card>
         <Card>
           <p className="text-xs font-medium text-white/40">주의</p>
+          <p className="mt-1 text-xl font-bold text-risk-warning">{aquaFarmTotals.warning}개소</p>
+        </Card>
+        <Card>
+          <p className="text-xs font-medium text-white/40">관심</p>
           <p className="mt-1 text-xl font-bold text-risk-caution">{aquaFarmTotals.caution}개소</p>
         </Card>
       </div>

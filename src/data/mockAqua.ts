@@ -16,10 +16,10 @@ export const aquaSummary = {
   targetArea: "제주 서남부 한경·대정 육상양식장",
   spatialResolution: "1km 이하",
   aiLabels: ["Low_Salinity_Plume", "High_Temp_Water"],
-  salinityThreshold: "26.0 psu 미만(위험) · 28.0℃↑ 고수온 동반 시 28.0 psu 미만도 위험",
+  salinityThreshold: "정상≥31.0 · 관심 28.0~31.0 · 주의 26.0~28.0 · 경계 24.0~26.0 · 위험<24.0 (psu) · 28.0℃↑ 고수온 동반 시 한 단계 추가 승격",
   activeRisk: { count: 3, detail: "저염분수 1 · 고수온 1 · 복합 1" },
-  pendingApproval: { count: 2, detail: "주의 승인 1 · 경보 승인 1" },
-  affectedFarms: { count: 17, detail: "고위험 5 · 주의 8 · 관심 4" },
+  pendingApproval: { count: 2, detail: "주의 승인 1 · 경계 승인 1" },
+  affectedFarms: { count: 17, detail: "위험 5 · 경계 8 · 주의 4" },
   dataQuality: { percent: 91, detail: "전체 소스 평균" },
 }
 
@@ -82,17 +82,18 @@ export const aquaQualityMetrics: AquaQualityMetric[] = [
 
 export const aquaFarms: AquaFarm[] = [
   { id: "f1", name: "한경 금등 전복 양식장", region: "한경면 금등리", species: "전복·소라", level: "danger", riskType: "저염분수+고수온", etaHours: 18, salinity: 24.1, temperature: 30.2 },
+  // temp 30.5℃ 단독 관측 — 고수온 3일 이상 지속 가정(원본 표의 '심각' 단독조건)으로 danger(위험) 유지
   { id: "f2", name: "대정 일과 넙치 양식장", region: "대정읍 일과리", species: "넙치", level: "danger", riskType: "고수온", etaHours: 20, temperature: 30.5 },
-  { id: "f3", name: "한경 용수 미역 양식장", region: "한경면 용수리", species: "미역·톳", level: "danger", riskType: "저염분수", etaHours: 28, salinity: 24.9 },
+  { id: "f3", name: "한경 용수 미역 양식장", region: "한경면 용수리", species: "미역·톳", level: "alert", riskType: "저염분수", etaHours: 28, salinity: 24.9 },
   { id: "f4", name: "한경 신창 광어 양식장", region: "한경면 신창리", species: "광어", level: "warning", riskType: "고수온", etaHours: 32, temperature: 29.6 },
-  { id: "f5", name: "대정 무릉 해삼 양식장", region: "대정읍 무릉리", species: "해삼·전복", level: "danger", riskType: "저염분수", etaHours: 48, salinity: 25.4 },
+  { id: "f5", name: "대정 무릉 해삼 양식장", region: "대정읍 무릉리", species: "해삼·전복", level: "alert", riskType: "저염분수", etaHours: 48, salinity: 25.4 },
   { id: "f6", name: "대정 영락 돌돔 양식장", region: "대정읍 영락리", species: "돌돔", level: "danger", riskType: "복합", etaHours: 52, salinity: 25.6, temperature: 29.1 },
   {
     id: "f7",
     name: "한경 조수 1호 양식장",
     region: "제주시 한경면 조수리",
     species: "전복 / 넙치",
-    level: "danger",
+    level: "alert",
     riskType: "저염분수 유입 예측",
     etaHours: 12,
     salinity: 24.5,
@@ -104,7 +105,7 @@ export const aquaFarms: AquaFarm[] = [
   },
 ]
 
-export const aquaFarmTotals = { total: 24, danger: 6, warning: 9, caution: 9 }
+export const aquaFarmTotals = { total: 24, danger: 5, alert: 7, warning: 7, caution: 5 }
 
 export const aquaAlertDraft = {
   region: "제주시 전체",
