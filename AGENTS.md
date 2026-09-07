@@ -63,10 +63,25 @@
 이 세 서비스가 1차년도 실증 대상의 전부입니다. 통합 대시보드(`/dashboard`)는 이 세 서비스를 한 화면에서
 보여주는 GIS 요약이고, 시스템 상태(`/monitoring`)·이력·보고서(`/reports`)는 공통 인프라입니다.
 
-**예외**: `/dashboard`의 "제주 전역 재난 현황" 섹션(`src/data/mockIncidents.ts`)은 위 3개 실증서비스와
-무관한 **범재난(호우·강풍·산불 등) 일반 현황** 더미데이터입니다(로컬 `더미데이터_템플릿.json` 반영,
-2026-09-07). 4번째 실증서비스가 아니라 통합상황판의 보조 정보이니, 이 데이터를 새 서비스의 근거로
-쓰거나 위 3개 서비스와 같은 급으로 취급하지 마세요.
+**예외**: `src/data/mockIncidents.ts`는 위 3개 실증서비스와 무관한 **범재난(호우·강풍·산불 등) 일반
+현황** 더미데이터입니다(로컬 `더미데이터_템플릿.json` 반영, 2026-09-07). 4번째 실증서비스가 아니라
+`/dashboard` GIS 화면의 플로팅 패널(아래 ④ 참고)을 채우는 보조 정보이니, 이 데이터를 새 서비스의
+근거로 쓰거나 위 3개 서비스와 같은 급으로 취급하지 마세요.
+
+### ④ 참고: 실제 벤더 솔루션 (`/dashboard` 레이아웃의 근거)
+
+`https://demo-10.muhanit.kr/`은 이 프로젝트가 따라가야 할 **실제 벤더 솔루션 데모**입니다(로그인 필요,
+자격증명은 기획자에게 확인). 2026-09-07에 로그인해서 확인한 "GIS 상황" 화면 구조를 `/dashboard`에
+반영했습니다: 지도 위에 좌측 아이콘 레일로 전환되는 플로팅 패널(`GisSidePanel`), 우측 타임라인/발효중
+특보 플로팅 패널(`GisTimelinePanel`), 지도 하단의 서비스별 주의/경계/심각 카운트 카드 그리드
+(`ServiceStatusCard`). 지도 자체는 네이버 지도 API 키가 없어 기존 커스텀 SVG(`JejuRiskMap`)를 그대로
+쓰고 주변 UI만 재구성했습니다 — 상세 계획은 `C:\Users\saiwooda\.claude\plans\spicy-hugging-thacker.md`
+참고.
+
+**이번엔 1단계(대시보드 쉘)만 진행**했고, 양식장(9)/연안(6)/하천(6) 세부 페이지는 아직 참고 사이트
+구조(플로팅 패널 기반 단일 화면)로 옮기지 않았습니다 — 지금은 그대로 라우팅된 드릴다운 상세 페이지로
+남아 있습니다. 상단 탭(종합 상황/GIS 상황/CCTV)도 이번엔 추가하지 않았습니다. 이 부분을 마저 진행할지는
+사용자와 먼저 상의하세요.
 
 ## 3. 위험등급 체계 (RiskLevel) — 전체 앱 공통, 최근 변경됨
 
@@ -154,7 +169,9 @@ npm run build    # tsc -b && vite build — 커밋 전 항상 실행해서 타�
 src/
   components/
     layout/     # AppShell, TopBar, Sidebar
-    ui/         # Card, KpiCard, RiskBadge, JejuRiskMap, riskStyles, WeatherTimeline, MapToolbox
+    ui/         # Card, KpiCard(현재 미사용, 재사용 대기), RiskBadge, JejuRiskMap, riskStyles,
+                # WeatherTimeline, MapToolbox, GisIconRail/GisSidePanel/GisTimelinePanel/
+                # ServiceStatusCard(/dashboard GIS 커맨드센터, 2026-09-07 추가 — §2-④ 참고)
     aqua/       # AquaSubNav, StageTracker, ChecklistRow (양식장 전용)
     shared/     # DomainSubNav (연안·하천 공용 서브 내비게이션)
   data/         # mockAuth, mockDashboard, mockMonitoring, mockAqua, mockCoast, mockRiver,
