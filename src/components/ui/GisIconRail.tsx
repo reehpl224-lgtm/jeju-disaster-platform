@@ -14,12 +14,14 @@ export type GisRailKey = (typeof GIS_RAIL_ITEMS)[number]["key"]
 interface GisIconRailProps {
   activeKey: GisRailKey | null
   onSelect: (key: GisRailKey) => void
+  /** 기본값은 전체 8개 항목. 화면별로 일부 항목을 뺄 때 필터링해서 넘긴다. */
+  items?: readonly (typeof GIS_RAIL_ITEMS)[number][]
 }
 
-export function GisIconRail({ activeKey, onSelect }: GisIconRailProps) {
+export function GisIconRail({ activeKey, onSelect, items = GIS_RAIL_ITEMS }: GisIconRailProps) {
   return (
     <div className="absolute left-2 top-2 z-10 flex flex-col gap-1 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-xl">
-      {GIS_RAIL_ITEMS.map((item) => (
+      {items.map((item) => (
         <button
           key={item.key}
           type="button"
