@@ -24,9 +24,13 @@ const CALLOUT_FILL: Record<RiskLevel, string> = {
   offline: "#2a2a2a",
 }
 
+function hasAquaCallout(m: RiskMarker) {
+  return m.domain === "aqua" && (m.value || m.temperature || m.salinity)
+}
+
 export function JejuRiskMap({ markers }: { markers: RiskMarker[] }) {
-  const aquaMarkers = markers.filter((m) => m.domain === "aqua" && m.value)
-  const otherMarkers = markers.filter((m) => !(m.domain === "aqua" && m.value))
+  const aquaMarkers = markers.filter(hasAquaCallout)
+  const otherMarkers = markers.filter((m) => !hasAquaCallout(m))
 
   return (
     <div className="relative h-72 w-full sm:h-80">
@@ -75,13 +79,14 @@ export function JejuRiskMap({ markers }: { markers: RiskMarker[] }) {
           )
         })}
 
-        {/* 양식장 수온 콜아웃 — 제주특별자치도 해양수산연구원 '양식장 수온' 화면 참고 */}
+        {/* 양식장 수온·염분 콜아웃 — 제주특별자치도 해양수산연구원 '양식장 수온' 화면 참고 */}
         {aquaMarkers.map((marker) => {
           const color = MARKER_COLOR[marker.level]
-          const boxW = 54
-          const boxH = 26
+          const hasReadings = Boolean(marker.temperature || marker.salinity)
+          const boxW = 60
+          const boxH = hasReadings ? 38 : 26
           const boxX = marker.x - boxW / 2
-          const boxY = marker.y - 44
+          const boxY = marker.y - (hasReadings ? 56 : 44)
           return (
             <g key={marker.id}>
               <line x1={marker.x} y1={marker.y} x2={marker.x} y2={boxY + boxH} stroke="white" strokeOpacity="0.3" strokeWidth="1" />
@@ -96,19 +101,34 @@ export function JejuRiskMap({ markers }: { markers: RiskMarker[] }) {
                 stroke={color}
                 strokeWidth="1"
               />
-              <text x={marker.x} y={boxY + 10} fontSize="7" textAnchor="middle" fill="white" fillOpacity="0.7">
+              <text x={marker.x} y={boxY + 9} fontSize="7" textAnchor="middle" fill="white" fillOpacity="0.7">
                 {marker.name}
               </text>
-              <text
-                x={marker.x}
-                y={boxY + 21}
-                fontSize={marker.value === "점검중" ? 8 : 11}
-                fontWeight={700}
-                textAnchor="middle"
-                fill={color}
-              >
-                {marker.value}
-              </text>
+              {hasReadings ? (
+                <>
+                  {marker.temperature && (
+                    <text x={marker.x} y={boxY + 21} fontSize="9.5" fontWeight={700} textAnchor="middle" fill={color}>
+                      {marker.temperature}
+                    </text>
+                  )}
+                  {marker.salinity && (
+                    <text x={marker.x} y={boxY + 33} fontSize="9.5" fontWeight={700} textAnchor="middle" fill="#5fb8ff">
+                      {marker.salinity}
+                    </text>
+                  )}
+                </>
+              ) : (
+                <text
+                  x={marker.x}
+                  y={boxY + 21}
+                  fontSize={marker.value === "점검중" ? 8 : 11}
+                  fontWeight={700}
+                  textAnchor="middle"
+                  fill={color}
+                >
+                  {marker.value}
+                </text>
+              )}
             </g>
           )
         })}
