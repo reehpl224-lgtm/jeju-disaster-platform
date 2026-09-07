@@ -16,10 +16,10 @@ export const aquaSummary = {
   targetArea: "제주 서남부 한경·대정 육상양식장",
   spatialResolution: "1km 이하",
   aiLabels: ["Low_Salinity_Plume", "High_Temp_Water"],
-  salinityThreshold: "정상≥31.0 · 관심 28.0~31.0 · 주의 26.0~28.0 · 경계 24.0~26.0 · 위험<24.0 (psu) · 28.0℃↑ 고수온 동반 시 한 단계 추가 승격",
+  salinityThreshold: "정상≥31.0 · 관심 28.0~31.0 · 주의 26.0~28.0 · 경계 24.0~26.0 · 심각<24.0 (psu) · 28.0℃↑ 고수온 동반 시 한 단계 추가 승격",
   activeRisk: { count: 3, detail: "저염분수 1 · 고수온 1 · 복합 1" },
   pendingApproval: { count: 2, detail: "주의 승인 1 · 경계 승인 1" },
-  affectedFarms: { count: 17, detail: "위험 5 · 경계 8 · 주의 4" },
+  affectedFarms: { count: 17, detail: "심각 5 · 경계 8 · 주의 4" },
   dataQuality: { percent: 91, detail: "전체 소스 평균" },
 }
 
@@ -82,7 +82,7 @@ export const aquaQualityMetrics: AquaQualityMetric[] = [
 
 export const aquaFarms: AquaFarm[] = [
   { id: "f1", name: "한경 금등 전복 양식장", region: "한경면 금등리", species: "전복·소라", level: "danger", riskType: "저염분수+고수온", etaHours: 18, salinity: 24.1, temperature: 30.2 },
-  // temp 30.5℃ 단독 관측 — 고수온 3일 이상 지속 가정(원본 표의 '심각' 단독조건)으로 danger(위험) 유지
+  // temp 30.5℃ 단독 관측 — 고수온 3일 이상 지속 가정(원본 표의 '심각' 단독조건)으로 danger(심각) 유지
   { id: "f2", name: "대정 일과 넙치 양식장", region: "대정읍 일과리", species: "넙치", level: "danger", riskType: "고수온", etaHours: 20, temperature: 30.5 },
   { id: "f3", name: "한경 용수 미역 양식장", region: "한경면 용수리", species: "미역·톳", level: "alert", riskType: "저염분수", etaHours: 28, salinity: 24.9 },
   { id: "f4", name: "한경 신창 광어 양식장", region: "한경면 신창리", species: "광어", level: "warning", riskType: "고수온", etaHours: 32, temperature: 29.6 },
@@ -114,7 +114,7 @@ export const aquaAlertDraft = {
   scope: "해당 읍·면",
   effectiveAt: "즉시 발효",
   validFor: "3시간",
-  currentGrade: "🔴 위험 (5단계)",
+  currentGrade: "🔴 심각 (5단계)",
   affectedFarms: 14,
   affectedPopulation: "약 2,300명",
   eta: "15:50 (약 88분 후)",
@@ -143,8 +143,8 @@ export const aquaAlertDraft = {
 
 export const aquaResponseState = {
   title: "저염분수·고수온 위험 — 한경·대정 해역",
-  level: "위험",
-  grade: "5단계 / 위험",
+  level: "심각",
+  grade: "5단계 / 심각",
   location: "한경·대정 해역 · 영향 양식장 3개소",
   detectedAt: "2026-09-04 09:22",
   eta: "D-2 / 16시간 후",
@@ -180,7 +180,7 @@ export const aquaMonitoringState = {
   waterLevel: { label: "하천 수위", value: "효돈천(쇠소깍) +2.4m / 경계 2.0m", level: "alert" as const, tag: "초과" },
   rainfall: { label: "강우량", value: "현재 38mm/h · 1시간 누적 72mm", level: "caution" as const, tag: "기준 초과" },
   coast: { label: "연안 위험", value: "협재 방파제 파고 3.1m", level: "warning" as const, tag: "월파 위험" },
-  ocean: { label: "양식장 해양환경", value: "표층 수온 28.6°C · 염분 24.8psu", level: "danger" as const, tag: "복합 위험(저염분+고수온)" },
+  ocean: { label: "양식장 해양환경", value: "표층 수온 28.6°C · 염분 24.8psu", level: "danger" as const, tag: "복합 심각(저염분+고수온)" },
 }
 
 export const aquaMonitoringEvents: AquaTimelineEntry[] = [

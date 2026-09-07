@@ -96,7 +96,7 @@ export const coastEventDetail = {
 }
 
 export const coastDispatch = {
-  summary: { title: "⚠ 익수 의심 · 방파제 무단 진입", level: "위험", location: "제주시 한림읍 협재해수욕장 북서 방파제", detectedAt: "2026-09-04 14:32" },
+  summary: { title: "⚠ 익수 의심 · 방파제 무단 진입", level: "심각", location: "제주시 한림읍 협재해수욕장 북서 방파제", detectedAt: "2026-09-04 14:32" },
   confidence: 94,
   ripCurrent: "활성 (고파랑 2.4m)",
   aiReason: "CCTV 프레임 내 인원 2명 방파제 선단부 진입 확인, AIoT 스마트폴 파고 센서 임계 초과, 이안류 발생 구역과 위치 중첩",

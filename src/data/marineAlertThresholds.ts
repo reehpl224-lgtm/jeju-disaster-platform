@@ -4,8 +4,8 @@ import type { RiskLevel } from "../types/domain"
  * 저염분수·고수온 위험등급 임계값 — "플랫폼 데이터 리스트.xlsx" 저염분수·고수온 시트 기준
  * (국립수산과학원 및 제주특별자치도 해양수산연구원 대응 매뉴얼 인용, 2026-09 확인)
  *
- * 원본은 정상/관심/주의/경보/심각 5단계이며, 앱 전역 RiskLevel(정상<관심<주의<경계<위험)과
- * 순서가 1:1로 대응한다 — 경보→경계, 심각→위험으로 이름만 맞추면 된다.
+ * 원본은 정상/관심/주의/경보/심각 5단계이며, 앱 전역 RiskLevel(정상<관심<주의<경계<심각)과
+ * 순서·이름이 그대로 1:1로 대응한다 — 경보→경계로만 이름을 맞추면 된다.
  *
  * 원본 표기 오류 수정 사항 (엑셀 원본도 함께 수정함):
  * - 염분 구간 컬럼에서 '심각' 행이 '경보' 행과 완전히 동일한 값("26.0 이상 ~ 24.0 미만")을
@@ -17,7 +17,7 @@ export type MarineStage = "NORMAL" | "INTEREST" | "WATCH" | "ALERT" | "CRITICAL"
 
 export const MARINE_STAGES: MarineStage[] = ["NORMAL", "INTEREST", "WATCH", "ALERT", "CRITICAL"]
 
-/** 원본 문서가 쓰는 해양환경 도메인 고유 명칭(정상/관심/주의/경보/심각) — 참고용, UI 배지는 RiskLevel 라벨(정상/관심/주의/경계/위험)을 사용 */
+/** 원본 문서가 쓰는 해양환경 도메인 고유 명칭(정상/관심/주의/경보/심각) — 앱 전역 RiskLevel 라벨(정상/관심/주의/경계/심각)과 경보↔경계만 다르고 나머지는 동일 */
 export const MARINE_STAGE_LABEL: Record<MarineStage, string> = {
   NORMAL: "정상",
   INTEREST: "관심",
@@ -88,7 +88,7 @@ export function classifyMarineRisk(
   return stage
 }
 
-/** 앱 전역 5단계(정상/관심/주의/경계/위험)로의 매핑 — 경보→경계, 심각→위험 */
+/** 앱 전역 5단계(정상/관심/주의/경계/심각)로의 매핑 — 경보→경계만 이름이 다름 */
 const STAGE_TO_RISK_LEVEL: Record<MarineStage, RiskLevel> = {
   NORMAL: "safe",
   INTEREST: "caution",

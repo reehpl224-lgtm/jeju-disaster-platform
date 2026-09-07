@@ -67,7 +67,7 @@ export const riverDataConfidence = {
 }
 
 export const riverAlertDispatch = {
-  stage: "위험 단계 3",
+  stage: "심각 단계 3",
   title: "하천 범람 위험",
   target: "주민 480명",
   targetDetail: "관광객 포함 추가 1,140명",
@@ -75,7 +75,7 @@ export const riverAlertDispatch = {
   rivers: "효돈천(돈내코·쇠소깍)",
   district: "서귀포시 하효동·상효동",
   approver: "김재난 담당관",
-  message: "위험 단계 — 효돈천(돈내코·쇠소깍) 범람 위험",
+  message: "심각 단계 — 효돈천(돈내코·쇠소깍) 범람 위험",
   channels: [
     { id: "ch1", name: "문자 (CBS/SMS)", sent: 5960, success: 5841, fail: 119, rate: "98.0%", lastSent: "14:32:09" },
     { id: "ch2", name: "모바일 앱 푸시", sent: 3210, success: 3198, fail: 12, rate: "99.6%", lastSent: "14:32:11" },
@@ -120,7 +120,7 @@ export const riverJointAgencies = [
 
 export const riverDispatchRequest = {
   target: "효돈천 쇠소깍 구간",
-  stage: "⚠ 위험 3단계",
+  stage: "⚠ 심각 3단계",
   eta: "14:22 (약 18분 후)",
   impact: "인근 주민 80세대 / 관광객 밀집",
   requestedAt: "14:04",
@@ -133,7 +133,7 @@ export const riverDispatchRequest = {
     "GIS 취약 구간: 돈내코 계곡 교량 하부 2개소",
   ],
   process: [
-    { id: "pr1", time: "14:01", title: "e-SOP 위험 3단계 자동 발동" },
+    { id: "pr1", time: "14:01", title: "e-SOP 심각 3단계 자동 발동" },
     { id: "pr2", time: "14:03", title: "담당자 위험 분석 검토 완료" },
     { id: "pr3", time: "14:04", title: "출동 요청 승인 (김현우)" },
     { id: "pr4", time: "14:05", title: "기관별 출동 요청 전송 완료" },

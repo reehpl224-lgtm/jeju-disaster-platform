@@ -20,7 +20,7 @@ export function AquaFarmsPage() {
           <p className="mt-1 text-xl font-bold text-white">총 {aquaFarmTotals.total}개소</p>
         </Card>
         <Card>
-          <p className="text-xs font-medium text-white/40">위험</p>
+          <p className="text-xs font-medium text-white/40">심각</p>
           <p className="mt-1 text-xl font-bold text-risk-danger">{aquaFarmTotals.danger}개소</p>
         </Card>
         <Card>
