@@ -16,7 +16,7 @@ export const aquaSummary = {
   targetArea: "제주 서남부 한경·대정 육상양식장",
   spatialResolution: "1km 이하",
   aiLabels: ["Low_Salinity_Plume", "High_Temp_Water"],
-  salinityThreshold: "25.0 psu 이하",
+  salinityThreshold: "26.0 psu 미만(경보) · 28.0℃↑ 고수온 동반 시 28.0 psu 미만도 경보",
   activeRisk: { count: 3, detail: "저염분수 1 · 고수온 1 · 복합 1" },
   pendingApproval: { count: 2, detail: "주의 승인 1 · 경보 승인 1" },
   affectedFarms: { count: 17, detail: "고위험 5 · 주의 8 · 관심 4" },
@@ -83,16 +83,16 @@ export const aquaQualityMetrics: AquaQualityMetric[] = [
 export const aquaFarms: AquaFarm[] = [
   { id: "f1", name: "한경 금등 전복 양식장", region: "한경면 금등리", species: "전복·소라", level: "danger", riskType: "저염분수+고수온", etaHours: 18, salinity: 24.1, temperature: 30.2 },
   { id: "f2", name: "대정 일과 넙치 양식장", region: "대정읍 일과리", species: "넙치", level: "danger", riskType: "고수온", etaHours: 20, temperature: 30.5 },
-  { id: "f3", name: "한경 용수 미역 양식장", region: "한경면 용수리", species: "미역·톳", level: "warning", riskType: "저염분수", etaHours: 28, salinity: 24.9 },
+  { id: "f3", name: "한경 용수 미역 양식장", region: "한경면 용수리", species: "미역·톳", level: "danger", riskType: "저염분수", etaHours: 28, salinity: 24.9 },
   { id: "f4", name: "한경 신창 광어 양식장", region: "한경면 신창리", species: "광어", level: "warning", riskType: "고수온", etaHours: 32, temperature: 29.6 },
-  { id: "f5", name: "대정 무릉 해삼 양식장", region: "대정읍 무릉리", species: "해삼·전복", level: "caution", riskType: "저염분수", etaHours: 48, salinity: 25.4 },
-  { id: "f6", name: "대정 영락 돌돔 양식장", region: "대정읍 영락리", species: "돌돔", level: "caution", riskType: "복합", etaHours: 52, salinity: 25.6, temperature: 29.1 },
+  { id: "f5", name: "대정 무릉 해삼 양식장", region: "대정읍 무릉리", species: "해삼·전복", level: "danger", riskType: "저염분수", etaHours: 48, salinity: 25.4 },
+  { id: "f6", name: "대정 영락 돌돔 양식장", region: "대정읍 영락리", species: "돌돔", level: "danger", riskType: "복합", etaHours: 52, salinity: 25.6, temperature: 29.1 },
   {
     id: "f7",
     name: "한경 조수 1호 양식장",
     region: "제주시 한경면 조수리",
     species: "전복 / 넙치",
-    level: "caution",
+    level: "danger",
     riskType: "저염분수 유입 예측",
     etaHours: 12,
     salinity: 24.5,
@@ -113,7 +113,7 @@ export const aquaAlertDraft = {
   scope: "해당 읍·면",
   effectiveAt: "즉시 발효",
   validFor: "3시간",
-  currentGrade: "⚠ 경계 (3단계)",
+  currentGrade: "🔺 경보 (4단계)",
   affectedFarms: 14,
   affectedPopulation: "약 2,300명",
   eta: "15:50 (약 88분 후)",
@@ -142,12 +142,12 @@ export const aquaAlertDraft = {
 
 export const aquaResponseState = {
   title: "저염분수·고수온 위험 — 한경·대정 해역",
-  level: "주의",
-  grade: "2단계 / 주의",
+  level: "경보",
+  grade: "4단계 / 경보",
   location: "한경·대정 해역 · 영향 양식장 3개소",
   detectedAt: "2026-09-04 09:22",
   eta: "D-2 / 16시간 후",
-  salinity: "24.6 psu / 기준 25.0 psu",
+  salinity: "24.6 psu / 기준 26.0 psu",
   temperature: "29.8 °C / 기준 28.0 °C",
   radius: "약 1.2 km",
 }
@@ -179,7 +179,7 @@ export const aquaMonitoringState = {
   waterLevel: { label: "하천 수위", value: "효돈천(쇠소깍) +2.4m / 경계 2.0m", level: "danger" as const, tag: "초과" },
   rainfall: { label: "강우량", value: "현재 38mm/h · 1시간 누적 72mm", level: "caution" as const, tag: "기준 초과" },
   coast: { label: "연안 위험", value: "협재 방파제 파고 3.1m", level: "warning" as const, tag: "월파 위험" },
-  ocean: { label: "양식장 해양환경", value: "표층 수온 28.6°C · 염분 24.8psu", level: "caution" as const, tag: "저염분수 진입" },
+  ocean: { label: "양식장 해양환경", value: "표층 수온 28.6°C · 염분 24.8psu", level: "danger" as const, tag: "복합 경보(저염분+고수온)" },
 }
 
 export const aquaMonitoringEvents: AquaTimelineEntry[] = [

@@ -26,7 +26,7 @@ export function AquaResponsePage() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="현재 재난 상황">
-          <RiskBadge level="caution" label={aquaResponseState.level} solid />
+          <RiskBadge level="danger" label={aquaResponseState.level} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="위험 등급" value={aquaResponseState.grade} />
             <Row label="발생 위치" value={aquaResponseState.location} />

@@ -45,7 +45,7 @@ export function AquaFarmDetailPage() {
           <dl className="flex flex-col gap-2 text-sm">
             <Row label="현재 단계" value="2단계 — 주의" />
             <Row label="권고 조치" value="먹이 공급 중단 · 시설 점검" />
-            <Row label="다음 단계 조건" value="염분 25.0 psu 이하 지속 6시간" />
+            <Row label="다음 단계 조건" value="염분 26.0 psu 미만 지속 6시간" />
           </dl>
         </Card>
       </div>
@@ -59,7 +59,7 @@ export function AquaFarmDetailPage() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="저염분수 예측">
           <dl className="flex flex-col gap-2 text-sm">
-            <Row label="예측 염분 농도" value={farm.salinity ? `${farm.salinity} psu (임계 25.0 psu)` : "영향 없음"} />
+            <Row label="예측 염분 농도" value={farm.salinity ? `${farm.salinity} psu (임계 26.0 psu)` : "영향 없음"} />
             <Row label="모델 신뢰도" value="87% (앙상블 3종)" />
             <Row label="위성 관측 일치" value="일치 (2026-09-03)" />
           </dl>

@@ -32,8 +32,8 @@ export const kpiCards: KpiCard[] = [
   {
     id: "aqua",
     title: "염분·수온 상태",
-    level: "caution",
-    headline: "고수온 주의 2",
+    level: "danger",
+    headline: "저염분수 경보 3 · 고수온 주의 2",
     detail: "영향 양식장 18개소",
     href: "/aqua",
     ctaLabel: "해양 위험 예측",
@@ -55,16 +55,16 @@ export const riskMarkers: RiskMarker[] = [
   { id: "hamdeok", name: "함덕 해수욕장", x: 222, y: 92, level: "danger", domain: "coast" },
   { id: "samyang", name: "삼양 해수욕장", x: 195, y: 88, level: "warning", domain: "coast" },
   { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "caution", domain: "coast" },
-  { id: "hangyeong-geumdeung", name: "한경 금등", x: 40, y: 125, level: "safe", domain: "aqua", temperature: "24.7°C", salinity: "25.9 psu" },
-  { id: "hangyeong-yongsu", name: "한경 용수", x: 44, y: 185, level: "safe", domain: "aqua", temperature: "25.8°C", salinity: "25.3 psu" },
-  { id: "daejeong-ilgwa", name: "대정 일과", x: 60, y: 240, level: "caution", domain: "aqua", temperature: "26.8°C", salinity: "24.6 psu" },
+  { id: "hangyeong-geumdeung", name: "한경 금등", x: 40, y: 125, level: "danger", domain: "aqua", temperature: "24.7°C", salinity: "25.9 psu" },
+  { id: "hangyeong-yongsu", name: "한경 용수", x: 44, y: 185, level: "danger", domain: "aqua", temperature: "25.8°C", salinity: "25.3 psu" },
+  { id: "daejeong-ilgwa", name: "대정 일과", x: 60, y: 240, level: "danger", domain: "aqua", temperature: "26.8°C", salinity: "24.6 psu" },
 ]
 
 export const timeSeries: TimeSeriesReading[] = [
   { label: "효돈천(돈내코) 수위", value: 2.34, threshold: 2.0, unit: "m", worseWhen: "above" },
   { label: "효돈천(쇠소깍) 수위", value: 1.87, threshold: 1.5, unit: "m", worseWhen: "above" },
   { label: "함덕 해수온", value: 28.4, threshold: 28.0, unit: "°C", worseWhen: "above" },
-  { label: "한경 염분", value: 24.6, threshold: 25.0, unit: "psu", worseWhen: "below" },
+  { label: "한경 염분", value: 24.6, threshold: 26.0, unit: "psu", worseWhen: "below" },
 ]
 
 export const aiInsights: AiInsight[] = [
@@ -124,5 +124,5 @@ export const dashboardSensors = [
   { id: "sn3", name: "신규 강우레이더", type: "기상", location: "서귀포시 효돈동", value: "강우 없음", status: "safe" as RiskLevel, updatedAt: "09:47" },
   { id: "sn4", name: "함덕 AIoT 스마트폴", type: "연안", location: "함덕해수욕장", value: "수온 28.4°C", status: "warning" as RiskLevel, updatedAt: "09:40" },
   { id: "sn5", name: "협재 AIoT 스마트폴", type: "연안", location: "협재해수욕장", value: "파고 1.2 m", status: "safe" as RiskLevel, updatedAt: "09:45" },
-  { id: "sn6", name: "한경 염분센서", type: "양식장", location: "한경면 해역", value: "24.6 psu", status: "caution" as RiskLevel, updatedAt: "09:30" },
+  { id: "sn6", name: "한경 염분센서", type: "양식장", location: "한경면 해역", value: "24.6 psu", status: "danger" as RiskLevel, updatedAt: "09:30" },
 ]
