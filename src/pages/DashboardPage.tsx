@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../components/ui/Card"
@@ -8,19 +8,26 @@ import { RiskBadge } from "../components/ui/RiskBadge"
 import { ServiceStatusCard } from "../components/ui/ServiceStatusCard"
 import { GisIconRail, type GisRailKey } from "../components/ui/GisIconRail"
 import { GisSidePanel } from "../components/ui/GisSidePanel"
-import { GisTimelinePanel } from "../components/ui/GisTimelinePanel"
+import { GisTimelinePanel, type GisTimelineTab } from "../components/ui/GisTimelinePanel"
 import type { RiskMarker } from "../types/domain"
 import {
+  agencyStatuses,
   aiInsights,
+  dashboardSensors,
   lastSyncedAt,
   predictionConfidence,
+  recentActions,
   riskMarkers,
   sensorCrossCheck,
   serviceStatusCards,
   sixHourSeries,
   timeSeries,
 } from "../data/mockDashboard"
-import { currentWeather } from "../data/mockIncidents"
+import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeams, shelters } from "../data/mockIncidents"
+
+function formatHM(iso: string) {
+  return iso.slice(11, 16)
+}
 
 const MAP_DOMAIN_FILTERS: { id: RiskMarker["domain"] | "all"; label: string }[] = [
   { id: "all", label: "전체" },
@@ -36,6 +43,152 @@ export function DashboardPage() {
     () => (mapDomain === "all" ? riskMarkers : riskMarkers.filter((m) => m.domain === mapDomain)),
     [mapDomain],
   )
+
+  const railContent: Partial<Record<GisRailKey, ReactNode>> = {
+    sensor: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {dashboardSensors.map((sensor) => (
+          <li key={sensor.id} className="flex items-center justify-between gap-2 py-2 text-xs">
+            <div>
+              <p className="font-medium text-white/80">{sensor.name}</p>
+              <p className="text-white/35">{sensor.location}</p>
+            </div>
+            <RiskBadge level={sensor.status} label={sensor.value} />
+          </li>
+        ))}
+      </ul>
+    ),
+    broadcast: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {recentActions.map((action) => (
+          <li key={action.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-white/80">{action.title}</p>
+              <span className="shrink-0 text-white/35">{action.time}</span>
+            </div>
+            <p className="mt-0.5 text-white/35">
+              {action.owner} · {action.note}
+            </p>
+          </li>
+        ))}
+      </ul>
+    ),
+    response: (
+      <div className="flex flex-col gap-3">
+        <div>
+          <p className="mb-1 text-[11px] font-semibold text-white/40">기관별 대응 상태</p>
+          <ul className="flex flex-col divide-y divide-border-subtle">
+            {agencyStatuses.map((agency) => (
+              <li key={agency.id} className="flex items-center justify-between gap-2 py-1.5 text-xs">
+                <p className="text-white/80">{agency.agency}</p>
+                <span className={agency.status === "down" ? "text-risk-danger" : "text-risk-safe"}>
+                  {agency.status === "down" ? "⚠ 장애" : "● 연결"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="mb-1 text-[11px] font-semibold text-white/40">현장 대응팀</p>
+          <ul className="flex flex-col divide-y divide-border-subtle">
+            {disasterResponseTeams.map((team) => (
+              <li key={team.id} className="flex items-center justify-between gap-2 py-1.5 text-xs">
+                <p className="text-white/80">{team.name}</p>
+                <RiskBadge level={team.status === "출동중" ? "info" : "offline"} label={team.status} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    ),
+    asset: (
+      <ul className="flex flex-col gap-2">
+        {shelters.map((shelter) => (
+          <li key={shelter.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-white/80">{shelter.name}</p>
+              <RiskBadge level="safe" label={shelter.status} />
+            </div>
+            <p className="mt-1 text-white/35">{shelter.address}</p>
+            <p className="mt-1 text-white/50">
+              수용 {shelter.currentOccupancy} / {shelter.capacity}명
+            </p>
+          </li>
+        ))}
+      </ul>
+    ),
+    report: (
+      <div className="flex flex-col gap-2 text-xs">
+        <p className="text-white/50">종료된 사건의 상세 보고서를 조회합니다.</p>
+        <Link
+          to="/reports"
+          className="inline-flex items-center justify-center rounded-full border border-accent px-3 py-2 text-xs font-bold text-accent hover:bg-accent-soft"
+        >
+          이력·보고서 전체 조회 →
+        </Link>
+      </div>
+    ),
+    timeline: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {disasterIncidents.map((incident) => (
+          <li key={incident.id} className="py-2 text-xs">
+            <div className="flex items-center gap-1.5">
+              <RiskBadge level={incident.severity} />
+              <p className="font-medium text-white/80">
+                [{incident.type}] {incident.title}
+              </p>
+            </div>
+            <p className="mt-0.5 text-white/35">
+              {incident.region} · {incident.status}
+            </p>
+          </li>
+        ))}
+      </ul>
+    ),
+  }
+
+  const timelineTabs: GisTimelineTab[] = [
+    {
+      key: "timeline",
+      label: "타임라인",
+      content: (
+        <ul className="flex flex-col divide-y divide-border-subtle">
+          {disasterIncidents.map((incident) => (
+            <li key={incident.id} className="py-2 text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold text-white/60">{formatHM(incident.reportedAt)}</span>
+                <RiskBadge level={incident.severity} label={incident.status} />
+              </div>
+              <p className="mt-0.5 text-white/80">
+                [{incident.type}] {incident.title}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+    {
+      key: "advisory",
+      label: "발효중 특보",
+      content: (
+        <ul className="flex flex-col gap-2">
+          {disasterAlerts.map((alert) => (
+            <li key={alert.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <RiskBadge level={alert.level} label={alert.title} />
+                <span className="text-white/35">
+                  {formatHM(alert.issuedAt)}~{formatHM(alert.expiresAt)}
+                </span>
+              </div>
+              <p className="mt-1.5 text-white/50">
+                {alert.target} · {alert.message}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+  ]
 
   return (
     <div className="flex flex-col gap-6">
@@ -84,8 +237,10 @@ export function DashboardPage() {
           <JejuRiskMap markers={filteredMarkers} className="relative h-full w-full" />
           <MapToolbox />
           <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
-          {activeRailKey && <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} />}
-          <GisTimelinePanel />
+          {activeRailKey && (
+            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={railContent} />
+          )}
+          <GisTimelinePanel tabs={timelineTabs} />
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
           <span className="font-semibold text-white/30">범례</span>

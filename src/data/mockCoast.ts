@@ -12,6 +12,14 @@ export const coastSummary = {
   equipment: { normal: 18, error: 2, detail: "센서 결측 2건 별도 확인" },
 }
 
+/** GIS 쉘 자산현황 패널용 — AIoT 스마트폴 대표 4기(coastSummary.equipment 오류 2건과 일치) */
+export const coastSafetyAssets: { id: string; name: string; location: string; status: "정상" | "오류"; detail: string }[] = [
+  { id: "ca1", name: "함덕 AIoT 스마트폴 #1", location: "함덕해수욕장", status: "정상", detail: "CCTV·기상센서·경보스피커 정상" },
+  { id: "ca2", name: "삼양 AIoT 스마트폴 #1", location: "삼양해수욕장", status: "정상", detail: "CCTV·기상센서·경보스피커 정상" },
+  { id: "ca3", name: "협재 AIoT 스마트폴 #1", location: "협재해수욕장", status: "오류", detail: "파고 센서 결측 2시간" },
+  { id: "ca4", name: "협재 AIoT 스마트폴 #2", location: "협재해수욕장", status: "오류", detail: "경보스피커 응답 없음" },
+]
+
 export const coastAiInsights = [
   {
     id: "ai1",

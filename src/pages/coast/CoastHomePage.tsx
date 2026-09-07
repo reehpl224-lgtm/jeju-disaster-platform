@@ -1,15 +1,134 @@
+import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuRiskMap } from "../../components/ui/JejuRiskMap"
+import { MapToolbox } from "../../components/ui/MapToolbox"
+import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
+import { GisSidePanel } from "../../components/ui/GisSidePanel"
+import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { COAST_NAV } from "./coastNav"
-import { coastAgencyStatuses, coastAiInsights, coastEvents, coastFieldAlerts, coastSummary } from "../../data/mockCoast"
+import {
+  coastAgencyStatuses,
+  coastAiInsights,
+  coastEventDetail,
+  coastEvents,
+  coastFieldAlerts,
+  coastSafetyAssets,
+  coastSummary,
+} from "../../data/mockCoast"
 import { riskMarkers } from "../../data/mockDashboard"
 import { COAST_TYPE_LABEL } from "../../types/coast"
 
+const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
+  sensor: (
+    <ul className="flex flex-col divide-y divide-border-subtle">
+      {coastEventDetail.sensorCrossCheck.map((sensor) => (
+        <li key={sensor.id} className="flex items-center justify-between gap-2 py-2 text-xs">
+          <p className="text-white/80">{sensor.name}</p>
+          <span className={sensor.status === "정상" ? "text-risk-safe" : "text-risk-warning"}>{sensor.status}</span>
+        </li>
+      ))}
+    </ul>
+  ),
+  broadcast: (
+    <ul className="flex flex-col gap-2">
+      {coastFieldAlerts.map((alert) => (
+        <li key={alert.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <RiskBadge level={alert.level} label={alert.location} />
+            <span className="text-white/35">{alert.time}</span>
+          </div>
+          <p className="mt-1 text-white/50">{alert.detail}</p>
+        </li>
+      ))}
+    </ul>
+  ),
+  response: (
+    <ul className="flex flex-col divide-y divide-border-subtle">
+      {coastAgencyStatuses.map((agency) => (
+        <li key={agency.id} className="py-2 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-medium text-white/80">{agency.agency}</p>
+            <RiskBadge level={agency.level} label={agency.status} />
+          </div>
+          <p className="mt-0.5 text-white/35">{agency.detail}</p>
+        </li>
+      ))}
+    </ul>
+  ),
+  asset: (
+    <ul className="flex flex-col gap-2">
+      {coastSafetyAssets.map((asset) => (
+        <li key={asset.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-medium text-white/80">{asset.name}</p>
+            <span className={asset.status === "정상" ? "text-risk-safe" : "text-risk-danger"}>{asset.status}</span>
+          </div>
+          <p className="mt-1 text-white/35">
+            {asset.location} · {asset.detail}
+          </p>
+        </li>
+      ))}
+    </ul>
+  ),
+  timeline: (
+    <ul className="flex flex-col divide-y divide-border-subtle">
+      {coastEvents.map((event) => (
+        <li key={event.id} className="py-2 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-semibold text-white/60">{event.time}</span>
+            <RiskBadge level={event.level} />
+          </div>
+          <p className="mt-0.5 text-white/80">{event.type}</p>
+          <p className="text-white/35">{event.location}</p>
+        </li>
+      ))}
+    </ul>
+  ),
+}
+
+const TIMELINE_TABS: GisTimelineTab[] = [
+  {
+    key: "timeline",
+    label: "타임라인",
+    content: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {coastEvents.map((event) => (
+          <li key={event.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold text-white/60">{event.time}</span>
+              <RiskBadge level={event.level} label={event.status} />
+            </div>
+            <p className="mt-0.5 text-white/80">{event.type}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+  },
+  {
+    key: "field",
+    label: "현장 경보",
+    content: (
+      <ul className="flex flex-col gap-2">
+        {coastFieldAlerts.map((alert) => (
+          <li key={alert.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <RiskBadge level={alert.level} label={alert.location} />
+              <span className="text-white/35">{alert.time}</span>
+            </div>
+            <p className="mt-1.5 text-white/50">{alert.detail}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+  },
+]
+
 export function CoastHomePage() {
   const coastMarkers = riskMarkers.filter((m) => m.domain === "coast")
+  const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
 
   return (
     <div className="flex flex-col gap-6">
@@ -73,7 +192,15 @@ export function CoastHomePage() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2">
-          <JejuRiskMap markers={coastMarkers} />
+          <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
+            <JejuRiskMap markers={coastMarkers} className="relative h-full w-full" />
+            <MapToolbox />
+            <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
+            {activeRailKey && (
+              <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
+            )}
+            <GisTimelinePanel tabs={TIMELINE_TABS} />
+          </div>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
             <span className="font-semibold text-white/30">범례</span>
             <RiskBadge level="danger" />

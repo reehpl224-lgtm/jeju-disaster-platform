@@ -1,9 +1,129 @@
+import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { JejuRiskMap } from "../../components/ui/JejuRiskMap"
+import { MapToolbox } from "../../components/ui/MapToolbox"
+import { RiskBadge } from "../../components/ui/RiskBadge"
+import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
+import { GisSidePanel } from "../../components/ui/GisSidePanel"
+import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { AquaSubNav } from "../../components/aqua/AquaSubNav"
-import { aquaJourneys, aquaSummary } from "../../data/mockAqua"
+import { aquaActionLog, aquaAgencyRows, aquaAlertDraft, aquaDataSources, aquaFarms, aquaJourneys, aquaSummary } from "../../data/mockAqua"
+import { riskMarkers } from "../../data/mockDashboard"
+
+const AQUA_MARKERS = riskMarkers.filter((m) => m.domain === "aqua")
+
+const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
+  sensor: (
+    <ul className="flex flex-col divide-y divide-border-subtle">
+      {aquaDataSources.map((source) => (
+        <li key={source.id} className="py-2 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-medium text-white/80">{source.name}</p>
+            <RiskBadge
+              level={source.status === "normal" ? "safe" : source.status === "error" ? "danger" : "warning"}
+              label={source.status}
+            />
+          </div>
+          <p className="mt-0.5 text-white/35">
+            {source.detail} · 주기 {source.cycle}
+          </p>
+        </li>
+      ))}
+    </ul>
+  ),
+  response: (
+    <ul className="flex flex-col divide-y divide-border-subtle">
+      {aquaAgencyRows.map((row) => (
+        <li key={row.id} className="py-2 text-xs">
+          <p className="font-medium text-white/80">{row.agency}</p>
+          <p className="mt-0.5 text-white/35">
+            {row.role} · 승인 {row.approve} · 수행 {row.execute} · 수신 {row.receive}
+          </p>
+        </li>
+      ))}
+    </ul>
+  ),
+  asset: (
+    <ul className="flex flex-col gap-2">
+      {aquaFarms.map((farm) => (
+        <li key={farm.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-medium text-white/80">{farm.name}</p>
+            <RiskBadge level={farm.level} label={farm.riskType} />
+          </div>
+          <p className="mt-1 text-white/35">{farm.region}</p>
+        </li>
+      ))}
+    </ul>
+  ),
+  broadcast: (
+    <ul className="flex flex-col divide-y divide-border-subtle">
+      {aquaAlertDraft.audit.map((entry) => (
+        <li key={entry.id} className="py-2 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-medium text-white/80">{entry.title}</p>
+            <span className="shrink-0 text-white/35">{entry.time}</span>
+          </div>
+        </li>
+      ))}
+    </ul>
+  ),
+  timeline: (
+    <ul className="flex flex-col divide-y divide-border-subtle">
+      {aquaActionLog.map((entry) => (
+        <li key={entry.id} className="py-2 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-semibold text-white/60">{entry.time}</span>
+            <span className="text-white/40">{entry.status}</span>
+          </div>
+          <p className="mt-0.5 text-white/80">{entry.title}</p>
+          <p className="text-white/35">{entry.owner} · {entry.action}</p>
+        </li>
+      ))}
+    </ul>
+  ),
+}
+
+const TIMELINE_TABS: GisTimelineTab[] = [
+  {
+    key: "timeline",
+    label: "타임라인",
+    content: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {aquaActionLog.map((entry) => (
+          <li key={entry.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold text-white/60">{entry.time}</span>
+              <span className="text-white/40">{entry.status}</span>
+            </div>
+            <p className="mt-0.5 text-white/80">{entry.title}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+  },
+  {
+    key: "audit",
+    label: "경보 이력",
+    content: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {aquaAlertDraft.audit.map((entry) => (
+          <li key={entry.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold text-white/60">{entry.time}</span>
+            </div>
+            <p className="mt-0.5 text-white/80">{entry.title}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+  },
+]
 
 export function AquaHomePage() {
+  const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -62,6 +182,26 @@ export function AquaHomePage() {
           <p className="mt-1 text-xs text-white/35">{aquaSummary.dataQuality.detail}</p>
         </Card>
       </div>
+
+      <Card title="위험 위치 및 영향 범위 — 양식장 GIS" subtitle="한경·대정 육상양식장 관측 지점">
+        <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
+          <JejuRiskMap markers={AQUA_MARKERS} className="relative h-full w-full" />
+          <MapToolbox />
+          <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
+          {activeRailKey && (
+            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
+          )}
+          <GisTimelinePanel tabs={TIMELINE_TABS} />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+          <span className="font-semibold text-white/30">범례</span>
+          <RiskBadge level="danger" />
+          <RiskBadge level="alert" />
+          <RiskBadge level="warning" />
+          <RiskBadge level="caution" />
+          <RiskBadge level="safe" />
+        </div>
+      </Card>
 
       <Card title="대응 여정" subtitle={`최근 갱신 ${aquaSummary.lastUpdated}`}>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
