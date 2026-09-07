@@ -143,9 +143,14 @@ export function AquaHomePage() {
             <p className="text-xs text-white/35">공간 해상도 목표</p>
             <p className="mt-0.5 font-medium text-white/80">{aquaSummary.spatialResolution}</p>
           </div>
-          <div>
-            <p className="text-xs text-white/35">저염분수 경보 임계값</p>
-            <p className="mt-0.5 font-medium text-white/80">{aquaSummary.salinityThreshold}</p>
+          <div className="sm:col-span-2">
+            <p className="text-xs text-white/35">저염분수 위험등급 임계값 (염분 단독 기준)</p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {aquaSummary.salinityLevels.map((level) => (
+                <RiskBadge key={level.label} level={level.level} label={`${level.label} ${level.range}`} />
+              ))}
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-white/50">⚠ {aquaSummary.combinedRuleNote}</p>
           </div>
           <div>
             <p className="text-xs text-white/35">AI 탐지 라벨</p>

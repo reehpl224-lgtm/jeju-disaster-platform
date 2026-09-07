@@ -10,13 +10,25 @@ import type {
   AquaStage,
   AquaTimelineEntry,
 } from "../types/aqua"
+import type { RiskLevel } from "../types/domain"
 
 export const aquaSummary = {
   lastUpdated: "14:32",
   targetArea: "제주 서남부 한경·대정 육상양식장",
   spatialResolution: "1km 이하",
   aiLabels: ["Low_Salinity_Plume", "High_Temp_Water"],
-  salinityThreshold: "정상≥31.0 · 관심 28.0~31.0 · 주의 26.0~28.0 · 경계 24.0~26.0 · 심각<24.0 (psu) · 28.0℃↑ 고수온 동반 시 한 단계 추가 승격",
+  /** 염분 단독 기준 5단계 — marineAlertThresholds.ts classifySalinity()와 반드시 일치시킬 것 */
+  salinityLevels: [
+    { level: "safe", label: "정상", range: "31.0 psu 이상" },
+    { level: "caution", label: "관심", range: "28.0~31.0 psu" },
+    { level: "warning", label: "주의", range: "26.0~28.0 psu" },
+    { level: "alert", label: "경계", range: "24.0~26.0 psu" },
+    { level: "danger", label: "심각", range: "24.0 psu 미만" },
+  ] as { level: RiskLevel; label: string; range: string }[],
+  /** 복합(수온+염분) 승격 규칙 — 단순 "한 단계 승격"이 아니라 조건별로 도달 단계가 다르므로 정확히 표기.
+   *  marineAlertThresholds.ts의 combinedOverride()와 반드시 일치시킬 것 */
+  combinedRuleNote:
+    "수온 28.0℃ 이상 동반 시: 염분 26.0 이하→심각 / 염분 28.0 이하→경계 이상. 수온 26.0~28.0℃면 염분 28.0 이하→주의 이상으로 승격",
   activeRisk: { count: 3, detail: "저염분수 1 · 고수온 1 · 복합 1" },
   pendingApproval: { count: 2, detail: "주의 승인 1 · 경계 승인 1" },
   affectedFarms: { count: 17, detail: "심각 5 · 경계 8 · 주의 4" },
