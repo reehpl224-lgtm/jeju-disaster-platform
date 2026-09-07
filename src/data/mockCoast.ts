@@ -117,7 +117,7 @@ export const coastDispatch = {
 }
 
 export const coastMonitoringDomains = [
-  { id: "river", label: "하천", status: "범람 경계", detail: "수위 관측 4개소 · 차단기 2개소 작동", level: "warning" as const },
+  { id: "river", label: "하천", status: "범람 경계", detail: "수위 관측 4개소 · 차단기 2개소 작동", level: "alert" as const },
   { id: "coast", label: "연안", status: "위험 탐지", detail: "CCTV 이벤트 3건 · 경보 장비 정상", level: "danger" as const },
   { id: "aqua", label: "양식장", status: "주의 단계", detail: "수온 관측 2개소 · 안내 발송 완료", level: "caution" as const },
 ]

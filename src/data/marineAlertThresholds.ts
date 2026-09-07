@@ -12,7 +12,7 @@ export const MARINE_STAGE_LABEL: Record<MarineStage, string> = {
   NORMAL: "정상",
   INTEREST: "관심",
   ATTENTION: "주의",
-  ALERT: "경보",
+  ALERT: "위험",
 }
 
 /** 원본 JSON에 명시된 참고 색상값 (Bootstrap 계열 원색 — 앱 다크테마 배지 색상과는 별개로 원본 그대로 보존) */
@@ -33,7 +33,7 @@ export const SALINITY_LEVELS = [
 ]
 
 export const TEMPERATURE_LEVELS_NOTE =
-  "정상 <25.0℃ · 관심 25.0~28.0℃ · 주의 ≥28.0℃(1~2일 지속) · 경보 ≥28.0℃(3일 이상 지속)"
+  "정상 <25.0℃ · 관심 25.0~28.0℃ · 주의 ≥28.0℃(1~2일 지속) · 위험 ≥28.0℃(3일 이상 지속)"
 
 export function classifySalinity(psu: number): MarineStage {
   if (psu >= 30.0) return "NORMAL"
@@ -51,7 +51,7 @@ export function classifyTemperature(tempC: number, sustainedDays = 1): MarineSta
 
 /**
  * 복합 규칙(COMBINED_ALERT_OVERRIDE): 저염분(28psu 미만) + 고수온(28℃ 이상) 동시 발생 시
- * 산소 결핍·삼투압 파괴 가속화로 개별 등급과 무관하게 '경보'로 승격
+ * 산소 결핍·삼투압 파괴 가속화로 개별 등급과 무관하게 '위험'으로 승격
  */
 export function classifyMarineRisk(
   salinityPsu: number | undefined,
@@ -77,7 +77,10 @@ export function classifyMarineRisk(
   return stage
 }
 
-/** 앱 전역 4단계 배지 라벨(정상/관심/주의/경보)과 1:1 대응하는 RiskLevel 매핑 */
+/**
+ * 앱 전역 5단계(정상/관심/주의/경계/위험) 중 해양환경 JSON이 정의하는 4개 구간만 사용하는 매핑.
+ * 중간 '경계' 단계는 이 JSON 스펙에 대응 구간이 없어 사용하지 않음(주의 다음이 바로 위험).
+ */
 const STAGE_TO_RISK_LEVEL: Record<MarineStage, RiskLevel> = {
   NORMAL: "safe",
   INTEREST: "caution",

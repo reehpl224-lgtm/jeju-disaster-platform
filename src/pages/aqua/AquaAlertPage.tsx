@@ -50,7 +50,7 @@ export function AquaAlertPage() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="위험 등급 및 영향 범위">
-          <RiskBadge level="warning" label={aquaAlertDraft.currentGrade} solid />
+          <RiskBadge level="danger" label={aquaAlertDraft.currentGrade} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="영향 예상 양식장" value={`${aquaAlertDraft.affectedFarms}개소`} />
             <Row label="영향 인구" value={aquaAlertDraft.affectedPopulation} />

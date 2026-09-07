@@ -16,7 +16,7 @@ export const aquaSummary = {
   targetArea: "제주 서남부 한경·대정 육상양식장",
   spatialResolution: "1km 이하",
   aiLabels: ["Low_Salinity_Plume", "High_Temp_Water"],
-  salinityThreshold: "26.0 psu 미만(경보) · 28.0℃↑ 고수온 동반 시 28.0 psu 미만도 경보",
+  salinityThreshold: "26.0 psu 미만(위험) · 28.0℃↑ 고수온 동반 시 28.0 psu 미만도 위험",
   activeRisk: { count: 3, detail: "저염분수 1 · 고수온 1 · 복합 1" },
   pendingApproval: { count: 2, detail: "주의 승인 1 · 경보 승인 1" },
   affectedFarms: { count: 17, detail: "고위험 5 · 주의 8 · 관심 4" },
@@ -113,7 +113,7 @@ export const aquaAlertDraft = {
   scope: "해당 읍·면",
   effectiveAt: "즉시 발효",
   validFor: "3시간",
-  currentGrade: "🔺 경보 (4단계)",
+  currentGrade: "🔴 위험 (5단계)",
   affectedFarms: 14,
   affectedPopulation: "약 2,300명",
   eta: "15:50 (약 88분 후)",
@@ -142,8 +142,8 @@ export const aquaAlertDraft = {
 
 export const aquaResponseState = {
   title: "저염분수·고수온 위험 — 한경·대정 해역",
-  level: "경보",
-  grade: "4단계 / 경보",
+  level: "위험",
+  grade: "5단계 / 위험",
   location: "한경·대정 해역 · 영향 양식장 3개소",
   detectedAt: "2026-09-04 09:22",
   eta: "D-2 / 16시간 후",
@@ -176,10 +176,10 @@ export const aquaAgencyRows: AquaAgencyRow[] = [
 ]
 
 export const aquaMonitoringState = {
-  waterLevel: { label: "하천 수위", value: "효돈천(쇠소깍) +2.4m / 경계 2.0m", level: "danger" as const, tag: "초과" },
+  waterLevel: { label: "하천 수위", value: "효돈천(쇠소깍) +2.4m / 경계 2.0m", level: "alert" as const, tag: "초과" },
   rainfall: { label: "강우량", value: "현재 38mm/h · 1시간 누적 72mm", level: "caution" as const, tag: "기준 초과" },
   coast: { label: "연안 위험", value: "협재 방파제 파고 3.1m", level: "warning" as const, tag: "월파 위험" },
-  ocean: { label: "양식장 해양환경", value: "표층 수온 28.6°C · 염분 24.8psu", level: "danger" as const, tag: "복합 경보(저염분+고수온)" },
+  ocean: { label: "양식장 해양환경", value: "표층 수온 28.6°C · 염분 24.8psu", level: "danger" as const, tag: "복합 위험(저염분+고수온)" },
 }
 
 export const aquaMonitoringEvents: AquaTimelineEntry[] = [

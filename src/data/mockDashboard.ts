@@ -14,7 +14,7 @@ export const kpiCards: KpiCard[] = [
   {
     id: "river",
     title: "하천 범람 상태",
-    level: "warning",
+    level: "alert",
     headline: "경계 2 / 주의 1",
     detail: "감시 하천 14개소",
     href: "/river",
@@ -33,7 +33,7 @@ export const kpiCards: KpiCard[] = [
     id: "aqua",
     title: "염분·수온 상태",
     level: "danger",
-    headline: "저염분수 경보 3 · 고수온 주의 2",
+    headline: "저염분수 위험 3 · 고수온 주의 2",
     detail: "영향 양식장 18개소",
     href: "/aqua",
     ctaLabel: "해양 위험 예측",
@@ -51,7 +51,7 @@ export const kpiCards: KpiCard[] = [
 
 export const riskMarkers: RiskMarker[] = [
   { id: "donnaeko", name: "효돈천(돈내코)", x: 178, y: 198, level: "warning", domain: "river" },
-  { id: "soesokkak", name: "효돈천(쇠소깍)", x: 196, y: 222, level: "danger", domain: "river" },
+  { id: "soesokkak", name: "효돈천(쇠소깍)", x: 196, y: 222, level: "alert", domain: "river" },
   { id: "hamdeok", name: "함덕 해수욕장", x: 222, y: 92, level: "danger", domain: "coast" },
   { id: "samyang", name: "삼양 해수욕장", x: 195, y: 88, level: "warning", domain: "coast" },
   { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "caution", domain: "coast" },
@@ -108,10 +108,10 @@ export const weatherTimeline: { time: string; level: RiskLevel }[] = [
   { time: "07:00", level: "safe" },
   { time: "08:00", level: "caution" },
   { time: "09:00", level: "warning" },
-  { time: "10:00", level: "warning" },
+  { time: "10:00", level: "alert" },
   { time: "11:00", level: "danger" },
-  { time: "12:00", level: "warning" },
-  { time: "13:00", level: "caution" },
+  { time: "12:00", level: "alert" },
+  { time: "13:00", level: "warning" },
   { time: "14:00", level: "caution" },
   { time: "15:00", level: "safe" },
 ]

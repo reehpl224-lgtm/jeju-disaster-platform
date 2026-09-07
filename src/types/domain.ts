@@ -1,4 +1,5 @@
-export type RiskLevel = "danger" | "warning" | "caution" | "safe" | "info" | "offline"
+/** 위험등급 5단계(정상<관심<주의<경계<위험) + 비위험 상태(info/offline). 순서: safe < caution < warning < alert < danger */
+export type RiskLevel = "danger" | "alert" | "warning" | "caution" | "safe" | "info" | "offline"
 
 export interface RiskLevelMeta {
   level: RiskLevel

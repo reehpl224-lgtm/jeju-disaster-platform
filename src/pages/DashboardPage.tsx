@@ -102,6 +102,7 @@ export function DashboardPage() {
           <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
             <span className="font-semibold text-white/30">범례</span>
             <RiskBadge level="danger" />
+            <RiskBadge level="alert" />
             <RiskBadge level="warning" />
             <RiskBadge level="caution" />
             <RiskBadge level="safe" />

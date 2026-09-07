@@ -18,7 +18,7 @@ export const riverInfra = {
 }
 
 export const riverStatuses: RiverStatus[] = [
-  { id: "soesokkak", name: "효돈천(쇠소깍)", level: "danger", stage: "2단계 · 경계", eta: "약 38분 후 (14:22)", updatedAt: "14:08" },
+  { id: "soesokkak", name: "효돈천(쇠소깍)", level: "alert", stage: "2단계 · 경계", eta: "약 38분 후 (14:22)", updatedAt: "14:08" },
   { id: "donnaeko", name: "효돈천(돈내코)", level: "warning", stage: "1단계 · 주의", eta: "약 1시간 22분 후 (15:06)", updatedAt: "14:07" },
 ]
 
@@ -87,7 +87,7 @@ export const riverAlertDispatch = {
 
 export const riverControlRows: RiverControlRow[] = [
   { id: "r1", river: "효돈천(쇠소깍)", stage: "⚠ 경계 2단계", location: "서귀포시 하효동 쇠소깍 일원", gate: "오류 발생", dispatch: "대기 중", ack: "미확인" },
-  { id: "r2", river: "효돈천(돈내코)", stage: "⚠ 경계 1단계", location: "서귀포시 상효동 돈내코 계곡", gate: "정상 작동", dispatch: "완료", ack: "확인" },
+  { id: "r2", river: "효돈천(돈내코)", stage: "⚠ 주의 1단계", location: "서귀포시 상효동 돈내코 계곡", gate: "정상 작동", dispatch: "완료", ack: "확인" },
 ]
 
 export const riverControlFailures = [
@@ -103,7 +103,7 @@ export const riverPropagation = [
 ]
 
 export const riverControlTimeline: TimelineEntry[] = [
-  { id: "ct1", time: "13:45", title: "경계 1단계 발령 승인" },
+  { id: "ct1", time: "13:45", title: "주의 1단계 발령 승인" },
   { id: "ct2", time: "14:05", title: "경계 2단계 상향 승인" },
   { id: "ct3", time: "14:10", title: "주민 문자 전파 완료" },
   { id: "ct4", time: "14:12", title: "돈내코 차단기 작동 확인" },
@@ -120,7 +120,7 @@ export const riverJointAgencies = [
 
 export const riverDispatchRequest = {
   target: "효돈천 쇠소깍 구간",
-  stage: "⚠ 경계 3단계",
+  stage: "⚠ 위험 3단계",
   eta: "14:22 (약 18분 후)",
   impact: "인근 주민 80세대 / 관광객 밀집",
   requestedAt: "14:04",
@@ -133,7 +133,7 @@ export const riverDispatchRequest = {
     "GIS 취약 구간: 돈내코 계곡 교량 하부 2개소",
   ],
   process: [
-    { id: "pr1", time: "14:01", title: "e-SOP 경계 3단계 자동 발동" },
+    { id: "pr1", time: "14:01", title: "e-SOP 위험 3단계 자동 발동" },
     { id: "pr2", time: "14:03", title: "담당자 위험 분석 검토 완료" },
     { id: "pr3", time: "14:04", title: "출동 요청 승인 (김현우)" },
     { id: "pr4", time: "14:05", title: "기관별 출동 요청 전송 완료" },

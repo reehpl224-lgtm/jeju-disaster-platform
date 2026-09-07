@@ -11,12 +11,20 @@ interface RiskStyle {
 
 export const riskStyles: Record<RiskLevel, RiskStyle> = {
   danger: {
-    label: "경보",
+    label: "위험",
     text: "text-risk-danger",
     bg: "bg-risk-danger-bg",
     border: "border-risk-danger/40",
     dot: "bg-risk-danger",
     solidBg: "bg-risk-danger text-white",
+  },
+  alert: {
+    label: "경계",
+    text: "text-risk-alert",
+    bg: "bg-risk-alert-bg",
+    border: "border-risk-alert/40",
+    dot: "bg-risk-alert",
+    solidBg: "bg-risk-alert text-white",
   },
   warning: {
     label: "주의",

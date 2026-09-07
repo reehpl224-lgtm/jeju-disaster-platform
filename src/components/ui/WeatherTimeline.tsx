@@ -40,6 +40,7 @@ export function WeatherTimeline({ points, now }: WeatherTimelineProps) {
       <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
         <span className="font-semibold text-white/30">범례</span>
         <Legend level="danger" />
+        <Legend level="alert" />
         <Legend level="warning" />
         <Legend level="caution" />
         <Legend level="safe" />

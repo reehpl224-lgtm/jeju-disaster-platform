@@ -8,6 +8,7 @@ const DOMAIN_LABEL: Record<RiskMarker["domain"], string> = {
 
 const MARKER_COLOR: Record<RiskLevel, string> = {
   danger: "var(--color-risk-danger)",
+  alert: "var(--color-risk-alert)",
   warning: "var(--color-risk-warning)",
   caution: "var(--color-risk-caution)",
   safe: "var(--color-risk-safe)",
@@ -17,6 +18,7 @@ const MARKER_COLOR: Record<RiskLevel, string> = {
 
 const CALLOUT_FILL: Record<RiskLevel, string> = {
   danger: "#3a1414",
+  alert: "#3a1a14",
   warning: "#3a2414",
   caution: "#3a3414",
   safe: "#16321a",
