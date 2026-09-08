@@ -15,3 +15,48 @@ export interface TyphoonReport {
   pressureHpa: number
   maxWindMs: number
 }
+
+/** 제주 접근 예상 경로 — 기상청 예보를 그대로 옮긴 예측 지점(자체 산출 아님) */
+export interface TyphoonForecastPoint {
+  time: string
+  distanceFromJejuKm: number
+  maxWindMs: number
+  note: string
+}
+
+export interface DispatchChannelResult {
+  id: string
+  name: string
+  sent: number
+  success: number
+  fail: number
+  rate: string
+  lastSent: string
+}
+
+export interface TyphoonAlertDispatch {
+  stage: string
+  title: string
+  target: string
+  targetDetail: string
+  sentAt: string
+  approver: string
+  message: string
+  channels: DispatchChannelResult[]
+  totalFail: number
+}
+
+export interface TyphoonClosure {
+  caseId: string
+  title: string
+  status: string
+  confirmedBy: string
+  type: string
+  duration: string
+  durationDetail: string
+  agencies: string
+  agencyDetail: string
+  observed: { id: string; label: string; value: string }[]
+  closureConditions: string[]
+  report: { department: string; sop: string; casualties: string; property: string; lesson: string }
+}

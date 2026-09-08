@@ -2,6 +2,8 @@ import { useMemo, useState } from "react"
 import { Card } from "../../components/ui/Card"
 import { Pill } from "../../components/ui/Pill"
 import { RiskBadge } from "../../components/ui/RiskBadge"
+import { DomainSubNav } from "../../components/shared/DomainSubNav"
+import { HEAT_NAV } from "./heatNav"
 import { heatLevelInfo, heatRouteTips, heatShelters } from "../../data/mockHeat"
 import type { HeatShelter } from "../../types/heat"
 
@@ -33,6 +35,8 @@ export function HeatHomePage() {
         <h1 className="text-xl font-bold text-white">폭염 대응</h1>
         <p className="mt-1 text-sm text-white/50">열섬지도 기반 시원한 길·더운 길 안내, 무더위쉼터 위치 안내</p>
       </div>
+
+      <DomainSubNav items={HEAT_NAV} />
 
       <Card title="현재 폭염 위기단계" subtitle={`${heatLevelInfo.criteria} · 갱신 ${heatLevelInfo.updatedAt}`}>
         <div className="flex items-center gap-4">

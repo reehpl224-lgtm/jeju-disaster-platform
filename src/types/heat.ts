@@ -28,3 +28,46 @@ export interface HeatLevelInfo {
   criteria: string
   updatedAt: string
 }
+
+export interface HeatTrendPoint {
+  date: string
+  maxTempC: number
+  feelsLikeC: number
+}
+
+export interface DispatchChannelResult {
+  id: string
+  name: string
+  sent: number
+  success: number
+  fail: number
+  rate: string
+  lastSent: string
+}
+
+export interface HeatAlertDispatch {
+  stage: string
+  title: string
+  target: string
+  targetDetail: string
+  sentAt: string
+  approver: string
+  message: string
+  channels: DispatchChannelResult[]
+  totalFail: number
+}
+
+export interface HeatClosure {
+  caseId: string
+  title: string
+  status: string
+  confirmedBy: string
+  type: string
+  duration: string
+  durationDetail: string
+  agencies: string
+  agencyDetail: string
+  observed: { id: string; label: string; value: string }[]
+  closureConditions: string[]
+  report: { department: string; sop: string; casualties: string; property: string; lesson: string }
+}

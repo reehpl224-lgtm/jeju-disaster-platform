@@ -1,4 +1,4 @@
-import type { HeatLevelInfo, HeatRouteTip, HeatShelter } from "../types/heat"
+import type { HeatAlertDispatch, HeatClosure, HeatLevelInfo, HeatRouteTip, HeatShelter, HeatTrendPoint } from "../types/heat"
 
 /**
  * 폭염 위기단계 — 기상청 폭염특보 공식 기준(참고용)을 사용. 주의보: 체감온도 33℃ 이상 2일 이상
@@ -10,6 +10,58 @@ export const heatLevelInfo: HeatLevelInfo = {
   feelsLikeC: 34.2,
   criteria: "기상청 폭염특보 기준 — 체감온도 33℃ 이상 2일 이상 지속 시 주의보, 35℃ 이상 시 경보",
   updatedAt: "14:00",
+}
+
+/** 최근 5일 최고기온·체감온도 추이 — 폭염주의보 지속 여부 판단 근거 */
+export const heatTrend: HeatTrendPoint[] = [
+  { date: "09-04", maxTempC: 31.2, feelsLikeC: 32.8 },
+  { date: "09-05", maxTempC: 32.0, feelsLikeC: 33.5 },
+  { date: "09-06", maxTempC: 32.6, feelsLikeC: 34.0 },
+  { date: "09-07", maxTempC: 33.1, feelsLikeC: 34.6 },
+  { date: "09-08", maxTempC: 32.9, feelsLikeC: 34.2 },
+]
+
+export const heatAlertDispatch: HeatAlertDispatch = {
+  stage: "폭염주의보 안내",
+  title: "제주 전역 폭염주의보 안내",
+  target: "제주 전역 주민",
+  targetDetail: "무더위쉼터 이용 안내 포함",
+  sentAt: "2026-09-08 14:00",
+  approver: "이도현 주무관",
+  message: "폭염주의보 — 야외활동 자제 및 무더위쉼터 이용 안내",
+  channels: [
+    { id: "hac-1", name: "문자(CBS/SMS)", sent: 598000, success: 596500, fail: 1500, rate: "99.7%", lastSent: "14:00:18" },
+    { id: "hac-2", name: "모바일 앱 푸시", sent: 271000, success: 270600, fail: 400, rate: "99.9%", lastSent: "14:00:22" },
+  ],
+  totalFail: 1900,
+}
+
+export const heatClosure: HeatClosure = {
+  caseId: "HT-2026-0825",
+  title: "폭염주의보 해제 (8월말 사례)",
+  status: "해제 완료",
+  confirmedBy: "재난대응1팀 이도현 · 2026-08-26 09:00",
+  type: "폭염 · 주의보",
+  duration: "6일 3시간",
+  durationDetail: "발효 2026-08-20 06:00 → 해제 2026-08-26 09:00",
+  agencies: "무더위쉼터 운영 종료 · 도청 상황실 모니터링 종료",
+  agencyDetail: "총 운영 시설 5개소",
+  observed: [
+    { id: "ht-ob1", label: "기간 중 최고 체감온도", value: "35.8℃ (2026-08-23)" },
+    { id: "ht-ob2", label: "무더위쉼터 이용", value: "누적 1,240명" },
+  ],
+  closureConditions: [
+    "체감온도 33℃ 미만 2일 이상 지속",
+    "온열질환 신규 신고 없음 확인",
+    "무더위쉼터 정상 운영 종료 확인",
+  ],
+  report: {
+    department: "제주특별자치도 자연재난과",
+    sop: "e-SOP HT-1 폭염 주의보 해제 절차 v1.0",
+    casualties: "없음",
+    property: "해당 없음",
+    lesson: "표선면 마을회관 이용률 저조 — 안내 채널 확대 검토 필요",
+  },
 }
 
 /** "무더위 쉼터를 몰라서 못 간다"는 현장 지적 반영 — 경로당·마을회관 등 실제 쉼터 유형으로 구성 */

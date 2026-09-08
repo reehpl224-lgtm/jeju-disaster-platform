@@ -30,3 +30,49 @@ export interface BroadcastLogEntry {
   message: string
   time: string
 }
+
+export interface HeavyRainTrendPoint {
+  time: string
+  rainfallMm: number
+  cumulativeMm: number
+}
+
+export interface DispatchChannelResult {
+  id: string
+  name: string
+  sent: number
+  success: number
+  fail: number
+  rate: string
+  lastSent: string
+  unit?: string
+}
+
+export interface HeavyRainAlertDispatch {
+  stage: string
+  title: string
+  target: string
+  targetDetail: string
+  sentAt: string
+  approver: string
+  message: string
+  channels: DispatchChannelResult[]
+  totalFail: number
+}
+
+export interface HeavyRainClosure {
+  caseId: string
+  title: string
+  status: string
+  confirmedBy: string
+  type: string
+  location: string
+  duration: string
+  durationDetail: string
+  agencies: string
+  agencyDetail: string
+  aiSummary: { id: string; label: string; value: string }[]
+  observed: { id: string; label: string; value: string }[]
+  closureConditions: string[]
+  report: { department: string; sop: string; casualties: string; property: string; lesson: string }
+}

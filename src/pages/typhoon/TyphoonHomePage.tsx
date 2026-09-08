@@ -1,5 +1,7 @@
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
+import { DomainSubNav } from "../../components/shared/DomainSubNav"
+import { TYPHOON_NAV } from "./typhoonNav"
 import { typhoonReports, typhoonSource } from "../../data/mockTyphoon"
 
 const STATUS_LEVEL: Record<(typeof typhoonReports)[number]["status"], "caution" | "warning" | "alert" | "safe"> = {
@@ -18,6 +20,8 @@ export function TyphoonHomePage() {
         <h1 className="text-xl font-bold text-white">태풍 정보</h1>
         <p className="mt-1 text-sm text-white/50">{typhoonSource.note}</p>
       </div>
+
+      <DomainSubNav items={TYPHOON_NAV} />
 
       <Card title={latest.name} subtitle={`발표 ${latest.issuedAt}`}>
         <div className="flex flex-wrap items-center gap-3">

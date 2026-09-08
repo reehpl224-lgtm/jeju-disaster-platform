@@ -208,6 +208,29 @@ Q15 근거: "하천수위를 해양 조수 시간과 연계해서 보여주면 �
   분리(총 6개), `DashboardPage.tsx` 그리드를 `2xl:grid-cols-6`으로 조정. Sidebar도 "풍수해 통합" →
   "호우"·"태풍" 2개 메뉴로 교체.
 
+**2026-09-08 호우·태풍·폭염 3개 서비스 워크플로 고도화**(사용자 요청 — "다른 서비스처럼 고도화").
+기존에 단일 홈 화면(MVP)뿐이던 3개 서비스에, 아쿠아/연안/하천과 같은 `DomainSubNav` + 다단계 워크플로
+패턴을 적용했습니다. 각 도메인 4페이지 구조(대시보드/상세분석/경보발송(또는 대비발령·안내발송)/
+종료보고(또는 해제보고))로 River의 Analysis/Alert/Closure 패턴을 그대로 재사용했고, 홈 화면에도
+`DomainSubNav`를 추가했습니다. River의 Control/Dispatch(현장 통제·출동 요청)는 넣지 않았습니다 —
+호우/태풍/폭염은 하천처럼 수문·차단기 같은 물리적 현장 통제 인프라가 없는 서비스라 억지로 만들지
+않았습니다(과설계 방지).
+
+- **호우**: `HeavyRainAnalysisPage`(강우 시간당·누적 추이 차트), `HeavyRainAlertPage`(제주시 한천
+  침수경보 발송 현황 — 3개 채널), `HeavyRainClosurePage`(서귀포 우량계 사례 종료 보고). 새 데이터:
+  `heavyRainTrend`, `heavyRainAlertDispatch`, `heavyRainClosure`(`src/data/mockHeavyRain.ts`).
+- **태풍**: `TyphoonAnalysisPage`(기상청 예보 기준 제주 접근 예상 경로 — **자체 산출 아님을 명시**),
+  `TyphoonAlertPage`(전 도민 대비 안내 문자 발송 현황), `TyphoonClosurePage`(제18호 사우엘 특보 해제
+  사례). 새 데이터: `typhoonForecastTrack`, `typhoonAlertDispatch`, `typhoonClosure`
+  (`src/data/mockTyphoon.ts`).
+- **폭염**: `HeatAnalysisPage`(최근 5일 최고기온·체감온도 추이 차트), `HeatAlertPage`(폭염주의보
+  안내 문자 발송 현황), `HeatClosurePage`(8월말 사례 해제 보고). 새 데이터: `heatTrend`,
+  `heatAlertDispatch`, `heatClosure`(`src/data/mockHeat.ts`).
+- 3개 도메인 모두 서브내비 파일 신규(`heavyRainNav.ts`/`typhoonNav.ts`/`heatNav.ts`), `App.tsx`에
+  라우트 9개 추가(`/heavy-rain/analysis`·`/alert`·`/closure` 등 패턴 동일).
+- 발송 채널 수치(문자/앱푸시 발송·성공·실패 건수)는 river의 `riverAlertDispatch` 규모감을 참고해
+  새로 만든 더미데이터입니다 — 실제 발송 이력이 아닙니다.
+
 `/dashboard`의 자산현황 레일 항목은 대피소 데이터가 맥락과 안 맞아 **우선 주석처리**돼 있습니다
 (`DashboardPage.tsx`의 `DASHBOARD_RAIL_ITEMS`, `railContent.asset`, `shelters` import — 전부
 주석으로 남아있고 삭제 안 됨. `GisIconRail`에 `items` prop이 생겨서 화면별로 레일 항목을 뺄 수

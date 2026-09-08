@@ -29,8 +29,17 @@ import { RiverControlPage } from "./pages/river/RiverControlPage"
 import { RiverDispatchPage } from "./pages/river/RiverDispatchPage"
 import { RiverClosurePage } from "./pages/river/RiverClosurePage"
 import { HeavyRainHomePage } from "./pages/heavyrain/HeavyRainHomePage"
+import { HeavyRainAnalysisPage } from "./pages/heavyrain/HeavyRainAnalysisPage"
+import { HeavyRainAlertPage } from "./pages/heavyrain/HeavyRainAlertPage"
+import { HeavyRainClosurePage } from "./pages/heavyrain/HeavyRainClosurePage"
 import { TyphoonHomePage } from "./pages/typhoon/TyphoonHomePage"
+import { TyphoonAnalysisPage } from "./pages/typhoon/TyphoonAnalysisPage"
+import { TyphoonAlertPage } from "./pages/typhoon/TyphoonAlertPage"
+import { TyphoonClosurePage } from "./pages/typhoon/TyphoonClosurePage"
 import { HeatHomePage } from "./pages/heat/HeatHomePage"
+import { HeatAnalysisPage } from "./pages/heat/HeatAnalysisPage"
+import { HeatAlertPage } from "./pages/heat/HeatAlertPage"
+import { HeatClosurePage } from "./pages/heat/HeatClosurePage"
 import { PropagationHomePage } from "./pages/propagation/PropagationHomePage"
 
 export default function App() {
@@ -69,8 +78,20 @@ export default function App() {
         <Route path="/river/closure" element={<RiverClosurePage />} />
 
         <Route path="/heavy-rain" element={<HeavyRainHomePage />} />
+        <Route path="/heavy-rain/analysis" element={<HeavyRainAnalysisPage />} />
+        <Route path="/heavy-rain/alert" element={<HeavyRainAlertPage />} />
+        <Route path="/heavy-rain/closure" element={<HeavyRainClosurePage />} />
+
         <Route path="/typhoon" element={<TyphoonHomePage />} />
+        <Route path="/typhoon/analysis" element={<TyphoonAnalysisPage />} />
+        <Route path="/typhoon/alert" element={<TyphoonAlertPage />} />
+        <Route path="/typhoon/closure" element={<TyphoonClosurePage />} />
+
         <Route path="/heat" element={<HeatHomePage />} />
+        <Route path="/heat/analysis" element={<HeatAnalysisPage />} />
+        <Route path="/heat/alert" element={<HeatAlertPage />} />
+        <Route path="/heat/closure" element={<HeatClosurePage />} />
+
         <Route path="/propagation" element={<PropagationHomePage />} />
 
         <Route path="/reports" element={<ReportsListPage />} />

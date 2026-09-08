@@ -1,5 +1,7 @@
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
+import { DomainSubNav } from "../../components/shared/DomainSubNav"
+import { HEAVY_RAIN_NAV } from "./heavyRainNav"
 import { broadcastLog, heavyRainAiForecast, legacySystems, weatherStations } from "../../data/mockHeavyRain"
 
 const LINK_STATUS_LEVEL: Record<(typeof legacySystems)[number]["linkStatus"], "safe" | "caution" | "offline"> = {
@@ -25,6 +27,8 @@ export function HeavyRainHomePage() {
           (태풍은 <span className="text-white/70">별도 시스템</span>에서 관리)
         </p>
       </div>
+
+      <DomainSubNav items={HEAVY_RAIN_NAV} />
 
       <Card
         title="AI 침수 위험 조기경보"
