@@ -419,8 +419,13 @@ git push
 **Files:**
 - Modify (있는 경우에만): `src/pages/DashboardPage.tsx`, `src/pages/aqua/AquaHomePage.tsx`,
   `src/pages/coast/CoastHomePage.tsx`, `src/pages/river/RiverHomePage.tsx`,
-  `src/pages/windflood/WindFloodHomePage.tsx`, `src/pages/heat/HeatHomePage.tsx`,
-  `src/pages/propagation/PropagationHomePage.tsx`
+  `src/pages/heavyrain/HeavyRainHomePage.tsx`, `src/pages/typhoon/TyphoonHomePage.tsx`,
+  `src/pages/heat/HeatHomePage.tsx`, `src/pages/propagation/PropagationHomePage.tsx`
+
+> **2026-09-08 갱신**: SDD 실행 중 다른 세션이 `/wind-flood`를 `/heavy-rain`(리네임)과 신규
+> `/typhoon` 2개로 분리했다(커밋 `dc8af2a`). 원래 있던 `WindFloodHomePage.tsx`는 더 이상 없음 —
+> 위 파일 목록에 반영 완료(대신 `HeavyRainHomePage.tsx` + `TyphoonHomePage.tsx` 2개, 총 검증
+> 대상 8개 화면으로 1개 늘어남). 둘 다 GIS 쉘 없는 단순 카드형 화면이라 작업량 증가는 미미함.
 
 Task 1~3에서 `Card`/`Pill`/그림자 토큰을 공용 컴포넌트 레벨에서 고쳤기 때문에 이 7개 화면(대시보드는
 탭 3개 포함)은 대부분 이미 자동으로 새 톤을 상속받는다. 이 태스크는 **새로 만드는 게 아니라 빠짐없이
@@ -437,7 +442,7 @@ Expected: Task 2에서 처리한 파일 외에 남은 게 있다면, 그 요소�
 `npm run dev`로 데모 계정(`jeju-ax` / `mockAuth.ts` 확인) 로그인 후 Browser pane에서 아래 7개 화면을
 순서대로 열어 스크린샷을 찍고, 카드 그림자가 보이는지 / 버튼 톤이 일관되는지 / 콘솔 에러가 없는지
 확인한다: `/dashboard`(종합 상황 탭 → GIS 상황 탭 → CCTV 탭 순서로 3번), `/aqua`, `/coast`, `/river`,
-`/wind-flood`, `/heat`, `/propagation`.
+`/heavy-rain`, `/typhoon`, `/heat`, `/propagation`.
 
 - [ ] **Step 3: 발견된 불일치가 있으면 수정**
 
@@ -687,8 +692,8 @@ Expected: 타입 에러 없이 성공. 만약 세 브랜치가 우연히 같은 
 - [ ] **Step 4: 전체 회귀 확인**
 
 `npm run dev` → 로그인부터 시작해 `/dashboard`(3탭), `/aqua`+세부 4화면, `/coast`+세부 3화면,
-`/river`+세부 3화면, `/wind-flood`, `/heat`, `/propagation`, `/styleguide`까지 전체 화면을 순서대로
-Browser pane에서 열어 콘솔 에러 없이 정상 렌더링되는지 최종 확인한다.
+`/river`+세부 3화면, `/heavy-rain`, `/typhoon`, `/heat`, `/propagation`, `/styleguide`까지 전체
+화면을 순서대로 Browser pane에서 열어 콘솔 에러 없이 정상 렌더링되는지 최종 확인한다.
 
 - [ ] **Step 5: master 푸시 + 브랜치 정리**
 
