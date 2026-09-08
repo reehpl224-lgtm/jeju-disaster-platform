@@ -31,6 +31,14 @@ export interface BroadcastLogEntry {
   time: string
 }
 
+/** 강수량 순위 — 실제 벤더 데모(demo-10.muhanit.kr)의 "당일 누적 강수량 TOP50" 랭킹 패턴 참고. MVP는 TOP5만 표시 */
+export interface RainfallRankEntry {
+  rank: number
+  stationName: string
+  region: string
+  cumulativeMm: number
+}
+
 export interface HeavyRainTrendPoint {
   time: string
   rainfallMm: number

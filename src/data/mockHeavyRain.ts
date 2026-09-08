@@ -4,6 +4,7 @@ import type {
   HeavyRainClosure,
   HeavyRainTrendPoint,
   LegacySystemStatus,
+  RainfallRankEntry,
   WeatherStationReading,
 } from "../types/heavyRain"
 
@@ -99,6 +100,15 @@ export const heavyRainTrend: HeavyRainTrendPoint[] = [
   { time: "14:00", rainfallMm: 41, cumulativeMm: 103 },
   { time: "14:15", rainfallMm: 55, cumulativeMm: 158 },
   { time: "14:30", rainfallMm: 62, cumulativeMm: 220 },
+]
+
+/** 당일 누적 강수량 순위 — 실제 벤더 데모의 "TOP50" 랭킹을 MVP는 TOP5로 축약 */
+export const heavyRainTopStations: RainfallRankEntry[] = [
+  { rank: 1, stationName: "제주시 한천", region: "제주시", cumulativeMm: 220 },
+  { rank: 2, stationName: "제주시 우량계 #3", region: "제주시", cumulativeMm: 186 },
+  { rank: 3, stationName: "서귀포 우량계 #2", region: "서귀포시", cumulativeMm: 142 },
+  { rank: 4, stationName: "애월읍 관측소", region: "제주시", cumulativeMm: 98 },
+  { rank: 5, stationName: "성산읍 관측소", region: "서귀포시", cumulativeMm: 76 },
 ]
 
 /** 경보 발송 — 한천 침수경보(ws-1, 14:30 발령) 기준 */

@@ -3,7 +3,7 @@ import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { HEAVY_RAIN_NAV } from "./heavyRainNav"
-import { heavyRainAiForecast, heavyRainTrend, weatherStations } from "../../data/mockHeavyRain"
+import { heavyRainAiForecast, heavyRainTopStations, heavyRainTrend, weatherStations } from "../../data/mockHeavyRain"
 
 export function HeavyRainAnalysisPage() {
   return (
@@ -29,6 +29,29 @@ export function HeavyRainAnalysisPage() {
             </LineChart>
           </ResponsiveContainer>
         </div>
+      </Card>
+
+      <Card title="당일 누적 강수량 TOP5" subtitle="실제 서비스는 TOP50 랭킹 — 참고 사이트(demo-10.muhanit.kr) 패턴">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="text-xs text-white/35">
+              <th className="pb-2 font-medium">순위</th>
+              <th className="pb-2 font-medium">관측소</th>
+              <th className="pb-2 font-medium">지역</th>
+              <th className="pb-2 font-medium">당일 누적 강수량</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border-subtle">
+            {heavyRainTopStations.map((s) => (
+              <tr key={s.rank}>
+                <td className="py-2 font-mono text-white/50">{s.rank}</td>
+                <td className="py-2 font-medium text-white/80">{s.stationName}</td>
+                <td className="py-2 text-white/40">{s.region}</td>
+                <td className={`py-2 font-bold ${s.rank === 1 ? "text-risk-warning" : "text-white/70"}`}>{s.cumulativeMm}mm</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </Card>
 
       <Card title="AI 조기경보 근거">
