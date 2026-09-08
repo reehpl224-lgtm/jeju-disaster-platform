@@ -27,7 +27,8 @@ import { RiverAlertPage } from "./pages/river/RiverAlertPage"
 import { RiverControlPage } from "./pages/river/RiverControlPage"
 import { RiverDispatchPage } from "./pages/river/RiverDispatchPage"
 import { RiverClosurePage } from "./pages/river/RiverClosurePage"
-import { WindFloodHomePage } from "./pages/windflood/WindFloodHomePage"
+import { HeavyRainHomePage } from "./pages/heavyrain/HeavyRainHomePage"
+import { TyphoonHomePage } from "./pages/typhoon/TyphoonHomePage"
 import { HeatHomePage } from "./pages/heat/HeatHomePage"
 import { PropagationHomePage } from "./pages/propagation/PropagationHomePage"
 
@@ -65,7 +66,8 @@ export default function App() {
         <Route path="/river/dispatch" element={<RiverDispatchPage />} />
         <Route path="/river/closure" element={<RiverClosurePage />} />
 
-        <Route path="/wind-flood" element={<WindFloodHomePage />} />
+        <Route path="/heavy-rain" element={<HeavyRainHomePage />} />
+        <Route path="/typhoon" element={<TyphoonHomePage />} />
         <Route path="/heat" element={<HeatHomePage />} />
         <Route path="/propagation" element={<PropagationHomePage />} />
 

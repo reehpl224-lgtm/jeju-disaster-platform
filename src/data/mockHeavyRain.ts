@@ -1,10 +1,11 @@
-import type { BroadcastLogEntry, LegacySystemStatus, WeatherStationReading } from "../types/windFlood"
+import type { BroadcastLogEntry, LegacySystemStatus, WeatherStationReading } from "../types/heavyRain"
 
 /**
  * 출처: 레거시시스템 현황 조사 면담 결과서_20260907 [참고] 재난 관련 레거시시스템 목록.
  * 도청이 개별 시스템을 직접 관리하지 않고 유지보수 업체와 별도 협의가 필요하다고 밝힌 내용을
- * 그대로 반영 — "연계 완료"로 과장하지 않는다. 1차년도 우선순위인 풍수해 관련 예·경보시스템만
- * "연계 진행중"으로, 나머지는 실제 상태인 "협의 중"/"미연계"로 표기한다.
+ * 그대로 반영 — "연계 완료"로 과장하지 않는다. 1차년도 우선순위인 호우 관련 예·경보시스템만
+ * "연계 진행중"으로, 나머지는 실제 상태인 "협의 중"/"미연계"로 표기한다. 태풍 관련 레거시 연계는
+ * 이 목록에 없음 — 태풍은 자체 시스템이 아니라 기상청 자료를 전량 수신하는 구조라 `typhoon.ts` 참고.
  */
 export const legacySystems: LegacySystemStatus[] = [
   {
@@ -68,12 +69,12 @@ export const weatherStations: WeatherStationReading[] = [
 ]
 
 /**
- * AI 침수 위험 조기경보 — /river/analysis의 riverSuddenRainAlert와 동일한 원리를 풍수해
- * 관측망 전체로 일반화했다. 풍수해 통합 자체는 레거시 연계(규칙 기반)이지만, 우량계 실측 추이를
+ * AI 침수 위험 조기경보 — /river/analysis의 riverSuddenRainAlert와 동일한 원리를 호우
+ * 관측망 전체로 일반화했다. 호우 통합 자체는 레거시 연계(규칙 기반)이지만, 우량계 실측 추이를
  * 기상청 예보와 비교해 자동침수경보 임계치 도달을 조기에 캐치하는 부분은 AI 예측이 유효하다.
  * 최종 발령 판단은 항상 담당자 몫 — river 쪽과 동일한 원칙을 유지한다.
  */
-export const windFloodAiForecast = {
+export const heavyRainAiForecast = {
   forecastMm: 40,
   detectedAt: "14:29",
   stations: [

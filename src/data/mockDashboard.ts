@@ -21,8 +21,10 @@ export const serviceStatusCards: {
   { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 1, alert: 0, danger: 1 } },
   { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 7, alert: 7, danger: 5 } },
   { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 2, alert: 0, danger: 3 } },
-  // weatherStations(mockWindFlood.ts) 기준: ws-2·ws-3 warning(2) · ws-1 alert(1) · danger 없음
-  { id: "wind-flood", title: "풍수해 통합", icon: "🌀", href: "/wind-flood", counts: { warning: 2, alert: 1, danger: 0 } },
+  // weatherStations(mockHeavyRain.ts) 기준: ws-2·ws-3 warning(2) · ws-1 alert(1) · danger 없음
+  { id: "heavy-rain", title: "호우", icon: "☔", href: "/heavy-rain", counts: { warning: 2, alert: 1, danger: 0 } },
+  // typhoonReports(mockTyphoon.ts) 기준: 최신 발표(ty-1) 태풍경보 1건 → alert
+  { id: "typhoon", title: "태풍", icon: "🌀", href: "/typhoon", counts: { warning: 0, alert: 1, danger: 0 } },
   // heatLevelInfo(mockHeat.ts) 기준: 제주 전역 폭염주의보(warning) 1건
   { id: "heat", title: "폭염 대응", icon: "🔆", href: "/heat", counts: { warning: 1, alert: 0, danger: 0 } },
 ]

@@ -189,6 +189,25 @@ Q15 근거: "하천수위를 해양 조수 시간과 연계해서 보여주면 �
    "전체 보기 →" 링크만 남겨 요약/상세 두 층위로 분리했습니다. 이력 데이터는
    `propagationHistory`(`src/data/mockPropagation.ts`).
 
+**2026-09-08 "풍수해 통합"을 "호우"·"태풍" 2개 시스템으로 분리**(사용자 요청). 위 1~2번에서 설명한
+"풍수해 통합"(`/wind-flood`)은 더 이상 존재하지 않습니다 — 아래로 대체됨:
+
+- **호우**(`/heavy-rain`, `src/pages/heavyrain/HeavyRainHomePage.tsx`): 기존 풍수해 통합의 내용을
+  그대로 이어받음 — 침수센서·우량계·적설계·풍속풍향계 등 **자체 관측망이 있는 쪽**. AI 조기경보는
+  `heavyRainAiForecast`(`src/data/mockHeavyRain.ts`, 이전 `windFloodAiForecast`에서 개명), 레거시
+  연계 목록도 그대로. 타입은 `src/types/heavyRain.ts`(이전 `windFlood.ts`에서 개명).
+- **태풍**(`/typhoon`, `src/pages/typhoon/TyphoonHomePage.tsx`, 신규): 면담의 "태풍 관련 정보는
+  자체 실측 장비는 없음: 전량 기상청 정보 수신"을 근거로 완전히 새로 분리 — **관측망 현황이 없고**,
+  기상청이 발표하는 태풍 정보(이름·상태·위치·이동속도·기압·최대풍속)를 그대로 표출하는 구조입니다.
+  표시 형식은 AGENTS.md §2-④ 실제 벤더 데모(demo-10.muhanit.kr)에서 확인한 태풍 정보 카드 형식을
+  따랐습니다. 데이터는 `src/data/mockTyphoon.ts`(`typhoonReports`), 타입은 `src/types/typhoon.ts`.
+  **태풍 이름("크로반", "사우엘" 등)은 실제 WMO 태풍 명명 순환표의 공식 명칭이며, 벤더 데모 화면에서도
+  같은 이름이 쓰였던 것을 참고한 것**이니 임의로 지어낸 이름이 아닙니다 — 다만 날짜·경로·수치는
+  이 프로토타입의 더미데이터입니다.
+- `mockDashboard.ts`의 `serviceStatusCards`도 "풍수해 통합" 1개 카드 → "호우"·"태풍" 2개 카드로
+  분리(총 6개), `DashboardPage.tsx` 그리드를 `2xl:grid-cols-6`으로 조정. Sidebar도 "풍수해 통합" →
+  "호우"·"태풍" 2개 메뉴로 교체.
+
 `/dashboard`의 자산현황 레일 항목은 대피소 데이터가 맥락과 안 맞아 **우선 주석처리**돼 있습니다
 (`DashboardPage.tsx`의 `DASHBOARD_RAIL_ITEMS`, `railContent.asset`, `shelters` import — 전부
 주석으로 남아있고 삭제 안 됨. `GisIconRail`에 `items` prop이 생겨서 화면별로 레일 항목을 뺄 수
