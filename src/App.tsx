@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { LoginPage } from "./pages/LoginPage"
 import { ForbiddenPage } from "./pages/ForbiddenPage"
+import { StyleguidePage } from "./pages/StyleguidePage"
 import { DashboardPage } from "./pages/DashboardPage"
 import { MonitoringPage } from "./pages/MonitoringPage"
 import { RequireAuth } from "./routes/RequireAuth"
@@ -37,6 +38,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/403" element={<ForbiddenPage />} />
+      <Route path="/styleguide" element={<StyleguidePage />} />
 
       <Route element={<RequireAuth />}>
         <Route path="/dashboard" element={<DashboardPage />} />
