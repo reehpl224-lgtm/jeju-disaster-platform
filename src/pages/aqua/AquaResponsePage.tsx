@@ -43,7 +43,7 @@ export function AquaResponsePage() {
         </Card>
       </div>
 
-      <Card title="e-SOP 단계별 대응 절차" subtitle="2단계 — 주의 · 현재 진행 중">
+      <Card title="e-SOP 단계별 대응 절차" subtitle="4단계 — 심각 · 현재 진행 중">
         <div className="flex flex-col gap-2.5">
           {aquaChecklist.map((item) => (
             <ChecklistRow
@@ -89,10 +89,10 @@ export function AquaResponsePage() {
           </table>
         </Card>
 
-        <Card title="다음 단계 안내" subtitle="3단계(경계) 전환 조건">
+        <Card title="다음 단계 안내" subtitle="5단계(해제) 전환 조건">
           <ul className="flex flex-col gap-2 text-sm text-white/70">
-            <li>· 염분 27‰ 이하 지속 6시간 또는 실측 유입 확인 시 자동 상향</li>
-            <li>· 현재 2단계 미완료 항목 2건 해소 후 3단계 전환 가능</li>
+            <li>· 염분 26.0 psu 이상 · 수온 28.0℃ 미만으로 회복된 상태가 6시간 이상 지속 시 하향 검토</li>
+            <li>· 현재 4단계 미완료 항목 2건(양식장 현장 점검, 어가 알림 앱 재발송) 해소 후 종료 처리 가능</li>
           </ul>
         </Card>
       </div>

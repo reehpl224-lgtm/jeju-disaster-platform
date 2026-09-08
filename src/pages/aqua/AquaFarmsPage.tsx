@@ -57,6 +57,7 @@ export function AquaFarmsPage() {
                     도달 D+{farm.etaHours}h
                     {farm.salinity ? ` · 염분 ${farm.salinity} psu` : ""}
                     {farm.temperature ? ` · 수온 ${farm.temperature}°C` : ""}
+                    {farm.tempSustainedDays ? ` (지속 ${farm.tempSustainedDays}일째)` : ""}
                   </p>
                 </div>
               </Link>

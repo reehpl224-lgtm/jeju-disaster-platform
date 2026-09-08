@@ -150,6 +150,12 @@ export function AquaHomePage() {
                 <RiskBadge key={level.label} level={level.level} label={`${level.label} ${level.range}`} />
               ))}
             </div>
+            <p className="mt-3 text-xs text-white/35">고수온 위험등급 임계값 (수온 단독 기준)</p>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {aquaSummary.temperatureLevels.map((level) => (
+                <RiskBadge key={level.label} level={level.level} label={`${level.label} ${level.range}`} />
+              ))}
+            </div>
             <p className="mt-2 text-xs leading-relaxed text-white/50">⚠ {aquaSummary.combinedRuleNote}</p>
           </div>
           <div>

@@ -29,18 +29,28 @@ export const aquaSummary = {
    *  marineAlertThresholds.ts의 combinedOverride()와 반드시 일치시킬 것 */
   combinedRuleNote:
     "수온 28.0℃ 이상 동반 시: 염분 26.0 이하→심각 / 염분 28.0 이하→경계 이상. 수온 26.0~28.0℃면 염분 28.0 이하→주의 이상으로 승격",
+  /** 수온 단독 기준 5단계 — marineAlertThresholds.ts classifyTemperature()와 반드시 일치시킬 것.
+   *  28.0℃ 이상 구간은 값 자체가 아니라 지속일수로 주의/경계/심각이 갈리므로 range에 지속일수를 함께 표기 */
+  temperatureLevels: [
+    { level: "safe", label: "정상", range: "25.0℃ 미만" },
+    { level: "caution", label: "관심", range: "25.0~28.0℃" },
+    { level: "warning", label: "주의", range: "28.0℃ 이상 (당일 도달)" },
+    { level: "alert", label: "경계", range: "28.0℃ 이상 1~2일 지속" },
+    { level: "danger", label: "심각", range: "28.0℃ 이상 3일 이상 지속" },
+  ] as { level: RiskLevel; label: string; range: string }[],
   activeRisk: { count: 3, detail: "저염분수 1 · 고수온 1 · 복합 1" },
   pendingApproval: { count: 2, detail: "주의 승인 1 · 경계 승인 1" },
-  affectedFarms: { count: 17, detail: "심각 5 · 경계 8 · 주의 4" },
+  /** 아쿠아팜스 페이지(aquaFarmTotals)와 반드시 같은 수치를 쓸 것 — 총량이 화면마다 다르면 담당자가 신뢰 못함 */
+  affectedFarms: { count: 24, detail: "심각 5 · 경계 7 · 주의 7 · 관심 5" },
   dataQuality: { percent: 91, detail: "전체 소스 평균" },
 }
 
 export const aquaJourneys = [
   { id: "data", label: "데이터 수집", desc: "전체 24개 소스 · 정상 19 · 지연·누락 3 · 오류 2", href: "/aqua/data" },
   { id: "prediction", label: "AI 예측", desc: "고위험 3등급 · 예측 신뢰도 87%", href: "/aqua/prediction" },
-  { id: "farms", label: "영향 양식장", desc: "17개소 위험권 · 전일 대비 +3개소", href: "/aqua/farms" },
+  { id: "farms", label: "영향 양식장", desc: "24개소 위험권 · 전일 대비 +3개소", href: "/aqua/farms" },
   { id: "alerts", label: "경보 승인", desc: "경계 3단계 · 승인 요청 대기 중", href: "/aqua/alerts" },
-  { id: "response", label: "e-SOP 대응", desc: "2단계 주의 · 조치 2건 진행 중", href: "/aqua/response" },
+  { id: "response", label: "e-SOP 대응", desc: "4단계 심각 · 미완료 조치 2건", href: "/aqua/response" },
   { id: "monitoring", label: "실시간 모니터링", desc: "표층 수온 28.6℃ · 염분 24.8psu", href: "/aqua/monitoring" },
 ]
 
@@ -94,8 +104,8 @@ export const aquaQualityMetrics: AquaQualityMetric[] = [
 
 export const aquaFarms: AquaFarm[] = [
   { id: "f1", name: "한경 금등 전복 양식장", region: "한경면 금등리", species: "전복·소라", level: "danger", riskType: "저염분수+고수온", etaHours: 18, salinity: 24.1, temperature: 30.2 },
-  // temp 30.5℃ 단독 관측 — 고수온 3일 이상 지속 가정(원본 표의 '심각' 단독조건)으로 danger(심각) 유지
-  { id: "f2", name: "대정 일과 넙치 양식장", region: "대정읍 일과리", species: "넙치", level: "danger", riskType: "고수온", etaHours: 20, temperature: 30.5 },
+  // temp 30.5℃가 3일 이상 지속 중 — classifyTemperature(30.5, 3)=CRITICAL(심각). tempSustainedDays로 근거를 화면에 노출(그냥 level만 적으면 담당자가 왜 심각인지 확인 불가)
+  { id: "f2", name: "대정 일과 넙치 양식장", region: "대정읍 일과리", species: "넙치", level: "danger", riskType: "고수온", etaHours: 20, temperature: 30.5, tempSustainedDays: 3 },
   { id: "f3", name: "한경 용수 미역 양식장", region: "한경면 용수리", species: "미역·톳", level: "alert", riskType: "저염분수", etaHours: 28, salinity: 24.9 },
   { id: "f4", name: "한경 신창 광어 양식장", region: "한경면 신창리", species: "광어", level: "warning", riskType: "고수온", etaHours: 32, temperature: 29.6 },
   { id: "f5", name: "대정 무릉 해삼 양식장", region: "대정읍 무릉리", species: "해삼·전복", level: "alert", riskType: "저염분수", etaHours: 48, salinity: 25.4 },
@@ -120,13 +130,15 @@ export const aquaFarms: AquaFarm[] = [
 export const aquaFarmTotals = { total: 24, danger: 5, alert: 7, warning: 7, caution: 5 }
 
 export const aquaAlertDraft = {
-  region: "제주시 전체",
+  region: "한경면·대정읍 일원",
   riskType: "저염분수",
-  grade: "관심",
-  scope: "해당 읍·면",
+  // e-SOP 경보 등급 — 아래 currentGrade(같은 초안의 최종 위험 등급)와 항상 같은 값이어야 함
+  grade: "심각",
+  scope: "한경면·대정읍",
   effectiveAt: "즉시 발효",
   validFor: "3시간",
-  currentGrade: "🔴 심각 (5단계)",
+  // aquaStages 5단계 번호체계(관심1·주의2·경계3·심각4·해제5) 기준 — 심각은 4단계
+  currentGrade: "🔴 심각 (4단계)",
   affectedFarms: 14,
   affectedPopulation: "약 2,300명",
   eta: "15:50 (약 88분 후)",
@@ -156,7 +168,8 @@ export const aquaAlertDraft = {
 export const aquaResponseState = {
   title: "저염분수·고수온 위험 — 한경·대정 해역",
   level: "심각",
-  grade: "5단계 / 심각",
+  // aquaStages 5단계 번호체계(관심1·주의2·경계3·심각4·해제5) 기준 — 심각은 4단계
+  grade: "4단계 / 심각",
   location: "한경·대정 해역 · 영향 양식장 3개소",
   detectedAt: "2026-09-04 09:22",
   eta: "D-2 / 16시간 후",
@@ -165,11 +178,12 @@ export const aquaResponseState = {
   radius: "약 1.2 km",
 }
 
+// aquaResponseState.grade("4단계/심각")와 항상 같은 현재 단계를 가리켜야 함
 export const aquaStages: AquaStage[] = [
   { step: 1, label: "관심", status: "완료" },
-  { step: 2, label: "주의", status: "진행 중" },
-  { step: 3, label: "경계", status: "대기" },
-  { step: 4, label: "심각", status: "대기" },
+  { step: 2, label: "주의", status: "완료" },
+  { step: 3, label: "경계", status: "완료" },
+  { step: 4, label: "심각", status: "진행 중" },
   { step: 5, label: "해제", status: "대기" },
 ]
 
@@ -208,7 +222,7 @@ export const aquaClosureSummary = {
   location: "한경·대정 해역 · 영향 양식장 3개소",
   startedAt: "2026-09-04 09:22",
   endedAt: "2026-09-04 14:47",
-  finalGrade: "[주의 2등급] 관심 해제",
+  finalGrade: "관심 (1단계) — 해제",
   duration: "5시간 25분",
 }
 

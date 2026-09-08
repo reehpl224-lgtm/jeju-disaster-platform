@@ -52,6 +52,8 @@ export interface AquaFarm {
   etaHours: number
   salinity?: number
   temperature?: number
+  /** 수온이 28.0℃ 이상 지속된 일수 — classifyTemperature()의 등급 산정에 필요(0=방금 도달, 미지정 시 0으로 간주) */
+  tempSustainedDays?: number
   manager?: string
   phone?: string
   area?: string
