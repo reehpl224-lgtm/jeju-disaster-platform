@@ -10,6 +10,7 @@ import {
   riverInfra,
   riverRiskBasis,
   riverSensorCheck,
+  riverSuddenRainAlert,
   riverTideCorrelation,
 } from "../../data/mockRiver"
 
@@ -22,6 +23,30 @@ export function RiverAnalysisPage() {
       </div>
 
       <DomainSubNav items={RIVER_NAV} />
+
+      <Card title="돌발 강우 AI 조기경고" subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-[11px] font-medium text-white/40">기상청 예보</p>
+              <p className="mt-1 text-lg font-bold text-white/70">{riverSuddenRainAlert.forecastMm}mm</p>
+            </div>
+            <span className="text-xl text-white/30">→</span>
+            <div>
+              <p className="text-[11px] font-medium text-white/40">실측</p>
+              <p className="mt-1 text-lg font-bold text-risk-warning">{riverSuddenRainAlert.observedMm}mm</p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
+              AI 조기경고 · 예보 대비 +
+              {Math.round(((riverSuddenRainAlert.observedMm - riverSuddenRainAlert.forecastMm) / riverSuddenRainAlert.forecastMm) * 100)}%
+            </span>
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-white/50">{riverSuddenRainAlert.aiNote}</p>
+        <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
+          {riverSuddenRainAlert.confirmNote}
+        </div>
+      </Card>
 
       <Card title="위험 근거 데이터">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
