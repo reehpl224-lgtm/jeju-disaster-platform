@@ -97,3 +97,25 @@ export interface ApiLinkStatus {
   responseTime: string
   lastReceived: string
 }
+
+/** CCTV 운영 주체 — 레거시 현황 조사 면담(2026-09-07) 기준 3개 그룹 */
+export type CctvOperator = "도 자체관제" | "불법주정차" | "자치경찰단 ITS"
+
+export interface CctvCamera {
+  id: string
+  name: string
+  address: string
+  domain: "aqua" | "coast" | "river" | "general"
+  operator: CctvOperator
+  status: "online" | "offline"
+  lastFrameAt: string
+}
+
+/** CCTV 전체 규모 요약 — 목록에 있는 대표 카메라 수와 실제 운영 규모는 다르다(양식장 대표 사례 표기 방식과 동일) */
+export interface CctvCoverageSummary {
+  ownOperatedTotal: number
+  includingIllegalParkingTotal: number
+  itsLinkedCount: number
+  itsTotalCount: number
+  representativeCount: number
+}

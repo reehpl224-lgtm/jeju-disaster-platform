@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../components/ui/Card"
+import { CctvCameraCard } from "../components/ui/CctvCameraCard"
 import { JejuRiskMap } from "../components/ui/JejuRiskMap"
 import { MapToolbox } from "../components/ui/MapToolbox"
 import { RiskBadge } from "../components/ui/RiskBadge"
@@ -24,6 +25,8 @@ import {
   timeSeries,
 } from "../data/mockDashboard"
 import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeams } from "../data/mockIncidents"
+import { cctvCameras, cctvCoverageSummary } from "../data/mockCctv"
+import type { CctvCamera } from "../types/domain"
 // import { shelters } from "../data/mockIncidents" // 자산현황 우선 주석처리 — 재활성화 시 위 줄에 합치기
 
 function formatHM(iso: string) {
@@ -35,6 +38,14 @@ const MAP_DOMAIN_FILTERS: { id: RiskMarker["domain"] | "all"; label: string }[] 
   { id: "river", label: "하천" },
   { id: "coast", label: "연안" },
   { id: "aqua", label: "양식장" },
+]
+
+const CCTV_DOMAIN_FILTERS: { id: CctvCamera["domain"] | "all"; label: string }[] = [
+  { id: "all", label: "전체" },
+  { id: "river", label: "하천" },
+  { id: "coast", label: "연안" },
+  { id: "aqua", label: "양식장" },
+  { id: "general", label: "일반" },
 ]
 
 // 대시보드는 대피소(shelters) 자산현황이 맥락과 안 맞아 우선 주석처리 — 필요해지면 GIS_RAIL_ITEMS 그대로 사용
@@ -55,6 +66,17 @@ export function DashboardPage() {
     () => (mapDomain === "all" ? riskMarkers : riskMarkers.filter((m) => m.domain === mapDomain)),
     [mapDomain],
   )
+
+  const [cctvDomain, setCctvDomain] = useState<CctvCamera["domain"] | "all">("all")
+  const [cctvQuery, setCctvQuery] = useState("")
+  const filteredCameras = useMemo(() => {
+    const q = cctvQuery.trim()
+    return cctvCameras.filter((camera) => {
+      const matchesDomain = cctvDomain === "all" || camera.domain === cctvDomain
+      const matchesQuery = q === "" || camera.name.includes(q) || camera.address.includes(q)
+      return matchesDomain && matchesQuery
+    })
+  }, [cctvDomain, cctvQuery])
 
   const railContent: Partial<Record<GisRailKey, ReactNode>> = {
     sensor: (
@@ -242,10 +264,50 @@ export function DashboardPage() {
       </nav>
 
       {topTab === "cctv" && (
-        <Card title="CCTV" subtitle="현장 카메라 영상 연동">
-          <div className="flex h-56 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
-            CCTV 실시간 영상 연동 — 2단계 상세 구현 예정 (준비 중입니다)
-          </div>
+        <Card
+          title="CCTV 통합 조회"
+          subtitle={`도 자체관제 약 ${(cctvCoverageSummary.ownOperatedTotal / 10000).toFixed(1)}만대 · 불법주정차 포함 약 ${(
+            cctvCoverageSummary.includingIllegalParkingTotal / 10000
+          ).toFixed(1)}만대 · 자치경찰단 ITS ${cctvCoverageSummary.itsLinkedCount}/${cctvCoverageSummary.itsTotalCount}대만 연계 (대표 ${
+            cctvCoverageSummary.representativeCount
+          }대 표시)`}
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="text"
+                value={cctvQuery}
+                onChange={(e) => setCctvQuery(e.target.value)}
+                placeholder="주소 또는 카메라명 검색"
+                className="w-48 rounded-full border border-border-subtle bg-inset px-3 py-1.5 text-xs text-white/80 placeholder:text-white/30 focus:border-accent focus:outline-none"
+              />
+              <div className="flex gap-1.5">
+                {CCTV_DOMAIN_FILTERS.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setCctvDomain(f.id)}
+                    className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
+                      cctvDomain === f.id ? "bg-accent text-black" : "border border-border-subtle text-white/60 hover:bg-inset"
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          }
+        >
+          {filteredCameras.length === 0 ? (
+            <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
+              검색 결과가 없습니다.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {filteredCameras.map((camera) => (
+                <CctvCameraCard key={camera.id} camera={camera} />
+              ))}
+            </div>
+          )}
         </Card>
       )}
 

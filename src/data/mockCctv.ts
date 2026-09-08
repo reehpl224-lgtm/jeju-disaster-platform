@@ -1,0 +1,108 @@
+import type { CctvCamera, CctvCoverageSummary } from "../types/domain"
+
+/**
+ * 레거시시스템 현황 조사 면담(2026-09-07, 자연재난과) Q22 근거 — 실제 운영 규모는
+ * 도 자체관제 약 1.2만대(불법주정차 포함 1.8만대), 자치경찰단 ITS는 예산·라이선스 문제로
+ * 일부만 연계. 아래 목록은 3개 실증 서비스 대상지 + 대표 도심 카메라로 구성한 대표 사례이며,
+ * 전체 대수와는 다르다(양식장 "대표 N개소" 표기와 동일한 방식).
+ */
+export const cctvCoverageSummary: CctvCoverageSummary = {
+  ownOperatedTotal: 12000,
+  includingIllegalParkingTotal: 18000,
+  itsLinkedCount: 340,
+  itsTotalCount: 1200,
+  representativeCount: 10,
+}
+
+export const cctvCameras: CctvCamera[] = [
+  {
+    id: "cctv-aqua-01",
+    name: "한경 금등 관측점",
+    address: "제주특별자치도 제주시 한경면 금등리",
+    domain: "aqua",
+    operator: "도 자체관제",
+    status: "online",
+    lastFrameAt: "2026-09-08T14:32:00+09:00",
+  },
+  {
+    id: "cctv-aqua-02",
+    name: "한경 용수 관측점",
+    address: "제주특별자치도 제주시 한경면 용수리",
+    domain: "aqua",
+    operator: "도 자체관제",
+    status: "online",
+    lastFrameAt: "2026-09-08T14:31:00+09:00",
+  },
+  {
+    id: "cctv-aqua-03",
+    name: "대정 일과 관측점",
+    address: "제주특별자치도 서귀포시 대정읍 일과리",
+    domain: "aqua",
+    operator: "도 자체관제",
+    status: "offline",
+    lastFrameAt: "2026-09-08T09:14:00+09:00",
+  },
+  {
+    id: "cctv-coast-01",
+    name: "함덕 해수욕장",
+    address: "제주특별자치도 제주시 조천읍 함덕리",
+    domain: "coast",
+    operator: "도 자체관제",
+    status: "online",
+    lastFrameAt: "2026-09-08T14:33:00+09:00",
+  },
+  {
+    id: "cctv-coast-02",
+    name: "삼양 해수욕장",
+    address: "제주특별자치도 제주시 삼양동",
+    domain: "coast",
+    operator: "도 자체관제",
+    status: "online",
+    lastFrameAt: "2026-09-08T14:33:00+09:00",
+  },
+  {
+    id: "cctv-coast-03",
+    name: "협재 해수욕장",
+    address: "제주특별자치도 제주시 한림읍 협재리",
+    domain: "coast",
+    operator: "도 자체관제",
+    status: "online",
+    lastFrameAt: "2026-09-08T14:30:00+09:00",
+  },
+  {
+    id: "cctv-river-01",
+    name: "효돈천 돈내코",
+    address: "제주특별자치도 서귀포시 상효동",
+    domain: "river",
+    operator: "도 자체관제",
+    status: "online",
+    lastFrameAt: "2026-09-08T14:32:00+09:00",
+  },
+  {
+    id: "cctv-river-02",
+    name: "효돈천 쇠소깍",
+    address: "제주특별자치도 서귀포시 하효동",
+    domain: "river",
+    operator: "도 자체관제",
+    status: "online",
+    lastFrameAt: "2026-09-08T14:32:00+09:00",
+  },
+  {
+    id: "cctv-general-01",
+    name: "제주시청 인근 사거리",
+    address: "제주특별자치도 제주시 중앙로",
+    domain: "general",
+    operator: "불법주정차",
+    status: "online",
+    lastFrameAt: "2026-09-08T14:29:00+09:00",
+  },
+  {
+    id: "cctv-general-02",
+    name: "애월 해안도로 교차로",
+    address: "제주특별자치도 제주시 애월읍",
+    domain: "general",
+    operator: "자치경찰단 ITS",
+    status: "offline",
+    lastFrameAt: "2026-09-08T08:02:00+09:00",
+  },
+]
