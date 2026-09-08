@@ -156,6 +156,15 @@ export type RiskLevel = "danger" | "alert" | "warning" | "caution" | "safe" | "i
 `/aqua/farms`의 실제 집계(24개소)가 서로 달랐습니다. 화면 하나만 보고 고치지 말고, **같은 값을 참조하는
 모든 화면을 grep으로 찾아 함께 맞추세요.**
 
+같은 날 `/coast`·`/river`도 동일 기준으로 점검해 아래를 고쳤습니다: `coastSummary`의 활성 위험
+이벤트(7→5건)·미확인 이벤트(4→2건) 수치가 `coastEvents` 실제 목록과 달랐던 것, 사건 ID/케이스 ID의
+연도가 같은 레코드의 다른 날짜 필드와 어긋났던 것(`coastEventDetail.id`, `coastClosure.caseId`),
+`coastDispatch`의 사건 위치가 협재로 적혀 있었는데 판단근거·탐지시각은 전부 삼양 사건(`coastEventDetail`)
+것이었던 것, `riverClosure.confirmedBy` 시각이 같은 레코드의 종료 승인 시각과 17분 어긋났던 것,
+`/dashboard` GIS 지도에서 삼양·협재 마커가 실제로는 danger 등급 이벤트가 진행 중인데도 각각
+warning/caution으로 낮게 표시돼 있었던 것(`mockDashboard.ts`의 `riskMarkers`), 하천 서비스 카드
+집계(`serviceStatusCards`)의 alert 건수가 실제 `riverStatuses`보다 1건 많았던 것.
+
 - 같은 사건(예: 효돈천 쇠소깍)을 여러 화면(GIS 마커, 하천 상세, 통합 모니터링)에서 참조할 때
   **`level` 필드와 표시 텍스트("2단계 · 경계" 등)가 항상 일치**해야 합니다.
 - 양식장 염분·수온처럼 정량 임계값이 있는 데이터는 `marineAlertThresholds.ts`의 분류 함수로 등급을
@@ -165,6 +174,13 @@ export type RiskLevel = "danger" | "alert" | "warning" | "caution" | "safe" | "i
 
 ## 5. 알려진 미해결 이슈 (다음에 손댈 후보)
 
+- **하천(`/river`) 쇠소깍 등급 확인 필요** (2026-09-08 연안·하천 정합성 점검 중 발견, 확신도 낮아 임의로
+  고치지 않음): `riverStatuses`/`riverControlRows`/`riskMarkers`는 쇠소깍을 "2단계·경계"(alert)로
+  표시하는데, `riverDispatchRequest`(출동 요청, "⚠ 심각 3단계", 요청 14:04)와 `riverAlertDispatch`
+  (경보 발송, "심각 단계 3", 발송 14:32)는 같은 쇠소깍 상황을 "3단계·심각"(danger)으로 표시합니다.
+  `riverControlTimeline`(단계별 타임라인)에는 2단계(경계) 상향 승인(14:05) 이후 3단계 상향 기록이
+  없어서, 어느 쪽이 최신 진짜 상태인지 코드만으로는 판단할 수 없습니다. 다음에 손댈 때 기획자에게 실제
+  시나리오상 쇠소깍이 최종적으로 경계인지 심각인지 먼저 확인하고 관련 필드를 전부 통일하세요.
 - **`aquaStages`**(`src/data/mockAqua.ts`)와 `이력·보고서`(`src/data/mockReports.ts`)의
   `incidentRecords`는 `관심/주의/경계/심각/해제`라는 **e-SOP 대응 진행상태**(마지막에 "해제"로 끝남) 어휘를
   씁니다. 2026-09-07에 앱 전역 `danger` 라벨을 "심각"으로 맞추면서 앞 4단계 이름은 이제 우연히 일치하지만,

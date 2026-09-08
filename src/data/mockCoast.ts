@@ -6,8 +6,10 @@ export const coastSummary = {
   infra: "AIoT 스마트폴 신설 (지능형 CCTV + 기상센서 + 경보스피커)",
   permitNote: "공유수면 점용허가 등 인허가 절차 필요 (스마트폴 신설 구간)",
   aiLabels: ["Person_In_Water", "Danger_Zone_Person", "Rip_Current", "Overtopping"],
-  activeEvents: { count: 7, detail: "🔴 고위험 3건 포함" },
-  unconfirmedEvents: { count: 4, detail: "⚠ 즉시 검토 필요" },
+  // coastEvents 실제 목록(5건: danger 3 · warning 2)과 반드시 같은 수치를 쓸 것
+  activeEvents: { count: 5, detail: "🔴 고위험 3건 포함" },
+  // coastEvents에서 status === "미확인"인 실제 건수(2건)와 반드시 같은 수치를 쓸 것 — CoastAlertPage의 승인 대기 목록과 동일해야 함
+  unconfirmedEvents: { count: 2, detail: "⚠ 즉시 검토 필요" },
   coordination: { count: 2, detail: "🔵 해경 출동 1건" },
   equipment: { normal: 18, error: 2, detail: "센서 결측 2건 별도 확인" },
 }
@@ -58,7 +60,7 @@ export const coastAgencyStatuses: CoastAgencyStatus[] = [
 ]
 
 export const coastEventDetail = {
-  id: "EVT-2025-0714-003",
+  id: "EVT-2026-0904-003",
   level: "danger" as const,
   status: "탐지 중",
   type: "방파제 무단진입 · 익수 위험",
@@ -104,7 +106,8 @@ export const coastEventDetail = {
 }
 
 export const coastDispatch = {
-  summary: { title: "⚠ 익수 의심 · 방파제 무단 진입", level: "심각", location: "제주시 한림읍 협재해수욕장 북서 방파제", detectedAt: "2026-09-04 14:32" },
+  // coastEventDetail(EVT-2026-0904-003)과 같은 사건 — location은 zone과, detectedAt은 detectedAt과 반드시 일치시킬 것
+  summary: { title: "⚠ 익수 의심 · 방파제 무단 진입", level: "심각", location: "제주시 삼양해수욕장 북측 방파제", detectedAt: "2026-09-04 14:32" },
   confidence: 94,
   ripCurrent: "활성 (고파랑 2.4m)",
   aiReason: "CCTV 프레임 내 인원 2명 방파제 선단부 진입 확인, AIoT 스마트폴 파고 센서 임계 초과, 이안류 발생 구역과 위치 중첩",
@@ -131,7 +134,7 @@ export const coastMonitoringDomains = [
 ]
 
 export const coastClosure = {
-  caseId: "COA-2024-0312",
+  caseId: "COA-2026-0904",
   title: "연안 위험 탐지 및 현장 경보",
   status: "종료 완료",
   confirmedBy: "관제 담당자 김제주 · 2026-09-04 17:42",

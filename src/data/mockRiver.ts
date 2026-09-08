@@ -144,7 +144,8 @@ export const riverClosure = {
   caseId: "RIV-2026-0904",
   title: "효돈천(쇠소깍) 범람 경계 대응",
   status: "종료 완료",
-  confirmedBy: "재난대응1팀 김재난 · 2026-09-04 16:40",
+  // durationDetail("종료 승인 16:23")·duration("2시간 18분", 14:05→16:23 기준)과 반드시 같은 시각을 쓸 것
+  confirmedBy: "재난대응1팀 김재난 · 2026-09-04 16:23",
   type: "하천 범람 위험 · 경계 2단계",
   location: "서귀포시 효돈천 쇠소깍 일원",
   duration: "2시간 18분",

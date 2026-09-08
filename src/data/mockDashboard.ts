@@ -17,7 +17,8 @@ export const serviceStatusCards: {
   href: string
   counts: { warning: number; alert: number; danger: number }
 }[] = [
-  { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 1, alert: 2, danger: 0 } },
+  // riverStatuses(돈내코 warning 1 · 쇠소깍 alert 1)와 반드시 같은 수치를 쓸 것
+  { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 1, alert: 1, danger: 0 } },
   { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 7, alert: 7, danger: 5 } },
   { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 2, alert: 0, danger: 3 } },
 ]
@@ -26,8 +27,9 @@ export const riskMarkers: RiskMarker[] = [
   { id: "donnaeko", name: "효돈천(돈내코)", x: 178, y: 198, level: "warning", domain: "river" },
   { id: "soesokkak", name: "효돈천(쇠소깍)", x: 196, y: 222, level: "alert", domain: "river" },
   { id: "hamdeok", name: "함덕 해수욕장", x: 222, y: 92, level: "danger", domain: "coast" },
-  { id: "samyang", name: "삼양 해수욕장", x: 195, y: 88, level: "warning", domain: "coast" },
-  { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "caution", domain: "coast" },
+  // coastEvents 기준 실제 최고위험(둘 다 danger 이벤트가 진행 중) 반영 — serviceStatusCards.coast(danger 3건)와도 일치시킬 것
+  { id: "samyang", name: "삼양 해수욕장", x: 195, y: 88, level: "danger", domain: "coast" },
+  { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "danger", domain: "coast" },
   { id: "hangyeong-geumdeung", name: "한경 금등", x: 40, y: 125, level: "alert", domain: "aqua", temperature: "24.7°C", salinity: "25.9 psu" },
   { id: "hangyeong-yongsu", name: "한경 용수", x: 44, y: 185, level: "alert", domain: "aqua", temperature: "25.8°C", salinity: "25.3 psu" },
   { id: "daejeong-ilgwa", name: "대정 일과", x: 60, y: 240, level: "alert", domain: "aqua", temperature: "26.8°C", salinity: "24.6 psu" },
