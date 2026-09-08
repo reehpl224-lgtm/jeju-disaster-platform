@@ -1,13 +1,12 @@
-import type {
-  IncidentAgencyAction,
-  IncidentAttachment,
-  IncidentRecord,
-  IncidentSopApproval,
-  IncidentTimelineEntry,
-} from "../types/reports"
+import type { IncidentRecord } from "../types/reports"
 
 export const reportsSummary = { total: 247, lastUpdated: "09:12" }
 
+/**
+ * levelLabel/grade 텍스트("주의"·"경계"·"심각")와 level(RiskLevel) 값이 항상 같은 등급을 가리켜야 함
+ * — riskStyles 기준 주의=warning, 경계=alert, 심각=danger. 이 파일은 2026-09-07 "alert"(경계) 단계
+ * 신설 이전에 작성돼 level이 한 단계씩 낮게(주의→caution, 경계→warning) 매겨져 있던 것을 바로잡음.
+ */
 export const incidentRecords: IncidentRecord[] = [
   {
     id: "inc-1",
@@ -15,17 +14,52 @@ export const incidentRecords: IncidentRecord[] = [
     levelLabel: "심각",
     domain: "river",
     domainLabel: "하천 범람",
-    endedAt: "2026-09-04 03:22 종료",
-    title: "효돈천(쇠소깍) 범람 대응 — 경계 3단계 발령 및 주민 대피 안내",
+    endedAt: "2026-09-04 17:42 종료",
+    title: "효돈천(쇠소깍) 범람 대응 — 심각 3단계 발령 및 주민 대피 안내",
     grade: "심각 (Lv.4)",
-    duration: "4시간 38분",
+    duration: "8시간 28분",
     area: "효돈천 쇠소깍 일원 1.2km",
-    approver: "홍길동 팀장",
+    approver: "김민준 팀장",
     actionCount: "12건 완료",
+    detail: {
+      location: "효돈천 쇠소깍 일원",
+      detectedAt: "2026-09-04 09:14",
+      endedAt: "2026-09-04 17:42",
+      maxGrade: "3단계 (심각)",
+      confidence: "91%",
+      approver: "김민준 팀장",
+      status: "종료 완료",
+    },
+    timeline: [
+      { time: "09:14", stage: "관심", content: "수위 센서 임계값 근접 감지", owner: "시스템 자동" },
+      { time: "09:42", stage: "주의", content: "1단계 발령 승인", owner: "김민준 팀장" },
+      { time: "11:20", stage: "경계", content: "2단계 상향 승인 · 차단기 작동", owner: "김민준 팀장" },
+      { time: "13:05", stage: "심각", content: "3단계 상향 승인 · 주민 대피 안내 발송", owner: "김민준 팀장" },
+      { time: "16:10", stage: "회복", content: "수위 하강 확인 · 경계 해제 검토", owner: "박현장 반장" },
+      { time: "17:42", stage: "종료", content: "상황 종료 승인", owner: "김민준 팀장" },
+    ],
+    sopApprovals: [
+      { stage: "1단계 · 주의", content: "관심 → 주의 상향 승인", approver: "김민준 팀장", time: "09:42", note: "자동 감지 기반" },
+      { stage: "2단계 · 경계", content: "차단기 작동 · 현장 통제 승인", approver: "김민준 팀장", time: "11:20", note: "센서 교차검증 완료" },
+      { stage: "3단계 · 심각", content: "주민 대피 안내 발송 승인", approver: "김민준 팀장", time: "13:05", note: "대상 80세대" },
+      { stage: "해제", content: "종료 조건 충족 확인 후 승인", approver: "김민준 팀장", time: "17:42", note: "수위 30분 이상 안정" },
+    ],
+    agencyActions: [
+      { agency: "서귀포소방서", action: "현장 출동 및 주민 안내", dispatchedAt: "11:25", result: "완료", confirmedBy: "박현장 반장" },
+      { agency: "서귀포경찰서", action: "도로 통제 및 대피 유도", dispatchedAt: "13:10", result: "완료", confirmedBy: "최통제 팀장" },
+      { agency: "제주도청 재난안전과", action: "상황실 총괄 지휘", dispatchedAt: "09:42", result: "완료", confirmedBy: "김민준 팀장" },
+    ],
+    attachments: [
+      { id: "att1", name: "CCTV 탐지 마스킹 이미지 (쇠소깍_CAM02)", time: "2026-09-04 09:18" },
+      { id: "att2", name: "수위 센서 시계열 데이터 (쇠소깍_HD02)", time: "2026-09-04 09:22" },
+      { id: "att3", name: "강우레이더 스냅샷", time: "2026-09-04 10:05" },
+      { id: "att4", name: "GIS 영향 범위 캡처", time: "2026-09-04 11:30" },
+      { id: "att5", name: "현장 출동 보고서 (소방서)", time: "2026-09-04 14:55" },
+    ],
   },
   {
     id: "inc-2",
-    level: "warning",
+    level: "alert",
     levelLabel: "경계",
     domain: "coast",
     domainLabel: "연안 위험",
@@ -36,10 +70,38 @@ export const incidentRecords: IncidentRecord[] = [
     area: "함덕해수욕장 1구역",
     approver: "김제주 담당",
     actionCount: "5건 완료",
+    detail: {
+      location: "함덕해수욕장 1구역",
+      detectedAt: "2026-09-03 17:43",
+      endedAt: "2026-09-03 18:55",
+      maxGrade: "경계 (Lv.3)",
+      confidence: "89%",
+      approver: "김제주 담당",
+      status: "종료 완료",
+    },
+    timeline: [
+      { time: "17:43", stage: "관심", content: "AI CCTV 익수 의심 탐지", owner: "시스템 자동" },
+      { time: "17:52", stage: "주의", content: "1단계 발령 승인", owner: "김제주 담당" },
+      { time: "18:05", stage: "경계", content: "2단계 상향 승인 · 해경 출동 요청", owner: "김제주 담당" },
+      { time: "18:55", stage: "종료", content: "현장 안전 확인 후 상황 종료 승인", owner: "김제주 담당" },
+    ],
+    sopApprovals: [
+      { stage: "1단계 · 주의", content: "관심 → 주의 상향 승인", approver: "김제주 담당", time: "17:52", note: "자동 감지 기반" },
+      { stage: "2단계 · 경계", content: "해경 출동 요청 승인", approver: "김제주 담당", time: "18:05", note: "이안류 구역 인접" },
+      { stage: "해제", content: "현장 안전 확인 후 승인", approver: "김제주 담당", time: "18:55", note: "잔류 인원 없음" },
+    ],
+    agencyActions: [
+      { agency: "제주해양경찰서", action: "현장 출동 및 수색 지원", dispatchedAt: "18:10", result: "완료", confirmedBy: "김제주 담당" },
+      { agency: "제주시 재난안전과", action: "상황 공유 및 현장 안내", dispatchedAt: "17:50", result: "완료", confirmedBy: "김제주 담당" },
+    ],
+    attachments: [
+      { id: "att1", name: "CCTV 탐지 마스킹 이미지 (함덕_CAM03)", time: "2026-09-03 17:45" },
+      { id: "att2", name: "해경 출동 확인서", time: "2026-09-03 18:20" },
+    ],
   },
   {
     id: "inc-3",
-    level: "caution",
+    level: "warning",
     levelLabel: "주의",
     domain: "aqua",
     domainLabel: "양식장 위험",
@@ -50,10 +112,38 @@ export const incidentRecords: IncidentRecord[] = [
     area: "대정읍 일과리 양식장 8개소",
     approver: "이한라 담당",
     actionCount: "8건 완료",
+    detail: {
+      location: "대정읍 일과리 양식장 8개소",
+      detectedAt: "2026-09-02 05:40",
+      endedAt: "2026-09-02 11:40",
+      maxGrade: "2단계 (주의)",
+      confidence: "84%",
+      approver: "이한라 담당",
+      status: "종료 완료",
+    },
+    timeline: [
+      { time: "05:40", stage: "관심", content: "수온 28℃ 도달 감지", owner: "시스템 자동" },
+      { time: "06:15", stage: "주의", content: "2단계 발령 승인", owner: "이한라 담당" },
+      { time: "08:30", stage: "주의", content: "어가 맞춤 SOP 안내 발송 완료 (8개소)", owner: "이한라 담당" },
+      { time: "11:40", stage: "종료", content: "수온 하강 확인 후 상황 종료 승인", owner: "이한라 담당" },
+    ],
+    sopApprovals: [
+      { stage: "1단계 · 관심", content: "정상 → 관심 상향", approver: "시스템 자동", time: "05:40", note: "자동 감지 기반" },
+      { stage: "2단계 · 주의", content: "어가 맞춤 SOP 안내 발송 승인", approver: "이한라 담당", time: "06:15", note: "대상 8개소" },
+      { stage: "해제", content: "수온 정상 회복 확인 후 승인", approver: "이한라 담당", time: "11:40", note: "기준치 이하 지속 30분" },
+    ],
+    agencyActions: [
+      { agency: "제주특별자치도 해양수산연구원", action: "예측 검증", dispatchedAt: "06:00", result: "완료", confirmedBy: "이한라 담당" },
+      { agency: "서귀포시 대정읍사무소", action: "어가 현장 안내", dispatchedAt: "08:00", result: "완료", confirmedBy: "이한라 담당" },
+    ],
+    attachments: [
+      { id: "att1", name: "수온 센서 시계열 데이터 (일과_부이)", time: "2026-09-02 05:45" },
+      { id: "att2", name: "어가 안내 발송 확인서", time: "2026-09-02 08:35" },
+    ],
   },
   {
     id: "inc-4",
-    level: "warning",
+    level: "alert",
     levelLabel: "경계",
     domain: "river",
     domainLabel: "하천 범람",
@@ -64,6 +154,34 @@ export const incidentRecords: IncidentRecord[] = [
     area: "효돈천 돈내코 계곡 0.8km",
     approver: "홍길동 팀장",
     actionCount: "9건 완료",
+    detail: {
+      location: "효돈천 돈내코 계곡 0.8km",
+      detectedAt: "2026-08-31 19:26",
+      endedAt: "2026-08-31 22:17",
+      maxGrade: "2단계 (경계)",
+      confidence: "88%",
+      approver: "홍길동 팀장",
+      status: "종료 완료",
+    },
+    timeline: [
+      { time: "19:26", stage: "주의", content: "1단계 발령 · 수위 상승 감지", owner: "시스템 자동" },
+      { time: "20:10", stage: "경계", content: "2단계 상향 승인 · 차단기 작동", owner: "홍길동 팀장" },
+      { time: "21:00", stage: "경계", content: "현장 출동 · 서귀포소방서 점검", owner: "홍길동 팀장" },
+      { time: "22:17", stage: "종료", content: "수위 안정 확인 후 상황 종료 승인", owner: "홍길동 팀장" },
+    ],
+    sopApprovals: [
+      { stage: "1단계 · 주의", content: "관심 → 주의 상향 승인", approver: "홍길동 팀장", time: "19:26", note: "자동 감지 기반" },
+      { stage: "2단계 · 경계", content: "차단기 작동 승인", approver: "홍길동 팀장", time: "20:10", note: "센서 교차검증 완료" },
+      { stage: "해제", content: "수위 30분 이상 안정 확인 후 승인", approver: "홍길동 팀장", time: "22:17", note: "경계 수위 이하 회복" },
+    ],
+    agencyActions: [
+      { agency: "서귀포소방서", action: "현장 출동 및 점검", dispatchedAt: "21:00", result: "완료", confirmedBy: "홍길동 팀장" },
+      { agency: "제주도청 재난안전과", action: "상황실 총괄 지휘", dispatchedAt: "19:30", result: "완료", confirmedBy: "홍길동 팀장" },
+    ],
+    attachments: [
+      { id: "att1", name: "수위 센서 시계열 데이터 (돈내코_HD01)", time: "2026-08-31 19:30" },
+      { id: "att2", name: "현장 출동 보고서 (소방서)", time: "2026-08-31 21:15" },
+    ],
   },
   {
     id: "inc-5",
@@ -78,10 +196,38 @@ export const incidentRecords: IncidentRecord[] = [
     area: "삼양해수욕장 방파제 전구간",
     approver: "김제주 담당",
     actionCount: "4건 완료",
+    detail: {
+      location: "삼양해수욕장 방파제 전구간",
+      detectedAt: "2026-08-30 06:16",
+      endedAt: "2026-08-30 07:03",
+      maxGrade: "3단계 (심각)",
+      confidence: "95%",
+      approver: "김제주 담당",
+      status: "종료 완료",
+    },
+    timeline: [
+      { time: "06:16", stage: "관심", content: "AI CCTV 위험구역 진입 탐지", owner: "시스템 자동" },
+      { time: "06:24", stage: "주의", content: "1단계 발령", owner: "김제주 담당" },
+      { time: "06:35", stage: "심각", content: "3단계 상향 승인 · 해경 공조 요청", owner: "김제주 담당" },
+      { time: "07:03", stage: "종료", content: "현장 통제 해제 후 상황 종료 승인", owner: "김제주 담당" },
+    ],
+    sopApprovals: [
+      { stage: "1단계 · 주의", content: "관심 → 주의 상향 승인", approver: "김제주 담당", time: "06:24", note: "자동 감지 기반" },
+      { stage: "3단계 · 심각", content: "해경 공조 출동 요청 승인", approver: "김제주 담당", time: "06:35", note: "위험구역 진입 인원 확인" },
+      { stage: "해제", content: "현장 통제선 해제 승인", approver: "김제주 담당", time: "07:03", note: "잔류 인원 없음" },
+    ],
+    agencyActions: [
+      { agency: "제주해양경찰서", action: "현장 출동", dispatchedAt: "06:40", result: "완료", confirmedBy: "김제주 담당" },
+      { agency: "서귀포소방서", action: "대기 지원", dispatchedAt: "06:45", result: "완료", confirmedBy: "김제주 담당" },
+    ],
+    attachments: [
+      { id: "att1", name: "CCTV 탐지 마스킹 이미지 (삼양_CAM01)", time: "2026-08-30 06:18" },
+      { id: "att2", name: "해경 출동 확인서", time: "2026-08-30 06:50" },
+    ],
   },
   {
     id: "inc-6",
-    level: "caution",
+    level: "warning",
     levelLabel: "주의",
     domain: "aqua",
     domainLabel: "양식장 위험",
@@ -92,52 +238,33 @@ export const incidentRecords: IncidentRecord[] = [
     area: "한경면 연안 양식장 5개소",
     approver: "이한라 담당",
     actionCount: "6건 완료",
+    detail: {
+      location: "한경면 연안 양식장 5개소",
+      detectedAt: "2026-08-28 10:55",
+      endedAt: "2026-08-28 14:20",
+      maxGrade: "2단계 (주의)",
+      confidence: "85%",
+      approver: "이한라 담당",
+      status: "종료 완료",
+    },
+    timeline: [
+      { time: "10:55", stage: "관심", content: "염분 하락 추세 감지", owner: "시스템 자동" },
+      { time: "11:30", stage: "주의", content: "2단계 발령 승인", owner: "이한라 담당" },
+      { time: "12:15", stage: "주의", content: "어가 맞춤 SOP 안내 발송 완료 (5개소)", owner: "이한라 담당" },
+      { time: "14:20", stage: "종료", content: "염분 회복 확인 후 상황 종료 승인", owner: "이한라 담당" },
+    ],
+    sopApprovals: [
+      { stage: "1단계 · 관심", content: "정상 → 관심 상향", approver: "시스템 자동", time: "10:55", note: "자동 감지 기반" },
+      { stage: "2단계 · 주의", content: "어가 맞춤 SOP 안내 발송 승인", approver: "이한라 담당", time: "11:30", note: "대상 5개소" },
+      { stage: "해제", content: "염분 정상 회복 확인 후 승인", approver: "이한라 담당", time: "14:20", note: "기준치 이상 지속 30분" },
+    ],
+    agencyActions: [
+      { agency: "제주특별자치도 해양수산연구원", action: "예측 검증", dispatchedAt: "11:00", result: "완료", confirmedBy: "이한라 담당" },
+      { agency: "제주시 한경면사무소", action: "어가 현장 안내", dispatchedAt: "12:00", result: "완료", confirmedBy: "이한라 담당" },
+    ],
+    attachments: [
+      { id: "att1", name: "염분 센서 시계열 데이터 (한경_부이)", time: "2026-08-28 10:58" },
+      { id: "att2", name: "어가 안내 발송 확인서", time: "2026-08-28 12:20" },
+    ],
   },
-]
-
-export const incidentDetailSummary = {
-  domainLabel: "하천 범람",
-  location: "효돈천 쇠소깍 일원",
-  detectedAt: "2026-09-04 09:14",
-  endedAt: "2026-09-04 17:42",
-  maxGrade: "3단계 (심각)",
-  confidence: "91%",
-  approver: "김민준 팀장",
-  status: "종료 완료",
-}
-
-export const incidentTimeline: IncidentTimelineEntry[] = [
-  { time: "09:14", stage: "관심", content: "수위 센서 임계값 근접 감지", owner: "시스템 자동" },
-  { time: "09:42", stage: "주의", content: "1단계 발령 승인", owner: "김민준 팀장" },
-  { time: "11:20", stage: "경계", content: "2단계 상향 승인 · 차단기 작동", owner: "김민준 팀장" },
-  { time: "13:05", stage: "심각", content: "3단계 상향 승인 · 주민 대피 안내 발송", owner: "김민준 팀장" },
-  { time: "16:10", stage: "회복", content: "수위 하강 확인 · 경계 해제 검토", owner: "박현장 반장" },
-  { time: "17:42", stage: "종료", content: "상황 종료 승인", owner: "김민준 팀장" },
-]
-
-export const incidentImpact = {
-  river: { label: "하천 범람", floodedSection: "효돈천 쇠소깍 320m 구간", radius: "약 1.2km", households: "약 80세대" },
-  coast: { label: "연안 위험", location: "해당 없음", ripCurrent: "해당 없음" },
-  aqua: { label: "양식장 위험", farmCount: "해당 없음", arrivalZone: "해당 없음" },
-}
-
-export const incidentSopApprovals: IncidentSopApproval[] = [
-  { stage: "1단계 · 주의", content: "관심 → 주의 상향 승인", approver: "김민준 팀장", time: "09:42", note: "자동 감지 기반" },
-  { stage: "2단계 · 경계", content: "차단기 작동 · 현장 통제 승인", approver: "김민준 팀장", time: "11:20", note: "센서 교차검증 완료" },
-  { stage: "3단계 · 심각", content: "주민 대피 안내 발송 승인", approver: "김민준 팀장", time: "13:05", note: "대상 80세대" },
-  { stage: "해제", content: "종료 조건 충족 확인 후 승인", approver: "김민준 팀장", time: "17:42", note: "수위 30분 이상 안정" },
-]
-
-export const incidentAgencyActions: IncidentAgencyAction[] = [
-  { agency: "서귀포소방서", action: "현장 출동 및 주민 안내", dispatchedAt: "11:25", result: "완료", confirmedBy: "박현장 반장" },
-  { agency: "서귀포경찰서", action: "도로 통제 및 대피 유도", dispatchedAt: "13:10", result: "완료", confirmedBy: "최통제 팀장" },
-  { agency: "제주도청 재난안전과", action: "상황실 총괄 지휘", dispatchedAt: "09:42", result: "완료", confirmedBy: "김민준 팀장" },
-]
-
-export const incidentAttachments: IncidentAttachment[] = [
-  { id: "att1", name: "CCTV 탐지 마스킹 이미지 (쇠소깍_CAM02)", time: "2026-09-04 09:18" },
-  { id: "att2", name: "수위 센서 시계열 데이터 (쇠소깍_HD02)", time: "2026-09-04 09:22" },
-  { id: "att3", name: "강우레이더 스냅샷", time: "2026-09-04 10:05" },
-  { id: "att4", name: "GIS 영향 범위 캡처", time: "2026-09-04 11:30" },
-  { id: "att5", name: "현장 출동 보고서 (소방서)", time: "2026-09-04 14:55" },
 ]

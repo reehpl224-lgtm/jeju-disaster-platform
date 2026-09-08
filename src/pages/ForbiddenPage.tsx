@@ -19,18 +19,11 @@ export function ForbiddenPage() {
         <div className="mt-6 flex flex-col gap-2">
           <button
             type="button"
-            onClick={() => navigate("/dashboard")}
-            className="rounded-full bg-accent py-2.5 text-sm font-bold text-black transition hover:bg-accent-hover"
-          >
-            통합 대시보드로
-          </button>
-          <button
-            type="button"
             onClick={() => {
               logout()
               navigate("/login", { replace: true })
             }}
-            className="rounded-full border border-border-subtle py-2.5 text-sm font-semibold text-white/60 transition hover:bg-inset"
+            className="rounded-full bg-accent py-2.5 text-sm font-bold text-black transition hover:bg-accent-hover"
           >
             로그인 화면으로
           </button>

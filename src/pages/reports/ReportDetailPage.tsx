@@ -1,14 +1,7 @@
 import { Link, Navigate, useParams } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import {
-  incidentAgencyActions,
-  incidentAttachments,
-  incidentDetailSummary,
-  incidentRecords,
-  incidentSopApprovals,
-  incidentTimeline,
-} from "../../data/mockReports"
+import { incidentRecords } from "../../data/mockReports"
 
 export function ReportDetailPage() {
   const { incidentId } = useParams()
@@ -17,6 +10,8 @@ export function ReportDetailPage() {
   if (!record) {
     return <Navigate to="/reports" replace />
   }
+
+  const { detail, timeline, sopApprovals, agencyActions, attachments } = record
 
   return (
     <div className="flex flex-col gap-6">
@@ -42,19 +37,19 @@ export function ReportDetailPage() {
         <RiskBadge level={record.level} label={record.levelLabel} solid />
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Field label="위험 유형" value={record.domainLabel} />
-          <Field label="발생 위치" value={incidentDetailSummary.location} />
-          <Field label="최초 탐지 시각" value={incidentDetailSummary.detectedAt} />
-          <Field label="종료 시각" value={incidentDetailSummary.endedAt} />
-          <Field label="최고 위험 등급" value={incidentDetailSummary.maxGrade} />
-          <Field label="예측 신뢰도" value={incidentDetailSummary.confidence} />
-          <Field label="최종 승인자" value={incidentDetailSummary.approver} />
-          <Field label="처리 상태" value={incidentDetailSummary.status} />
+          <Field label="발생 위치" value={detail.location} />
+          <Field label="최초 탐지 시각" value={detail.detectedAt} />
+          <Field label="종료 시각" value={detail.endedAt} />
+          <Field label="최고 위험 등급" value={detail.maxGrade} />
+          <Field label="예측 신뢰도" value={detail.confidence} />
+          <Field label="최종 승인자" value={detail.approver} />
+          <Field label="처리 상태" value={detail.status} />
         </div>
       </Card>
 
       <Card title="사건 타임라인">
         <ul className="flex flex-col divide-y divide-border-subtle">
-          {incidentTimeline.map((t) => (
+          {timeline.map((t) => (
             <li key={t.time} className="flex flex-wrap items-center gap-3 py-2.5 text-sm">
               <span className="w-12 shrink-0 text-xs text-white/35">{t.time}</span>
               <span className="shrink-0 rounded-full border border-border-subtle px-2 py-0.5 text-[11px] font-semibold text-white/60">
@@ -79,7 +74,7 @@ export function ReportDetailPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
-            {incidentSopApprovals.map((a) => (
+            {sopApprovals.map((a) => (
               <tr key={a.stage}>
                 <td className="py-2 font-medium text-white/80">{a.stage}</td>
                 <td className="py-2 text-white/60">{a.content}</td>
@@ -104,7 +99,7 @@ export function ReportDetailPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
-            {incidentAgencyActions.map((a) => (
+            {agencyActions.map((a) => (
               <tr key={a.agency}>
                 <td className="py-2 font-medium text-white/80">{a.agency}</td>
                 <td className="py-2 text-white/60">{a.action}</td>
@@ -119,7 +114,7 @@ export function ReportDetailPage() {
 
       <Card title="첨부 증빙 및 보고서 미리보기">
         <ul className="flex flex-col divide-y divide-border-subtle">
-          {incidentAttachments.map((att) => (
+          {attachments.map((att) => (
             <li key={att.id} className="flex items-center justify-between py-2.5 text-sm">
               <p className="text-white/70">📎 {att.name}</p>
               <span className="text-xs text-white/35">{att.time}</span>

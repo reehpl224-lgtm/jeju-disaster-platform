@@ -311,7 +311,7 @@ export function DashboardPage() {
       <>
       <Card
         title="위험 위치 및 영향 범위 — 제주 전역 GIS"
-        subtitle={`기온 ${currentWeather.temperatureC}℃ · 강수 ${currentWeather.rainfallMm}mm · 풍속 ${currentWeather.windSpeedMs}m/s · 습도 ${currentWeather.humidityPercent}% · 갱신 09:47 / 5분 주기`}
+        subtitle={`기온 ${currentWeather.temperatureC}℃ · 강수 ${currentWeather.rainfallMm}mm · 풍속 ${currentWeather.windSpeedMs}m/s · 습도 ${currentWeather.humidityPercent}% · 갱신 ${formatHM(currentWeather.observedAt)} / 5분 주기`}
         action={
           <div className="flex gap-1.5">
             {MAP_DOMAIN_FILTERS.map((f) => (
