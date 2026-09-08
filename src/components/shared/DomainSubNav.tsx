@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom"
+import { pillClass } from "../ui/Pill"
 
 interface DomainSubNavItem {
   to: string
@@ -14,11 +15,7 @@ export function DomainSubNav({ items }: { items: DomainSubNavItem[] }) {
           key={item.to}
           to={item.to}
           end={item.end}
-          className={({ isActive }) =>
-            `rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-              isActive ? "bg-accent text-black" : "border border-border-subtle text-white/60 hover:bg-inset"
-            }`
-          }
+          className={({ isActive }) => pillClass(isActive)}
         >
           {item.label}
         </NavLink>

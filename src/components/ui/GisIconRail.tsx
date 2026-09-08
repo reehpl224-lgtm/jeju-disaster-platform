@@ -21,7 +21,7 @@ interface GisIconRailProps {
 
 export function GisIconRail({ activeKey, onSelect, items = GIS_RAIL_ITEMS }: GisIconRailProps) {
   return (
-    <div className="absolute left-2 top-2 z-10 flex flex-col gap-1 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-xl">
+    <div className="absolute left-2 top-2 z-10 flex flex-col gap-1 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
       {items.map((item) => (
         <button
           key={item.key}

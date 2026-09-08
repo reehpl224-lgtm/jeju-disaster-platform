@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react"
 import { Card } from "../../components/ui/Card"
+import { Pill } from "../../components/ui/Pill"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { heatLevelInfo, heatRouteTips, heatShelters } from "../../data/mockHeat"
 import type { HeatShelter } from "../../types/heat"
@@ -81,16 +82,9 @@ export function HeatHomePage() {
             />
             <div className="flex gap-1.5">
               {REGION_FILTERS.map((f) => (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setRegion(f.id)}
-                  className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
-                    region === f.id ? "bg-accent text-black" : "border border-border-subtle text-white/60 hover:bg-inset"
-                  }`}
-                >
+                <Pill key={f.id} size="sm" active={region === f.id} onClick={() => setRegion(f.id)}>
                   {f.label}
-                </button>
+                </Pill>
               ))}
             </div>
           </div>

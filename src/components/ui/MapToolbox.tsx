@@ -52,7 +52,7 @@ export function MapToolbox() {
       </div>
 
       {activePanel && (
-        <div className="w-64 rounded-lg border border-border-subtle bg-panel p-3 shadow-xl">
+        <div className="w-64 rounded-lg border border-border-subtle bg-panel p-3 shadow-panel">
           <div className="flex items-center justify-between border-b border-border-subtle pb-2">
             <p className="text-sm font-bold text-white/90">{activePanel.panelTitle}</p>
             <button

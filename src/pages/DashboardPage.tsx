@@ -6,6 +6,7 @@ import { CctvCameraCard } from "../components/ui/CctvCameraCard"
 import { DutyContactPanel } from "../components/ui/DutyContactPanel"
 import { JejuRiskMap } from "../components/ui/JejuRiskMap"
 import { MapToolbox } from "../components/ui/MapToolbox"
+import { Pill } from "../components/ui/Pill"
 import { RiskBadge } from "../components/ui/RiskBadge"
 import { ServiceStatusCard } from "../components/ui/ServiceStatusCard"
 import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../components/ui/GisIconRail"
@@ -253,16 +254,9 @@ export function DashboardPage() {
 
       <nav className="flex flex-wrap gap-1.5 border-b border-border-subtle pb-3">
         {TOP_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => setTopTab(tab.key)}
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-              topTab === tab.key ? "bg-accent text-black" : "border border-border-subtle text-white/60 hover:bg-inset"
-            }`}
-          >
+          <Pill key={tab.key} active={topTab === tab.key} onClick={() => setTopTab(tab.key)}>
             {tab.label}
-          </button>
+          </Pill>
         ))}
       </nav>
 
@@ -285,16 +279,9 @@ export function DashboardPage() {
               />
               <div className="flex gap-1.5">
                 {CCTV_DOMAIN_FILTERS.map((f) => (
-                  <button
-                    key={f.id}
-                    type="button"
-                    onClick={() => setCctvDomain(f.id)}
-                    className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
-                      cctvDomain === f.id ? "bg-accent text-black" : "border border-border-subtle text-white/60 hover:bg-inset"
-                    }`}
-                  >
+                  <Pill key={f.id} size="sm" active={cctvDomain === f.id} onClick={() => setCctvDomain(f.id)}>
                     {f.label}
-                  </button>
+                  </Pill>
                 ))}
               </div>
             </div>
@@ -418,16 +405,9 @@ export function DashboardPage() {
         action={
           <div className="flex gap-1.5">
             {MAP_DOMAIN_FILTERS.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setMapDomain(f.id)}
-                className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
-                  mapDomain === f.id ? "bg-accent text-black" : "border border-border-subtle text-white/60 hover:bg-inset"
-                }`}
-              >
+              <Pill key={f.id} size="sm" active={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
                 {f.label}
-              </button>
+              </Pill>
             ))}
           </div>
         }
@@ -455,7 +435,7 @@ export function DashboardPage() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {serviceStatusCards.map((card) => (
           <ServiceStatusCard key={card.id} card={card} />
         ))}

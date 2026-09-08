@@ -35,7 +35,7 @@ export function TopBar({ user }: { user: MockUser }) {
             )}
           </button>
           {notifOpen && (
-            <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-border-subtle bg-panel py-2 shadow-lg">
+            <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-border-subtle bg-panel py-2 shadow-panel">
               <p className="px-3 pb-2 text-xs font-semibold text-white/40">발효중 특보 · 알림</p>
               {disasterAlerts.length === 0 ? (
                 <p className="px-3 py-4 text-center text-xs text-white/30">새 알림이 없습니다.</p>
@@ -73,7 +73,7 @@ export function TopBar({ user }: { user: MockUser }) {
             </span>
           </button>
           {menuOpen && (
-            <div className="absolute right-0 z-10 mt-2 w-40 rounded-lg border border-border-subtle bg-panel py-1 shadow-lg">
+            <div className="absolute right-0 z-10 mt-2 w-40 rounded-lg border border-border-subtle bg-panel py-1 shadow-panel">
               <button
                 type="button"
                 onClick={handleLogout}
