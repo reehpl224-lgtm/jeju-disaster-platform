@@ -4,6 +4,9 @@ const DOMAIN_LABEL: Record<RiskMarker["domain"], string> = {
   river: "하천",
   coast: "연안",
   aqua: "양식장",
+  heavyRain: "호우",
+  typhoon: "태풍",
+  heat: "폭염",
 }
 
 const MARKER_COLOR: Record<RiskLevel, string> = {

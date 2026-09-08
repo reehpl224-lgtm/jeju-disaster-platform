@@ -231,6 +231,21 @@ Q15 근거: "하천수위를 해양 조수 시간과 연계해서 보여주면 �
 - 발송 채널 수치(문자/앱푸시 발송·성공·실패 건수)는 river의 `riverAlertDispatch` 규모감을 참고해
   새로 만든 더미데이터입니다 — 실제 발송 이력이 아닙니다.
 
+**2026-09-08 호우·태풍·폭염을 GIS 지도·AI 분석 근거에도 반영**(사용자 요청). `RiskMarker["domain"]`
+유니온에 `"heavyRain" | "typhoon" | "heat"`를 추가했습니다(`src/types/domain.ts`) — `JejuRiskMap.tsx`의
+`DOMAIN_LABEL` Record도 함께 채워야 컴파일됩니다(AGENTS.md 3장 경고 그대로 실제로 발생·수정함).
+
+- **GIS 마커** 3개 추가(`riskMarkers`, `mockDashboard.ts`): 한천 침수경보(`heavyRain`, alert —
+  `weatherStations` ws-1과 동일 등급), 제24호 크로반(`typhoon`, alert — `typhoonReports` 최신
+  발표와 동일 등급), 신제주 로터리·더운 길(`heat`, warning — `heatLevelInfo`와 동일 등급). **태풍
+  마커는 실제 위경도가 아닙니다** — `JejuRiskMap`이 제주 섬만 그리는 데모용 축척 지도라, 화면
+  우측 하단 해상에 접근 방향을 상징적으로만 표시한 것입니다. `MAP_DOMAIN_FILTERS`(`DashboardPage.tsx`)에
+  호우·태풍·폭염 필터 버튼도 추가.
+- **AI 분석 근거**(`aiInsights`, `mockDashboard.ts`): 돌발 강우 조기경보, 태풍 경로 안내(자체 관측
+  없음 명시), 폭염 특보·열섬 안내 3건 추가 — `/dashboard` 종합 상황 탭에 표시됨.
+- 센서 시계열 차트(`timeSeries`/`sixHourSeries`)에는 반영하지 않았습니다(사용자가 GIS 마커·AI
+  분석 근거만 선택) — 필요해지면 별도 요청 시 진행.
+
 `/dashboard`의 자산현황 레일 항목은 대피소 데이터가 맥락과 안 맞아 **우선 주석처리**돼 있습니다
 (`DashboardPage.tsx`의 `DASHBOARD_RAIL_ITEMS`, `railContent.asset`, `shelters` import — 전부
 주석으로 남아있고 삭제 안 됨. `GisIconRail`에 `items` prop이 생겨서 화면별로 레일 항목을 뺄 수

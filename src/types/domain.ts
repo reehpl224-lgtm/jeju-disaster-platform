@@ -22,7 +22,7 @@ export interface RiskMarker {
   x: number
   y: number
   level: RiskLevel
-  domain: "river" | "coast" | "aqua"
+  domain: "river" | "coast" | "aqua" | "heavyRain" | "typhoon" | "heat"
   /** 양식장 콜아웃 관측값 — 점검중 등 단일 상태 문구를 표시할 때 사용 */
   value?: string
   /** 양식장 콜아웃 수온 (예: "24.7°C") */

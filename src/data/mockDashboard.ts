@@ -41,6 +41,13 @@ export const riskMarkers: RiskMarker[] = [
   { id: "hangyeong-geumdeung", name: "한경 금등", x: 40, y: 125, level: "alert", domain: "aqua", temperature: "24.7°C", salinity: "25.9 psu" },
   { id: "hangyeong-yongsu", name: "한경 용수", x: 44, y: 185, level: "alert", domain: "aqua", temperature: "25.8°C", salinity: "25.3 psu" },
   { id: "daejeong-ilgwa", name: "대정 일과", x: 60, y: 240, level: "alert", domain: "aqua", temperature: "26.8°C", salinity: "24.6 psu" },
+  // weatherStations(mockHeavyRain.ts) ws-1 "경보 발령"과 반드시 같은 등급을 쓸 것
+  { id: "hancheon", name: "한천 침수경보", x: 145, y: 80, level: "alert", domain: "heavyRain" },
+  // typhoonReports(mockTyphoon.ts) 최신 발표(ty-1) "태풍경보"와 반드시 같은 등급을 쓸 것. 지도가 제주 섬 외곽선만
+  // 표시하는 데모용 축척이라, 실제 위경도가 아니라 우측 하단 해상(접근 방향)에 상징적으로 배치
+  { id: "typhoon-kroban", name: "제24호 크로반", x: 300, y: 265, level: "alert", domain: "typhoon" },
+  // heatLevelInfo(mockHeat.ts) "폭염주의보"(warning)와 반드시 같은 등급을 쓸 것 — heatRouteTips의 "더운 길" 지점
+  { id: "sinjeju-hotroute", name: "신제주 로터리(더운 길)", x: 115, y: 100, level: "warning", domain: "heat" },
 ]
 
 export const timeSeries: TimeSeriesReading[] = [
@@ -54,6 +61,9 @@ export const aiInsights: AiInsight[] = [
   { id: "river", title: "하천 범람 예측", basis: "강우레이더 + 수위센서 융합" },
   { id: "coast", title: "연안 위험 탐지", basis: "AI CCTV + AIoT 스마트폴" },
   { id: "aqua", title: "해양 위험 예측", basis: "다중모델 + 위성 + 현장관측" },
+  { id: "heavy-rain", title: "돌발 강우 조기경보", basis: "우량계 실측 추이 vs 기상청 예보 비교" },
+  { id: "typhoon", title: "태풍 경로 안내", basis: "기상청 발표 자료 수신 (자체 관측 없음)" },
+  { id: "heat", title: "폭염 특보 및 열섬 안내", basis: "체감온도 관측 + 열섬 구간(시원한 길·더운 길) 분석" },
 ]
 
 export const agencyStatuses: AgencyStatus[] = [
