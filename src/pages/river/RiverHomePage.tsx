@@ -208,7 +208,7 @@ export function RiverHomePage() {
 
         <Card title="e-SOP 단계 연결">
           <p className="text-sm font-semibold text-white/85">현재 적용 단계</p>
-          <RiskBadge level="alert" label={riverSopStage.current} solid />
+          <RiskBadge level="danger" label={riverSopStage.current} solid />
           <p className="mt-3 text-sm text-white/60">{riverSopStage.next}</p>
           <Link
             to="/river/control"

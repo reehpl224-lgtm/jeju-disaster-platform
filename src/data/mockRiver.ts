@@ -17,8 +17,9 @@ export const riverInfra = {
   },
 }
 
+// 쇠소깍은 14:32에 심각 3단계로 상향(riverControlTimeline ct7, riverAlertDispatch 참고) — 아래 값들은 그 최신 상태 기준
 export const riverStatuses: RiverStatus[] = [
-  { id: "soesokkak", name: "효돈천(쇠소깍)", level: "alert", stage: "2단계 · 경계", eta: "약 38분 후 (14:22)", updatedAt: "14:08" },
+  { id: "soesokkak", name: "효돈천(쇠소깍)", level: "danger", stage: "3단계 · 심각", eta: "약 38분 후 (14:22)", updatedAt: "14:32" },
   { id: "donnaeko", name: "효돈천(돈내코)", level: "warning", stage: "1단계 · 주의", eta: "약 1시간 22분 후 (15:06)", updatedAt: "14:07" },
 ]
 
@@ -29,8 +30,8 @@ export const riverApprovalHistory: TimelineEntry[] = [
 ]
 
 export const riverSopStage = {
-  current: "경계 단계 (2단계)",
-  next: "다음 절차: 주민 대피 안내 및 도로 통제 요청",
+  current: "심각 단계 (3단계)",
+  next: "다음 절차: 주민 대피 안내 및 도로 통제 요청 · 수위가 경계 기준(3.5m) 아래로 회복되면 하향 검토",
 }
 
 export const riverRiskBasis = {
@@ -86,7 +87,7 @@ export const riverAlertDispatch = {
 }
 
 export const riverControlRows: RiverControlRow[] = [
-  { id: "r1", river: "효돈천(쇠소깍)", stage: "⚠ 경계 2단계", location: "서귀포시 하효동 쇠소깍 일원", gate: "오류 발생", dispatch: "대기 중", ack: "미확인" },
+  { id: "r1", river: "효돈천(쇠소깍)", stage: "⚠ 심각 3단계", location: "서귀포시 하효동 쇠소깍 일원", gate: "오류 발생", dispatch: "대기 중", ack: "미확인" },
   { id: "r2", river: "효돈천(돈내코)", stage: "⚠ 주의 1단계", location: "서귀포시 상효동 돈내코 계곡", gate: "정상 작동", dispatch: "완료", ack: "확인" },
 ]
 
@@ -108,7 +109,8 @@ export const riverControlTimeline: TimelineEntry[] = [
   { id: "ct3", time: "14:10", title: "주민 문자 전파 완료" },
   { id: "ct4", time: "14:12", title: "돈내코 차단기 작동 확인" },
   { id: "ct5", time: "14:22", title: "쇠소깍 차단기 오류 감지" },
-  { id: "ct6", time: "14:25", title: "쇠소깍 출동 미배정 확인 — 현재 진행 중" },
+  { id: "ct6", time: "14:25", title: "쇠소깍 출동 미배정 확인" },
+  { id: "ct7", time: "14:32", title: "쇠소깍 심각 3단계 상향 승인 — 대규모 경보 발송 — 현재 진행 중" },
 ]
 
 export const riverJointAgencies = [
@@ -118,9 +120,10 @@ export const riverJointAgencies = [
   { id: "j4", agency: "경찰서 (서귀포시)", status: "대기 중" },
 ]
 
+// 요청 시각(14:01~14:05)은 심각 3단계 상향(14:32, riverControlTimeline ct7) 이전이므로 그 시점 실제 단계인 경계 2단계로 표기
 export const riverDispatchRequest = {
   target: "효돈천 쇠소깍 구간",
-  stage: "⚠ 심각 3단계",
+  stage: "⚠ 경계 2단계",
   eta: "14:22 (약 18분 후)",
   impact: "인근 주민 80세대 / 관광객 밀집",
   requestedAt: "14:04",
@@ -133,7 +136,7 @@ export const riverDispatchRequest = {
     "GIS 취약 구간: 돈내코 계곡 교량 하부 2개소",
   ],
   process: [
-    { id: "pr1", time: "14:01", title: "e-SOP 심각 3단계 자동 발동" },
+    { id: "pr1", time: "14:01", title: "e-SOP 경계 2단계 자동 발동" },
     { id: "pr2", time: "14:03", title: "담당자 위험 분석 검토 완료" },
     { id: "pr3", time: "14:04", title: "출동 요청 승인 (김현우)" },
     { id: "pr4", time: "14:05", title: "기관별 출동 요청 전송 완료" },

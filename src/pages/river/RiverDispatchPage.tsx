@@ -17,7 +17,7 @@ export function RiverDispatchPage() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="출동 요청 개요">
-          <RiskBadge level="danger" label={d.stage} solid />
+          <RiskBadge level="alert" label={d.stage} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="대상 하천·구역" value={d.target} />
             <Row label="범람 예상 시각" value={d.eta} />

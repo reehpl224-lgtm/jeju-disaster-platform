@@ -165,6 +165,15 @@ export type RiskLevel = "danger" | "alert" | "warning" | "caution" | "safe" | "i
 warning/caution으로 낮게 표시돼 있었던 것(`mockDashboard.ts`의 `riskMarkers`), 하천 서비스 카드
 집계(`serviceStatusCards`)의 alert 건수가 실제 `riverStatuses`보다 1건 많았던 것.
 
+**추가로 2026-09-08에 판단해서 정리한 사례** — 처음엔 확신이 없어 미해결로 남겼다가, "더미데이터니
+알아서 맞춰라"는 지시에 따라 하나의 시나리오로 확정: 하천 쇠소깍이 `riverStatuses`/`riverControlRows`/
+`riskMarkers`에서는 "2단계·경계"였는데 `riverDispatchRequest`/`riverAlertDispatch`는 "3단계·심각"으로
+서로 달랐던 건 — **14:32에 심각 3단계로 상향된 것**으로 확정했습니다(가장 늦은 타임스탬프인
+`riverAlertDispatch.sentAt`=14:32:07 기준). `riverControlTimeline`에 그 상향 사실을 담은 ct7 항목을
+추가했고, 그보다 이른 시각(14:01~14:05)의 `riverDispatchRequest`는 그 시점 실제 단계였던 "경계 2단계"
+요청으로 되돌렸습니다. 하천 도메인에서 새 시나리오를 만들 때도 이렇게 **타임스탬프가 가장 늦은 레코드를
+현재 상태의 기준으로 삼고, 그보다 이른 레코드는 그 시점 단계로 맞추는 원칙**을 따르세요.
+
 - 같은 사건(예: 효돈천 쇠소깍)을 여러 화면(GIS 마커, 하천 상세, 통합 모니터링)에서 참조할 때
   **`level` 필드와 표시 텍스트("2단계 · 경계" 등)가 항상 일치**해야 합니다.
 - 양식장 염분·수온처럼 정량 임계값이 있는 데이터는 `marineAlertThresholds.ts`의 분류 함수로 등급을
@@ -174,13 +183,6 @@ warning/caution으로 낮게 표시돼 있었던 것(`mockDashboard.ts`의 `risk
 
 ## 5. 알려진 미해결 이슈 (다음에 손댈 후보)
 
-- **하천(`/river`) 쇠소깍 등급 확인 필요** (2026-09-08 연안·하천 정합성 점검 중 발견, 확신도 낮아 임의로
-  고치지 않음): `riverStatuses`/`riverControlRows`/`riskMarkers`는 쇠소깍을 "2단계·경계"(alert)로
-  표시하는데, `riverDispatchRequest`(출동 요청, "⚠ 심각 3단계", 요청 14:04)와 `riverAlertDispatch`
-  (경보 발송, "심각 단계 3", 발송 14:32)는 같은 쇠소깍 상황을 "3단계·심각"(danger)으로 표시합니다.
-  `riverControlTimeline`(단계별 타임라인)에는 2단계(경계) 상향 승인(14:05) 이후 3단계 상향 기록이
-  없어서, 어느 쪽이 최신 진짜 상태인지 코드만으로는 판단할 수 없습니다. 다음에 손댈 때 기획자에게 실제
-  시나리오상 쇠소깍이 최종적으로 경계인지 심각인지 먼저 확인하고 관련 필드를 전부 통일하세요.
 - **`aquaStages`**(`src/data/mockAqua.ts`)와 `이력·보고서`(`src/data/mockReports.ts`)의
   `incidentRecords`는 `관심/주의/경계/심각/해제`라는 **e-SOP 대응 진행상태**(마지막에 "해제"로 끝남) 어휘를
   씁니다. 2026-09-07에 앱 전역 `danger` 라벨을 "심각"으로 맞추면서 앞 4단계 이름은 이제 우연히 일치하지만,

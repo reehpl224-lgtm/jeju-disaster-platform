@@ -17,15 +17,16 @@ export const serviceStatusCards: {
   href: string
   counts: { warning: number; alert: number; danger: number }
 }[] = [
-  // riverStatuses(돈내코 warning 1 · 쇠소깍 alert 1)와 반드시 같은 수치를 쓸 것
-  { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 1, alert: 1, danger: 0 } },
+  // riverStatuses(돈내코 warning 1 · 쇠소깍 danger 1, 14:32 심각 상향)와 반드시 같은 수치를 쓸 것
+  { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 1, alert: 0, danger: 1 } },
   { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 7, alert: 7, danger: 5 } },
   { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 2, alert: 0, danger: 3 } },
 ]
 
 export const riskMarkers: RiskMarker[] = [
   { id: "donnaeko", name: "효돈천(돈내코)", x: 178, y: 198, level: "warning", domain: "river" },
-  { id: "soesokkak", name: "효돈천(쇠소깍)", x: 196, y: 222, level: "alert", domain: "river" },
+  // riverStatuses 기준 14:32에 심각 3단계로 상향(riverControlTimeline ct7)
+  { id: "soesokkak", name: "효돈천(쇠소깍)", x: 196, y: 222, level: "danger", domain: "river" },
   { id: "hamdeok", name: "함덕 해수욕장", x: 222, y: 92, level: "danger", domain: "coast" },
   // coastEvents 기준 실제 최고위험(둘 다 danger 이벤트가 진행 중) 반영 — serviceStatusCards.coast(danger 3건)와도 일치시킬 것
   { id: "samyang", name: "삼양 해수욕장", x: 195, y: 88, level: "danger", domain: "coast" },
