@@ -1,4 +1,4 @@
-import type { RiverControlRow, RiverStatus, TimelineEntry } from "../types/river"
+import type { RiverControlRow, RiverStatus, RiverTidePoint, TimelineEntry } from "../types/river"
 
 export const riverTarget = {
   area: "서귀포시 효돈천 (돈내코·쇠소깍)",
@@ -39,6 +39,32 @@ export const riverRiskBasis = {
   waterLevel: { value: "3.82 m", detail: "경계 수위 3.5m 초과", trend: "↑ 급상승" },
   radar: { value: "120분 지속", detail: "90분 내 최고조 예상", confidence: "높음 (87%)" },
   saturation: { value: "94%", detail: "추가 흡수 여력 없음", grade: "매우 높음" },
+}
+
+/**
+ * 하천×조수 연계 — 레거시시스템 현황 조사 면담(2026-09-07) Q15 근거: "하천수위를 해양 조수
+ * 시간과 연계해서 보여주면 좋겠음". 쇠소깍은 하구(감조구간)라 밀물 시간대에 조위가 겹치면
+ * 수위가 추가 상승한다. 돈내코는 상류 계곡 구간이라 조수 영향이 없어 대상에서 제외.
+ * 14:30까지는 관측값(riverRiskBasis.waterLevel "3.82m"과 정합), 이후는 예측값.
+ */
+export const riverTideCorrelation = {
+  location: "효돈천(쇠소깍) — 감조구간",
+  note: "쇠소깍은 하구에 위치해 밀물 시간대에 조위가 겹치면 수위가 추가 상승합니다. 상류 돈내코 구간은 조수 영향이 없습니다.",
+  boundaryLevelM: 3.5,
+  nextHighTide: "15:10 예상 (조위 +1.35m)",
+  series: [
+    { time: "12:00", waterLevelM: 2.1, tideLevelM: 0.1, predicted: false },
+    { time: "12:30", waterLevelM: 2.35, tideLevelM: 0.35, predicted: false },
+    { time: "13:00", waterLevelM: 2.7, tideLevelM: 0.62, predicted: false },
+    { time: "13:30", waterLevelM: 3.05, tideLevelM: 0.85, predicted: false },
+    { time: "14:00", waterLevelM: 3.45, tideLevelM: 1.05, predicted: false },
+    { time: "14:30", waterLevelM: 3.82, tideLevelM: 1.2, predicted: false },
+    { time: "15:00", waterLevelM: 4.05, tideLevelM: 1.32, predicted: true },
+    { time: "15:30", waterLevelM: 4.02, tideLevelM: 1.28, predicted: true },
+    { time: "16:00", waterLevelM: 3.7, tideLevelM: 1.0, predicted: true },
+    { time: "16:30", waterLevelM: 3.3, tideLevelM: 0.6, predicted: true },
+    { time: "17:00", waterLevelM: 2.95, tideLevelM: 0.25, predicted: true },
+  ] as RiverTidePoint[],
 }
 
 export const riverImpact = {

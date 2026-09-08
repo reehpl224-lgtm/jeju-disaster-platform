@@ -24,3 +24,11 @@ export interface TimelineEntry {
   time: string
   title: string
 }
+
+/** 하천×조수 연계 시계열 포인트 — 감조구간(하구)에서만 의미 있음. predicted=false는 관측값, true는 예측값 */
+export interface RiverTidePoint {
+  time: string
+  waterLevelM: number
+  tideLevelM: number
+  predicted: boolean
+}

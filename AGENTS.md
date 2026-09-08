@@ -125,6 +125,16 @@ Q4·Q27 근거): 새 GIS 레일 항목 "담당자"(`contact`)를 `GisIconRail`�
 정보를 코드에 넣지 않기 위한 의도적 선택이니, 실제 값으로 바꾸지 마세요. 면담에서 합의된 대로
 "인사이동 시 AI추진단이 접수해 현행화" 문구를 패널 하단에 고정 표시합니다.
 
+**하천×조수 연계 시계열 구현 완료**(2026-09-08, Claude Code — 레거시시스템 현황 조사 면담 결과서
+Q15 근거: "하천수위를 해양 조수 시간과 연계해서 보여주면 좋겠음"): `/river/analysis`의 "수위 시계열
+예측" 플레이스홀더를 recharts 라인차트로 교체하고 조위(조수) 라인을 겹쳐 표시했습니다. **효돈천
+쇠소깍(하구, 감조구간)에만 적용**하고 **돈내코(상류 계곡)는 조수 영향이 없어 제외**했습니다 — 실제로
+쇠소깍이 바다와 만나는 지점이라는 지리적 특성에 근거한 구분이니 임의로 두 지점 모두에 적용하지
+마세요. 데이터는 `riverTideCorrelation`(`src/data/mockRiver.ts`, 타입은 `src/types/river.ts`의
+`RiverTidePoint`) — `riverRiskBasis.waterLevel`(관측 수위 "3.82m")과 14:30 시점 값이 정합하도록
+맞췄고, 그 이후 시간대는 예측값(`predicted: true`)입니다. 경계 수위(3.5m) 기준선은
+`ReferenceLine`으로 표시합니다.
+
 `/dashboard`의 자산현황 레일 항목은 대피소 데이터가 맥락과 안 맞아 **우선 주석처리**돼 있습니다
 (`DashboardPage.tsx`의 `DASHBOARD_RAIL_ITEMS`, `railContent.asset`, `shelters` import — 전부
 주석으로 남아있고 삭제 안 됨. `GisIconRail`에 `items` prop이 생겨서 화면별로 레일 항목을 뺄 수

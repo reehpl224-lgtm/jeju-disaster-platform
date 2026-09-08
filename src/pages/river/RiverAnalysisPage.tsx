@@ -1,3 +1,4 @@
+import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
@@ -9,6 +10,7 @@ import {
   riverInfra,
   riverRiskBasis,
   riverSensorCheck,
+  riverTideCorrelation,
 } from "../../data/mockRiver"
 
 export function RiverAnalysisPage() {
@@ -30,10 +32,27 @@ export function RiverAnalysisPage() {
         </div>
       </Card>
 
-      <Card title="수위 시계열 예측 (효돈천 쇠소깍 · 향후 3시간)">
-        <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
-          수위 시계열 차트 — 관측값·예측값·경계선 표시
+      <Card
+        title="수위 × 조수 연계 시계열 (효돈천 쇠소깍 · 감조구간)"
+        subtitle={`${riverTideCorrelation.note} · 다음 만조 ${riverTideCorrelation.nextHighTide}`}
+      >
+        <div className="h-56 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={riverTideCorrelation.series} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
+              <XAxis dataKey="time" tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
+              <YAxis tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
+              <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 12 }} />
+              <Legend wrapperStyle={{ fontSize: 11, color: "#ffffffaa" }} />
+              <ReferenceLine y={riverTideCorrelation.boundaryLevelM} stroke="#f2731a" strokeDasharray="4 4" label={{ value: "경계 수위 3.5m", fill: "#f2731a", fontSize: 11, position: "insideTopLeft" }} />
+              <Line type="monotone" dataKey="waterLevelM" name="쇠소깍 수위(m)" stroke="#8ec21f" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="tideLevelM" name="조위(m)" stroke="#0054a3" strokeWidth={2} strokeDasharray="5 3" dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
+        <p className="mt-2 text-[11px] text-white/35">
+          14:30까지 관측값, 이후는 예측값입니다. 상류 돈내코 구간은 조수 영향이 없어 이 연계 차트에서 제외됩니다.
+        </p>
       </Card>
 
       <Card title="영향 범위 GIS">
