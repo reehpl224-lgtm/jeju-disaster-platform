@@ -1,13 +1,14 @@
 import { NavLink } from "react-router-dom"
 
+// 순서: 사용자 지정(2026-09-08) — 통합 대시보드의 서비스 카드 순서(mockDashboard.ts)와 동일하게 유지
 const NAV_ITEMS = [
   { to: "/dashboard", label: "통합 대시보드", icon: "🗺️" },
-  { to: "/aqua", label: "염분·수온 상태", icon: "🌡️" },
-  { to: "/coast", label: "연안 안전", icon: "🌊" },
-  { to: "/river", label: "하천 범람", icon: "🌧️" },
   { to: "/heavy-rain", label: "호우", icon: "☔" },
   { to: "/typhoon", label: "태풍", icon: "🌀" },
   { to: "/heat", label: "폭염 대응", icon: "🔆" },
+  { to: "/river", label: "하천범람", icon: "🌧️" },
+  { to: "/aqua", label: "저염분 고수온", icon: "🌡️" },
+  { to: "/coast", label: "연안 안전관리", icon: "🌊" },
   { to: "/propagation", label: "상황전파·보고체계", icon: "📡" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
   { to: "/reports", label: "이력·보고서", icon: "📋" },
