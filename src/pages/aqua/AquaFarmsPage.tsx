@@ -37,7 +37,10 @@ export function AquaFarmsPage() {
         </Card>
       </div>
 
-      <Card title="양식장별 영향 상태" subtitle="목록 클릭 시 상세 정보로 이동">
+      <Card
+        title="양식장별 영향 상태"
+        subtitle={`대표 사례 ${aquaFarms.length}개소 (전체 ${aquaFarmTotals.total}개소 중) · 목록 클릭 시 상세 정보로 이동`}
+      >
         <ul className="flex flex-col divide-y divide-border-subtle">
           {aquaFarms.map((farm) => (
             <li key={farm.id}>

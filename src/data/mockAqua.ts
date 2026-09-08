@@ -102,6 +102,13 @@ export const aquaQualityMetrics: AquaQualityMetric[] = [
   { id: "q4", name: "강우·하천 유량", level: "safe", percent: 96, note: "최근 수신 14:25" },
 ]
 
+/**
+ * 전체 영향 양식장(aquaFarmTotals.total=24개소) 중 대표 사례 7건만 개별 데이터로 관리 — 확정 관측지점
+ * 3곳(한경 금등·한경 용수·대정 일과, AGENTS.md §2-①)에서 감지된 저염분수·고수온이 확산되어 영향을
+ * 받는 더 넓은 한경·대정 지역의 개별 양식장이므로 GIS 마커(관측지점 3곳)보다 수가 많음.
+ * 나머지 17개소는 이름 없이 aquaFarmTotals 집계에만 존재 — 화면에는 "대표 N개소" 문구로 명시할 것,
+ * 전체 24개소인 것처럼 착각하게 두지 말 것.
+ */
 export const aquaFarms: AquaFarm[] = [
   { id: "f1", name: "한경 금등 전복 양식장", region: "한경면 금등리", species: "전복·소라", level: "danger", riskType: "저염분수+고수온", etaHours: 18, salinity: 24.1, temperature: 30.2 },
   // temp 30.5℃가 3일 이상 지속 중 — classifyTemperature(30.5, 3)=CRITICAL(심각). tempSustainedDays로 근거를 화면에 노출(그냥 level만 적으면 담당자가 왜 심각인지 확인 불가)

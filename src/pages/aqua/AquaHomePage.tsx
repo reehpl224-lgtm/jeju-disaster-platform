@@ -46,6 +46,7 @@ const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
   ),
   asset: (
     <ul className="flex flex-col gap-2">
+      <li className="text-[11px] text-white/35">대표 양식장 {aquaFarms.length}개소 (전체 {aquaSummary.affectedFarms.count}개소 중) · 전체 목록은 영향 양식장 페이지에서 확인</li>
       {aquaFarms.map((farm) => (
         <li key={farm.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
           <div className="flex items-center justify-between gap-2">
