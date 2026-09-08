@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../components/ui/Card"
 import { CctvCameraCard } from "../components/ui/CctvCameraCard"
+import { DutyContactPanel } from "../components/ui/DutyContactPanel"
 import { JejuRiskMap } from "../components/ui/JejuRiskMap"
 import { MapToolbox } from "../components/ui/MapToolbox"
 import { RiskBadge } from "../components/ui/RiskBadge"
@@ -135,6 +136,7 @@ export function DashboardPage() {
         </div>
       </div>
     ),
+    contact: <DutyContactPanel />,
     // 자산현황(대피소) 우선 주석처리 — 대시보드 맥락과 안 맞아 임시 비활성화, DASHBOARD_RAIL_ITEMS에서도 제외됨
     // asset: (
     //   <ul className="flex flex-col gap-2">

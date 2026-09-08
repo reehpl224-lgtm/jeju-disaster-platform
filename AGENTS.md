@@ -116,6 +116,15 @@ Q22 근거): `/dashboard`의 CCTV 탭 플레이스홀더를 실제 검색·필�
 `src/types/domain.ts`의 `CctvCamera`/`CctvCoverageSummary`, 카드 컴포넌트는
 `src/components/ui/CctvCameraCard.tsx`.
 
+**담당자·연락처 안내 패널 구현 완료**(2026-09-08, Claude Code — 레거시시스템 현황 조사 면담 결과서
+Q4·Q27 근거): 새 GIS 레일 항목 "담당자"(`contact`)를 `GisIconRail`에 추가하고, `/dashboard`(전체
+4명)와 `/aqua`·`/coast`·`/river` 홈(해당 도메인 담당 + 총괄, 2명씩) 모두에 연결했습니다. 공용
+컴포넌트 `src/components/ui/DutyContactPanel.tsx`가 `domain` prop으로 필터링하며, 데이터는
+`src/data/mockContacts.ts`(`DutyContact[]`, 타입은 `src/types/domain.ts`). 이름·연락처는 면담
+인터뷰이가 아닌 **데모용 가상 인물**입니다(기존 로그인 데모 "홍길동"과 동일한 성격) — 실제 담당자
+정보를 코드에 넣지 않기 위한 의도적 선택이니, 실제 값으로 바꾸지 마세요. 면담에서 합의된 대로
+"인사이동 시 AI추진단이 접수해 현행화" 문구를 패널 하단에 고정 표시합니다.
+
 `/dashboard`의 자산현황 레일 항목은 대피소 데이터가 맥락과 안 맞아 **우선 주석처리**돼 있습니다
 (`DashboardPage.tsx`의 `DASHBOARD_RAIL_ITEMS`, `railContent.asset`, `shelters` import — 전부
 주석으로 남아있고 삭제 안 됨. `GisIconRail`에 `items` prop이 생겨서 화면별로 레일 항목을 뺄 수

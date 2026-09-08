@@ -7,6 +7,7 @@ import { MapToolbox } from "../../components/ui/MapToolbox"
 import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
+import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { COAST_NAV } from "./coastNav"
 import {
@@ -87,6 +88,7 @@ const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
       ))}
     </ul>
   ),
+  contact: <DutyContactPanel domain="coast" />,
 }
 
 const TIMELINE_TABS: GisTimelineTab[] = [

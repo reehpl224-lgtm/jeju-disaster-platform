@@ -7,6 +7,7 @@ import { RiskBadge } from "../../components/ui/RiskBadge"
 import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
+import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import { aquaActionLog, aquaAgencyRows, aquaAlertDraft, aquaDataSources, aquaFarms, aquaJourneys, aquaSummary } from "../../data/mockAqua"
 import { riskMarkers } from "../../data/mockDashboard"
@@ -84,6 +85,7 @@ const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
       ))}
     </ul>
   ),
+  contact: <DutyContactPanel domain="aqua" />,
 }
 
 const TIMELINE_TABS: GisTimelineTab[] = [

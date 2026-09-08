@@ -119,3 +119,18 @@ export interface CctvCoverageSummary {
   itsTotalCount: number
   representativeCount: number
 }
+
+/**
+ * 담당자·연락처 안내 — 레거시시스템 현황 조사 면담(2026-09-07) Q4·Q27 근거.
+ * 인사이동 시 실제 담당자 정보는 AI추진단이 접수해 반영하는 운영 방식으로 합의됨.
+ */
+export interface DutyContact {
+  id: string
+  domain: "aqua" | "coast" | "river" | "general"
+  role: string
+  name: string
+  org: string
+  phone: string
+  channel: string
+  updatedAt: string
+}
