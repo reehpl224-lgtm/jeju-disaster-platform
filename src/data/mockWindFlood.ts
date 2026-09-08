@@ -67,6 +67,23 @@ export const weatherStations: WeatherStationReading[] = [
   { id: "ws-6", name: "성산 풍속풍향계", type: "풍속풍향계", value: "12.5m/s · 남동풍", status: "caution", updatedAt: "14:28" },
 ]
 
+/**
+ * AI 침수 위험 조기경보 — /river/analysis의 riverSuddenRainAlert와 동일한 원리를 풍수해
+ * 관측망 전체로 일반화했다. 풍수해 통합 자체는 레거시 연계(규칙 기반)이지만, 우량계 실측 추이를
+ * 기상청 예보와 비교해 자동침수경보 임계치 도달을 조기에 캐치하는 부분은 AI 예측이 유효하다.
+ * 최종 발령 판단은 항상 담당자 몫 — river 쪽과 동일한 원칙을 유지한다.
+ */
+export const windFloodAiForecast = {
+  forecastMm: 40,
+  detectedAt: "14:29",
+  stations: [
+    { id: "f-1", name: "제주시 우량계 #3", observedMm: 62 },
+    { id: "f-2", name: "서귀포 우량계 #2", observedMm: 48 },
+  ],
+  aiNote: "제주시·서귀포 우량계 모두 예보(40mm/h) 대비 실측 강우가 지속 초과하고 있습니다. 현재 추이가 유지되면 자동침수경보 임계치 도달까지 약 12분 예상됩니다.",
+  confirmNote: "자동침수경보 발령 여부는 반드시 담당자 확인이 필요합니다 (오경보 리스크 고려).",
+}
+
 export const broadcastLog: BroadcastLogEntry[] = [
   { id: "bl-1", channel: "재해문자전광판", message: "효돈천 하천범람 심각 단계 — 접근 자제", time: "14:32" },
   { id: "bl-2", channel: "자동음성통보", message: "한천 인근 주민 대상 대피 안내 방송", time: "14:10" },

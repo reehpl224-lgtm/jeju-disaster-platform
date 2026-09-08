@@ -1,6 +1,6 @@
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { broadcastLog, legacySystems, weatherStations } from "../../data/mockWindFlood"
+import { broadcastLog, legacySystems, weatherStations, windFloodAiForecast } from "../../data/mockWindFlood"
 
 const LINK_STATUS_LEVEL: Record<(typeof legacySystems)[number]["linkStatus"], "safe" | "caution" | "offline"> = {
   "연계 진행중": "safe",
@@ -24,6 +24,27 @@ export function WindFloodHomePage() {
           레거시 예·경보시스템 연계 현황 — 새 AI 예측이 아니라 기존 시스템을 컨트롤타워에 통합하는 1차년도 우선 과제
         </p>
       </div>
+
+      <Card
+        title="AI 침수 위험 조기경보"
+        subtitle={`감지 시각 ${windFloodAiForecast.detectedAt} · 우량계 실측 추이 기반`}
+      >
+        <div className="flex flex-wrap items-center gap-4">
+          {windFloodAiForecast.stations.map((s) => (
+            <div key={s.id} className="flex items-center gap-2">
+              <p className="text-[11px] font-medium text-white/40">{s.name}</p>
+              <p className="text-base font-bold text-risk-warning">{s.observedMm}mm/h</p>
+            </div>
+          ))}
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
+            AI 조기경고 · 예보 {windFloodAiForecast.forecastMm}mm/h 대비 초과
+          </span>
+        </div>
+        <p className="mt-3 text-xs text-white/50">{windFloodAiForecast.aiNote}</p>
+        <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
+          {windFloodAiForecast.confirmNote}
+        </div>
+      </Card>
 
       <Card title="관측망 현황" subtitle="침수센서·우량계·적설계·풍속풍향계">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">

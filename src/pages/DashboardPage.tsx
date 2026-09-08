@@ -27,7 +27,7 @@ import {
 } from "../data/mockDashboard"
 import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeams } from "../data/mockIncidents"
 import { cctvCameras, cctvCoverageSummary } from "../data/mockCctv"
-import { propagationChannels, reportingChain, sequentialPropagation, simultaneousPropagationGoal } from "../data/mockPropagation"
+import { sequentialPropagation, simultaneousPropagationGoal } from "../data/mockPropagation"
 import type { CctvCamera } from "../types/domain"
 // import { shelters } from "../data/mockIncidents" // 자산현황 우선 주석처리 — 재활성화 시 위 줄에 합치기
 
@@ -370,7 +370,18 @@ export function DashboardPage() {
             </div>
           </Card>
 
-          <Card title="상황 전파 · 보고체계" subtitle="도청 → 시 상황실 → 읍면동 순차 전파 현황">
+          <Card
+            title="상황 전파 · 보고체계"
+            subtitle="도청 → 시 상황실 → 읍면동 순차 전파 현황"
+            action={
+              <Link
+                to="/propagation"
+                className="rounded-full border border-accent px-3 py-1.5 text-xs font-bold text-accent hover:bg-accent-soft"
+              >
+                전체 보기 →
+              </Link>
+            }
+          >
             <div className="flex flex-wrap items-center gap-2">
               {sequentialPropagation.map((step, i) => (
                 <div key={step.id} className="flex items-center gap-2">
@@ -394,33 +405,6 @@ export function DashboardPage() {
             </div>
             <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
               목표: {simultaneousPropagationGoal.note} — {simultaneousPropagationGoal.status}
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <p className="mb-2 text-[11px] font-semibold text-white/40">재난 보고체계</p>
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  {reportingChain.map((step, i) => (
-                    <span key={step.id} className="flex items-center gap-2">
-                      <span className="rounded-full border border-border-subtle px-2.5 py-1 text-white/70">
-                        {step.label} <span className="text-white/35">· {step.role}</span>
-                      </span>
-                      {i < reportingChain.length - 1 && <span className="text-white/30">→</span>}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="mb-2 text-[11px] font-semibold text-white/40">전파 채널</p>
-                <ul className="flex flex-col gap-1.5">
-                  {propagationChannels.map((ch) => (
-                    <li key={ch.id} className="text-xs">
-                      <span className="font-medium text-white/80">{ch.name}</span>
-                      <span className="text-white/35"> — {ch.detail}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
           </Card>
         </>
@@ -471,7 +455,7 @@ export function DashboardPage() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {serviceStatusCards.map((card) => (
           <ServiceStatusCard key={card.id} card={card} />
         ))}

@@ -29,6 +29,7 @@ import { RiverDispatchPage } from "./pages/river/RiverDispatchPage"
 import { RiverClosurePage } from "./pages/river/RiverClosurePage"
 import { WindFloodHomePage } from "./pages/windflood/WindFloodHomePage"
 import { HeatHomePage } from "./pages/heat/HeatHomePage"
+import { PropagationHomePage } from "./pages/propagation/PropagationHomePage"
 
 export default function App() {
   return (
@@ -66,6 +67,7 @@ export default function App() {
 
         <Route path="/wind-flood" element={<WindFloodHomePage />} />
         <Route path="/heat" element={<HeatHomePage />} />
+        <Route path="/propagation" element={<PropagationHomePage />} />
 
         <Route path="/reports" element={<ReportsListPage />} />
         <Route path="/reports/:incidentId" element={<ReportDetailPage />} />

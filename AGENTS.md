@@ -162,14 +162,32 @@ Q15 근거: "하천수위를 해양 조수 시간과 연계해서 보여주면 �
    UX 재사용). 무더위쉼터는 기존 `mockIncidents.ts`의 `shelters`(재난 대피소)와 **의도적으로 별도
    데이터**입니다 — 재난 대피소와 무더위쉼터(경로당·마을회관 등)는 실제로 다른 시설 카테고리이니
    섞지 마세요. 데이터는 `src/data/mockHeat.ts`, 타입은 `src/types/heat.ts`.
-3. **상황 전파 · 보고체계** — 새 도메인이 아니라 `/dashboard` "종합 상황" 탭에 카드로 추가했습니다
-   (조직·프로세스 성격이라 특정 도메인에 속하지 않음). 도청→시 상황실→읍면동 순차 전파의 단계별
-   지연(6분/11분)을 표시하고, "동시 전파" 목표는 **2차년도 이후 협의 필요**로 명시(자동 구현된 것처럼
-   보이지 않게 주의). 보고체계(행정시→도청→행안부)와 전파 채널(카카오톡 단톡방/네이버웍스) 목록도
-   함께 표시. 데이터는 `src/data/mockPropagation.ts`, 타입은 `src/types/domain.ts`의
-   `PropagationStep`/`ReportingChainStep`/`PropagationChannel`.
+3. **상황 전파 · 보고체계** — `/dashboard` "종합 상황" 탭에 카드로 추가했습니다(조직·프로세스
+   성격이라 특정 도메인에 속하지 않음). 도청→시 상황실→읍면동 순차 전파의 단계별 지연을 표시하고,
+   "동시 전파" 목표는 **2차년도 이후 협의 필요**로 명시(자동 구현된 것처럼 보이지 않게 주의).
 
 세 가지 모두 Sidebar에 메뉴 추가(`풍수해 통합`, `폭염 대응`), `App.tsx`에 라우트 추가.
+
+**2026-09-08 추가 반영**(사용자 요청):
+
+1. **통합 대시보드 서비스 카드에 반영**: `mockDashboard.ts`의 `serviceStatusCards`에 "풍수해 통합"(`/wind-flood`)·
+   "폭염 대응"(`/heat`) 2개 카드를 추가했습니다(총 5개). counts는 각각 `mockWindFlood.ts`의
+   `weatherStations` 레벨 집계, `mockHeat.ts`의 `heatLevelInfo`(제주 전역 폭염주의보 1건)에서 가져온
+   값이니 원본 데이터가 바뀌면 이 카드도 같이 맞춰야 합니다(다른 카드들과 동일한 정합성 원칙).
+   `DashboardPage.tsx`의 그리드를 `xl:grid-cols-5`로 조정했습니다.
+2. **풍수해 AI 조기경보 — 체크 결과: 가능함**. 풍수해 통합 자체는 레거시 연계(규칙 기반)이지만,
+   우량계 실측 추이를 기상청 예보와 비교하는 부분은 `/river/analysis`의 `riverSuddenRainAlert`와
+   **동일한 원리를 그대로 일반화**할 수 있어 구현했습니다. `windFloodAiForecast`
+   (`src/data/mockWindFlood.ts`)가 제주시·서귀포 우량계 실측값을 예보와 비교해 "AI 조기경고" 배지를
+   띄우고, 최종 자동침수경보 발령은 반드시 담당자 확인이 필요하다는 동일 원칙을 유지합니다. 적설·
+   풍속풍향·태풍 데이터는 AI로 새로 뽑아낼 근거가 없어(태풍은 기상청 자료 전량 수신, 적설은 우선순위
+   낮음) 대상에서 제외했습니다.
+3. **상황전파·보고체계를 독립 시스템으로 승격**: 기존에는 `/dashboard` 카드 안에 전부 들어있어
+   눈에 띄지 않는다는 피드백을 받아, 전체 내용(순차 전파 총 소요시간, 보고체계, 채널, **전파
+   이력 테이블** 신규 추가)을 `/propagation`(`src/pages/propagation/PropagationHomePage.tsx`) 페이지로
+   옮기고 Sidebar 메뉴(`상황전파·보고체계`)를 추가했습니다. `/dashboard` 카드는 순차 전파 요약 +
+   "전체 보기 →" 링크만 남겨 요약/상세 두 층위로 분리했습니다. 이력 데이터는
+   `propagationHistory`(`src/data/mockPropagation.ts`).
 
 `/dashboard`의 자산현황 레일 항목은 대피소 데이터가 맥락과 안 맞아 **우선 주석처리**돼 있습니다
 (`DashboardPage.tsx`의 `DASHBOARD_RAIL_ITEMS`, `railContent.asset`, `shelters` import — 전부
