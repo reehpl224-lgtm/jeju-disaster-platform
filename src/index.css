@@ -29,6 +29,12 @@
   --color-risk-info-bg: #0054a326;
   --color-risk-offline: #8a8d90;
   --color-risk-offline-bg: #8a8d9026;
+
+  /* 그림자 — 다크 배경(#1d1d1d)에서 Tailwind 기본 shadow(10% 불투명도)는 거의 안 보여서
+     와이어프레임(20.재난관리플랫폼 디자인/AX기반 재난관리플랫폼.svg 로그인 카드의 이중 드롭섀도우)
+     기준으로 불투명도를 올려 토큰화했다. */
+  --shadow-card: 0 8px 20px -8px rgb(0 0 0 / 0.45);
+  --shadow-panel: 0 12px 28px -6px rgb(0 0 0 / 0.55), 0 4px 10px -4px rgb(0 0 0 / 0.4);
 }
 
 html {
