@@ -27,6 +27,7 @@ import {
 } from "../data/mockDashboard"
 import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeams } from "../data/mockIncidents"
 import { cctvCameras, cctvCoverageSummary } from "../data/mockCctv"
+import { propagationChannels, reportingChain, sequentialPropagation, simultaneousPropagationGoal } from "../data/mockPropagation"
 import type { CctvCamera } from "../types/domain"
 // import { shelters } from "../data/mockIncidents" // 자산현황 우선 주석처리 — 재활성화 시 위 줄에 합치기
 
@@ -366,6 +367,60 @@ export function DashboardPage() {
                   <Line type="monotone" dataKey="함덕수온" stroke="#f2731a" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
+            </div>
+          </Card>
+
+          <Card title="상황 전파 · 보고체계" subtitle="도청 → 시 상황실 → 읍면동 순차 전파 현황">
+            <div className="flex flex-wrap items-center gap-2">
+              {sequentialPropagation.map((step, i) => (
+                <div key={step.id} className="flex items-center gap-2">
+                  <div className="rounded-lg border border-border-subtle bg-inset px-3 py-2 text-center">
+                    <p className="text-xs font-semibold text-white/80">{step.stage}</p>
+                    <p className="text-[11px] text-white/40">{step.time}</p>
+                  </div>
+                  {i < sequentialPropagation.length - 1 && (
+                    <span className="text-xs text-risk-warning">
+                      →{" "}
+                      {(() => {
+                        const [h1, m1] = step.time.split(":").map(Number)
+                        const [h2, m2] = sequentialPropagation[i + 1].time.split(":").map(Number)
+                        return h2 * 60 + m2 - (h1 * 60 + m1)
+                      })()}
+                      분 지연
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
+              목표: {simultaneousPropagationGoal.note} — {simultaneousPropagationGoal.status}
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <p className="mb-2 text-[11px] font-semibold text-white/40">재난 보고체계</p>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  {reportingChain.map((step, i) => (
+                    <span key={step.id} className="flex items-center gap-2">
+                      <span className="rounded-full border border-border-subtle px-2.5 py-1 text-white/70">
+                        {step.label} <span className="text-white/35">· {step.role}</span>
+                      </span>
+                      {i < reportingChain.length - 1 && <span className="text-white/30">→</span>}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="mb-2 text-[11px] font-semibold text-white/40">전파 채널</p>
+                <ul className="flex flex-col gap-1.5">
+                  {propagationChannels.map((ch) => (
+                    <li key={ch.id} className="text-xs">
+                      <span className="font-medium text-white/80">{ch.name}</span>
+                      <span className="text-white/35"> — {ch.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </Card>
         </>

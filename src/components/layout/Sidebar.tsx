@@ -5,6 +5,8 @@ const NAV_ITEMS = [
   { to: "/aqua", label: "염분·수온 상태", icon: "🌡️" },
   { to: "/coast", label: "연안 안전", icon: "🌊" },
   { to: "/river", label: "하천 범람", icon: "🌧️" },
+  { to: "/wind-flood", label: "풍수해 통합", icon: "🌀" },
+  { to: "/heat", label: "폭염 대응", icon: "🔆" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
   { to: "/reports", label: "이력·보고서", icon: "📋" },
 ]

@@ -120,6 +120,25 @@ export interface CctvCoverageSummary {
   representativeCount: number
 }
 
+/** 상황 전파 단계 — 도청 → 시 상황실 → 읍면동 순차 전파의 단계별 도달 시각 */
+export interface PropagationStep {
+  id: string
+  stage: string
+  time: string
+}
+
+export interface ReportingChainStep {
+  id: string
+  label: string
+  role: string
+}
+
+export interface PropagationChannel {
+  id: string
+  name: string
+  detail: string
+}
+
 /**
  * 담당자·연락처 안내 — 레거시시스템 현황 조사 면담(2026-09-07) Q4·Q27 근거.
  * 인사이동 시 실제 담당자 정보는 AI추진단이 접수해 반영하는 운영 방식으로 합의됨.
