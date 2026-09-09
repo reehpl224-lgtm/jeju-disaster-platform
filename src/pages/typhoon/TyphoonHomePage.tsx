@@ -5,6 +5,7 @@ import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { TYPHOON_NAV } from "./typhoonNav"
 import { typhoonReports, typhoonSource } from "../../data/mockTyphoon"
 import { riskMarkers } from "../../data/mockDashboard"
+import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 
 const TYPHOON_MARKERS = riskMarkers.filter((m) => m.domain === "typhoon")
 
@@ -47,6 +48,28 @@ export function TyphoonHomePage() {
           </div>
         </div>
         <p className="mt-3 text-[11px] text-white/35">관련 레거시 시스템: {typhoonSource.relatedLegacySystem}</p>
+      </Card>
+
+      <Card
+        title="실측 해상 관측 참고 — 국립해양조사원(KHOA) 해양관측부이"
+        subtitle="자체 관측장비 없음(기상청 발표 전량 수신)을 보완하는 실측 참고치 — 특보 판단은 기상청 공식 발표 기준을 따름"
+      >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {khoaBuoyMarineConditions.map((buoy) => (
+            <div key={buoy.id} className="rounded-lg border border-border-subtle p-3">
+              <p className="text-sm font-semibold text-white/80">{buoy.stationName}</p>
+              <p className="mt-0.5 text-[11px] text-white/35">{buoy.stationCode}</p>
+              <p className="mt-2 text-lg font-bold text-white">
+                풍속 {buoy.windSpeedMs}m/s <span className="text-sm font-normal text-white/40">· {buoy.windDirDeg}°</span>
+              </p>
+              <p className="mt-1 text-xs text-white/40">
+                기압 {buoy.pressureHpa}hPa · 파고 {buoy.waveHeightM.toFixed(2)}m
+              </p>
+              <p className="mt-1 text-[11px] text-white/35">관측 {buoy.observedAt}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-[11px] text-white/35">data.go.kr 공공API 실연동 — 정적 프로토타입이라 확인 시점 스냅샷으로 고정 표시</p>
       </Card>
 
       <Card title="접근 위치 — 태풍 GIS" subtitle="기상청 발표 기준 접근 방향(자체 관측망 없음 — 상징적 표시)">

@@ -21,6 +21,7 @@ import {
 } from "../../data/mockCoast"
 import { riskMarkers } from "../../data/mockDashboard"
 import { cctvCameras } from "../../data/mockCctv"
+import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { COAST_TYPE_LABEL } from "../../types/coast"
 
 const COAST_CCTV = cctvCameras.filter((c) => c.domain === "coast")
@@ -194,6 +195,28 @@ export function CoastHomePage() {
           <p className="mt-1 text-xs text-white/35">{coastSummary.equipment.detail}</p>
         </Card>
       </div>
+
+      <Card
+        title="실측 파고·기상 참고 — 국립해양조사원(KHOA) 해양관측부이"
+        subtitle="함덕·삼양·협재 AIoT 스마트폴과는 다른 국가 관측망 지점 — 인근 해역 파고·풍속 참고용"
+      >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {khoaBuoyMarineConditions.map((buoy) => (
+            <div key={buoy.id} className="rounded-lg border border-border-subtle p-3">
+              <p className="text-sm font-semibold text-white/80">{buoy.stationName}</p>
+              <p className="mt-0.5 text-[11px] text-white/35">{buoy.stationCode}</p>
+              <p className="mt-2 text-lg font-bold text-white">
+                파고 {buoy.waveHeightM.toFixed(2)}m <span className="text-sm font-normal text-white/40">· 주기 {buoy.wavePeriodSec}s</span>
+              </p>
+              <p className="mt-1 text-xs text-white/40">
+                풍속 {buoy.windSpeedMs}m/s · 기압 {buoy.pressureHpa}hPa
+              </p>
+              <p className="mt-1 text-[11px] text-white/35">관측 {buoy.observedAt}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-[11px] text-white/35">data.go.kr 공공API 실연동 — 정적 프로토타입이라 확인 시점 스냅샷으로 고정 표시</p>
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2">
