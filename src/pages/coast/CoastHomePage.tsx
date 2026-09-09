@@ -22,6 +22,7 @@ import {
 import { riskMarkers } from "../../data/mockDashboard"
 import { cctvCameras } from "../../data/mockCctv"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
+import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
 import { COAST_TYPE_LABEL } from "../../types/coast"
 
 const COAST_CCTV = cctvCameras.filter((c) => c.domain === "coast")
@@ -216,6 +217,13 @@ export function CoastHomePage() {
           ))}
         </div>
         <p className="mt-3 text-[11px] text-white/35">data.go.kr 공공API 실연동 — 정적 프로토타입이라 확인 시점 스냅샷으로 고정 표시</p>
+      </Card>
+
+      <Card
+        title="실시간 파고 관측 — 기상청 API허브"
+        subtitle="apihub.kma.go.kr 실연동(sea_obs.php) — 매 조회마다 라이브"
+      >
+        <MarineObservationPanel />
       </Card>
 
       <Card title="기상청 단기예보" subtitle="풍속·하늘상태 참고 — 실시간 연동">

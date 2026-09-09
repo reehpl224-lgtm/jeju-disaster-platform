@@ -3,8 +3,8 @@ import { fetchTyphoonNameList, formatKst, isActiveNow } from "../../data/typhoon
 import type { TyphoonNameEntry } from "../../types/typhoonApi"
 
 /**
- * 기상청 API허브 태풍 이름 목록(typ_lst) 실시간 연동 패널. 실시간 위치·경로는 별도 승인 대기 중이라
- * 아직 못 보여주고, "올해 몇 호 태풍이 공식적으로 지금 활성 상태인지"만 실제 데이터로 확인해준다.
+ * 기상청 API허브 태풍 이름 목록(typ_lst) 실시간 연동 패널 — "올해 몇 호 태풍이 있었는지, 지금
+ * 활성 상태인지"를 실제 데이터로 보여준다. 실시간 위치·경로는 TyphoonNowPanel(별도 컴포넌트) 참고.
  */
 export function TyphoonNameListPanel() {
   const [entries, setEntries] = useState<TyphoonNameEntry[] | null>(null)
@@ -67,10 +67,7 @@ export function TyphoonNameListPanel() {
           )
         })}
       </ul>
-      <p className="text-[10px] text-white/25">
-        data.go.kr과 별개인 기상청 API허브(apihub.kma.go.kr) 연동 — 이름 목록(typ_lst)만 승인됨. 실시간 위치·경로(typ_now)는
-        "활용신청 필요" 응답으로 아직 막혀 있어 아래 발표 이력은 여전히 시연용 데이터입니다.
-      </p>
+      <p className="text-[10px] text-white/25">data.go.kr과 별개인 기상청 API허브(apihub.kma.go.kr) 실연동 — 연도별 태풍 이름 목록(typ_lst.php)</p>
     </div>
   )
 }

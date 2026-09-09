@@ -8,6 +8,7 @@ import { riskMarkers } from "../../data/mockDashboard"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { TyphoonNameListPanel } from "../../components/ui/TyphoonNameListPanel"
+import { TyphoonNowPanel } from "../../components/ui/TyphoonNowPanel"
 
 const TYPHOON_MARKERS = riskMarkers.filter((m) => m.domain === "typhoon")
 
@@ -78,7 +79,11 @@ export function TyphoonHomePage() {
         <VilageForecastPanel />
       </Card>
 
-      <Card title="기상청 태풍 이름 목록 — API허브" subtitle="apihub.kma.go.kr 실연동(이름 목록만) — 실시간 위치·경로는 별도 승인 대기">
+      <Card title="실시간 태풍 현황 — API허브" subtitle="apihub.kma.go.kr 실연동(typ_now.php) — 진행 중인 태풍이 없으면 정상적으로 빈 상태">
+        <TyphoonNowPanel />
+      </Card>
+
+      <Card title="기상청 태풍 이름 목록 — API허브" subtitle="apihub.kma.go.kr 실연동(typ_lst.php)">
         <TyphoonNameListPanel />
       </Card>
 
