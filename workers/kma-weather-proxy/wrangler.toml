@@ -1,0 +1,10 @@
+name = "jeju-kma-weather-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+# 공백 없이 콤마로 구분. 배포 후 실제 GitHub Pages 도메인/로컬 dev 서버 주소로 맞춰서 관리.
+[vars]
+ALLOWED_ORIGINS = "https://reehpl224-lgtm.github.io,http://localhost:5173"
+
+# 서비스키는 여기 넣지 않습니다. 배포 전 아래 명령으로 Secret으로 등록하세요:
+#   wrangler secret put KMA_SERVICE_KEY

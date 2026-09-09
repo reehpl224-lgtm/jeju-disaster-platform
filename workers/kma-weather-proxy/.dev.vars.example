@@ -1,0 +1,6 @@
+# 로컬 개발용. 이 파일을 .dev.vars 로 복사하고 실제 값을 채운 뒤 `npm run dev`.
+# .dev.vars는 .gitignore에 있어 절대 커밋되지 않습니다.
+#
+# data.go.kr 마이페이지 > 개발계정 상세보기에서 "일반 인증키(Decoding)" 값을 그대로 넣으세요
+# (Encoding 버전 말고 Decoding 버전 — 코드가 자체적으로 한 번만 encodeURIComponent 처리합니다).
+KMA_SERVICE_KEY=여기에_발급받은_서비스키_붙여넣기

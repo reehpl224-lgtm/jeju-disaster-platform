@@ -295,6 +295,33 @@ Q15 근거: "하천수위를 해양 조수 시간과 연계해서 보여주면 �
   `main.tsx`의 `BrowserRouter basename`이 `/jeju-disaster-platform/`로 설정됩니다(로컬 `npm run dev`는
   영향 없음, 클라이언트 라우팅용 `404.html` 폴백 포함).
 
+**2026-09-09 기상청 단기예보(getVilageFcst) 실시간 연동 추가**(Claude Code, 사용자 요청 —
+"기상청 단기예보 조회서비스 API를 받았어. 플랫폼에 붙이고싶은데"). §1의 "실제 백엔드 API 연동
+없음" 원칙에 대한 **첫 예외**입니다 — KHOA 부이 데이터(위 §2-①, 정적 스냅샷 방식)와 달리
+이건 매 조회마다 라이브로 기상청 API를 호출합니다. 사용자가 실시간 연동을 명시적으로 원해서
+진행했고, 이 앱이 서버 없는 정적 SPA(GitHub Pages)라 브라우저가 서비스키를 들고 직접
+공공데이터포털을 호출하면 (1) 키가 배포 번들에 노출되고 (2) 대부분 CORS로 막히는 문제가 있어
+Cloudflare Workers 프록시를 새로 뒀습니다.
+
+- **`workers/kma-weather-proxy/`**(신규 하위 프로젝트, 이 저장소와 별도 배포 단위): 서비스키를
+  Cloudflare Workers Secret으로 보관하고 `apis.data.go.kr/.../VilageFcstInfoService_2.0/getVilageFcst`를
+  대신 호출, CORS 허용 + 10분 캐시. `region=jeju|seogwipo` 2개만 지원(제주시·서귀포시 시청
+  좌표를 기상청 공식 LCC 격자변환 공식으로 직접 계산한 nx/ny — `README.md`에 근거 기록).
+  **아직 실제 배포 안 됨** — 사용자가 `wrangler login` → `wrangler secret put KMA_SERVICE_KEY`
+  → `npm run deploy` 직접 실행해야 함(서비스키는 Claude Code가 대신 입력/보관할 수 없음).
+- 프론트엔드: `src/data/weatherApi.ts`(실제 API 호출 — 다른 `mock*.ts`와 달리 더미데이터
+  아님, 파일 상단 주석으로 구분 명시), `src/types/weather.ts`,
+  `src/components/ui/VilageForecastPanel.tsx`. `/dashboard` GIS 상황 탭의 `GisTimelinePanel`에
+  "동네예보" 3번째 탭으로 연결(`DashboardPage.tsx`).
+- 배포 시 `.env`의 `VITE_WEATHER_PROXY_URL`에 Worker 배포 후 나오는 실제 URL을 채워야 동작함
+  (`.env.example` 참고 — 서비스키가 아니라 공개 URL이라 커밋해도 안전). 값이 없으면 패널이
+  "설정되지 않았습니다" 에러를 명확히 표시(지어낸 값으로 넘어가지 않음).
+- **검증 시 발견한 별개 이슈**: `/dashboard`에서 `GisTimelinePanel`(타임라인/발효중 특보/동네예보)과
+  `GisSidePanel`/`GisIconRail`이 DOM에는 정상 렌더링(z-index:10, visible)되지만 지도(`JejuTileMap`,
+  Leaflet) 뒤에 가려져 화면에 전혀 안 보이는 문제를 발견했습니다 — 2026-09-09 SVG→Leaflet 전환
+  이후 생긴 회귀로 추정되며, 이번 작업(동네예보 탭 추가) 이전부터 있던 기존 버그입니다(원인 미조사,
+  범위 밖이라 손 안 댐). §5에도 기록.
+
 `/dashboard`의 자산현황 레일 항목은 대피소 데이터가 맥락과 안 맞아 **우선 주석처리**돼 있습니다
 (`DashboardPage.tsx`의 `DASHBOARD_RAIL_ITEMS`, `railContent.asset`, `shelters` import — 전부
 주석으로 남아있고 삭제 안 됨. `GisIconRail`에 `items` prop이 생겨서 화면별로 레일 항목을 뺄 수
@@ -396,6 +423,12 @@ warning/caution으로 낮게 표시돼 있었던 것(`mockDashboard.ts`의 `risk
 
 ## 5. 알려진 미해결 이슈 (다음에 손댈 후보)
 
+- **`/dashboard`의 `GisTimelinePanel`/`GisSidePanel`/`GisIconRail`이 `JejuTileMap`(Leaflet) 뒤에
+  가려져 화면에 안 보임**(2026-09-09, 동네예보 탭 추가 작업 중 발견 — SVG→Leaflet 전환 이후
+  회귀로 추정, 전환 자체와는 별개 이슈이니 원인 조사 필요). DOM에는 정상 렌더링되고 있어
+  z-index/stacking context 문제로 보입니다(Leaflet 패널이 자체 z-index를 쓰는 것과 충돌 가능성).
+  기능은 정상 동작하니(클릭 등 JS로는 도달 가능) 급하지 않지만, 실제 사용자는 이 패널들을 전혀
+  볼 수 없는 상태라 시각적으로는 완전히 깨져 있습니다.
 - **`aquaStages`**(`src/data/mockAqua.ts`)와 `이력·보고서`(`src/data/mockReports.ts`)의
   `incidentRecords`는 `관심/주의/경계/심각/해제`라는 **e-SOP 대응 진행상태**(마지막에 "해제"로 끝남) 어휘를
   씁니다. 2026-09-07에 앱 전역 `danger` 라벨을 "심각"으로 맞추면서 앞 4단계 이름은 이제 우연히 일치하지만,
