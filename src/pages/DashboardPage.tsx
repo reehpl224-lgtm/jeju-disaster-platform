@@ -512,40 +512,48 @@ export function DashboardPage() {
 
       {topTab === "gis" && (
       <>
-      <Card
-        title="위험 위치 및 영향 범위 — 제주 전역 GIS"
-        subtitle={`기온 ${currentWeather.temperatureC}℃ · 강수 ${currentWeather.rainfallMm}mm · 풍속 ${currentWeather.windSpeedMs}m/s · 습도 ${currentWeather.humidityPercent}% · 갱신 ${formatHM(currentWeather.observedAt)} / 5분 주기`}
-        action={
-          <div className="flex gap-1.5">
-            {MAP_DOMAIN_FILTERS.map((f) => (
-              <Pill key={f.id} size="sm" active={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
-                {f.label}
-              </Pill>
-            ))}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <Card
+          title="위험 위치 및 영향 범위 — 제주 전역 GIS"
+          subtitle={`기온 ${currentWeather.temperatureC}℃ · 강수 ${currentWeather.rainfallMm}mm · 풍속 ${currentWeather.windSpeedMs}m/s · 습도 ${currentWeather.humidityPercent}% · 갱신 ${formatHM(currentWeather.observedAt)} / 5분 주기`}
+          action={
+            <div className="flex gap-1.5">
+              {MAP_DOMAIN_FILTERS.map((f) => (
+                <Pill key={f.id} size="sm" active={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
+                  {f.label}
+                </Pill>
+              ))}
+            </div>
+          }
+          className="xl:col-span-2"
+        >
+          <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
+            <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" />
+            <GisIconRail
+              activeKey={activeRailKey}
+              onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))}
+              items={DASHBOARD_RAIL_ITEMS}
+            />
+            {activeRailKey && (
+              <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={railContent} />
+            )}
           </div>
-        }
-      >
-        <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-          <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" />
-          <GisIconRail
-            activeKey={activeRailKey}
-            onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))}
-            items={DASHBOARD_RAIL_ITEMS}
-          />
-          {activeRailKey && (
-            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={railContent} />
-          )}
-          <GisTimelinePanel tabs={timelineTabs} filters={timelineFilters} />
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
-          <span className="font-semibold text-white/30">범례</span>
-          <RiskBadge level="danger" />
-          <RiskBadge level="alert" />
-          <RiskBadge level="warning" />
-          <RiskBadge level="caution" />
-          <RiskBadge level="safe" />
-        </div>
-      </Card>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+            <span className="font-semibold text-white/30">범례</span>
+            <RiskBadge level="danger" />
+            <RiskBadge level="alert" />
+            <RiskBadge level="warning" />
+            <RiskBadge level="caution" />
+            <RiskBadge level="safe" />
+          </div>
+        </Card>
+
+        <Card title="타임라인" className="flex flex-col">
+          <div className="h-[560px]">
+            <GisTimelinePanel tabs={timelineTabs} filters={timelineFilters} />
+          </div>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {serviceStatusCards.map((card) => (

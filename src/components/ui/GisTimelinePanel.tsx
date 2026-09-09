@@ -11,8 +11,10 @@ export function GisTimelinePanel({ tabs, filters }: { tabs: GisTimelineTab[]; fi
   const active = tabs.find((t) => t.key === tabKey) ?? tabs[0]
 
   return (
-    <div className="absolute right-2 bottom-2 z-10 flex max-h-[calc(100%-16px)] w-72 flex-col rounded-lg border border-border-subtle bg-panel/95 shadow-panel">
-      <div className="flex shrink-0 gap-1 border-b border-border-subtle p-3 pb-2 text-xs font-semibold">
+    // Card 안에 들어가는 일반 블록 — 예전에는 지도 위에 뜨는 플로팅 오버레이였지만, 우측 GisTimelinePanel이
+    // 항상 같은 자리를 차지하는 툴바 팝업(JejuTileMap)과 겹쳐서 지도 밖 전용 컬럼으로 옮김(2026-09-09).
+    <div className="flex h-full flex-col">
+      <div className="flex shrink-0 gap-1 border-b border-border-subtle pb-2 text-xs font-semibold">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -25,9 +27,9 @@ export function GisTimelinePanel({ tabs, filters }: { tabs: GisTimelineTab[]; fi
         ))}
       </div>
 
-      {filters && <div className="shrink-0 border-b border-border-subtle p-3 py-2">{filters}</div>}
+      {filters && <div className="shrink-0 border-b border-border-subtle py-2">{filters}</div>}
 
-      <div className="overflow-y-auto p-3 pt-2">{active?.content}</div>
+      <div className="overflow-y-auto pt-2">{active?.content}</div>
     </div>
   )
 }

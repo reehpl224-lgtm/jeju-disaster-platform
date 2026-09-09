@@ -177,24 +177,31 @@ export function RiverHomePage() {
         </div>
       </Card>
 
-      <Card title="위험 위치 및 영향 범위 — 하천 GIS" subtitle="효돈천(돈내코·쇠소깍) 관측 지점">
-        <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-          <JejuTileMap markers={RIVER_MARKERS} cctvMarkers={RIVER_CCTV} className="relative h-full w-full" />
-          <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
-          {activeRailKey && (
-            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
-          )}
-          <GisTimelinePanel tabs={TIMELINE_TABS} />
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
-          <span className="font-semibold text-white/30">범례</span>
-          <RiskBadge level="danger" />
-          <RiskBadge level="alert" />
-          <RiskBadge level="warning" />
-          <RiskBadge level="caution" />
-          <RiskBadge level="safe" />
-        </div>
-      </Card>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <Card title="위험 위치 및 영향 범위 — 하천 GIS" subtitle="효돈천(돈내코·쇠소깍) 관측 지점" className="xl:col-span-2">
+          <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
+            <JejuTileMap markers={RIVER_MARKERS} cctvMarkers={RIVER_CCTV} className="relative h-full w-full" />
+            <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
+            {activeRailKey && (
+              <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
+            )}
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+            <span className="font-semibold text-white/30">범례</span>
+            <RiskBadge level="danger" />
+            <RiskBadge level="alert" />
+            <RiskBadge level="warning" />
+            <RiskBadge level="caution" />
+            <RiskBadge level="safe" />
+          </div>
+        </Card>
+
+        <Card title="타임라인">
+          <div className="h-[560px]">
+            <GisTimelinePanel tabs={TIMELINE_TABS} />
+          </div>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="경보 승인 이력">

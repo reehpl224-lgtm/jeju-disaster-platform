@@ -198,7 +198,10 @@ export function JejuTileMap({
             })}
       </MapContainer>
 
-      <div className="absolute right-2 top-12 z-[500] flex max-w-[calc(100%-16px)] flex-wrap items-center justify-end gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
+      {/* GisTimelinePanel이 지도 위에 뜨는 오버레이가 아니라 지도 옆 전용 컬럼으로 옮겨져서(2026-09-09)
+          더 이상 우측 하단과 겹칠 일이 없어 툴바를 top-2로 올리고, 팝업도 다시 우측에 둘 수 있음 */}
+      <div className="absolute right-2 top-2 z-[500] flex max-w-[calc(100%-16px)] flex-col items-end gap-1.5">
+        <div className="flex flex-wrap items-center justify-end gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
           <select
             value="jeju"
             disabled
@@ -243,9 +246,7 @@ export function JejuTileMap({
         </div>
 
         {activePanel && (
-          // right-2 앵커는 GisTimelinePanel(우측 하단, w-72)과 겹쳐서 좌측(GisIconRail 옆)에 독립 배치.
-          // 좁은 컨테이너에서도 화면 밖으로 안 나가도록 right 기반 고정폭 오프셋 대신 left 기반으로 앵커.
-          <div className="absolute left-[72px] top-12 z-[500] max-h-72 w-64 overflow-y-auto rounded-lg border border-border-subtle bg-panel p-3 shadow-panel">
+          <div className="max-h-[420px] w-64 overflow-y-auto rounded-lg border border-border-subtle bg-panel p-3 shadow-panel">
             <div className="flex items-center justify-between border-b border-border-subtle pb-2">
               <p className="text-sm font-bold text-white/90">{activePanel.panelTitle}</p>
               <button
@@ -316,6 +317,7 @@ export function JejuTileMap({
             </div>
           </div>
         )}
+      </div>
     </div>
   )
 }

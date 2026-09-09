@@ -225,7 +225,6 @@ export function CoastHomePage() {
             {activeRailKey && (
               <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
             )}
-            <GisTimelinePanel tabs={TIMELINE_TABS} />
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
             <span className="font-semibold text-white/30">범례</span>
@@ -238,21 +237,29 @@ export function CoastHomePage() {
           </div>
         </Card>
 
-        <Card title="AI 판단 근거 요약">
-          <ul className="flex flex-col gap-3">
-            {coastAiInsights.map((insight) => (
-              <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-3">
-                <RiskBadge level={insight.level} solid />
-                <p className="mt-2 text-sm font-semibold text-white/85">{insight.title}</p>
-                <p className="mt-1 text-xs text-white/40">{insight.basis}</p>
-                <p className="text-xs text-white/40">{insight.match}</p>
-                <Link to="/coast/events" className="mt-2 inline-block text-xs font-bold text-accent">
-                  이벤트 상세 검토 →
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Card>
+        <div className="flex flex-col gap-4">
+          <Card title="AI 판단 근거 요약">
+            <ul className="flex flex-col gap-3">
+              {coastAiInsights.map((insight) => (
+                <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-3">
+                  <RiskBadge level={insight.level} solid />
+                  <p className="mt-2 text-sm font-semibold text-white/85">{insight.title}</p>
+                  <p className="mt-1 text-xs text-white/40">{insight.basis}</p>
+                  <p className="text-xs text-white/40">{insight.match}</p>
+                  <Link to="/coast/events" className="mt-2 inline-block text-xs font-bold text-accent">
+                    이벤트 상세 검토 →
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Card>
+
+          <Card title="타임라인">
+            <div className="h-72">
+              <GisTimelinePanel tabs={TIMELINE_TABS} />
+            </div>
+          </Card>
+        </div>
       </div>
 
       <Card title="위험 이벤트 목록" action={<Link to="/coast/events" className="text-xs font-semibold text-white/50 hover:text-accent">전체 보기 →</Link>}>
