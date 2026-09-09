@@ -23,6 +23,7 @@ import { riskMarkers } from "../../data/mockDashboard"
 import { cctvCameras } from "../../data/mockCctv"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
+import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { COAST_TYPE_LABEL } from "../../types/coast"
 
 const COAST_CCTV = cctvCameras.filter((c) => c.domain === "coast")
@@ -224,6 +225,10 @@ export function CoastHomePage() {
         subtitle="apihub.kma.go.kr 실연동(sea_obs.php) — 매 조회마다 라이브"
       >
         <MarineObservationPanel />
+      </Card>
+
+      <Card title="실시간 풍랑·해일 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)">
+        <WarningsPanel wrnCodes={["V", "O", "N"]} />
       </Card>
 
       <Card title="기상청 단기예보" subtitle="풍속·하늘상태 참고 — 실시간 연동">

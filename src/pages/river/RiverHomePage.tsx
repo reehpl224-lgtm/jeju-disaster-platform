@@ -7,6 +7,7 @@ import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
+import { RainfallObservationPanel } from "../../components/ui/RainfallObservationPanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { RIVER_NAV } from "./riverNav"
@@ -158,6 +159,10 @@ export function RiverHomePage() {
             </div>
           </div>
         </div>
+      </Card>
+
+      <Card title="실시간 우량 관측 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(AWS 매분자료)">
+        <RainfallObservationPanel />
       </Card>
 
       <Card title="기상청 단기예보" subtitle="강수확률·강수형태 참고 — 돌발 강우 조기경보와 함께 확인">
