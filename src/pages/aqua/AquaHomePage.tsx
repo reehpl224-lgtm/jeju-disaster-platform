@@ -7,6 +7,7 @@ import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
+import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import {
   aquaActionLog,
@@ -234,6 +235,10 @@ export function AquaHomePage() {
             </div>
           ))}
         </div>
+      </Card>
+
+      <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 저염분수·고수온 경보 자체는 AI 하이브리드 예측 기준">
+        <VilageForecastPanel />
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
