@@ -24,6 +24,56 @@ const PILOT_DATA_STATUS_LEVEL: Record<(typeof aquaDataSources)[number]["status"]
   missing: "offline",
 }
 
+type TargetTag = { label: string; href?: string }
+
+/** 어떤 서비스/메뉴에 이 데이터가 들어가는지 — AGENTS.md·mockDashboard aiInsights·incidentLog 등에 실제로 근거가 있는 연결만 표기 */
+const LEGACY_TARGETS: Record<(typeof legacySystems)[number]["id"], TargetTag[]> = {
+  "ls-1": [{ label: "호우", href: "/heavy-rain" }],
+  "ls-2": [{ label: "공통(총괄)", href: "/dashboard" }],
+  "ls-3": [{ label: "상황전파·보고체계", href: "/propagation" }],
+  "ls-4": [{ label: "호우", href: "/heavy-rain" }],
+  "ls-5": [{ label: "상황전파·보고체계", href: "/propagation" }],
+  "ls-6": [{ label: "해당없음 (소방안전본부 소관)" }],
+  "ls-7": [{ label: "통합 대시보드(CCTV 통합조회)", href: "/dashboard" }],
+}
+
+const API_TARGETS: Record<(typeof apiLinks)[number]["id"], TargetTag[]> = {
+  kma: [
+    { label: "호우", href: "/heavy-rain" },
+    { label: "하천범람", href: "/river" },
+  ],
+  khoa: [{ label: "하천범람(조위 연계 시계열)", href: "/river/analysis" }],
+  "buoy-api": [{ label: "저염분 고수온", href: "/aqua" }],
+  goci: [{ label: "저염분 고수온", href: "/aqua" }],
+}
+
+const PILOT_DATA_TARGET: TargetTag = { label: "저염분 고수온", href: "/aqua" }
+
+function TargetTags({ tags }: { tags: TargetTag[] }) {
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-1">
+      {tags.map((tag) =>
+        tag.href ? (
+          <Link
+            key={tag.label}
+            to={tag.href}
+            className="rounded-full border border-accent/30 bg-accent-soft px-2 py-0.5 text-[10px] font-semibold text-accent hover:underline"
+          >
+            → {tag.label}
+          </Link>
+        ) : (
+          <span
+            key={tag.label}
+            className="rounded-full border border-border-subtle px-2 py-0.5 text-[10px] font-semibold text-white/40"
+          >
+            {tag.label}
+          </span>
+        ),
+      )}
+    </div>
+  )
+}
+
 const legacyActiveCount = legacySystems.filter((s) => s.linkStatus === "연계 진행중").length
 const apiNormalCount = apiLinks.filter((a) => a.status === "normal").length
 const apiIssueCount = apiLinks.length - apiNormalCount
@@ -64,7 +114,10 @@ export function DataSystemPage() {
         </Card>
       </div>
 
-      <Card title="레거시 시스템 연계 현황" subtitle="레거시시스템 현황 조사 면담(2026-09-07) 기준 — 실제 연계 진행 상태">
+      <Card
+        title="레거시 시스템 연계 현황"
+        subtitle="레거시시스템 현황 조사 면담(2026-09-07) 기준 — 실제 연계 진행 상태 · 배지는 이 데이터가 반영되는 서비스"
+      >
         <ul className="flex flex-col divide-y divide-border-subtle">
           {legacySystems.map((system) => (
             <li key={system.id} className="flex items-start justify-between gap-3 py-3 text-sm">
@@ -73,6 +126,7 @@ export function DataSystemPage() {
                 <p className="mt-0.5 text-xs text-white/35">
                   운영 주체 {system.operator} · {system.note}
                 </p>
+                <TargetTags tags={LEGACY_TARGETS[system.id]} />
               </div>
               <RiskBadge level={LEGACY_STATUS_LEVEL[system.linkStatus]} label={system.linkStatus} />
             </li>
@@ -80,15 +134,19 @@ export function DataSystemPage() {
         </ul>
       </Card>
 
-      <Card title="외부 API 연계 현황" subtitle="기관별 외부 데이터 API — 재난 서비스 입력값으로 연계되는 항목">
+      <Card
+        title="외부 API 연계 현황"
+        subtitle="기관별 외부 데이터 API — 배지는 이 API 데이터가 입력값으로 쓰이는 서비스"
+      >
         <ul className="flex flex-col divide-y divide-border-subtle">
           {apiLinks.map((api) => (
-            <li key={api.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+            <li key={api.id} className="flex items-start justify-between gap-3 py-3 text-sm">
               <div>
                 <p className="font-medium text-white/85">{api.name}</p>
                 <p className="mt-0.5 text-xs text-white/35">
                   {api.agency} · 응답속도 {api.responseTime} · 최근 수신 {api.lastReceived}
                 </p>
+                <TargetTags tags={API_TARGETS[api.id]} />
               </div>
               <RiskBadge
                 level={API_STATUS_LEVEL[api.status]}
@@ -101,11 +159,14 @@ export function DataSystemPage() {
 
       <Card
         title="실증 데이터 소스 현황"
-        subtitle="저염분·고수온 실증서비스 기준 예시 — 하천·연안 실증서비스 데이터는 각 홈 화면 관측망 카드 참고"
+        subtitle="저염분·고수온 예측 모델 입력값 — 하천·연안 실증서비스 데이터는 각 홈 화면 관측망 카드 참고"
         action={
-          <Link to="/aqua/data" className="text-xs font-semibold text-accent hover:underline">
-            자세히 보기 →
-          </Link>
+          <div className="flex items-center gap-2">
+            <TargetTags tags={[PILOT_DATA_TARGET]} />
+            <Link to="/aqua/data" className="text-xs font-semibold text-accent hover:underline">
+              자세히 보기 →
+            </Link>
+          </div>
         }
       >
         <ul className="flex flex-col divide-y divide-border-subtle">
