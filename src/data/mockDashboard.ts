@@ -15,7 +15,7 @@ export const serviceStatusCards: {
   title: string
   icon: string
   href: string
-  counts: { warning: number; alert: number; danger: number }
+  counts: { warning: number; alert: number; danger: number; caution?: number }
 }[] = [
   // 카드 순서: 사용자 지정(2026-09-08) — 호우·태풍·폭염 대응·하천범람·저염분 고수온·연안 안전
   // weatherStations(mockHeavyRain.ts) 기준: ws-2·ws-3 warning(2) · ws-1 alert(1) · danger 없음
@@ -26,7 +26,8 @@ export const serviceStatusCards: {
   { id: "heat", title: "폭염 대응", icon: "🔆", href: "/heat", counts: { warning: 1, alert: 0, danger: 0 } },
   // riverStatuses(돈내코 warning 1 · 쇠소깍 danger 1, 14:32 심각 상향)와 반드시 같은 수치를 쓸 것
   { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 1, alert: 0, danger: 1 } },
-  { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 7, alert: 7, danger: 5 } },
+  // aquaFarmTotals(mockAqua.ts) 기준: danger 5 · alert 7 · warning 7 · caution 5 (총 24개소)
+  { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 7, alert: 7, danger: 5, caution: 5 } },
   { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 2, alert: 0, danger: 3 } },
 ]
 

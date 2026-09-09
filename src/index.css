@@ -14,9 +14,9 @@
   --color-accent-hover: #9fd432;
   --color-accent-soft: #8ec21f26;
 
-  /* 위험 등급 색상 (전 서비스 공통 시맨틱 토큰) */
-  --color-risk-danger: #ff0000;
-  --color-risk-danger-bg: #ff000026;
+  /* 위험 등급 색상 (전 서비스 공통 시맨틱 토큰) — danger는 Figma Make 디자인 스펙(#ff3b30) 기준으로 조정 */
+  --color-risk-danger: #ff3b30;
+  --color-risk-danger-bg: #ff3b3026;
   --color-risk-alert: #f8390d;
   --color-risk-alert-bg: #f8390d26;
   --color-risk-warning: #f2731a;

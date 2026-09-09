@@ -8,6 +8,7 @@ import { JejuRiskMap } from "../components/ui/JejuRiskMap"
 import { MapToolbox } from "../components/ui/MapToolbox"
 import { Pill } from "../components/ui/Pill"
 import { RiskBadge } from "../components/ui/RiskBadge"
+import { riskStyles } from "../components/ui/riskStyles"
 import { ServiceStatusCard } from "../components/ui/ServiceStatusCard"
 import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../components/ui/GisIconRail"
 import { GisSidePanel } from "../components/ui/GisSidePanel"
@@ -71,6 +72,15 @@ export function DashboardPage() {
   const filteredMarkers = useMemo(
     () => (mapDomain === "all" ? riskMarkers : riskMarkers.filter((m) => m.domain === mapDomain)),
     [mapDomain],
+  )
+
+  const alertSummary = useMemo(
+    () =>
+      (["danger", "alert", "warning"] as const).map((level) => ({
+        level,
+        count: serviceStatusCards.reduce((sum, card) => sum + (card.counts[level] ?? 0), 0),
+      })),
+    [],
   )
 
   const [cctvDomain, setCctvDomain] = useState<CctvCamera["domain"] | "all">("all")
@@ -239,19 +249,33 @@ export function DashboardPage() {
           <h1 className="text-xl font-bold text-white">GIS 통합 대시보드</h1>
           <p className="text-xs text-white/35">데이터 최종 수신: {lastSyncedAt}</p>
         </div>
-        <div className="flex gap-2">
-          <Link
-            to="/monitoring"
-            className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
-          >
-            시스템 모니터링
-          </Link>
-          <Link
-            to="/reports"
-            className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
-          >
-            이력·보고서
-          </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            {alertSummary.map(({ level, count }) => (
+              <div
+                key={level}
+                className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 ${riskStyles[level].bg} ${riskStyles[level].border}`}
+              >
+                <span className={`inline-block h-1.5 w-1.5 rounded-full ${riskStyles[level].dot}`} />
+                <span className={`text-sm font-bold tabular-nums ${riskStyles[level].text}`}>{count}</span>
+                <span className="text-[11px] text-white/40">{riskStyles[level].label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <Link
+              to="/monitoring"
+              className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
+            >
+              시스템 모니터링
+            </Link>
+            <Link
+              to="/reports"
+              className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
+            >
+              이력·보고서
+            </Link>
+          </div>
         </div>
       </div>
 
