@@ -6,6 +6,7 @@ import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
+import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { COAST_NAV } from "./coastNav"
@@ -215,6 +216,10 @@ export function CoastHomePage() {
           ))}
         </div>
         <p className="mt-3 text-[11px] text-white/35">data.go.kr 공공API 실연동 — 정적 프로토타입이라 확인 시점 스냅샷으로 고정 표시</p>
+      </Card>
+
+      <Card title="기상청 단기예보" subtitle="풍속·하늘상태 참고 — 실시간 연동">
+        <VilageForecastPanel />
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">

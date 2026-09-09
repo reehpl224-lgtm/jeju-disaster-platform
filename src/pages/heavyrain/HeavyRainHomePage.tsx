@@ -4,6 +4,7 @@ import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
+import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { HEAVY_RAIN_NAV } from "./heavyRainNav"
 import { broadcastLog, heavyRainAiForecast, legacySystems, weatherStations } from "../../data/mockHeavyRain"
@@ -79,6 +80,10 @@ export function HeavyRainHomePage() {
       </div>
 
       <DomainSubNav items={HEAVY_RAIN_NAV} />
+
+      <Card title="기상청 단기예보" subtitle="강수확률·강수형태 참고 — 돌발 강우 조기경보와 함께 확인">
+        <VilageForecastPanel />
+      </Card>
 
       <Card
         title="AI 침수 위험 조기경보"

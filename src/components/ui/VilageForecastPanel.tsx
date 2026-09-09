@@ -61,13 +61,14 @@ export function VilageForecastPanel() {
 
       {!loading && !error && data && (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[260px] text-[11px]">
+          <table className="w-full min-w-[320px] text-[11px]">
             <thead>
               <tr className="border-b border-border-subtle text-white/40">
                 <th className="py-1 text-left font-medium">시각</th>
                 <th className="py-1 text-right font-medium">기온</th>
                 <th className="py-1 text-right font-medium">강수확률</th>
                 <th className="py-1 text-right font-medium">하늘상태</th>
+                <th className="py-1 text-right font-medium">풍속</th>
               </tr>
             </thead>
             <tbody>
@@ -81,6 +82,7 @@ export function VilageForecastPanel() {
                     <td className="py-1 text-right text-white/80">
                       {pty ?? (slot.values.SKY ? SKY_LABEL[slot.values.SKY] ?? slot.values.SKY : "-")}
                     </td>
+                    <td className="py-1 text-right text-white/80">{slot.values.WSD ? `${slot.values.WSD}m/s` : "-"}</td>
                   </tr>
                 )
               })}

@@ -6,6 +6,7 @@ import { TYPHOON_NAV } from "./typhoonNav"
 import { typhoonReports, typhoonSource } from "../../data/mockTyphoon"
 import { riskMarkers } from "../../data/mockDashboard"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
+import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 
 const TYPHOON_MARKERS = riskMarkers.filter((m) => m.domain === "typhoon")
 
@@ -70,6 +71,10 @@ export function TyphoonHomePage() {
           ))}
         </div>
         <p className="mt-3 text-[11px] text-white/35">data.go.kr 공공API 실연동 — 정적 프로토타입이라 확인 시점 스냅샷으로 고정 표시</p>
+      </Card>
+
+      <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 태풍 특보 자체는 기상청 발표 기준">
+        <VilageForecastPanel />
       </Card>
 
       <Card title="접근 위치 — 태풍 GIS" subtitle="기상청 발표 기준 접근 방향(자체 관측망 없음 — 상징적 표시)">
