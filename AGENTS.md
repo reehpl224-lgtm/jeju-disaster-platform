@@ -267,6 +267,34 @@ Q15 근거: "하천수위를 해양 조수 시간과 연계해서 보여주면 �
   사용자 확인 후 진행 필요(3장의 "새 도메인 추가 전 상의" 원칙과 동일). 지진(규모/진도 정보)은
   실제 사이트에서도 전용 서비스 카드가 없고 타임라인에만 노출되는 걸 확인해 별도 대응 없음.
 
+**2026-09-09 SVG 지도 → 실제 Leaflet/OSM 타일 지도로 전환**(Claude Code): 그동안 `/dashboard`와
+도메인 홈 화면들이 쓰던 커스텀 SVG 지도(`JejuRiskMap.tsx`, x/y 좌표 기반)를 실제 지리좌표 기반
+`JejuTileMap.tsx`(react-leaflet + leaflet, OpenStreetMap 무료 타일 — API 키 불필요)로 교체했습니다.
+`riskMarkers`(`mockDashboard.ts`)에 실제 위경도(lat/lng)를 추가했고, lat/lng이 없는 마커는 지도에
+표시되지 않습니다. **`JejuRiskMap.tsx`는 이제 어느 화면에서도 import되지 않는 미사용 컴포넌트**입니다
+(삭제는 안 했음 — §5 미해결 이슈 참고).
+
+- 적용 화면: `/dashboard`, `/aqua`, `/coast`, `/river`, `/heavy-rain`, `/heat`, `/typhoon` 홈(총 7곳).
+  `/typhoon`은 자체 관측망이 없다는 §2 원칙에 따라 지도만 붙이고 아이콘레일(자산현황 등)은 붙이지
+  않았습니다 — `/heavy-rain`·`/heat`는 실제 데이터가 있는 항목(센서/대응/전파 발송, 자산/무더위쉼터)만
+  골라 레일을 붙였습니다.
+- **지도 종류 툴바** 6종(일반지도/기상재난/기상모델/재난위험도/CCTV·센서/항공지도) 추가. 이 중
+  **일반지도·항공지도·CCTV/센서만 실제로 다른 내용**을 보여줍니다(일반=OSM 스트리트 타일, 항공=Esri
+  World Imagery 위성 타일, CCTV/센서=마커셋을 CCTV 카메라 위치로 전환). **기상/재난·기상모델은 아직
+  별도 데이터 소스가 없어 재난위험도와 동일한 화면**을 보여줍니다 — 구분되는 데이터가 생기기 전까지는
+  이 상태가 정상이니 "버그"로 오인하지 마세요.
+- **지역 선택**(전체/제주시/서귀포시) 추가 — 선택 시 해당 지역으로 지도가 `flyTo` 이동.
+- CCTV 마커는 기존 대표 카메라 10대(`mockCctv.ts`)에 위경도를 추가해 재사용 — 새 카메라를 늘린 게
+  아닙니다.
+- `GisTimelinePanel`에 `filters` 슬롯이 추가돼, `/dashboard`의 타임라인/발효중 특보 탭에 실제 필터링
+  (유형 드롭다운, 검색, 날짜 범위, 발령/해제 체크박스)이 연결됐습니다.
+- `riskMarkers`에 "정상(safe)" 등급 마커 2개(신규 강우레이더, 협재 스마트폴 — 기존 `dashboardSensors`
+  재사용)를 추가해 GIS 범례의 "정상" 항목이 실제로 가리키는 마커가 생기도록 했습니다.
+- 배포: GitHub Actions로 GitHub Pages 자동 배포 워크플로(`.github/workflows/deploy-pages.yml`)
+  추가 — `master` 푸시 시 빌드 후 배포. 프로덕션 빌드에서만 `vite.config.ts`의 `base`와
+  `main.tsx`의 `BrowserRouter basename`이 `/jeju-disaster-platform/`로 설정됩니다(로컬 `npm run dev`는
+  영향 없음, 클라이언트 라우팅용 `404.html` 폴백 포함).
+
 `/dashboard`의 자산현황 레일 항목은 대피소 데이터가 맥락과 안 맞아 **우선 주석처리**돼 있습니다
 (`DashboardPage.tsx`의 `DASHBOARD_RAIL_ITEMS`, `railContent.asset`, `shelters` import — 전부
 주석으로 남아있고 삭제 안 됨. `GisIconRail`에 `items` prop이 생겨서 화면별로 레일 항목을 뺄 수
@@ -376,6 +404,10 @@ warning/caution으로 낮게 표시돼 있었던 것(`mockDashboard.ts`의 `risk
 - **`src/components/ui/WeatherTimeline.tsx`는 어느 화면에서도 쓰이지 않는 미사용 컴포넌트**입니다
   (전용 데이터 `weatherTimeline`/`weatherTimelineNow`도 `mockDashboard.ts`에 있지만 마찬가지로 미사용).
   `KpiCard`처럼 향후 재사용 대기 상태인지, 아니면 지울 대상인지 사용자에게 먼저 확인하세요.
+- **`src/components/ui/JejuRiskMap.tsx`(구 SVG 지도)도 2026-09-09 `JejuTileMap`(Leaflet) 전환 이후
+  어느 화면에서도 쓰이지 않는 미사용 컴포넌트**가 됐습니다. `src/types/domain.ts`의 `RiskMarker` 타입
+  주석에만 이름이 남아있습니다. 지우지 않고 남겨둔 상태이니, 완전히 삭제할지는 사용자에게 먼저
+  확인하세요(위 `WeatherTimeline`과 동일한 판단 필요).
 - MVP 기획 가이드(Manus AI 작성, 2026-09-07) 대조 결과 아직 구현 안 된 항목들 — 급하지 않지만 서비스가
   15개로 늘어나기 전에 검토 예정:
   - 시나리오 선택·재생 UI (지금은 고정 더미데이터만 있음)
@@ -394,7 +426,11 @@ warning/caution으로 낮게 표시돼 있었던 것(`mockDashboard.ts`의 `risk
 
 - React 19 + TypeScript + Vite 8 + Tailwind CSS v4 (CSS-first `@theme` 토큰, `src/index.css`)
 - react-router-dom v7 (클라이언트 라우팅), recharts (시계열 차트)
+- react-leaflet v5 + leaflet (`JejuTileMap.tsx`, 2026-09-09 추가) — OpenStreetMap/Esri 무료 타일,
+  API 키 불필요
 - 인증은 `sessionStorage` 기반 목업 (`src/data/mockAuth.ts`, `src/routes/RequireAuth.tsx`)
+- 배포: GitHub Pages (`.github/workflows/deploy-pages.yml`, `master` 푸시 시 자동 빌드+배포). 프로덕션
+  빌드만 `base`/`basename`이 `/jeju-disaster-platform/`로 바뀌므로 로컬 개발엔 영향 없음.
 
 ```bash
 npm install
@@ -408,9 +444,11 @@ npm run build    # tsc -b && vite build — 커밋 전 항상 실행해서 타�
 src/
   components/
     layout/     # AppShell, TopBar, Sidebar
-    ui/         # Card, KpiCard(현재 미사용, 재사용 대기), RiskBadge, JejuRiskMap, riskStyles,
-                # WeatherTimeline, MapToolbox, GisIconRail/GisSidePanel/GisTimelinePanel/
-                # ServiceStatusCard(/dashboard GIS 커맨드센터, 2026-09-07 추가 — §2-④ 참고)
+    ui/         # Card, KpiCard(현재 미사용, 재사용 대기), RiskBadge, riskStyles, Pill,
+                # JejuTileMap(실제 Leaflet 타일 지도, 2026-09-09 — 현재 사용 중), JejuRiskMap(구 SVG
+                # 지도, 2026-09-09 이후 미사용 — §5 참고), WeatherTimeline(미사용), MapToolbox,
+                # GisIconRail/GisSidePanel/GisTimelinePanel/ServiceStatusCard/CctvCameraCard/
+                # DutyContactPanel
     aqua/       # AquaSubNav, StageTracker, ChecklistRow (양식장 전용)
     shared/     # DomainSubNav (연안·하천 공용 서브 내비게이션)
   data/         # mockAuth, mockDashboard, mockMonitoring, mockAqua, mockCoast, mockRiver,
@@ -420,8 +458,12 @@ src/
     aqua/       # 양식장 대응 9개 화면
     coast/      # 연안 안전 6개 화면
     river/      # 하천 범람 6개 화면
+    heavyrain/  # 호우 4개 화면(홈/분석/경보발송/종료보고, 2026-09-08 추가)
+    typhoon/    # 태풍 4개 화면(2026-09-08 추가, 자체 관측망 없음 — §2 참고)
+    heat/       # 폭염 4개 화면(2026-09-08 추가)
+    propagation/# 상황전파·보고체계 1개 화면(2026-09-08 독립 페이지로 승격)
     reports/    # 이력·보고서 2개 화면
-    (root)/     # LoginPage, ForbiddenPage, DashboardPage, MonitoringPage
+    (root)/     # LoginPage, ForbiddenPage, DashboardPage, MonitoringPage, StyleguidePage(/styleguide)
   routes/       # RequireAuth (인증 가드)
   types/        # domain.ts(RiskLevel 등 공통 타입), aqua.ts, coast.ts, river.ts, reports.ts
 ```
