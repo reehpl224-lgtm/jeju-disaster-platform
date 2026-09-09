@@ -32,7 +32,9 @@ export async function fetchVilageForecast(region: VilageForecastRegion): Promise
   if (!PROXY_URL) {
     throw new Error("VITE_WEATHER_PROXY_URL이 설정되지 않았습니다 — .env에 kma-weather-proxy 배포 주소를 넣어주세요.")
   }
-  const res = await fetch(`${PROXY_URL}/api/vilage-fcst?region=${region}`)
+  // 서버도 no-store라 브라우저 쪽도 맞춤 — 안 그러면 배포 초기 실수로 캐시됐던 응답(오래된
+  // CORS 헤더 등)이 max-age 동안 로컬에 계속 남아 혼란을 준다(2026-09-09 실제로 겪음).
+  const res = await fetch(`${PROXY_URL}/api/vilage-fcst?region=${region}`, { cache: "no-store" })
   if (!res.ok) {
     const body = await res.json().catch(() => null)
     throw new Error(body?.error ?? `기상청 예보 조회 실패 (HTTP ${res.status})`)

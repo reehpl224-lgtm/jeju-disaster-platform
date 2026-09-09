@@ -13,9 +13,6 @@ import type { VercelRequest, VercelResponse } from "@vercel/node"
 
 const KMA_BASE_URL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
 
-// 이 프록시를 부를 수 있는 프론트엔드 origin — 비밀값이 아니라서 코드에 그대로 둠.
-const ALLOWED_ORIGINS = ["https://reehpl224-lgtm.github.io", "http://localhost:5173", "http://localhost:5199"]
-
 // AGENTS.md 확정 대상지 기준 시청 좌표 → 기상청 격자변환 공식(LCC, 기상청 공식 상수)으로 직접 계산한 값.
 const REGIONS: Record<string, { nx: number; ny: number; label: string }> = {
   jeju: { nx: 53, ny: 38, label: "제주시" },
@@ -29,13 +26,13 @@ const PUBLISH_DELAY_MIN = 10
 const WANTED_CATEGORIES = ["TMP", "POP", "SKY", "PTY", "REH", "WSD"] as const
 type WantedCategory = (typeof WANTED_CATEGORIES)[number]
 
-function applyCors(req: VercelRequest, res: VercelResponse) {
-  const origin = req.headers.origin
-  const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
-  res.setHeader("Access-Control-Allow-Origin", allow)
+// 공개 읽기 전용 데이터(쿠키/인증 없음)라 origin을 굳이 제한하지 않고 와일드카드로 둠 — 특정
+// origin만 반사(reflect)하는 방식은 CDN 캐시(Cache-Control: s-maxage)와 얽히면 먼저 캐시된
+// 엉뚱한 origin의 응답이 다른 origin에도 그대로 나가는 버그가 생겨서(2026-09-09 실제로 겪음) 피함.
+function applyCors(res: VercelResponse) {
+  res.setHeader("Access-Control-Allow-Origin", "*")
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS")
   res.setHeader("Access-Control-Allow-Headers", "Content-Type")
-  res.setHeader("Vary", "Origin")
 }
 
 /** 현재 KST 기준 가장 최근에 발표됐고(+발표지연 10분 경과) 이미 반영됐을 base_date/base_time을 고른다. */
@@ -137,7 +134,7 @@ async function fetchVilageFcst(serviceKey: string, nx: number, ny: number): Prom
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  applyCors(req, res)
+  applyCors(res)
 
   if (req.method === "OPTIONS") {
     res.status(204).end()
@@ -159,8 +156,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const slots = await fetchVilageFcst(serviceKey, region.nx, region.ny)
-    // 단기예보는 3시간 간격 발표라 10분 캐시(CDN)로도 충분 — data.go.kr 트래픽 쿼터 절약.
-    res.setHeader("Cache-Control", "public, s-maxage=600, stale-while-revalidate=300")
+    // CDN 공유캐시(s-maxage)는 안 씀 — 2026-09-09에 다른 origin으로 캐시된 CORS 헤더가 그대로
+    // 나가는 버그를 실제로 겪었음(캐시가 응답 헤더까지 통째로 저장해버림). 이 프록시는 트래픽이
+    // 적어 캐싱 없이도 문제없음 — data.go.kr 쿼터가 부담되면 그때 다시 고려.
+    res.setHeader("Cache-Control", "no-store")
     res.status(200).json({ region: regionKey, label: region.label, nx: region.nx, ny: region.ny, slots })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
