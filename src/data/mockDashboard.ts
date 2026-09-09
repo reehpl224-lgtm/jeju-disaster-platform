@@ -32,23 +32,23 @@ export const serviceStatusCards: {
 ]
 
 export const riskMarkers: RiskMarker[] = [
-  { id: "donnaeko", name: "효돈천(돈내코)", x: 178, y: 198, level: "warning", domain: "river" },
+  { id: "donnaeko", name: "효돈천(돈내코)", x: 178, y: 198, level: "warning", domain: "river", lat: 33.276, lng: 126.593 },
   // riverStatuses 기준 14:32에 심각 3단계로 상향(riverControlTimeline ct7)
-  { id: "soesokkak", name: "효돈천(쇠소깍)", x: 196, y: 222, level: "danger", domain: "river" },
-  { id: "hamdeok", name: "함덕 해수욕장", x: 222, y: 92, level: "danger", domain: "coast" },
+  { id: "soesokkak", name: "효돈천(쇠소깍)", x: 196, y: 222, level: "danger", domain: "river", lat: 33.247, lng: 126.619 },
+  { id: "hamdeok", name: "함덕 해수욕장", x: 222, y: 92, level: "danger", domain: "coast", lat: 33.543, lng: 126.670 },
   // coastEvents 기준 실제 최고위험(둘 다 danger 이벤트가 진행 중) 반영 — serviceStatusCards.coast(danger 3건)와도 일치시킬 것
-  { id: "samyang", name: "삼양 해수욕장", x: 195, y: 88, level: "danger", domain: "coast" },
-  { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "danger", domain: "coast" },
-  { id: "hangyeong-geumdeung", name: "한경 금등", x: 40, y: 125, level: "alert", domain: "aqua", temperature: "24.7°C", salinity: "25.9 psu" },
-  { id: "hangyeong-yongsu", name: "한경 용수", x: 44, y: 185, level: "alert", domain: "aqua", temperature: "25.8°C", salinity: "25.3 psu" },
-  { id: "daejeong-ilgwa", name: "대정 일과", x: 60, y: 240, level: "alert", domain: "aqua", temperature: "26.8°C", salinity: "24.6 psu" },
+  { id: "samyang", name: "삼양 해수욕장", x: 195, y: 88, level: "danger", domain: "coast", lat: 33.520, lng: 126.585 },
+  { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "danger", domain: "coast", lat: 33.394, lng: 126.239 },
+  { id: "hangyeong-geumdeung", name: "한경 금등", x: 40, y: 125, level: "alert", domain: "aqua", temperature: "24.7°C", salinity: "25.9 psu", lat: 33.322, lng: 126.175 },
+  { id: "hangyeong-yongsu", name: "한경 용수", x: 44, y: 185, level: "alert", domain: "aqua", temperature: "25.8°C", salinity: "25.3 psu", lat: 33.310, lng: 126.166 },
+  { id: "daejeong-ilgwa", name: "대정 일과", x: 60, y: 240, level: "alert", domain: "aqua", temperature: "26.8°C", salinity: "24.6 psu", lat: 33.221, lng: 126.252 },
   // weatherStations(mockHeavyRain.ts) ws-1 "경보 발령"과 반드시 같은 등급을 쓸 것
-  { id: "hancheon", name: "한천 침수경보", x: 145, y: 80, level: "alert", domain: "heavyRain" },
-  // typhoonReports(mockTyphoon.ts) 최신 발표(ty-1) "태풍경보"와 반드시 같은 등급을 쓸 것. 지도가 제주 섬 외곽선만
-  // 표시하는 데모용 축척이라, 실제 위경도가 아니라 우측 하단 해상(접근 방향)에 상징적으로 배치
-  { id: "typhoon-kroban", name: "제24호 크로반", x: 300, y: 265, level: "alert", domain: "typhoon" },
+  { id: "hancheon", name: "한천 침수경보", x: 145, y: 80, level: "alert", domain: "heavyRain", lat: 33.499, lng: 126.520 },
+  // typhoonReports(mockTyphoon.ts) 최신 발표(ty-1) "태풍경보"와 반드시 같은 등급을 쓸 것.
+  // 실제 좌표는 "북서 방향 접근"(mockDashboard.ts aiInsights 문구) 기준 제주 북서쪽 해상에 상징적으로 배치 — 정밀 관측값 아님
+  { id: "typhoon-kroban", name: "제24호 크로반", x: 300, y: 265, level: "alert", domain: "typhoon", lat: 34.05, lng: 125.95 },
   // heatLevelInfo(mockHeat.ts) "폭염주의보"(warning)와 반드시 같은 등급을 쓸 것 — heatRouteTips의 "더운 길" 지점
-  { id: "sinjeju-hotroute", name: "신제주 로터리(더운 길)", x: 115, y: 100, level: "warning", domain: "heat" },
+  { id: "sinjeju-hotroute", name: "신제주 로터리(더운 길)", x: 115, y: 100, level: "warning", domain: "heat", lat: 33.489, lng: 126.481 },
 ]
 
 export const timeSeries: TimeSeriesReading[] = [

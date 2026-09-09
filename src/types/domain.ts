@@ -29,6 +29,9 @@ export interface RiskMarker {
   temperature?: string
   /** 양식장 콜아웃 염분 (예: "24.1 psu") */
   salinity?: string
+  /** 실제 위경도 — 타일 지도(JejuTileMap)용. 없으면 x/y 기반 SVG 지도(JejuRiskMap)에서만 표시됨 */
+  lat?: number
+  lng?: number
 }
 
 export interface TimeSeriesReading {

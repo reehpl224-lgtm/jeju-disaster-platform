@@ -54,3 +54,38 @@ body {
 input, select {
   color-scheme: dark;
 }
+
+/* Leaflet(react-leaflet) 다크 테마 오버라이드 — 기본은 라이트 테마라 패널/보더 토큰에 맞춰 재정의 */
+.leaflet-container {
+  background: var(--color-inset);
+  font-family: var(--font-sans);
+}
+/* OpenStreetMap 표준 타일(무료·키 불필요)은 밝은 배경이라, 필터로 다크 테마에 맞춰 톤을 반전시킨다 */
+.leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.93) contrast(0.9) saturate(0.7);
+}
+/* leaflet.css의 기본 흰 배경(#fff)이 import 순서상 나중에 평가되는 경우가 있어 !important로 확정 오버라이드 */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--color-panel) !important;
+  color: white !important;
+  box-shadow: var(--shadow-panel);
+}
+.leaflet-popup-content {
+  margin: 10px 12px;
+}
+.leaflet-control-zoom a {
+  background: var(--color-panel);
+  color: white;
+  border-color: var(--color-border-subtle) !important;
+}
+.leaflet-control-zoom a:hover {
+  background: var(--color-inset);
+}
+.leaflet-control-attribution {
+  background: rgba(39, 39, 39, 0.75);
+  color: rgba(255, 255, 255, 0.45);
+}
+.leaflet-control-attribution a {
+  color: rgba(255, 255, 255, 0.65);
+}

@@ -4,7 +4,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import { Card } from "../components/ui/Card"
 import { CctvCameraCard } from "../components/ui/CctvCameraCard"
 import { DutyContactPanel } from "../components/ui/DutyContactPanel"
-import { JejuRiskMap } from "../components/ui/JejuRiskMap"
+import { JejuTileMap } from "../components/ui/JejuTileMap"
 import { MapToolbox } from "../components/ui/MapToolbox"
 import { Pill } from "../components/ui/Pill"
 import { RiskBadge } from "../components/ui/RiskBadge"
@@ -440,7 +440,7 @@ export function DashboardPage() {
         }
       >
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-          <JejuRiskMap markers={filteredMarkers} className="relative h-full w-full" />
+          <JejuTileMap markers={filteredMarkers} className="relative h-full w-full" />
           <MapToolbox />
           <GisIconRail
             activeKey={activeRailKey}
