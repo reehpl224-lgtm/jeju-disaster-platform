@@ -164,10 +164,14 @@ export function RiverHomePage() {
         <VilageForecastPanel />
       </Card>
 
-      <Card title="하천 위험 요약">
+      <Card title="하천 위험 요약" subtitle="카드를 누르면 해당 하천의 현장 통제 현황으로 이동합니다">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {riverStatuses.map((river) => (
-            <div key={river.id} className="rounded-lg border border-border-subtle p-4">
+            <Link
+              key={river.id}
+              to="/river/control"
+              className="block rounded-lg border border-border-subtle p-4 transition hover:border-accent"
+            >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-bold text-white/85">{river.name}</p>
                 <RiskBadge level={river.level} solid />
@@ -177,7 +181,7 @@ export function RiverHomePage() {
               <p className="mt-2 text-xs text-white/40">범람 예상 도달</p>
               <p className="text-sm font-semibold text-white/80">{river.eta}</p>
               <p className="mt-2 text-[11px] text-white/30">최종 업데이트 {river.updatedAt}</p>
-            </div>
+            </Link>
           ))}
         </div>
       </Card>

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
@@ -7,9 +8,25 @@ import { coastMonitoringDomains } from "../../data/mockCoast"
 export function CoastMonitoringPage() {
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-bold text-white">현장 모니터링</h1>
-        <p className="mt-1 text-sm text-white/50">하천·연안·양식장 통합 현장 대응 상태</p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h1 className="text-xl font-bold text-white">현장 모니터링</h1>
+          <p className="mt-1 text-sm text-white/50">하천·연안·양식장 통합 현장 대응 상태</p>
+        </div>
+        <div className="flex gap-2">
+          <Link
+            to="/coast/dispatch"
+            className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
+          >
+            현장 공조로 이동 →
+          </Link>
+          <Link
+            to="/coast/closure"
+            className="rounded-full border border-accent px-3 py-1.5 text-xs font-bold text-accent hover:bg-accent-soft"
+          >
+            상황 종료 처리
+          </Link>
+        </div>
       </div>
 
       <DomainSubNav items={COAST_NAV} />

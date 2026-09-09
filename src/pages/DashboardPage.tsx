@@ -338,14 +338,20 @@ export function DashboardPage() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             {alertSummary.map(({ level, count }) => (
-              <div
+              <button
                 key={level}
-                className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 ${riskStyles[level].bg} ${riskStyles[level].border}`}
+                type="button"
+                title="어느 서비스가 해당하는지 아래에서 확인"
+                onClick={() => {
+                  setTopTab("gis")
+                  window.setTimeout(() => document.getElementById("service-status-cards")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0)
+                }}
+                className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 transition hover:brightness-125 ${riskStyles[level].bg} ${riskStyles[level].border}`}
               >
                 <span className={`inline-block h-1.5 w-1.5 rounded-full ${riskStyles[level].dot}`} />
                 <span className={`text-sm font-bold tabular-nums ${riskStyles[level].text}`}>{count}</span>
                 <span className="text-[11px] text-white/40">{riskStyles[level].label}</span>
-              </div>
+              </button>
             ))}
           </div>
           <div className="flex gap-2">
@@ -555,7 +561,7 @@ export function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+      <div id="service-status-cards" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 scroll-mt-4">
         {serviceStatusCards.map((card) => (
           <ServiceStatusCard key={card.id} card={card} />
         ))}

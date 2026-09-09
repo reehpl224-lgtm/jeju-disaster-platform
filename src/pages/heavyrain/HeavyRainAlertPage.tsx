@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
@@ -8,9 +9,17 @@ export function HeavyRainAlertPage() {
   const d = heavyRainAlertDispatch
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-bold text-white">경보 발송 현황</h1>
-        <p className="mt-1 text-sm text-white/50">{d.message}</p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h1 className="text-xl font-bold text-white">경보 발송 현황</h1>
+          <p className="mt-1 text-sm text-white/50">{d.message}</p>
+        </div>
+        <Link
+          to="/heavy-rain/closure"
+          className="rounded-full border border-accent px-3 py-1.5 text-xs font-bold text-accent hover:bg-accent-soft"
+        >
+          상황 종료 처리
+        </Link>
       </div>
 
       <DomainSubNav items={HEAVY_RAIN_NAV} />

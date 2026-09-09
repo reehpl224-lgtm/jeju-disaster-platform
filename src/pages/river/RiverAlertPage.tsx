@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
@@ -6,6 +7,7 @@ import { riverAlertDispatch } from "../../data/mockRiver"
 
 export function RiverAlertPage() {
   const d = riverAlertDispatch
+  const [retried, setRetried] = useState(false)
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -43,12 +45,19 @@ export function RiverAlertPage() {
       </div>
 
       <Card title="수신 실패 항목" subtitle={`전체 실패: ${d.totalFail}건`}>
-        <button
-          type="button"
-          className="rounded-full border border-risk-danger/40 px-3 py-1.5 text-xs font-bold text-risk-danger hover:bg-risk-danger-bg"
-        >
-          전체 재시도
-        </button>
+        {retried ? (
+          <p className="rounded-lg border border-risk-safe/40 bg-risk-safe-bg p-2.5 text-xs text-risk-safe">
+            ✓ 재시도 요청을 보냈습니다. 채널사 응답을 기다리는 중입니다.
+          </p>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setRetried(true)}
+            className="rounded-full border border-risk-danger/40 px-3 py-1.5 text-xs font-bold text-risk-danger hover:bg-risk-danger-bg"
+          >
+            전체 재시도
+          </button>
+        )}
         <table className="mt-3 w-full text-left text-sm">
           <thead>
             <tr className="text-xs text-white/35">
