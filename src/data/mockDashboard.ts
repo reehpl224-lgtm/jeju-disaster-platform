@@ -49,6 +49,10 @@ export const riskMarkers: RiskMarker[] = [
   { id: "typhoon-kroban", name: "제24호 크로반", x: 300, y: 265, level: "alert", domain: "typhoon", lat: 34.05, lng: 125.95 },
   // heatLevelInfo(mockHeat.ts) "폭염주의보"(warning)와 반드시 같은 등급을 쓸 것 — heatRouteTips의 "더운 길" 지점
   { id: "sinjeju-hotroute", name: "신제주 로터리(더운 길)", x: 115, y: 100, level: "warning", domain: "heat", lat: 33.489, lng: 126.481 },
+  // 정상(safe) 지점도 지도에 노출 — dashboardSensors(위 참고)에 이미 있는 "정상" 상태 센서 2건을 그대로 재사용
+  // (기존 인근 마커와 겹치지 않도록 좌표만 살짝 offset)
+  { id: "hyodong-radar", name: "신규 강우레이더(효돈동)", x: 182, y: 190, level: "safe", domain: "heavyRain", lat: 33.283, lng: 126.580 },
+  { id: "hyeopjae-smartpole", name: "협재 AIoT 스마트폴", x: 58, y: 144, level: "safe", domain: "coast", lat: 33.396, lng: 126.242 },
 ]
 
 export const timeSeries: TimeSeriesReading[] = [

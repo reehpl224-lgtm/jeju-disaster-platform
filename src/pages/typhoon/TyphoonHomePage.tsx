@@ -1,8 +1,12 @@
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
+import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { TYPHOON_NAV } from "./typhoonNav"
 import { typhoonReports, typhoonSource } from "../../data/mockTyphoon"
+import { riskMarkers } from "../../data/mockDashboard"
+
+const TYPHOON_MARKERS = riskMarkers.filter((m) => m.domain === "typhoon")
 
 const STATUS_LEVEL: Record<(typeof typhoonReports)[number]["status"], "caution" | "warning" | "alert" | "safe"> = {
   예비특보: "caution",
@@ -43,6 +47,19 @@ export function TyphoonHomePage() {
           </div>
         </div>
         <p className="mt-3 text-[11px] text-white/35">관련 레거시 시스템: {typhoonSource.relatedLegacySystem}</p>
+      </Card>
+
+      <Card title="접근 위치 — 태풍 GIS" subtitle="기상청 발표 기준 접근 방향(자체 관측망 없음 — 상징적 표시)">
+        <div className="relative h-96 w-full overflow-hidden rounded-lg">
+          <JejuTileMap markers={TYPHOON_MARKERS} className="relative h-full w-full" />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+          <span className="font-semibold text-white/30">범례</span>
+          <RiskBadge level="danger" />
+          <RiskBadge level="alert" />
+          <RiskBadge level="warning" />
+          <RiskBadge level="safe" />
+        </div>
       </Card>
 
       <Card title="발표 이력" subtitle="기상청 발표 시각 역순">

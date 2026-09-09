@@ -1,8 +1,18 @@
+import { useState, type ReactNode } from "react"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
+import { JejuTileMap } from "../../components/ui/JejuTileMap"
+import { MapToolbox } from "../../components/ui/MapToolbox"
+import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../../components/ui/GisIconRail"
+import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { HEAVY_RAIN_NAV } from "./heavyRainNav"
 import { broadcastLog, heavyRainAiForecast, legacySystems, weatherStations } from "../../data/mockHeavyRain"
+import { riskMarkers } from "../../data/mockDashboard"
+
+const HEAVY_RAIN_MARKERS = riskMarkers.filter((m) => m.domain === "heavyRain")
+// 호우는 담당자 연락처(DutyContact)·물리 자산현황 데이터가 아직 없어 두 항목은 레일에서 제외
+const HEAVY_RAIN_RAIL_ITEMS = GIS_RAIL_ITEMS.filter((item) => item.key === "sensor" || item.key === "response" || item.key === "broadcast")
 
 const LINK_STATUS_LEVEL: Record<(typeof legacySystems)[number]["linkStatus"], "safe" | "caution" | "offline"> = {
   "연계 진행중": "safe",
@@ -17,7 +27,48 @@ const STATION_TYPE_LABEL: Record<(typeof weatherStations)[number]["type"], strin
   풍속풍향계: "💨",
 }
 
+const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
+  sensor: (
+    <ul className="flex flex-col divide-y divide-border-subtle">
+      {weatherStations.map((station) => (
+        <li key={station.id} className="flex items-center justify-between gap-2 py-2 text-xs">
+          <p className="font-medium text-white/80">{station.name}</p>
+          <RiskBadge level={station.status} label={station.value} />
+        </li>
+      ))}
+    </ul>
+  ),
+  response: (
+    <ul className="flex flex-col divide-y divide-border-subtle">
+      {legacySystems.map((system) => (
+        <li key={system.id} className="py-2 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-medium text-white/80">{system.name}</p>
+            <RiskBadge level={LINK_STATUS_LEVEL[system.linkStatus]} label={system.linkStatus} />
+          </div>
+          <p className="mt-0.5 text-white/35">{system.operator}</p>
+        </li>
+      ))}
+    </ul>
+  ),
+  broadcast: (
+    <ul className="flex flex-col divide-y divide-border-subtle">
+      {broadcastLog.map((entry) => (
+        <li key={entry.id} className="py-2 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-medium text-white/80">{entry.message}</p>
+            <span className="shrink-0 text-white/35">{entry.time}</span>
+          </div>
+          <p className="text-white/35">{entry.channel}</p>
+        </li>
+      ))}
+    </ul>
+  ),
+}
+
 export function HeavyRainHomePage() {
+  const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -68,6 +119,29 @@ export function HeavyRainHomePage() {
               <p className="mt-0.5 text-[11px] text-white/35">최종 수신 {station.updatedAt}</p>
             </div>
           ))}
+        </div>
+      </Card>
+
+      <Card title="위험 위치 및 관측망 — 호우 GIS" subtitle="침수경보·우량계 관측 지점">
+        <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
+          <JejuTileMap markers={HEAVY_RAIN_MARKERS} className="relative h-full w-full" />
+          <MapToolbox />
+          <GisIconRail
+            activeKey={activeRailKey}
+            onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))}
+            items={HEAVY_RAIN_RAIL_ITEMS}
+          />
+          {activeRailKey && (
+            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
+          )}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+          <span className="font-semibold text-white/30">범례</span>
+          <RiskBadge level="danger" />
+          <RiskBadge level="alert" />
+          <RiskBadge level="warning" />
+          <RiskBadge level="caution" />
+          <RiskBadge level="safe" />
         </div>
       </Card>
 

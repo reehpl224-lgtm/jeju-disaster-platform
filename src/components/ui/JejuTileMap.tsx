@@ -149,7 +149,7 @@ export function JejuTileMap({
             })}
       </MapContainer>
 
-      <div className="absolute left-1/2 top-2 z-[500] flex -translate-x-1/2 items-center gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
+      <div className="absolute right-2 top-12 z-[500] flex max-w-[calc(100%-16px)] flex-wrap items-center justify-end gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
         <select
           value="jeju"
           disabled
