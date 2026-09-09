@@ -77,7 +77,10 @@ export function JejuTileMap({
   const geoCctv = (cctvMarkers ?? []).filter((c): c is CctvCamera & { lat: number; lng: number } => c.lat != null && c.lng != null)
 
   return (
-    <div className={className ?? "relative h-72 w-full sm:h-80"}>
+    // isolate: Leaflet의 내부 팬/컨트롤 z-index(최대 1000)가 새 스태킹 컨텍스트에 갇히도록 격리 —
+    // 격리가 없으면 GisIconRail/GisSidePanel/GisTimelinePanel(z-10, 이 지도 바깥의 형제 요소)이
+    // Leaflet 마커·팝업·줌 컨트롤에 가려지는 문제가 있었음(2026-09-09 SVG→Leaflet 전환 이후 발견).
+    <div className={`isolate ${className ?? "relative h-72 w-full sm:h-80"}`}>
       <MapContainer
         center={JEJU_CENTER}
         zoom={11}
