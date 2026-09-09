@@ -1,3 +1,5 @@
+import { useState } from "react"
+import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
@@ -6,6 +8,7 @@ import { coastDispatch } from "../../data/mockCoast"
 
 export function CoastDispatchPage() {
   const d = coastDispatch
+  const [escalated, setEscalated] = useState(false)
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -35,7 +38,7 @@ export function CoastDispatchPage() {
 
         <Card title="해경 출동 요청 현황">
           <dl className="flex flex-col gap-2 text-sm">
-            <Row label="출동 요청 상태" value={d.request.status} />
+            <Row label="출동 요청 상태" value={escalated ? "대체 채널 전환됨 · 응신 대기 중" : d.request.status} />
             <Row label="요청 기관" value={d.request.agency} />
             <Row label="전송 시각" value={d.request.sentAt} />
             <Row label="우선순위" value={d.request.priority} />
@@ -58,12 +61,26 @@ export function CoastDispatchPage() {
         <p className="mt-1 text-white/70">{d.fallback}</p>
       </div>
 
+      {escalated && (
+        <div className="rounded-lg border border-risk-safe/40 bg-risk-safe-bg p-3 text-sm text-risk-safe">
+          ✓ 대체 채널(위성전화·핫라인)로 전환 요청을 보냈습니다. 인근 구조정 재요청도 함께 접수되었습니다.
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-2">
-        <button type="button" className="rounded-full bg-accent px-4 py-2.5 text-sm font-bold text-black hover:bg-accent-hover">
+        <Link
+          to="/coast/monitoring"
+          className="rounded-full bg-accent px-4 py-2.5 text-sm font-bold text-black transition hover:bg-accent-hover"
+        >
           현장 모니터링으로 이동
-        </button>
-        <button type="button" className="rounded-full border border-risk-danger/40 px-4 py-2.5 text-sm font-semibold text-risk-danger hover:bg-risk-danger-bg">
-          연계 실패 안내
+        </Link>
+        <button
+          type="button"
+          onClick={() => setEscalated(true)}
+          disabled={escalated}
+          className="rounded-full border border-risk-danger/40 px-4 py-2.5 text-sm font-semibold text-risk-danger transition hover:bg-risk-danger-bg disabled:opacity-40"
+        >
+          {escalated ? "연계 실패 대응 완료" : "연계 실패 안내"}
         </button>
       </div>
     </div>

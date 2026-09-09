@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useLocation } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { disasterAlerts } from "../../data/mockIncidents"
 import { overallStatus } from "../../data/mockMonitoring"
 import { RiskBadge } from "../ui/RiskBadge"
@@ -93,18 +93,31 @@ export function TopBar() {
                 <p className="px-3 py-4 text-center text-xs text-white/30">새 알림이 없습니다.</p>
               ) : (
                 <ul className="flex max-h-80 flex-col divide-y divide-border-subtle overflow-y-auto">
-                  {disasterAlerts.map((alert) => (
-                    <li key={alert.id} className="px-3 py-2.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium text-white/85">{alert.title}</p>
-                        <RiskBadge level={alert.level} />
-                      </div>
-                      <p className="mt-1 text-xs text-white/45">{alert.message}</p>
-                      <p className="mt-1 text-[11px] text-white/30">
-                        {alert.target} · {alert.issuedAt.slice(0, 16).replace("T", " ")}
-                      </p>
-                    </li>
-                  ))}
+                  {disasterAlerts.map((alert) => {
+                    const body = (
+                      <>
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="text-sm font-medium text-white/85">{alert.title}</p>
+                          <RiskBadge level={alert.level} />
+                        </div>
+                        <p className="mt-1 text-xs text-white/45">{alert.message}</p>
+                        <p className="mt-1 text-[11px] text-white/30">
+                          {alert.target} · {alert.issuedAt.slice(0, 16).replace("T", " ")}
+                        </p>
+                      </>
+                    )
+                    return (
+                      <li key={alert.id}>
+                        {alert.href ? (
+                          <Link to={alert.href} onClick={() => setNotifOpen(false)} className="block px-3 py-2.5 hover:bg-inset">
+                            {body}
+                          </Link>
+                        ) : (
+                          <div className="px-3 py-2.5">{body}</div>
+                        )}
+                      </li>
+                    )
+                  })}
                 </ul>
               )}
             </div>

@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Link, Navigate, useParams } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
@@ -6,6 +7,7 @@ import { incidentRecords } from "../../data/mockReports"
 export function ReportDetailPage() {
   const { incidentId } = useParams()
   const record = incidentRecords.find((r) => r.id === incidentId)
+  const [trainingRegistered, setTrainingRegistered] = useState(false)
 
   if (!record) {
     return <Navigate to="/reports" replace />
@@ -23,12 +25,21 @@ export function ReportDetailPage() {
           <h1 className="mt-1 text-xl font-bold text-white">상황 종료 보고서</h1>
           <p className="mt-1 text-sm text-white/50">{record.title}</p>
         </div>
-        <div className="flex gap-2">
-          <button type="button" className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset">
+        <div className="print-hide flex gap-2">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
+          >
             보고서 내보내기 (PDF)
           </button>
-          <button type="button" className="rounded-full border border-accent px-3 py-1.5 text-xs font-bold text-accent hover:bg-accent-soft">
-            학습 데이터 등록
+          <button
+            type="button"
+            onClick={() => setTrainingRegistered(true)}
+            disabled={trainingRegistered}
+            className="rounded-full border border-accent px-3 py-1.5 text-xs font-bold text-accent transition hover:bg-accent-soft disabled:opacity-50"
+          >
+            {trainingRegistered ? "✓ 학습 데이터 등록됨" : "학습 데이터 등록"}
           </button>
         </div>
       </div>

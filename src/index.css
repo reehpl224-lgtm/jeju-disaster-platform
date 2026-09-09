@@ -89,3 +89,15 @@ input, select {
 .leaflet-control-attribution a {
   color: rgba(255, 255, 255, 0.65);
 }
+
+/* 보고서 상세의 "PDF 내보내기"(window.print()) 대응 — 사이드바·상단바·액션 버튼은 인쇄에서 제외 */
+@media print {
+  aside,
+  header,
+  .print-hide {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+}

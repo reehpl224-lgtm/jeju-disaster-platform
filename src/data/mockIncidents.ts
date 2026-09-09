@@ -89,6 +89,7 @@ export const disasterAlerts: DisasterAlert[] = [
     expiresAt: "2026-09-07T22:00:00+09:00",
     target: "제주 전역",
     message: "저지대·하천변 접근을 자제하고 기상정보를 확인해 주세요.",
+    href: "/heavy-rain",
   },
   {
     id: "ALT-002",

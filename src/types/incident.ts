@@ -27,6 +27,8 @@ export interface DisasterAlert {
   expiresAt: string
   target: string
   message: string
+  /** 클릭 시 이동할 관련 메뉴 — 없으면 알림 항목이 정보 표시만 함 */
+  href?: string
 }
 
 export interface Shelter {

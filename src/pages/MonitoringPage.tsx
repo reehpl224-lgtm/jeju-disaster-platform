@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Card } from "../components/ui/Card"
 import { RiskBadge } from "../components/ui/RiskBadge"
 import {
@@ -31,18 +32,35 @@ const API_STATUS_LEVEL: Record<(typeof apiLinks)[number]["status"], "safe" | "ca
 }
 
 export function MonitoringPage() {
+  const [lastSynced, setLastSynced] = useState(monitoringLastSyncedAt)
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+    window.setTimeout(() => {
+      const now = new Date()
+      const pad = (n: number) => String(n).padStart(2, "0")
+      setLastSynced(
+        `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`,
+      )
+      setRefreshing(false)
+    }, 500)
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-white">시스템 모니터링</h1>
-          <p className="text-xs text-white/35">마지막 갱신: {monitoringLastSyncedAt}</p>
+          <p className="text-xs text-white/35">마지막 갱신: {lastSynced}</p>
         </div>
         <button
           type="button"
-          className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 transition hover:bg-inset disabled:opacity-50"
         >
-          ↻ 새로고침
+          {refreshing ? "↻ 새로고침 중…" : "↻ 새로고침"}
         </button>
       </div>
 

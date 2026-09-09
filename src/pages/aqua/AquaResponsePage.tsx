@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
@@ -5,8 +6,19 @@ import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import { StageTracker } from "../../components/aqua/StageTracker"
 import { ChecklistRow } from "../../components/aqua/ChecklistRow"
 import { aquaAgencyRows, aquaChecklist, aquaResponseState, aquaStages } from "../../data/mockAqua"
+import type { AquaChecklistItem } from "../../types/aqua"
 
 export function AquaResponsePage() {
+  const [checklist, setChecklist] = useState<AquaChecklistItem[]>(aquaChecklist)
+
+  const resolveItem = (id: string, note: string) => {
+    setChecklist((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, status: "완료", time: note } : item)),
+    )
+  }
+
+  const remainingCount = checklist.filter((item) => item.status === "미완료" || item.status === "실패").length
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -45,17 +57,25 @@ export function AquaResponsePage() {
 
       <Card title="e-SOP 단계별 대응 절차" subtitle="4단계 — 심각 · 현재 진행 중">
         <div className="flex flex-col gap-2.5">
-          {aquaChecklist.map((item) => (
+          {checklist.map((item) => (
             <ChecklistRow
               key={item.id}
               item={item}
               action={
                 item.status === "미완료" ? (
-                  <button type="button" className="rounded-full border border-accent px-2.5 py-1 text-[11px] font-bold text-accent hover:bg-accent-soft">
+                  <button
+                    type="button"
+                    onClick={() => resolveItem(item.id, "현장 점검 완료 확인")}
+                    className="rounded-full border border-accent px-2.5 py-1 text-[11px] font-bold text-accent hover:bg-accent-soft"
+                  >
                     미완료 재확인
                   </button>
                 ) : item.status === "실패" ? (
-                  <button type="button" className="rounded-full border border-risk-danger px-2.5 py-1 text-[11px] font-bold text-risk-danger hover:bg-risk-danger-bg">
+                  <button
+                    type="button"
+                    onClick={() => resolveItem(item.id, "재발송 완료")}
+                    className="rounded-full border border-risk-danger px-2.5 py-1 text-[11px] font-bold text-risk-danger hover:bg-risk-danger-bg"
+                  >
                     발송 실패 확인
                   </button>
                 ) : undefined
@@ -92,7 +112,12 @@ export function AquaResponsePage() {
         <Card title="다음 단계 안내" subtitle="5단계(해제) 전환 조건">
           <ul className="flex flex-col gap-2 text-sm text-white/70">
             <li>· 염분 26.0 psu 이상 · 수온 28.0℃ 미만으로 회복된 상태가 6시간 이상 지속 시 하향 검토</li>
-            <li>· 현재 4단계 미완료 항목 2건(양식장 현장 점검, 어가 알림 앱 재발송) 해소 후 종료 처리 가능</li>
+            <li>
+              ·{" "}
+              {remainingCount > 0
+                ? `현재 4단계 미완료 항목 ${remainingCount}건 해소 후 종료 처리 가능`
+                : "4단계 미완료 항목 모두 해소됨 — 5단계(해제) 전환 검토 가능"}
+            </li>
           </ul>
         </Card>
       </div>
