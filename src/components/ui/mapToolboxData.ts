@@ -112,7 +112,7 @@ export const TOOLBOX_PANELS: ToolboxPanel[] = [
     id: "flood-risk",
     icon: "🌊",
     buttonLabel: "재난위험도",
-    panelTitle: "침수위험도",
+    panelTitle: "재난위험도",
     sections: [
       {
         id: "flood-map",
@@ -134,8 +134,8 @@ export const TOOLBOX_PANELS: ToolboxPanel[] = [
   {
     id: "cctv",
     icon: "📹",
-    buttonLabel: "CCTV·센서",
-    panelTitle: "CCTV",
+    buttonLabel: "CCTV/센서",
+    panelTitle: "CCTV/센서",
     sections: [
       {
         id: "cctv-source",
