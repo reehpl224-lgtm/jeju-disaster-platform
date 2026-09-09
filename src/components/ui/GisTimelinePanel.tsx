@@ -6,13 +6,13 @@ export interface GisTimelineTab {
   content: ReactNode
 }
 
-export function GisTimelinePanel({ tabs }: { tabs: GisTimelineTab[] }) {
+export function GisTimelinePanel({ tabs, filters }: { tabs: GisTimelineTab[]; filters?: ReactNode }) {
   const [tabKey, setTabKey] = useState(tabs[0]?.key)
   const active = tabs.find((t) => t.key === tabKey) ?? tabs[0]
 
   return (
-    <div className="absolute right-2 bottom-2 z-10 max-h-[calc(100%-16px)] w-72 overflow-y-auto rounded-lg border border-border-subtle bg-panel/95 p-3 shadow-panel">
-      <div className="mb-2 flex gap-1 border-b border-border-subtle pb-2 text-xs font-semibold">
+    <div className="absolute right-2 bottom-2 z-10 flex max-h-[calc(100%-16px)] w-72 flex-col rounded-lg border border-border-subtle bg-panel/95 shadow-panel">
+      <div className="flex shrink-0 gap-1 border-b border-border-subtle p-3 pb-2 text-xs font-semibold">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -25,7 +25,9 @@ export function GisTimelinePanel({ tabs }: { tabs: GisTimelineTab[] }) {
         ))}
       </div>
 
-      {active?.content}
+      {filters && <div className="shrink-0 border-b border-border-subtle p-3 py-2">{filters}</div>}
+
+      <div className="overflow-y-auto p-3 pt-2">{active?.content}</div>
     </div>
   )
 }

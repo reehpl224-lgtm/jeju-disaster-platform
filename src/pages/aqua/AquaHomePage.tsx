@@ -11,8 +11,10 @@ import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import { aquaActionLog, aquaAgencyRows, aquaAlertDraft, aquaDataSources, aquaFarms, aquaJourneys, aquaSummary } from "../../data/mockAqua"
 import { riskMarkers } from "../../data/mockDashboard"
+import { cctvCameras } from "../../data/mockCctv"
 
 const AQUA_MARKERS = riskMarkers.filter((m) => m.domain === "aqua")
+const AQUA_CCTV = cctvCameras.filter((c) => c.domain === "aqua")
 
 const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
   sensor: (
@@ -199,7 +201,7 @@ export function AquaHomePage() {
 
       <Card title="위험 위치 및 영향 범위 — 양식장 GIS" subtitle="한경·대정 육상양식장 관측 지점">
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-          <JejuTileMap markers={AQUA_MARKERS} className="relative h-full w-full" />
+          <JejuTileMap markers={AQUA_MARKERS} cctvMarkers={AQUA_CCTV} className="relative h-full w-full" />
           <MapToolbox />
           <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
           {activeRailKey && (

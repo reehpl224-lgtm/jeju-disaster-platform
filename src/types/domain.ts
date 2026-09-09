@@ -112,6 +112,9 @@ export interface CctvCamera {
   operator: CctvOperator
   status: "online" | "offline"
   lastFrameAt: string
+  /** 지도 CCTV/센서 레이어용 실제 위경도 */
+  lat?: number
+  lng?: number
 }
 
 /** CCTV 전체 규모 요약 — 목록에 있는 대표 카메라 수와 실제 운영 규모는 다르다(양식장 대표 사례 표기 방식과 동일) */

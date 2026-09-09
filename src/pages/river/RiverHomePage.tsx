@@ -22,8 +22,10 @@ import {
   riverTarget,
 } from "../../data/mockRiver"
 import { riskMarkers } from "../../data/mockDashboard"
+import { cctvCameras } from "../../data/mockCctv"
 
 const RIVER_MARKERS = riskMarkers.filter((m) => m.domain === "river")
+const RIVER_CCTV = cctvCameras.filter((c) => c.domain === "river")
 
 const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
   sensor: (
@@ -178,7 +180,7 @@ export function RiverHomePage() {
 
       <Card title="위험 위치 및 영향 범위 — 하천 GIS" subtitle="효돈천(돈내코·쇠소깍) 관측 지점">
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-          <JejuTileMap markers={RIVER_MARKERS} className="relative h-full w-full" />
+          <JejuTileMap markers={RIVER_MARKERS} cctvMarkers={RIVER_CCTV} className="relative h-full w-full" />
           <MapToolbox />
           <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
           {activeRailKey && (

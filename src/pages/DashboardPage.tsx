@@ -74,6 +74,42 @@ export function DashboardPage() {
     [mapDomain],
   )
 
+  // 타임라인/발효중 특보 패널 필터 — demo-10.muhanit.kr GIS 상황 화면의 필터+검색+발령/해제 UI 참고
+  const [timelineType, setTimelineType] = useState<string>("all")
+  const [timelineQuery, setTimelineQuery] = useState("")
+  const [showIssued, setShowIssued] = useState(true)
+  const [showLifted, setShowLifted] = useState(true)
+
+  const incidentTypes = useMemo(() => Array.from(new Set(disasterIncidents.map((i) => i.type))), [])
+
+  const filteredIncidents = useMemo(() => {
+    const q = timelineQuery.trim()
+    return disasterIncidents.filter((incident) => {
+      const lifted = incident.status === "종료"
+      if (lifted && !showLifted) return false
+      if (!lifted && !showIssued) return false
+      if (timelineType !== "all" && incident.type !== timelineType) return false
+      if (q && !incident.title.includes(q) && !incident.location.includes(q)) return false
+      return true
+    })
+  }, [timelineType, timelineQuery, showIssued, showLifted])
+
+  const filteredAlerts = useMemo(() => {
+    const q = timelineQuery.trim()
+    return disasterAlerts.filter((alert) => {
+      const lifted = alert.expiresAt <= currentWeather.observedAt
+      if (lifted && !showLifted) return false
+      if (!lifted && !showIssued) return false
+      if (q && !alert.title.includes(q) && !alert.message.includes(q)) return false
+      return true
+    })
+  }, [timelineQuery, showIssued, showLifted])
+
+  const timelineDateRange = useMemo(() => {
+    const dates = [...disasterIncidents.map((i) => i.reportedAt), ...disasterAlerts.map((a) => a.issuedAt)].map((s) => s.slice(0, 10))
+    return `${dates.reduce((a, b) => (a < b ? a : b))} ~ ${dates.reduce((a, b) => (a > b ? a : b))}`
+  }, [])
+
   const alertSummary = useMemo(
     () =>
       (["danger", "alert", "warning"] as const).map((level) => ({
@@ -199,21 +235,59 @@ export function DashboardPage() {
     ),
   }
 
+  const timelineFilters = (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex gap-1.5">
+        <select
+          value={timelineType}
+          onChange={(e) => setTimelineType(e.target.value)}
+          className="flex-1 rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70"
+        >
+          <option value="all">전체</option>
+          {incidentTypes.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+        <input
+          value={timelineQuery}
+          onChange={(e) => setTimelineQuery(e.target.value)}
+          placeholder="검색"
+          className="w-24 rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70 placeholder:text-white/30"
+        />
+      </div>
+      <p className="text-[10px] text-white/30">{timelineDateRange}</p>
+      <div className="flex gap-3 text-[11px] text-white/60">
+        <label className="flex items-center gap-1">
+          <input type="checkbox" checked={showIssued} onChange={(e) => setShowIssued(e.target.checked)} className="accent-[var(--color-accent)]" />
+          발령
+        </label>
+        <label className="flex items-center gap-1">
+          <input type="checkbox" checked={showLifted} onChange={(e) => setShowLifted(e.target.checked)} className="accent-[var(--color-accent)]" />
+          해제
+        </label>
+      </div>
+    </div>
+  )
+
   const timelineTabs: GisTimelineTab[] = [
     {
       key: "timeline",
       label: "타임라인",
       content: (
         <ul className="flex flex-col divide-y divide-border-subtle">
-          {disasterIncidents.map((incident) => (
+          {filteredIncidents.length === 0 && <li className="py-4 text-center text-xs text-white/30">조건에 맞는 항목이 없습니다.</li>}
+          {filteredIncidents.map((incident) => (
             <li key={incident.id} className="py-2 text-xs">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-semibold text-white/60">{formatHM(incident.reportedAt)}</span>
-                <RiskBadge level={incident.severity} label={incident.status} />
+                <RiskBadge level={incident.status === "종료" ? "offline" : "safe"} label={incident.status === "종료" ? "해제" : "발령"} solid />
               </div>
-              <p className="mt-0.5 text-white/80">
-                [{incident.type}] {incident.title}
+              <p className="mt-1 flex items-center gap-1.5">
+                <RiskBadge level={incident.severity} label={incident.type} />
               </p>
+              <p className="mt-0.5 text-white/80">{incident.title}</p>
             </li>
           ))}
         </ul>
@@ -224,19 +298,26 @@ export function DashboardPage() {
       label: "발효중 특보",
       content: (
         <ul className="flex flex-col gap-2">
-          {disasterAlerts.map((alert) => (
-            <li key={alert.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
-              <div className="flex items-center justify-between gap-2">
-                <RiskBadge level={alert.level} label={alert.title} />
-                <span className="text-white/35">
-                  {formatHM(alert.issuedAt)}~{formatHM(alert.expiresAt)}
-                </span>
-              </div>
-              <p className="mt-1.5 text-white/50">
-                {alert.target} · {alert.message}
-              </p>
-            </li>
-          ))}
+          {filteredAlerts.length === 0 && <li className="py-4 text-center text-xs text-white/30">조건에 맞는 항목이 없습니다.</li>}
+          {filteredAlerts.map((alert) => {
+            const lifted = alert.expiresAt <= currentWeather.observedAt
+            return (
+              <li key={alert.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <RiskBadge level={lifted ? "offline" : "safe"} label={lifted ? "해제" : "발령"} solid />
+                  <span className="text-white/35">
+                    {formatHM(alert.issuedAt)}~{formatHM(alert.expiresAt)}
+                  </span>
+                </div>
+                <p className="mt-1.5">
+                  <RiskBadge level={alert.level} label={alert.title} />
+                </p>
+                <p className="mt-1.5 text-white/50">
+                  {alert.target} · {alert.message}
+                </p>
+              </li>
+            )
+          })}
         </ul>
       ),
     },
@@ -440,7 +521,7 @@ export function DashboardPage() {
         }
       >
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-          <JejuTileMap markers={filteredMarkers} className="relative h-full w-full" />
+          <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" />
           <MapToolbox />
           <GisIconRail
             activeKey={activeRailKey}
@@ -450,7 +531,7 @@ export function DashboardPage() {
           {activeRailKey && (
             <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={railContent} />
           )}
-          <GisTimelinePanel tabs={timelineTabs} />
+          <GisTimelinePanel tabs={timelineTabs} filters={timelineFilters} />
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
           <span className="font-semibold text-white/30">범례</span>

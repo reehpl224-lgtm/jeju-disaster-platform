@@ -20,7 +20,10 @@ import {
   coastSummary,
 } from "../../data/mockCoast"
 import { riskMarkers } from "../../data/mockDashboard"
+import { cctvCameras } from "../../data/mockCctv"
 import { COAST_TYPE_LABEL } from "../../types/coast"
+
+const COAST_CCTV = cctvCameras.filter((c) => c.domain === "coast")
 
 const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
   sensor: (
@@ -195,7 +198,7 @@ export function CoastHomePage() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2">
           <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-            <JejuTileMap markers={coastMarkers} className="relative h-full w-full" />
+            <JejuTileMap markers={coastMarkers} cctvMarkers={COAST_CCTV} className="relative h-full w-full" />
             <MapToolbox />
             <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
             {activeRailKey && (

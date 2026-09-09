@@ -23,6 +23,7 @@ export const cctvCameras: CctvCamera[] = [
     operator: "도 자체관제",
     status: "online",
     lastFrameAt: "2026-09-08T14:32:00+09:00",
+    lat: 33.322, lng: 126.175,
   },
   {
     id: "cctv-aqua-02",
@@ -32,6 +33,7 @@ export const cctvCameras: CctvCamera[] = [
     operator: "도 자체관제",
     status: "online",
     lastFrameAt: "2026-09-08T14:31:00+09:00",
+    lat: 33.310, lng: 126.166,
   },
   {
     id: "cctv-aqua-03",
@@ -41,6 +43,7 @@ export const cctvCameras: CctvCamera[] = [
     operator: "도 자체관제",
     status: "offline",
     lastFrameAt: "2026-09-08T09:14:00+09:00",
+    lat: 33.221, lng: 126.252,
   },
   {
     id: "cctv-coast-01",
@@ -50,6 +53,7 @@ export const cctvCameras: CctvCamera[] = [
     operator: "도 자체관제",
     status: "online",
     lastFrameAt: "2026-09-08T14:33:00+09:00",
+    lat: 33.543, lng: 126.670,
   },
   {
     id: "cctv-coast-02",
@@ -59,6 +63,7 @@ export const cctvCameras: CctvCamera[] = [
     operator: "도 자체관제",
     status: "online",
     lastFrameAt: "2026-09-08T14:33:00+09:00",
+    lat: 33.520, lng: 126.585,
   },
   {
     id: "cctv-coast-03",
@@ -68,6 +73,7 @@ export const cctvCameras: CctvCamera[] = [
     operator: "도 자체관제",
     status: "online",
     lastFrameAt: "2026-09-08T14:30:00+09:00",
+    lat: 33.394, lng: 126.239,
   },
   {
     id: "cctv-river-01",
@@ -77,6 +83,7 @@ export const cctvCameras: CctvCamera[] = [
     operator: "도 자체관제",
     status: "online",
     lastFrameAt: "2026-09-08T14:32:00+09:00",
+    lat: 33.276, lng: 126.593,
   },
   {
     id: "cctv-river-02",
@@ -86,6 +93,7 @@ export const cctvCameras: CctvCamera[] = [
     operator: "도 자체관제",
     status: "online",
     lastFrameAt: "2026-09-08T14:32:00+09:00",
+    lat: 33.247, lng: 126.619,
   },
   {
     id: "cctv-general-01",
@@ -95,6 +103,7 @@ export const cctvCameras: CctvCamera[] = [
     operator: "불법주정차",
     status: "online",
     lastFrameAt: "2026-09-08T14:29:00+09:00",
+    lat: 33.499, lng: 126.531,
   },
   {
     id: "cctv-general-02",
@@ -104,5 +113,6 @@ export const cctvCameras: CctvCamera[] = [
     operator: "자치경찰단 ITS",
     status: "offline",
     lastFrameAt: "2026-09-08T08:02:00+09:00",
+    lat: 33.462, lng: 126.310,
   },
 ]
