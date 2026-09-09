@@ -226,6 +226,11 @@ export function AquaHomePage() {
               <p className="mt-2 text-lg font-bold text-white">
                 {obs.seaTempC.toFixed(2)}℃ <span className="text-sm font-normal text-white/40">· {obs.salinityPsu.toFixed(2)} psu</span>
               </p>
+              {obs.currentSpeedCms != null && (
+                <p className="mt-0.5 text-xs text-white/40">
+                  유향 {obs.currentDirDeg}° · 유속 {obs.currentSpeedCms}cm/s
+                </p>
+              )}
               <p className="mt-0.5 text-[11px] text-white/35">관측 {obs.observedAt}</p>
             </div>
           ))}

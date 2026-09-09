@@ -71,11 +71,14 @@ export const khoaLiveObservations: {
   lng: number
   seaTempC: number
   salinityPsu: number
+  /** 유향(deg)·유속(cm/s) — 저염분수/고수온수 확산 방향 참고. 관측소별로 결측(null)일 수 있음 */
+  currentDirDeg?: number
+  currentSpeedCms?: number
   observedAt: string
 }[] = [
   { id: "khoa-tw0075", stationName: "중문해수욕장", stationCode: "TW_0075", kind: "해양관측부이", lat: 33.2345, lng: 126.40955, seaTempC: 27.22, salinityPsu: 26.82, observedAt: "2026-09-09 15:00" },
-  { id: "khoa-kg0021", stationName: "제주남부", stationCode: "KG_0021", kind: "해양관측부이", lat: 32.09041, lng: 126.96586, seaTempC: 27.76, salinityPsu: 32.80, observedAt: "2026-09-09 14:00" },
-  { id: "khoa-kg0028", stationName: "제주해협", stationCode: "KG_0028", kind: "해양관측부이", lat: 33.70011, lng: 126.5905, seaTempC: 26.93, salinityPsu: 30.47, observedAt: "2026-09-09 14:00" },
+  { id: "khoa-kg0021", stationName: "제주남부", stationCode: "KG_0021", kind: "해양관측부이", lat: 32.09041, lng: 126.96586, seaTempC: 27.76, salinityPsu: 32.80, currentDirDeg: 115, currentSpeedCms: 21.2, observedAt: "2026-09-09 14:00" },
+  { id: "khoa-kg0028", stationName: "제주해협", stationCode: "KG_0028", kind: "해양관측부이", lat: 33.70011, lng: 126.5905, seaTempC: 26.93, salinityPsu: 30.47, currentDirDeg: 115, currentSpeedCms: 81.8, observedAt: "2026-09-09 14:00" },
   { id: "khoa-dt0023", stationName: "모슬포", stationCode: "DT_0023", kind: "조위관측소", lat: 33.21444, lng: 126.25111, seaTempC: 26.6, salinityPsu: 30.6, observedAt: "2026-09-09 15:00" },
 ]
 
