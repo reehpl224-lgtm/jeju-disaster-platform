@@ -4,6 +4,8 @@ import { RiskBadge } from "../../components/ui/RiskBadge"
 import { legacySystems } from "../../data/mockHeavyRain"
 import { apiLinks } from "../../data/mockMonitoring"
 import { aquaDataSources } from "../../data/mockAqua"
+import { coastSafetyAssets } from "../../data/mockCoast"
+import { riverSensorCheck } from "../../data/mockRiver"
 
 const LEGACY_STATUS_LEVEL: Record<(typeof legacySystems)[number]["linkStatus"], "safe" | "caution" | "offline"> = {
   "연계 진행중": "safe",
@@ -24,6 +26,16 @@ const PILOT_DATA_STATUS_LEVEL: Record<(typeof aquaDataSources)[number]["status"]
   missing: "offline",
 }
 
+const COAST_ASSET_STATUS_LEVEL: Record<(typeof coastSafetyAssets)[number]["status"], "safe" | "danger"> = {
+  정상: "safe",
+  오류: "danger",
+}
+
+const RIVER_SENSOR_STATUS_LEVEL: Record<(typeof riverSensorCheck)[number]["status"], "safe" | "danger"> = {
+  정상: "safe",
+  이상: "danger",
+}
+
 type TargetTag = { label: string; href?: string }
 
 /** 어떤 서비스/메뉴에 이 데이터가 들어가는지 — AGENTS.md·mockDashboard aiInsights·incidentLog 등에 실제로 근거가 있는 연결만 표기 */
@@ -33,7 +45,7 @@ const LEGACY_TARGETS: Record<(typeof legacySystems)[number]["id"], TargetTag[]> 
   "ls-3": [{ label: "상황전파·보고체계", href: "/propagation" }],
   "ls-4": [{ label: "호우", href: "/heavy-rain" }],
   "ls-5": [{ label: "상황전파·보고체계", href: "/propagation" }],
-  "ls-6": [{ label: "해당없음 (소방안전본부 소관)" }],
+  "ls-6": [{ label: "기타" }],
   "ls-7": [{ label: "통합 대시보드(CCTV 통합조회)", href: "/dashboard" }],
 }
 
@@ -47,7 +59,9 @@ const API_TARGETS: Record<(typeof apiLinks)[number]["id"], TargetTag[]> = {
   goci: [{ label: "저염분 고수온", href: "/aqua" }],
 }
 
-const PILOT_DATA_TARGET: TargetTag = { label: "저염분 고수온", href: "/aqua" }
+const AQUA_TARGET: TargetTag = { label: "저염분 고수온", href: "/aqua" }
+const COAST_TARGET: TargetTag = { label: "연안 안전관리", href: "/coast" }
+const RIVER_TARGET: TargetTag = { label: "하천범람", href: "/river" }
 
 function TargetTags({ tags }: { tags: TargetTag[] }) {
   return (
@@ -77,7 +91,12 @@ function TargetTags({ tags }: { tags: TargetTag[] }) {
 const legacyActiveCount = legacySystems.filter((s) => s.linkStatus === "연계 진행중").length
 const apiNormalCount = apiLinks.filter((a) => a.status === "normal").length
 const apiIssueCount = apiLinks.length - apiNormalCount
-const pilotNormalCount = aquaDataSources.filter((s) => s.status === "normal").length
+
+const pilotTotalCount = aquaDataSources.length + coastSafetyAssets.length + riverSensorCheck.length
+const pilotNormalCount =
+  aquaDataSources.filter((s) => s.status === "normal").length +
+  coastSafetyAssets.filter((s) => s.status === "정상").length +
+  riverSensorCheck.filter((s) => s.status === "정상").length
 
 export function DataSystemPage() {
   return (
@@ -109,7 +128,7 @@ export function DataSystemPage() {
         <Card>
           <p className="text-xs font-medium text-white/40">실증 데이터 소스</p>
           <p className="mt-1 text-xl font-bold text-white">
-            정상 {pilotNormalCount} <span className="text-sm font-normal text-white/35">/ 총 {aquaDataSources.length}건</span>
+            정상 {pilotNormalCount} <span className="text-sm font-normal text-white/35">/ 총 {pilotTotalCount}건</span>
           </p>
         </Card>
       </div>
@@ -157,45 +176,97 @@ export function DataSystemPage() {
         </ul>
       </Card>
 
-      <Card
-        title="실증 데이터 소스 현황"
-        subtitle="저염분·고수온 예측 모델 입력값 — 하천·연안 실증서비스 데이터는 각 홈 화면 관측망 카드 참고"
-        action={
-          <div className="flex items-center gap-2">
-            <TargetTags tags={[PILOT_DATA_TARGET]} />
-            <Link to="/aqua/data" className="text-xs font-semibold text-accent hover:underline">
-              자세히 보기 →
-            </Link>
-          </div>
-        }
-      >
-        <ul className="flex flex-col divide-y divide-border-subtle">
-          {aquaDataSources.map((source) => (
-            <li key={source.id} className="flex items-center justify-between gap-3 py-3 text-sm">
-              <div>
-                <p className="font-medium text-white/85">{source.name}</p>
-                <p className="mt-0.5 text-xs text-white/35">
-                  {source.detail} · 주기 {source.cycle} · 최근 수신 {source.updatedAt}
-                  {source.qualityScore != null && ` · 품질 ${source.qualityScore}점`}
-                  {" · "}
-                  {source.note}
-                </p>
+      <Card title="실증 데이터 소스 현황" subtitle="3대 실증서비스(저염분 고수온·연안 안전관리·하천범람)가 각각 쓰는 데이터 소스">
+        <div className="flex flex-col gap-5">
+          <div>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-bold text-white/70">저염분 고수온</h3>
+                <TargetTags tags={[AQUA_TARGET]} />
               </div>
-              <RiskBadge
-                level={PILOT_DATA_STATUS_LEVEL[source.status]}
-                label={
-                  source.status === "normal"
-                    ? "정상"
-                    : source.status === "delayed"
-                      ? "지연"
-                      : source.status === "error"
-                        ? "오류"
-                        : "누락"
-                }
-              />
-            </li>
-          ))}
-        </ul>
+              <Link to="/aqua/data" className="text-xs font-semibold text-accent hover:underline">
+                자세히 보기 →
+              </Link>
+            </div>
+            <ul className="flex flex-col divide-y divide-border-subtle">
+              {aquaDataSources.map((source) => (
+                <li key={source.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                  <div>
+                    <p className="font-medium text-white/85">{source.name}</p>
+                    <p className="mt-0.5 text-xs text-white/35">
+                      {source.detail} · 주기 {source.cycle} · 최근 수신 {source.updatedAt}
+                      {source.qualityScore != null && ` · 품질 ${source.qualityScore}점`}
+                      {" · "}
+                      {source.note}
+                    </p>
+                  </div>
+                  <RiskBadge
+                    level={PILOT_DATA_STATUS_LEVEL[source.status]}
+                    label={
+                      source.status === "normal"
+                        ? "정상"
+                        : source.status === "delayed"
+                          ? "지연"
+                          : source.status === "error"
+                            ? "오류"
+                            : "누락"
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-bold text-white/70">연안 안전관리</h3>
+                <TargetTags tags={[COAST_TARGET]} />
+              </div>
+              <Link to="/coast/monitoring" className="text-xs font-semibold text-accent hover:underline">
+                자세히 보기 →
+              </Link>
+            </div>
+            <ul className="flex flex-col divide-y divide-border-subtle">
+              {coastSafetyAssets.map((asset) => (
+                <li key={asset.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                  <div>
+                    <p className="font-medium text-white/85">{asset.name}</p>
+                    <p className="mt-0.5 text-xs text-white/35">
+                      {asset.location} · {asset.detail}
+                    </p>
+                  </div>
+                  <RiskBadge level={COAST_ASSET_STATUS_LEVEL[asset.status]} label={asset.status} />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-bold text-white/70">하천범람</h3>
+                <TargetTags tags={[RIVER_TARGET]} />
+              </div>
+              <Link to="/river/analysis" className="text-xs font-semibold text-accent hover:underline">
+                자세히 보기 →
+              </Link>
+            </div>
+            <ul className="flex flex-col divide-y divide-border-subtle">
+              {riverSensorCheck.map((sensor) => (
+                <li key={sensor.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                  <div>
+                    <p className="font-medium text-white/85">{sensor.name}</p>
+                    <p className="mt-0.5 text-xs text-white/35">
+                      {sensor.value} · {sensor.detail}
+                    </p>
+                  </div>
+                  <RiskBadge level={RIVER_SENSOR_STATUS_LEVEL[sensor.status]} label={sensor.status} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </Card>
     </div>
   )
