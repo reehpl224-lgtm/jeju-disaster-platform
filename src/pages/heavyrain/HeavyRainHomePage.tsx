@@ -145,22 +145,6 @@ export function HeavyRainHomePage() {
         </div>
       </Card>
 
-      <Card title="레거시 시스템 연계 현황" subtitle="레거시시스템 현황 조사 면담(2026-09-07) 기준 — 실제 연계 진행 상태">
-        <ul className="flex flex-col divide-y divide-border-subtle">
-          {legacySystems.map((system) => (
-            <li key={system.id} className="flex items-start justify-between gap-3 py-3 text-sm">
-              <div>
-                <p className="font-medium text-white/85">{system.name}</p>
-                <p className="mt-0.5 text-xs text-white/35">
-                  운영 주체 {system.operator} · {system.note}
-                </p>
-              </div>
-              <RiskBadge level={LINK_STATUS_LEVEL[system.linkStatus]} label={system.linkStatus} />
-            </li>
-          ))}
-        </ul>
-      </Card>
-
       <Card title="자동통보 발송 이력" subtitle="재해문자전광판 · 자동음성통보">
         <ul className="flex flex-col divide-y divide-border-subtle">
           {broadcastLog.map((entry) => (

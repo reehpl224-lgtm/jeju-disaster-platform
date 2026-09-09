@@ -41,6 +41,7 @@ import { HeatAnalysisPage } from "./pages/heat/HeatAnalysisPage"
 import { HeatAlertPage } from "./pages/heat/HeatAlertPage"
 import { HeatClosurePage } from "./pages/heat/HeatClosurePage"
 import { PropagationHomePage } from "./pages/propagation/PropagationHomePage"
+import { DataSystemPage } from "./pages/datasystem/DataSystemPage"
 
 export default function App() {
   return (
@@ -93,6 +94,7 @@ export default function App() {
         <Route path="/heat/closure" element={<HeatClosurePage />} />
 
         <Route path="/propagation" element={<PropagationHomePage />} />
+        <Route path="/data-systems" element={<DataSystemPage />} />
 
         <Route path="/reports" element={<ReportsListPage />} />
         <Route path="/reports/:incidentId" element={<ReportDetailPage />} />

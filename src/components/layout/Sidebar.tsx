@@ -18,6 +18,7 @@ const SERVICE_NAV = [
 const OPS_NAV = [
   { to: "/propagation", label: "상황전파·보고체계", icon: "📡" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
+  { to: "/data-systems", label: "데이터 시스템 연계현황", icon: "🗄️" },
   { to: "/reports", label: "이력·보고서", icon: "📋" },
 ]
 
