@@ -2,7 +2,6 @@ import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
-import { MapToolbox } from "../../components/ui/MapToolbox"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
@@ -240,7 +239,6 @@ export function AquaHomePage() {
       <Card title="위험 위치 및 영향 범위 — 양식장 GIS" subtitle="한경·대정 육상양식장 관측 지점">
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
           <JejuTileMap markers={AQUA_MARKERS} cctvMarkers={AQUA_CCTV} className="relative h-full w-full" />
-          <MapToolbox />
           <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
           {activeRailKey && (
             <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />

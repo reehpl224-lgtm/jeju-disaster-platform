@@ -2,7 +2,6 @@ import { useState, type ReactNode } from "react"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
-import { MapToolbox } from "../../components/ui/MapToolbox"
 import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
@@ -125,7 +124,6 @@ export function HeavyRainHomePage() {
       <Card title="위험 위치 및 관측망 — 호우 GIS" subtitle="침수경보·우량계 관측 지점">
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
           <JejuTileMap markers={HEAVY_RAIN_MARKERS} className="relative h-full w-full" />
-          <MapToolbox />
           <GisIconRail
             activeKey={activeRailKey}
             onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))}

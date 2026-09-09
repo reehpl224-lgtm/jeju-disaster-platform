@@ -3,7 +3,6 @@ import { Card } from "../../components/ui/Card"
 import { Pill } from "../../components/ui/Pill"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
-import { MapToolbox } from "../../components/ui/MapToolbox"
 import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
@@ -74,7 +73,6 @@ export function HeatHomePage() {
       <Card title="위험 위치 및 열섬 지점 — 폭염 GIS" subtitle="더운 길·무더위쉼터 관측 지점">
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
           <JejuTileMap markers={HEAT_MARKERS} className="relative h-full w-full" />
-          <MapToolbox />
           <GisIconRail
             activeKey={activeRailKey}
             onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))}

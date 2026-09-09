@@ -3,7 +3,6 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
-import { MapToolbox } from "../../components/ui/MapToolbox"
 import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
@@ -222,7 +221,6 @@ export function CoastHomePage() {
         <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2">
           <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
             <JejuTileMap markers={coastMarkers} cctvMarkers={COAST_CCTV} className="relative h-full w-full" />
-            <MapToolbox />
             <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
             {activeRailKey && (
               <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />

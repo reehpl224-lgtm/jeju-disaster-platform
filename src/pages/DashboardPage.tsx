@@ -5,7 +5,6 @@ import { Card } from "../components/ui/Card"
 import { CctvCameraCard } from "../components/ui/CctvCameraCard"
 import { DutyContactPanel } from "../components/ui/DutyContactPanel"
 import { JejuTileMap } from "../components/ui/JejuTileMap"
-import { MapToolbox } from "../components/ui/MapToolbox"
 import { Pill } from "../components/ui/Pill"
 import { RiskBadge } from "../components/ui/RiskBadge"
 import { riskStyles } from "../components/ui/riskStyles"
@@ -528,7 +527,6 @@ export function DashboardPage() {
       >
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
           <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" />
-          <MapToolbox />
           <GisIconRail
             activeKey={activeRailKey}
             onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))}

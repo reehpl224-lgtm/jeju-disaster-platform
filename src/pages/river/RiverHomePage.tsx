@@ -3,7 +3,6 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
-import { MapToolbox } from "../../components/ui/MapToolbox"
 import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
@@ -181,7 +180,6 @@ export function RiverHomePage() {
       <Card title="위험 위치 및 영향 범위 — 하천 GIS" subtitle="효돈천(돈내코·쇠소깍) 관측 지점">
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
           <JejuTileMap markers={RIVER_MARKERS} cctvMarkers={RIVER_CCTV} className="relative h-full w-full" />
-          <MapToolbox />
           <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
           {activeRailKey && (
             <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
