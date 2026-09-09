@@ -2,6 +2,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
+import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { HEAVY_RAIN_NAV } from "./heavyRainNav"
 import { heavyRainAiForecast, heavyRainTopStations, heavyRainTrend, weatherStations } from "../../data/mockHeavyRain"
 
@@ -59,6 +60,10 @@ export function HeavyRainAnalysisPage() {
         <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
           {heavyRainAiForecast.confirmNote}
         </div>
+      </Card>
+
+      <Card title="기상청 단기예보" subtitle="강수확률·시간당 강수 참고 — 침수경보 자체는 AI 조기경보 근거 기준">
+        <VilageForecastPanel />
       </Card>
 
       <Card title="관측망 근거 데이터">

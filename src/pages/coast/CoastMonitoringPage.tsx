@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
+import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { COAST_NAV } from "./coastNav"
 import { coastMonitoringDomains } from "../../data/mockCoast"
 
@@ -64,6 +65,10 @@ export function CoastMonitoringPage() {
           </div>
         </Card>
       </div>
+
+      <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 현장 위험 판단 자체는 AI 탐지·실측 기준">
+        <VilageForecastPanel />
+      </Card>
 
       <Card title="GIS 위험 위치·영향 범위">
         <div className="flex h-56 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">

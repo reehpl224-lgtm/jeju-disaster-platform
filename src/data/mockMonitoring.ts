@@ -81,6 +81,10 @@ export const apiLinks: ApiLinkStatus[] = [
   // 2026-09-09 국립해양조사원(KHOA) data.go.kr 공공API 실연동 확인 — jeju-lowsalinity-warning 프로젝트 소스와 동일(mockAqua.ts khoaLiveObservations 참고)
   { id: "buoy-api", name: "해양관측부이 API", agency: "국립해양조사원(KHOA)", status: "normal", responseTime: "190ms", lastReceived: "15:00" },
   { id: "goci", name: "GOCI-II 해색 API", agency: "국가기상위성센터", status: "normal", responseTime: "540ms", lastReceived: "09:20" },
+  // 아래 2건은 위 4건(정적 스냅샷)과 달리 kma-weather-proxy(Vercel)를 경유해 화면을 열 때마다 실시간으로 호출한다 —
+  // src/data/weatherApi.ts, src/data/typhoonApi.ts 참고. responseTime·lastReceived는 고정값이 아니라 "매 조회마다 실시간"임을 표기.
+  { id: "vilage-fcst", name: "기상청 단기예보 API (getVilageFcst)", agency: "기상청", status: "normal", responseTime: "매 조회 시 실시간 호출", lastReceived: "조회 시점" },
+  { id: "typ-lst", name: "기상청 API허브 태풍 이름목록 (typ_lst)", agency: "기상청 API허브", status: "normal", responseTime: "매 조회 시 실시간 호출", lastReceived: "조회 시점" },
 ]
 
 export const jointResponseLog = [

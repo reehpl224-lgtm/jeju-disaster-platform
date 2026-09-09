@@ -57,6 +57,16 @@ const API_TARGETS: Record<(typeof apiLinks)[number]["id"], TargetTag[]> = {
   khoa: [{ label: "하천범람(조위 연계 시계열)", href: "/river/analysis" }],
   "buoy-api": [{ label: "저염분 고수온", href: "/aqua" }],
   goci: [{ label: "저염분 고수온", href: "/aqua" }],
+  "vilage-fcst": [
+    { label: "대시보드", href: "/dashboard" },
+    { label: "하천범람", href: "/river" },
+    { label: "연안 안전관리", href: "/coast" },
+    { label: "폭염", href: "/heat" },
+    { label: "호우", href: "/heavy-rain" },
+    { label: "태풍", href: "/typhoon" },
+    { label: "저염분 고수온", href: "/aqua" },
+  ],
+  "typ-lst": [{ label: "태풍", href: "/typhoon" }],
 }
 
 const AQUA_TARGET: TargetTag = { label: "저염분 고수온", href: "/aqua" }
@@ -174,6 +184,10 @@ export function DataSystemPage() {
             </li>
           ))}
         </ul>
+        <p className="mt-3 text-[11px] text-white/35">
+          기상청 단기예보·API허브 태풍 이름목록 2건은 kma-weather-proxy(Vercel)를 경유해 화면을 열 때마다 실시간으로 호출됩니다.
+          나머지(조위관측·해양관측부이·GOCI-II)는 정적 프로토타입이라 2026-09-09 확인 시점 값으로 고정 표시됩니다.
+        </p>
       </Card>
 
       <Card title="실증 데이터 소스 현황" subtitle="3대 실증서비스(저염분 고수온·연안 안전관리·하천범람)가 각각 쓰는 데이터 소스">

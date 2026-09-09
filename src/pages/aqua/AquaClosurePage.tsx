@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
+import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import {
   aquaClosurePrediction,
   aquaClosureSummary,
@@ -23,6 +24,8 @@ export function AquaClosurePage() {
           AX 컨트롤타워 홈으로 →
         </Link>
       </div>
+
+      <AquaSubNav />
 
       <Card title="사건 요약">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">

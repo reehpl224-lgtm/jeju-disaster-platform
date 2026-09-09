@@ -7,6 +7,7 @@ import { coastEventDetail, coastEvents } from "../../data/mockCoast"
 
 export function CoastAlertPage() {
   const [approved, setApproved] = useState<string | null>(null)
+  const [rejected, setRejected] = useState<string | null>(null)
   const pending = coastEvents.filter((e) => e.status === "미확인")
 
   return (
@@ -33,6 +34,8 @@ export function CoastAlertPage() {
               </div>
               {approved === event.id ? (
                 <span className="text-xs font-bold text-risk-safe">✓ 승인 완료</span>
+              ) : rejected === event.id ? (
+                <span className="text-xs font-bold text-white/40">반려됨</span>
               ) : (
                 <div className="flex gap-2">
                   <button
@@ -44,6 +47,7 @@ export function CoastAlertPage() {
                   </button>
                   <button
                     type="button"
+                    onClick={() => setRejected(event.id)}
                     className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
                   >
                     반려

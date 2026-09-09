@@ -2,6 +2,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
+import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { HEAT_NAV } from "./heatNav"
 import { heatLevelInfo, heatTrend } from "../../data/mockHeat"
 
@@ -37,6 +38,10 @@ export function HeatAnalysisPage() {
           </ResponsiveContainer>
         </div>
         <p className="mt-2 text-[11px] text-white/35">체감온도 33℃ 이상이 2일 이상 지속되면 주의보 유지 기준에 해당합니다.</p>
+      </Card>
+
+      <Card title="기상청 단기예보" subtitle="기온·하늘상태 참고 — 폭염특보 자체는 기상청 발표 기준">
+        <VilageForecastPanel />
       </Card>
     </div>
   )

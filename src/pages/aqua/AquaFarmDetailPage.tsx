@@ -1,6 +1,7 @@
 import { Link, Navigate, useParams } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
+import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import { aquaFarms, aquaSummary } from "../../data/mockAqua"
 import { classifySalinity, classifyTemperature, marineStageToRiskLevel } from "../../data/marineAlertThresholds"
 import type { AquaFarm } from "../../types/aqua"
@@ -72,6 +73,8 @@ export function AquaFarmDetailPage() {
         <h1 className="mt-1 text-xl font-bold text-white">{farm.name}</h1>
         <p className="mt-1 text-sm text-white/50">양식장 상세 정보</p>
       </div>
+
+      <AquaSubNav />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="기본 정보">

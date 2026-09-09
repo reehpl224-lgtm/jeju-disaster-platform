@@ -9,6 +9,7 @@ const SUB_NAV = [
   { to: "/aqua/alerts", label: "경보 승인" },
   { to: "/aqua/response", label: "e-SOP 대응" },
   { to: "/aqua/monitoring", label: "실시간 모니터링" },
+  { to: "/aqua/closure", label: "종료 보고" },
 ]
 
 export function AquaSubNav() {
