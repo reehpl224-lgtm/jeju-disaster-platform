@@ -83,6 +83,31 @@ export const riverTideCorrelation = {
   ] as RiverTidePoint[],
 }
 
+/**
+ * 실측 데이터 — 국립해양조사원(KHOA) 조위관측소 실시간 API(data.go.kr, obsCode DT_0023, 모슬포).
+ * jeju-lowsalinity-warning 프로젝트의 실연동 커넥터로 2026-09-09 확인한 실제 응답을 그대로 캡처한
+ * 스냅샷(정적 프로토타입이라 재조회 없음). 모슬포는 서귀포시 대정읍 소재로, 위 riverTideCorrelation이
+ * 다루는 효돈천 쇠소깍(하효동)과는 다른 지점(직선거리 약 25km)입니다 — 같은 관측소가 아니므로
+ * 쇠소깍 차트에 합치지 않고, 제주 남부 실측 조위 흐름을 보여주는 참고 데이터로 별도 표기합니다.
+ */
+export const khoaMoseulpoTide = {
+  stationName: "모슬포",
+  stationCode: "DT_0023",
+  location: "서귀포시 대정읍",
+  distanceNote: "효돈천 쇠소깍(하효동)과는 다른 지점 — 직선거리 약 25km, 조수 흐름 참고용",
+  series: [
+    { time: "08:00", tideLevelCm: 250 },
+    { time: "09:00", tideLevelCm: 258 },
+    { time: "10:00", tideLevelCm: 246 },
+    { time: "11:00", tideLevelCm: 216 },
+    { time: "12:00", tideLevelCm: 175 },
+    { time: "13:00", tideLevelCm: 130 },
+    { time: "14:00", tideLevelCm: 95 },
+    { time: "15:00", tideLevelCm: 76 },
+  ],
+  observedAt: "2026-09-09 15:00",
+}
+
 export const riverImpact = {
   area: "약 0.38 km²",
   population: "약 1,240명",

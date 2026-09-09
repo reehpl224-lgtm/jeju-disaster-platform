@@ -4,6 +4,7 @@ import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { RIVER_NAV } from "./riverNav"
 import {
+  khoaMoseulpoTide,
   riverCctv,
   riverDataConfidence,
   riverImpact,
@@ -77,6 +78,28 @@ export function RiverAnalysisPage() {
         </div>
         <p className="mt-2 text-[11px] text-white/35">
           14:30까지 관측값, 이후는 예측값입니다. 상류 돈내코 구간은 조수 영향이 없어 이 연계 차트에서 제외됩니다.
+        </p>
+      </Card>
+
+      <Card
+        title="실측 조위 참고 — 국립해양조사원(KHOA) 모슬포 조위관측소"
+        subtitle={`${khoaMoseulpoTide.location} · ${khoaMoseulpoTide.distanceNote}`}
+      >
+        <div className="h-40 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={khoaMoseulpoTide.series} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
+              <XAxis dataKey="time" tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
+              <YAxis tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" unit="cm" />
+              <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 12 }} />
+              <Line type="monotone" dataKey="tideLevelCm" name="조위(cm)" stroke="#0054a3" strokeWidth={2} dot={{ r: 3 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="mt-2 text-[11px] text-white/35">
+          data.go.kr 공공API 실연동 — {khoaMoseulpoTide.observedAt} 기준 실측값(정적 스냅샷). 현재{" "}
+          {khoaMoseulpoTide.series.at(-1)?.tideLevelCm}cm ·{" "}
+          {khoaMoseulpoTide.series[0].tideLevelCm > (khoaMoseulpoTide.series.at(-1)?.tideLevelCm ?? 0) ? "간조 진행 중(하강)" : "만조 진행 중(상승)"}
         </p>
       </Card>
 

@@ -76,7 +76,8 @@ export const serviceHealth: ServiceHealth[] = [
 
 export const apiLinks: ApiLinkStatus[] = [
   { id: "kma", name: "강우레이더 API", agency: "기상청", status: "down", responseTime: "-", lastReceived: "09:38 이전" },
-  { id: "khoa", name: "조위관측 API", agency: "국립해양조사원", status: "normal", responseTime: "212ms", lastReceived: "09:41" },
+  // 2026-09-09 실연동 확인(모슬포 DT_0023) — mockRiver.ts khoaMoseulpoTide 참고
+  { id: "khoa", name: "조위관측 API", agency: "국립해양조사원", status: "normal", responseTime: "110ms", lastReceived: "15:00" },
   // 2026-09-09 국립해양조사원(KHOA) data.go.kr 공공API 실연동 확인 — jeju-lowsalinity-warning 프로젝트 소스와 동일(mockAqua.ts khoaLiveObservations 참고)
   { id: "buoy-api", name: "해양관측부이 API", agency: "국립해양조사원(KHOA)", status: "normal", responseTime: "190ms", lastReceived: "15:00" },
   { id: "goci", name: "GOCI-II 해색 API", agency: "국가기상위성센터", status: "normal", responseTime: "540ms", lastReceived: "09:20" },
