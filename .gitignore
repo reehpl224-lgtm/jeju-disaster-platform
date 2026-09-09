@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# 로컬 환경변수 — .env.example을 복사해 채워서 씀(커밋 대상 아님)
+.env
+.env.*
+!.env.example
+
 # Subagent-driven-development scratch workspace (per-plan ledgers, briefs, review packages)
 .superpowers/
 

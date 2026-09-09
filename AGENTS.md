@@ -303,19 +303,28 @@ Q15 근거: "하천수위를 해양 조수 시간과 연계해서 보여주면 �
 공공데이터포털을 호출하면 (1) 키가 배포 번들에 노출되고 (2) 대부분 CORS로 막히는 문제가 있어
 Cloudflare Workers 프록시를 새로 뒀습니다.
 
-- **`workers/kma-weather-proxy/`**(신규 하위 프로젝트, 이 저장소와 별도 배포 단위): 서비스키를
+- **`workers/kma-weather-proxy/`**(Cloudflare Workers 버전, 이 저장소와 별도 배포 단위): 서비스키를
   Cloudflare Workers Secret으로 보관하고 `apis.data.go.kr/.../VilageFcstInfoService_2.0/getVilageFcst`를
   대신 호출, CORS 허용 + 10분 캐시. `region=jeju|seogwipo` 2개만 지원(제주시·서귀포시 시청
   좌표를 기상청 공식 LCC 격자변환 공식으로 직접 계산한 nx/ny — `README.md`에 근거 기록).
-  **아직 실제 배포 안 됨** — 사용자가 `wrangler login` → `wrangler secret put KMA_SERVICE_KEY`
-  → `npm run deploy` 직접 실행해야 함(서비스키는 Claude Code가 대신 입력/보관할 수 없음).
+  **2026-09-09 시도했으나 배포 못 함** — 사용자가 Cloudflare 계정 가입 단계에서 에러 코드 1111
+  (어뷰징 방지 레이트리밋, 네트워크/IP 문제)에 막혀 `wrangler login`을 완료하지 못했습니다.
+  코드는 그대로 남겨뒀고(나중에 다른 네트워크에서 가입되면 재시도 가능), 대신 아래 Vercel
+  버전으로 갈아탔습니다.
+- **`vercel-proxy/kma-weather-proxy/`**(Vercel 버전, 위와 로직 동일 — 현재 이쪽이 진행 경로):
+  GitHub 계정으로 바로 로그인 가입되는 Vercel Serverless Function으로 옮겼습니다(Cloudflare
+  가입 문제 회피). **아직 실제 배포 안 됨** — 사용자가 `vercel login` → `vercel link` →
+  `vercel env add KMA_SERVICE_KEY production` → `vercel deploy --prod` 직접 실행해야 함
+  (서비스키는 Claude Code가 대신 입력/보관할 수 없음). 자세한 단계는 그 폴더의 `README.md`.
 - 프론트엔드: `src/data/weatherApi.ts`(실제 API 호출 — 다른 `mock*.ts`와 달리 더미데이터
   아님, 파일 상단 주석으로 구분 명시), `src/types/weather.ts`,
   `src/components/ui/VilageForecastPanel.tsx`. `/dashboard` GIS 상황 탭의 `GisTimelinePanel`에
-  "동네예보" 3번째 탭으로 연결(`DashboardPage.tsx`).
-- 배포 시 `.env`의 `VITE_WEATHER_PROXY_URL`에 Worker 배포 후 나오는 실제 URL을 채워야 동작함
-  (`.env.example` 참고 — 서비스키가 아니라 공개 URL이라 커밋해도 안전). 값이 없으면 패널이
-  "설정되지 않았습니다" 에러를 명확히 표시(지어낸 값으로 넘어가지 않음).
+  "동네예보" 3번째 탭으로 연결(`DashboardPage.tsx`). 프론트엔드 코드는 프록시가 Cloudflare든
+  Vercel이든 `/api/vilage-fcst?region=...` 경로만 같으면 동일하게 동작 — 어느 쪽을 배포하든
+  `.env`의 URL만 바꾸면 됨.
+- 배포 시 `.env`의 `VITE_WEATHER_PROXY_URL`에 (Cloudflare든 Vercel이든) 배포 후 나오는 실제
+  URL을 채워야 동작함 (`.env.example` 참고 — 서비스키가 아니라 공개 URL이라 커밋해도 안전).
+  값이 없으면 패널이 "설정되지 않았습니다" 에러를 명확히 표시(지어낸 값으로 넘어가지 않음).
 - **검증 시 발견한 별개 이슈**: `/dashboard`에서 `GisTimelinePanel`(타임라인/발효중 특보/동네예보)과
   `GisSidePanel`/`GisIconRail`이 DOM에는 정상 렌더링(z-index:10, visible)되지만 지도(`JejuTileMap`,
   Leaflet) 뒤에 가려져 화면에 전혀 안 보이는 문제를 발견했습니다 — 2026-09-09 SVG→Leaflet 전환

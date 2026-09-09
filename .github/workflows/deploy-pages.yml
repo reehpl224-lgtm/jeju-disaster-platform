@@ -25,6 +25,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # kma-weather-proxy(Vercel) 배포 주소 — 서비스키가 아니라 공개 프록시 URL이라 커밋해도 안전.
+          # 값이 없으면 동네예보 패널이 "설정되지 않았습니다" 에러를 표시할 뿐 빌드 자체는 그대로 성공.
+          VITE_WEATHER_PROXY_URL: https://kma-weather-proxy.vercel.app
       # SPA 폴백 — GitHub Pages는 서버 리라이트가 없어서, 딥링크/새로고침 시 index.html로
       # 대신 응답하도록 404.html을 index.html 복사본으로 둔다.
       - run: cp dist/index.html dist/404.html
