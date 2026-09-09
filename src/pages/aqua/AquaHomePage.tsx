@@ -9,9 +9,19 @@ import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import { AquaSubNav } from "../../components/aqua/AquaSubNav"
-import { aquaActionLog, aquaAgencyRows, aquaAlertDraft, aquaDataSources, aquaFarms, aquaJourneys, aquaSummary } from "../../data/mockAqua"
+import {
+  aquaActionLog,
+  aquaAgencyRows,
+  aquaAlertDraft,
+  aquaDataSources,
+  aquaFarms,
+  aquaJourneys,
+  aquaSummary,
+  khoaLiveObservations,
+} from "../../data/mockAqua"
 import { riskMarkers } from "../../data/mockDashboard"
 import { cctvCameras } from "../../data/mockCctv"
+import { classifyMarineRiskLevel } from "../../data/marineAlertThresholds"
 
 const AQUA_MARKERS = riskMarkers.filter((m) => m.domain === "aqua")
 const AQUA_CCTV = cctvCameras.filter((c) => c.domain === "aqua")
@@ -198,6 +208,29 @@ export function AquaHomePage() {
           <p className="mt-1 text-xs text-white/35">{aquaSummary.dataQuality.detail}</p>
         </Card>
       </div>
+
+      <Card
+        title="실시간 해양관측 — 국립해양조사원(KHOA) API"
+        subtitle="data.go.kr 공공데이터 실연동 — 정적 프로토타입이라 2026-09-09 확인 시점 스냅샷으로 고정 표시"
+      >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {khoaLiveObservations.map((obs) => (
+            <div key={obs.id} className="rounded-lg border border-border-subtle p-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-white/80">{obs.stationName}</p>
+                <RiskBadge level={classifyMarineRiskLevel(obs.salinityPsu, obs.seaTempC)} />
+              </div>
+              <p className="mt-0.5 text-[11px] text-white/35">
+                {obs.kind} · {obs.stationCode}
+              </p>
+              <p className="mt-2 text-lg font-bold text-white">
+                {obs.seaTempC.toFixed(2)}℃ <span className="text-sm font-normal text-white/40">· {obs.salinityPsu.toFixed(2)} psu</span>
+              </p>
+              <p className="mt-0.5 text-[11px] text-white/35">관측 {obs.observedAt}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       <Card title="위험 위치 및 영향 범위 — 양식장 GIS" subtitle="한경·대정 육상양식장 관측 지점">
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">

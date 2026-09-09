@@ -48,7 +48,7 @@ export function AquaDataPage() {
         </Card>
         <Card>
           <p className="text-xs font-medium text-white/40">데이터 품질 점수</p>
-          <p className="mt-1 text-xl font-bold text-white">91%</p>
+          <p className="mt-1 text-xl font-bold text-white">94%</p>
           <p className="mt-1 text-xs text-white/35">전체 소스 평균</p>
         </Card>
       </div>

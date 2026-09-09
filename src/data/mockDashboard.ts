@@ -53,6 +53,13 @@ export const riskMarkers: RiskMarker[] = [
   // (기존 인근 마커와 겹치지 않도록 좌표만 살짝 offset)
   { id: "hyodong-radar", name: "신규 강우레이더(효돈동)", x: 182, y: 190, level: "safe", domain: "heavyRain", lat: 33.283, lng: 126.580 },
   { id: "hyeopjae-smartpole", name: "협재 AIoT 스마트폴", x: 58, y: 144, level: "safe", domain: "coast", lat: 33.396, lng: 126.242 },
+  // 국립해양조사원(KHOA) 실시간 해양관측 API 실연동 — 수온·염분 실측값(mockAqua.ts khoaLiveObservations와 동일 소스,
+  // 2026-09-09 확인). classifyMarineRiskLevel(염분,수온) 기준 판정: 중문=주의, 나머지 3곳=관심.
+  // 제주남부(KG_0021)는 제주 본섬 훨씬 남쪽 국가 관측망 지점이라 지도 초기 화면(전체 줌 11) 기준으로는 화면 밖에 위치함.
+  { id: "khoa-tw0075", name: "중문해수욕장(KHOA 부이)", x: 150, y: 210, level: "warning", domain: "aqua", temperature: "27.22°C", salinity: "26.82 psu", lat: 33.2345, lng: 126.40955 },
+  { id: "khoa-kg0021", name: "제주남부(KHOA 부이)", x: 150, y: 320, level: "caution", domain: "aqua", temperature: "27.76°C", salinity: "32.80 psu", lat: 32.09041, lng: 126.96586 },
+  { id: "khoa-kg0028", name: "제주해협(KHOA 부이)", x: 150, y: 30, level: "caution", domain: "aqua", temperature: "26.93°C", salinity: "30.47 psu", lat: 33.70011, lng: 126.5905 },
+  { id: "khoa-dt0023", name: "모슬포(KHOA 조위관측소)", x: 70, y: 235, level: "caution", domain: "aqua", temperature: "26.60°C", salinity: "30.60 psu", lat: 33.21444, lng: 126.25111 },
 ]
 
 export const timeSeries: TimeSeriesReading[] = [

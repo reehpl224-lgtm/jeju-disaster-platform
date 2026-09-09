@@ -42,7 +42,8 @@ export const aquaSummary = {
   pendingApproval: { count: 2, detail: "주의 승인 1 · 경계 승인 1" },
   /** 아쿠아팜스 페이지(aquaFarmTotals)와 반드시 같은 수치를 쓸 것 — 총량이 화면마다 다르면 담당자가 신뢰 못함 */
   affectedFarms: { count: 24, detail: "심각 5 · 경계 7 · 주의 7 · 관심 5" },
-  dataQuality: { percent: 91, detail: "전체 소스 평균" },
+  /** aquaDataSources 품질점수 평균(null인 s7 제외) — 소스가 바뀌면 이 값도 다시 계산할 것 */
+  dataQuality: { percent: 94, detail: "전체 소스 평균" },
 }
 
 export const aquaJourneys = [
@@ -54,8 +55,41 @@ export const aquaJourneys = [
   { id: "monitoring", label: "실시간 모니터링", desc: "표층 수온 28.6℃ · 염분 24.8psu", href: "/aqua/monitoring" },
 ]
 
+/**
+ * 실측 데이터 — 국립해양조사원(KHOA) 실시간 해양관측 공공데이터 API(data.go.kr) 실연동 완료.
+ * `jeju-lowsalinity-warning` 파이프라인 프로젝트(collection-status-feature 작업분)에서 발급받은
+ * 서비스키로 2026-09-09 확인한 실제 API 응답값을 그대로 캡처한 스냅샷입니다(이 앱은 정적
+ * 프로토타입이라 실시간 재조회는 하지 않음 — 값을 바꾸려면 API를 다시 호출해 갱신해야 함).
+ * 해양관측부이 API(TW_0075·KG_0021·KG_0028) + 조위관측소 API(DT_0023, 모슬포) 기준.
+ */
+export const khoaLiveObservations: {
+  id: string
+  stationName: string
+  stationCode: string
+  kind: "해양관측부이" | "조위관측소"
+  lat: number
+  lng: number
+  seaTempC: number
+  salinityPsu: number
+  observedAt: string
+}[] = [
+  { id: "khoa-tw0075", stationName: "중문해수욕장", stationCode: "TW_0075", kind: "해양관측부이", lat: 33.2345, lng: 126.40955, seaTempC: 27.22, salinityPsu: 26.82, observedAt: "2026-09-09 15:00" },
+  { id: "khoa-kg0021", stationName: "제주남부", stationCode: "KG_0021", kind: "해양관측부이", lat: 32.09041, lng: 126.96586, seaTempC: 27.76, salinityPsu: 32.80, observedAt: "2026-09-09 14:00" },
+  { id: "khoa-kg0028", stationName: "제주해협", stationCode: "KG_0028", kind: "해양관측부이", lat: 33.70011, lng: 126.5905, seaTempC: 26.93, salinityPsu: 30.47, observedAt: "2026-09-09 14:00" },
+  { id: "khoa-dt0023", stationName: "모슬포", stationCode: "DT_0023", kind: "조위관측소", lat: 33.21444, lng: 126.25111, seaTempC: 26.6, salinityPsu: 30.6, observedAt: "2026-09-09 15:00" },
+]
+
 export const aquaDataSources: AquaDataSource[] = [
-  { id: "s1", name: "해수온 부이 — 제주 북부·남부", detail: "표층 수온·염분 관측", updatedAt: "14:30", cycle: "10분", status: "error", qualityScore: 41, note: "이상값 다수 포함" },
+  {
+    id: "s1",
+    name: "해양관측부이 (국립해양조사원 KHOA API)",
+    detail: "중문·제주남부·제주해협 3개소 — 실시간 수온·염분",
+    updatedAt: "15:00",
+    cycle: "1시간",
+    status: "normal",
+    qualityScore: 99,
+    note: "data.go.kr 공공API 실연동 완료 (2026-09-09 확인)",
+  },
   { id: "s2", name: "위성 영상 (Sentinel-2 — 저염분 추적)", detail: "해색·염분 추정", updatedAt: "06:20", cycle: "6시간", status: "normal", qualityScore: 93, note: "구름량 12%" },
   { id: "s3", name: "AI CCTV 탐지 메타데이터 — 연안 6개소", detail: "위험행동 탐지", updatedAt: "14:49", cycle: "실시간", status: "delayed", qualityScore: 82, note: "마지막 수신 14분 경과" },
   { id: "s4", name: "수위 센서 — 효돈천(돈내코·쇠소깍)", detail: "하천 수위", updatedAt: "14:50", cycle: "1분", status: "normal", qualityScore: 95, note: "누락 0건" },
@@ -65,7 +99,6 @@ export const aquaDataSources: AquaDataSource[] = [
 ]
 
 export const aquaDataIssues: AquaDataIssue[] = [
-  { id: "i1", type: "error", title: "해수온 부이 — 제주 북부", cause: "센서 하드웨어 오류 추정, 이상값 연속 발생", impact: "저염분·고수온 예측 모델 입력값 부재 → 예측 신뢰도 저하" },
   { id: "i2", type: "delayed", title: "AI CCTV — 연안 6개소", cause: "네트워크 지연 (현재 14분 경과)", impact: "연안 위험행동 탐지 메타데이터 공백" },
   { id: "i3", type: "missing", title: "현장 수동 관측 — 도청", cause: "2회차 수동 입력 미완료", impact: "강우·수위 교차검증 데이터 부족" },
 ]
@@ -73,7 +106,7 @@ export const aquaDataIssues: AquaDataIssue[] = [
 export const aquaActionLog: AquaActionLogEntry[] = [
   { id: "a1", time: "14:51", title: "강우 레이더 정상 복구 확인", owner: "김철수", action: "자동 재연결 성공", status: "완료" },
   { id: "a2", time: "14:38", title: "AI CCTV 지연 감지 (임계 10분 초과)", owner: "시스템 자동 경고", action: "네트워크 점검 요청", status: "진행 중" },
-  { id: "a3", time: "14:32", title: "해수온 부이 오류 알림 발송", owner: "이영희", action: "현장 점검 연락 완료", status: "진행 중" },
+  { id: "a3", time: "15:00", title: "해양관측부이 KHOA API 연동 확인", owner: "관리자", action: "실시간 수신 정상 확인 (중문·제주남부·제주해협)", status: "완료" },
   { id: "a4", time: "13:05", title: "현장 관측 미수신 1회차 기록", owner: "박지훈", action: "담당 기관 유선 연락", status: "완료" },
 ]
 
@@ -97,7 +130,7 @@ export const aquaModelConfidence: AquaModelConfidence[] = [
 
 export const aquaQualityMetrics: AquaQualityMetric[] = [
   { id: "q1", name: "위성 SST", level: "safe", percent: 98, note: "수신 지연 없음" },
-  { id: "q2", name: "해양 부이 수온", level: "safe", percent: 94, note: "최근 수신 14:28" },
+  { id: "q2", name: "해양 부이 수온", level: "safe", percent: 94, note: "국립해양조사원 KHOA API · 최근 수신 15:00" },
   { id: "q3", name: "현장 염분 관측", level: "caution", percent: 71, note: "우도 부이 미수신 2시간" },
   { id: "q4", name: "강우·하천 유량", level: "safe", percent: 96, note: "최근 수신 14:25" },
 ]

@@ -12,7 +12,7 @@ export const overallStatus = {
 export const connectionSummary = [
   { id: "sensor", label: "센서 연결", percent: 98.2, detail: "활성 247 / 오프라인 5" },
   { id: "cctv", label: "CCTV 연결", percent: 96.7, detail: "활성 116 / 오프라인 4" },
-  { id: "api", label: "API 연계", status: "경고", detail: "정상 8 / 지연 2 / 장애 1" },
+  { id: "api", label: "API 연계", status: "경고", detail: "정상 9 / 지연 1 / 장애 1" },
   { id: "ai", label: "AI 분석 서비스", status: "정상", detail: "모델 6 / 처리 지연 0" },
 ]
 
@@ -77,7 +77,8 @@ export const serviceHealth: ServiceHealth[] = [
 export const apiLinks: ApiLinkStatus[] = [
   { id: "kma", name: "강우레이더 API", agency: "기상청", status: "down", responseTime: "-", lastReceived: "09:38 이전" },
   { id: "khoa", name: "조위관측 API", agency: "국립해양조사원", status: "normal", responseTime: "212ms", lastReceived: "09:41" },
-  { id: "buoy-api", name: "해양관측부이 API", agency: "해양수산연구원", status: "delayed", responseTime: "1.8s", lastReceived: "09:33" },
+  // 2026-09-09 국립해양조사원(KHOA) data.go.kr 공공API 실연동 확인 — jeju-lowsalinity-warning 프로젝트 소스와 동일(mockAqua.ts khoaLiveObservations 참고)
+  { id: "buoy-api", name: "해양관측부이 API", agency: "국립해양조사원(KHOA)", status: "normal", responseTime: "190ms", lastReceived: "15:00" },
   { id: "goci", name: "GOCI-II 해색 API", agency: "국가기상위성센터", status: "normal", responseTime: "540ms", lastReceived: "09:20" },
 ]
 
