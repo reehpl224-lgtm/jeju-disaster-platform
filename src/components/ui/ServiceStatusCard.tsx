@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import type { RiskLevel } from "../../types/domain"
 import type { serviceStatusCards } from "../../data/mockDashboard"
-import { riskStyles } from "./riskStyles"
+import { getDominantRiskLevel, riskStyles } from "./riskStyles"
 
 const TIERS: { level: RiskLevel; key: "danger" | "alert" | "warning" | "caution" }[] = [
   { level: "danger", key: "danger" },
@@ -25,7 +25,7 @@ const GLOW_VAR: Record<RiskLevel, string | null> = {
 export function ServiceStatusCard({ card }: { card: (typeof serviceStatusCards)[number] }) {
   const counts = card.counts
   const total = counts.danger + counts.alert + counts.warning + (counts.caution ?? 0)
-  const dominant = TIERS.find((t) => (counts[t.key] ?? 0) > 0)?.level ?? "safe"
+  const dominant = getDominantRiskLevel(counts)
   const dominantStyle = riskStyles[dominant]
   const glow = GLOW_VAR[dominant]
 

@@ -67,3 +67,17 @@ export const riskStyles: Record<RiskLevel, RiskStyle> = {
     solidBg: "bg-risk-offline text-white",
   },
 }
+
+/** 서비스 카드 등 "심각/경계/주의/관심" 카운트 묶음에서 가장 심각한 등급을 뽑는다. 전부 0이면 정상(safe). */
+export function getDominantRiskLevel(counts: {
+  danger?: number
+  alert?: number
+  warning?: number
+  caution?: number
+}): RiskLevel {
+  if ((counts.danger ?? 0) > 0) return "danger"
+  if ((counts.alert ?? 0) > 0) return "alert"
+  if ((counts.warning ?? 0) > 0) return "warning"
+  if ((counts.caution ?? 0) > 0) return "caution"
+  return "safe"
+}
