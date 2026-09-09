@@ -2,6 +2,7 @@ import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContai
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
+import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { RIVER_NAV } from "./riverNav"
 import {
   khoaMoseulpoTide,
@@ -101,6 +102,10 @@ export function RiverAnalysisPage() {
           {khoaMoseulpoTide.series.at(-1)?.tideLevelCm}cm ·{" "}
           {khoaMoseulpoTide.series[0].tideLevelCm > (khoaMoseulpoTide.series.at(-1)?.tideLevelCm ?? 0) ? "간조 진행 중(하강)" : "만조 진행 중(상승)"}
         </p>
+      </Card>
+
+      <Card title="기상청 단기예보" subtitle="강수확률·시간당 강수 참고 — 범람 위험 판단 자체는 위 AI 조기경고·수위 근거 기준">
+        <VilageForecastPanel />
       </Card>
 
       <Card title="영향 범위 GIS">
