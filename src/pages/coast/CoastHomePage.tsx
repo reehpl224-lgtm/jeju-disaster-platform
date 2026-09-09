@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { JejuRiskMap } from "../../components/ui/JejuRiskMap"
+import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { MapToolbox } from "../../components/ui/MapToolbox"
 import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
@@ -195,7 +195,7 @@ export function CoastHomePage() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2">
           <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-            <JejuRiskMap markers={coastMarkers} className="relative h-full w-full" />
+            <JejuTileMap markers={coastMarkers} className="relative h-full w-full" />
             <MapToolbox />
             <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
             {activeRailKey && (
