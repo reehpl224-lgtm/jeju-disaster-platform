@@ -3,6 +3,7 @@ import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
+import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
 import { COAST_NAV } from "./coastNav"
 import { coastMonitoringDomains } from "../../data/mockCoast"
 
@@ -68,6 +69,13 @@ export function CoastMonitoringPage() {
 
       <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 현장 위험 판단 자체는 AI 탐지·실측 기준">
         <VilageForecastPanel />
+      </Card>
+
+      <Card
+        title="실시간 해양관측 — 기상청 API허브"
+        subtitle="apihub.kma.go.kr 실연동(sea_obs.php) — 아래 표의 '서귀포 해수온 부이 결측'을 보완하는 인근 실측 참고치"
+      >
+        <MarineObservationPanel />
       </Card>
 
       <Card title="GIS 위험 위치·영향 범위">

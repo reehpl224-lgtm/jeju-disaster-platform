@@ -10,6 +10,7 @@ import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { TyphoonNameListPanel } from "../../components/ui/TyphoonNameListPanel"
 import { TyphoonNowPanel } from "../../components/ui/TyphoonNowPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
+import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
 
 const TYPHOON_MARKERS = riskMarkers.filter((m) => m.domain === "typhoon")
 
@@ -74,6 +75,13 @@ export function TyphoonHomePage() {
           ))}
         </div>
         <p className="mt-3 text-[11px] text-white/35">data.go.kr 공공API 실연동 — 정적 프로토타입이라 확인 시점 스냅샷으로 고정 표시</p>
+      </Card>
+
+      <Card
+        title="실시간 해양관측 — 기상청 API허브"
+        subtitle="apihub.kma.go.kr 실연동(sea_obs.php) — 위 KHOA 스냅샷과 별개로 매 조회마다 갱신되는 파고·풍속·수온"
+      >
+        <MarineObservationPanel />
       </Card>
 
       <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 태풍 특보 자체는 기상청 발표 기준">
