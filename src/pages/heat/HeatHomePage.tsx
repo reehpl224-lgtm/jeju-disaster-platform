@@ -65,21 +65,6 @@ export function HeatHomePage() {
 
       <DomainSubNav items={HEAT_NAV} />
 
-      <Card title="현재 폭염 위기단계" subtitle={`${heatLevelInfo.criteria} · 갱신 ${heatLevelInfo.updatedAt}`}>
-        <div className="flex items-center gap-4">
-          <RiskBadge level={heatLevelInfo.level} label={heatLevelInfo.label} solid />
-          <p className="text-lg font-bold text-white">체감온도 {heatLevelInfo.feelsLikeC}℃</p>
-        </div>
-      </Card>
-
-      <Card title="실시간 폭염·열대야 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)">
-        <WarningsPanel wrnCodes={["H", "K"]} />
-      </Card>
-
-      <Card title="기상청 단기예보" subtitle="기온 추이 참고 — 폭염특보 공식 발령은 기상청 발표 기준">
-        <VilageForecastPanel />
-      </Card>
-
       <Card title="위험 위치 및 열섬 지점 — 폭염 GIS" subtitle="더운 길·무더위쉼터 관측 지점">
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
           <JejuTileMap markers={HEAT_MARKERS} className="relative h-full w-full" />
@@ -100,6 +85,21 @@ export function HeatHomePage() {
           <RiskBadge level="caution" />
           <RiskBadge level="safe" />
         </div>
+      </Card>
+
+      <Card title="현재 폭염 위기단계" subtitle={`${heatLevelInfo.criteria} · 갱신 ${heatLevelInfo.updatedAt}`}>
+        <div className="flex items-center gap-4">
+          <RiskBadge level={heatLevelInfo.level} label={heatLevelInfo.label} solid />
+          <p className="text-lg font-bold text-white">체감온도 {heatLevelInfo.feelsLikeC}℃</p>
+        </div>
+      </Card>
+
+      <Card title="실시간 폭염·열대야 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)">
+        <WarningsPanel wrnCodes={["H", "K"]} />
+      </Card>
+
+      <Card title="기상청 단기예보" subtitle="기온 추이 참고 — 폭염특보 공식 발령은 기상청 발표 기준">
+        <VilageForecastPanel />
       </Card>
 
       <Card title="시원한 길 · 더운 길 안내">

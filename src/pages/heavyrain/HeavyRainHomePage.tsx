@@ -82,6 +82,28 @@ export function HeavyRainHomePage() {
 
       <DomainSubNav items={HEAVY_RAIN_NAV} />
 
+      <Card title="위험 위치 및 관측망 — 호우 GIS" subtitle="침수경보·우량계 관측 지점">
+        <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
+          <JejuTileMap markers={HEAVY_RAIN_MARKERS} className="relative h-full w-full" />
+          <GisIconRail
+            activeKey={activeRailKey}
+            onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))}
+            items={HEAVY_RAIN_RAIL_ITEMS}
+          />
+          {activeRailKey && (
+            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
+          )}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+          <span className="font-semibold text-white/30">범례</span>
+          <RiskBadge level="danger" />
+          <RiskBadge level="alert" />
+          <RiskBadge level="warning" />
+          <RiskBadge level="caution" />
+          <RiskBadge level="safe" />
+        </div>
+      </Card>
+
       <Card title="실시간 강풍·호우 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)">
         <WarningsPanel wrnCodes={["R", "W"]} />
       </Card>
@@ -128,28 +150,6 @@ export function HeavyRainHomePage() {
               <p className="mt-0.5 text-[11px] text-white/35">최종 수신 {station.updatedAt}</p>
             </div>
           ))}
-        </div>
-      </Card>
-
-      <Card title="위험 위치 및 관측망 — 호우 GIS" subtitle="침수경보·우량계 관측 지점">
-        <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-          <JejuTileMap markers={HEAVY_RAIN_MARKERS} className="relative h-full w-full" />
-          <GisIconRail
-            activeKey={activeRailKey}
-            onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))}
-            items={HEAVY_RAIN_RAIL_ITEMS}
-          />
-          {activeRailKey && (
-            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
-          )}
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
-          <span className="font-semibold text-white/30">범례</span>
-          <RiskBadge level="danger" />
-          <RiskBadge level="alert" />
-          <RiskBadge level="warning" />
-          <RiskBadge level="caution" />
-          <RiskBadge level="safe" />
         </div>
       </Card>
 

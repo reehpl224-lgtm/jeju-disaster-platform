@@ -149,6 +149,32 @@ export function AquaHomePage() {
 
       <AquaSubNav />
 
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <Card title="위험 위치 및 영향 범위 — 양식장 GIS" subtitle="한경·대정 육상양식장 관측 지점" className="xl:col-span-2">
+          <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
+            <JejuTileMap markers={AQUA_MARKERS} cctvMarkers={AQUA_CCTV} className="relative h-full w-full" />
+            <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
+            {activeRailKey && (
+              <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
+            )}
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+            <span className="font-semibold text-white/30">범례</span>
+            <RiskBadge level="danger" />
+            <RiskBadge level="alert" />
+            <RiskBadge level="warning" />
+            <RiskBadge level="caution" />
+            <RiskBadge level="safe" />
+          </div>
+        </Card>
+
+        <Card title="타임라인">
+          <div className="h-[560px]">
+            <GisTimelinePanel tabs={TIMELINE_TABS} />
+          </div>
+        </Card>
+      </div>
+
       <Card>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
           <div>
@@ -248,32 +274,6 @@ export function AquaHomePage() {
       <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 저염분수·고수온 경보 자체는 AI 하이브리드 예측 기준">
         <VilageForecastPanel />
       </Card>
-
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="위험 위치 및 영향 범위 — 양식장 GIS" subtitle="한경·대정 육상양식장 관측 지점" className="xl:col-span-2">
-          <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-            <JejuTileMap markers={AQUA_MARKERS} cctvMarkers={AQUA_CCTV} className="relative h-full w-full" />
-            <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
-            {activeRailKey && (
-              <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
-            )}
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
-            <span className="font-semibold text-white/30">범례</span>
-            <RiskBadge level="danger" />
-            <RiskBadge level="alert" />
-            <RiskBadge level="warning" />
-            <RiskBadge level="caution" />
-            <RiskBadge level="safe" />
-          </div>
-        </Card>
-
-        <Card title="타임라인">
-          <div className="h-[560px]">
-            <GisTimelinePanel tabs={TIMELINE_TABS} />
-          </div>
-        </Card>
-      </div>
 
       <Card title="대응 여정" subtitle={`최근 갱신 ${aquaSummary.lastUpdated}`}>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">

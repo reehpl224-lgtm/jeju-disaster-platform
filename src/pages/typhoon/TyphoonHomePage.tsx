@@ -33,6 +33,19 @@ export function TyphoonHomePage() {
 
       <DomainSubNav items={TYPHOON_NAV} />
 
+      <Card title="접근 위치 — 태풍 GIS" subtitle="기상청 발표 기준 접근 방향(자체 관측망 없음 — 상징적 표시)">
+        <div className="relative h-96 w-full overflow-hidden rounded-lg">
+          <JejuTileMap markers={TYPHOON_MARKERS} className="relative h-full w-full" />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+          <span className="font-semibold text-white/30">범례</span>
+          <RiskBadge level="danger" />
+          <RiskBadge level="alert" />
+          <RiskBadge level="warning" />
+          <RiskBadge level="safe" />
+        </div>
+      </Card>
+
       <Card title={latest.name} subtitle={`발표 ${latest.issuedAt}`}>
         <div className="flex flex-wrap items-center gap-3">
           <RiskBadge level={STATUS_LEVEL[latest.status]} label={latest.status} solid />
@@ -98,19 +111,6 @@ export function TyphoonHomePage() {
 
       <Card title="실시간 태풍 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php) — 제주시·서귀포시 태풍주의보·경보">
         <WarningsPanel wrnCodes={["T"]} />
-      </Card>
-
-      <Card title="접근 위치 — 태풍 GIS" subtitle="기상청 발표 기준 접근 방향(자체 관측망 없음 — 상징적 표시)">
-        <div className="relative h-96 w-full overflow-hidden rounded-lg">
-          <JejuTileMap markers={TYPHOON_MARKERS} className="relative h-full w-full" />
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
-          <span className="font-semibold text-white/30">범례</span>
-          <RiskBadge level="danger" />
-          <RiskBadge level="alert" />
-          <RiskBadge level="warning" />
-          <RiskBadge level="safe" />
-        </div>
       </Card>
 
       <Card title="발표 이력" subtitle="기상청 발표 시각 역순">

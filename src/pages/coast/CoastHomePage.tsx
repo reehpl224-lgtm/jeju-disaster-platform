@@ -147,6 +147,49 @@ export function CoastHomePage() {
 
       <DomainSubNav items={COAST_NAV} />
 
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2">
+          <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
+            <JejuTileMap markers={coastMarkers} cctvMarkers={COAST_CCTV} className="relative h-full w-full" />
+            <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
+            {activeRailKey && (
+              <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
+            )}
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+            <span className="font-semibold text-white/30">범례</span>
+            <RiskBadge level="danger" />
+            <RiskBadge level="alert" />
+            <RiskBadge level="warning" />
+            <RiskBadge level="caution" />
+            <RiskBadge level="safe" />
+            <RiskBadge level="info" label="공조 진행" />
+          </div>
+        </Card>
+
+        <Card title="타임라인">
+          <div className="h-[560px]">
+            <GisTimelinePanel tabs={TIMELINE_TABS} />
+          </div>
+        </Card>
+      </div>
+
+      <Card title="AI 예측 — 판단 근거" subtitle="이안류·해수욕장 위험 AI 모델이 산출한 근거 요약">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {coastAiInsights.map((insight) => (
+            <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-3">
+              <RiskBadge level={insight.level} solid />
+              <p className="mt-2 text-sm font-semibold text-white/85">{insight.title}</p>
+              <p className="mt-1 text-xs text-white/40">{insight.basis}</p>
+              <p className="text-xs text-white/40">{insight.match}</p>
+              <Link to="/coast/events" className="mt-2 inline-block text-xs font-bold text-accent">
+                이벤트 상세 검토 →
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Card>
+
       <Card>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
           <div>
@@ -234,51 +277,6 @@ export function CoastHomePage() {
       <Card title="기상청 단기예보" subtitle="풍속·하늘상태 참고 — 실시간 연동">
         <VilageForecastPanel />
       </Card>
-
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2">
-          <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
-            <JejuTileMap markers={coastMarkers} cctvMarkers={COAST_CCTV} className="relative h-full w-full" />
-            <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
-            {activeRailKey && (
-              <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
-            )}
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
-            <span className="font-semibold text-white/30">범례</span>
-            <RiskBadge level="danger" />
-            <RiskBadge level="alert" />
-            <RiskBadge level="warning" />
-            <RiskBadge level="caution" />
-            <RiskBadge level="safe" />
-            <RiskBadge level="info" label="공조 진행" />
-          </div>
-        </Card>
-
-        <div className="flex flex-col gap-4">
-          <Card title="AI 판단 근거 요약">
-            <ul className="flex flex-col gap-3">
-              {coastAiInsights.map((insight) => (
-                <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-3">
-                  <RiskBadge level={insight.level} solid />
-                  <p className="mt-2 text-sm font-semibold text-white/85">{insight.title}</p>
-                  <p className="mt-1 text-xs text-white/40">{insight.basis}</p>
-                  <p className="text-xs text-white/40">{insight.match}</p>
-                  <Link to="/coast/events" className="mt-2 inline-block text-xs font-bold text-accent">
-                    이벤트 상세 검토 →
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card title="타임라인">
-            <div className="h-72">
-              <GisTimelinePanel tabs={TIMELINE_TABS} />
-            </div>
-          </Card>
-        </div>
-      </div>
 
       <Card title="위험 이벤트 목록" action={<Link to="/coast/events" className="text-xs font-semibold text-white/50 hover:text-accent">전체 보기 →</Link>}>
         <ul className="flex flex-col divide-y divide-border-subtle">
