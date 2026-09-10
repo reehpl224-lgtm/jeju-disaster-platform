@@ -9,6 +9,7 @@ import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { TyphoonNameListPanel } from "../../components/ui/TyphoonNameListPanel"
 import { TyphoonNowPanel } from "../../components/ui/TyphoonNowPanel"
+import { WarningsPanel } from "../../components/ui/WarningsPanel"
 
 const TYPHOON_MARKERS = riskMarkers.filter((m) => m.domain === "typhoon")
 
@@ -85,6 +86,10 @@ export function TyphoonHomePage() {
 
       <Card title="기상청 태풍 이름 목록 — API허브" subtitle="apihub.kma.go.kr 실연동(typ_lst.php)">
         <TyphoonNameListPanel />
+      </Card>
+
+      <Card title="실시간 태풍 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php) — 제주시·서귀포시 태풍주의보·경보">
+        <WarningsPanel wrnCodes={["T"]} />
       </Card>
 
       <Card title="접근 위치 — 태풍 GIS" subtitle="기상청 발표 기준 접근 방향(자체 관측망 없음 — 상징적 표시)">

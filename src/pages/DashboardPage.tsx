@@ -13,6 +13,7 @@ import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../components/ui/G
 import { GisSidePanel } from "../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../components/ui/GisTimelinePanel"
 import { VilageForecastPanel } from "../components/ui/VilageForecastPanel"
+import { WarningsPanel } from "../components/ui/WarningsPanel"
 import type { RiskMarker } from "../types/domain"
 import {
   agencyStatuses,
@@ -325,6 +326,11 @@ export function DashboardPage() {
       key: "forecast",
       label: "동네예보",
       content: <VilageForecastPanel />,
+    },
+    {
+      key: "live-warnings",
+      label: "실시간 특보 — API허브",
+      content: <WarningsPanel />,
     },
   ]
 

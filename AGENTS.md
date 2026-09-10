@@ -342,6 +342,39 @@ Cloudflare Workers 프록시를 새로 뒀습니다.
 사용자와 합의했습니다(플로팅 패널에 다단계 승인 절차를 욱여넣지 않기 위함). 이 부분을 더 진행할지는
 사용자와 먼저 상의하세요.
 
+**2026-09-09~10 기상청 API허브(apihub.kma.go.kr) 실시간 연동 확장** (Claude Code, 사용자 요청 —
+"apihub.kma.go.kr에서 사용할 수 있을만한 api 체크해줘" → 1~3순위 승인 후 "진행해줘"). 위 단기예보
+연동과 별도의 인증 체계입니다 — data.go.kr `serviceKey`(`KMA_SERVICE_KEY`)와 달리 apihub.kma.go.kr은
+`authKey`(`KMA_APIHUB_KEY`) 계정을 따로 만들고, **API 하위 항목별로 개별 "API 활용신청"**이 필요합니다
+(카테고리 단위 승인이 아님 — 예: 태풍정보 안에서도 1.1/1.2/1.3 각각 따로 신청해야 함). 같은
+`vercel-proxy/kma-weather-proxy/` 프로젝트에 엔드포인트를 추가하는 방식으로 배포했습니다(`KMA_SERVICE_KEY`와
+`KMA_APIHUB_KEY` 둘 다 같은 Vercel 프로젝트 env에 등록됨).
+
+- **`api/typhoon.ts`** → `src/data/typhoonApi.ts` — 태풍 이름 목록(`typ_lst.php`, `?mode=list`)과
+  실시간 위치·기압·풍속(`typ_now.php`, 기본/`?mode=now`). `/typhoon` 홈에 `TyphoonNameListPanel`,
+  `TyphoonNowPanel`로 연결(진행 중인 태풍이 없으면 빈 상태가 정상).
+- **`api/warnings.ts`** → `src/data/warningsApi.ts` — 기상특보(`wrn_met_data.php`), 제주시·서귀포시
+  REG_ID(`L10913`/`L10914`)로 필터링해 최근 24시간 발표 이력 반환. `WarningsPanel`이 `wrnCodes` prop으로
+  특보 종류를 필터링(예: `["H","K"]`=폭염·열대야, `["R","W"]`=호우·강풍, `["V","O","N"]`=풍랑·폭풍해일·지진해일,
+  `["T"]`=태풍주의보·경보). `/heat`, `/heavy-rain`, `/coast`, `/typhoon` 홈과 `/dashboard`(필터 없이 전체)에
+  연결.
+- **`api/marine.ts`** → `src/data/marineApi.ts` — 해양관측(`sea_obs.php`) 파고·풍속·수온 등. 이 엔드포인트만
+  `disp=1`일 때 **JSON을 직접 반환**함(다른 `typ01` 계열은 EUC-KR 콤마구분 텍스트) — 혼동 주의. 결측치는
+  `-99`/`-99.9`로 오므로 `<= -90`이면 `null` 처리. `/coast` 홈에 파고 카드로 연결.
+- **`api/rainfall.ts`** → `src/data/rainfallApi.ts` — 방재기상관측 AWS 매분자료(`nph-aws2_min`). 별도
+  활용신청 없이 바로 접근 가능했음. 효돈천(돈내코·쇠소깍)과 정확히 같은 지점이 없어 가장 가까운 저지대
+  실측 지점(189=서귀포, 780=제주남원)을 참고용으로 표시. `/river` 홈에 연결. `tm2`를 생략하면 빈 배열이
+  올 때가 있고, 가장 최근 1분은 결측(`-99.9`)이 흔해 현재 시각 -2분으로 조회.
+- **검토했지만 안 한 것**: 저염분수(아쿠아 양식장) — KMA 해양관측 API에 염분 필드가 없어 KHOA가 이미
+  더 잘 다루는 부분과 겹침, 추가 연동 안 함(`/aqua`는 기존 KHOA 실연동 + 단기예보만 유지). 레이더
+  강수량(HSR, 하천범람 후보) — 그리드 래스터 데이터라 격자 클리핑·dBZ→강수량 변환이 필요한 더 큰
+  작업이라 지금은 보류(지어낸 값 아님, 범위상 스코프 아웃).
+- **2026-09-10 남은 격차 점검**: `/typhoon` 홈에 특보(warnings) 연동이 빠져 있던 걸 발견해
+  `WarningsPanel wrnCodes={["T"]}` 카드를 추가했고, `/dashboard`도 실시간 단기예보만 있고 실시간
+  특보가 없어 `GisTimelinePanel`에 "실시간 특보 — API허브" 탭(필터 없음, 제주 전체)을 새로 추가했습니다.
+  나머지 도메인 홈은 재확인 결과 이미 다 연결돼 있었음(river=단기예보+우량, heat=단기예보+특보,
+  heavy-rain=단기예보+특보, coast=단기예보+파고+특보).
+
 ## 3. 위험등급 체계 (RiskLevel) — 전체 앱 공통, 최근 변경됨
 
 `src/types/domain.ts`의 `RiskLevel` 타입이 앱 전체의 유일한 위험등급 소스입니다.
