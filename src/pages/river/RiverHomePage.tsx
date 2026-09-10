@@ -8,6 +8,7 @@ import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { RainfallObservationPanel } from "../../components/ui/RainfallObservationPanel"
+import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { RIVER_NAV } from "./riverNav"
@@ -167,6 +168,10 @@ export function RiverHomePage() {
 
       <Card title="기상청 단기예보" subtitle="강수확률·강수형태 참고 — 돌발 강우 조기경보와 함께 확인">
         <VilageForecastPanel />
+      </Card>
+
+      <Card title="실시간 호우특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php) — 하천 범람의 주 원인인 호우·강풍 특보">
+        <WarningsPanel wrnCodes={["R", "W"]} />
       </Card>
 
       <Card title="하천 위험 요약" subtitle="카드를 누르면 해당 하천의 현장 통제 현황으로 이동합니다">

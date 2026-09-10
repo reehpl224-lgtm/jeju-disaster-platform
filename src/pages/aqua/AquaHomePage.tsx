@@ -8,6 +8,7 @@ import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
+import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
 import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import {
   aquaActionLog,
@@ -235,6 +236,13 @@ export function AquaHomePage() {
             </div>
           ))}
         </div>
+      </Card>
+
+      <Card
+        title="실시간 해양관측 — 기상청 API허브"
+        subtitle="apihub.kma.go.kr 실연동(sea_obs.php) — 모슬포·협재 등 인근 지점 수온·풍속 (염분은 미제공, 위 KHOA 부이 참고)"
+      >
+        <MarineObservationPanel />
       </Card>
 
       <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 저염분수·고수온 경보 자체는 AI 하이브리드 예측 기준">
