@@ -28,11 +28,10 @@ import {
   sixHourSeries,
   timeSeries,
 } from "../data/mockDashboard"
-import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeams } from "../data/mockIncidents"
+import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeams, shelters } from "../data/mockIncidents"
 import { cctvCameras, cctvCoverageSummary } from "../data/mockCctv"
 import { sequentialPropagation, simultaneousPropagationGoal } from "../data/mockPropagation"
 import type { CctvCamera } from "../types/domain"
-// import { shelters } from "../data/mockIncidents" // 자산현황 우선 주석처리 — 재활성화 시 위 줄에 합치기
 
 function formatHM(iso: string) {
   return iso.slice(11, 16)
@@ -56,8 +55,7 @@ const CCTV_DOMAIN_FILTERS: { id: CctvCamera["domain"] | "all"; label: string }[]
   { id: "general", label: "일반" },
 ]
 
-// 대시보드는 대피소(shelters) 자산현황이 맥락과 안 맞아 우선 주석처리 — 필요해지면 GIS_RAIL_ITEMS 그대로 사용
-const DASHBOARD_RAIL_ITEMS = GIS_RAIL_ITEMS.filter((item) => item.key !== "asset")
+const DASHBOARD_RAIL_ITEMS = GIS_RAIL_ITEMS
 
 const TOP_TABS = [
   { key: "summary", label: "종합 상황" },
@@ -129,6 +127,20 @@ export function DashboardPage() {
   const dispatchedTeams = disasterResponseTeams.filter((team) => team.status === "출동중").length
   const connectedAgencies = agencyStatuses.filter((a) => a.status === "connected").length
 
+  // 본부별(제주시/서귀포시) 현황 — disasterIncidents.region·disasterResponseTeams.agency에 이미 있는
+  // 실제 지역 태그만 사용(지도 상 위경도 추정 등으로 지어내지 않음)
+  const REGION_BOXES = [
+    { key: "jeju-si", label: "제주시" },
+    { key: "seogwipo-si", label: "서귀포시" },
+  ] as const
+  const regionStats = REGION_BOXES.map((region) => ({
+    ...region,
+    incidents: disasterIncidents.filter((i) => i.region === region.label).length,
+    members: disasterResponseTeams
+      .filter((t) => t.agency.includes(region.label))
+      .reduce((sum, t) => sum + t.members, 0),
+  }))
+
   const [cctvDomain, setCctvDomain] = useState<CctvCamera["domain"] | "all">("all")
   const [cctvQuery, setCctvQuery] = useState("")
   const filteredCameras = useMemo(() => {
@@ -198,23 +210,24 @@ export function DashboardPage() {
       </div>
     ),
     contact: <DutyContactPanel />,
-    // 자산현황(대피소) 우선 주석처리 — 대시보드 맥락과 안 맞아 임시 비활성화, DASHBOARD_RAIL_ITEMS에서도 제외됨
-    // asset: (
-    //   <ul className="flex flex-col gap-2">
-    //     {shelters.map((shelter) => (
-    //       <li key={shelter.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
-    //         <div className="flex items-center justify-between gap-2">
-    //           <p className="font-medium text-white/80">{shelter.name}</p>
-    //           <RiskBadge level="safe" label={shelter.status} />
-    //         </div>
-    //         <p className="mt-1 text-white/35">{shelter.address}</p>
-    //         <p className="mt-1 text-white/50">
-    //           수용 {shelter.currentOccupancy} / {shelter.capacity}명
-    //         </p>
-    //       </li>
-    //     ))}
-    //   </ul>
-    // ),
+    asset: (
+      <ul className="flex flex-col gap-2">
+        {shelters.map((shelter) => (
+          <li key={shelter.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-white/80">{shelter.name}</p>
+              <RiskBadge level="safe" label={shelter.status} />
+            </div>
+            <p className="mt-1 text-white/35">
+              {shelter.region} · {shelter.address}
+            </p>
+            <p className="mt-1 text-white/50">
+              수용 {shelter.currentOccupancy} / {shelter.capacity}명
+            </p>
+          </li>
+        ))}
+      </ul>
+    ),
     report: (
       <div className="flex flex-col gap-2 text-xs">
         <p className="text-white/50">종료된 사건의 상세 보고서를 조회합니다.</p>
@@ -445,29 +458,46 @@ export function DashboardPage() {
 
       {topTab === "summary" && (
         <>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <Card>
-              <p className="text-xs font-medium text-white/40">근무 인원</p>
-              <p className="mt-1 text-xl font-bold text-white">{totalDutyMembers}명</p>
-              <p className="mt-1 text-xs text-white/35">출동중 {dispatchedTeams}개 팀</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <Card className="border-accent/40">
+              <p className="text-xs font-medium text-white/40">제주도 전체</p>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-center">
+                <div>
+                  <p className="text-lg font-bold text-white">{totalDutyMembers}</p>
+                  <p className="text-[10px] text-white/35">근무(명) · 출동중 {dispatchedTeams}팀</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-risk-danger">{totalActiveRisk}</p>
+                  <p className="text-[10px] text-white/35">위험자산(건)</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-risk-warning">{disasterIncidents.length}</p>
+                  <p className="text-[10px] text-white/35">피해접수(건)</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-risk-safe">
+                    {connectedAgencies}/{agencyStatuses.length}
+                  </p>
+                  <p className="text-[10px] text-white/35">상황전파 연결</p>
+                </div>
+              </div>
             </Card>
-            <Card>
-              <p className="text-xs font-medium text-white/40">활성 위험(위험자산)</p>
-              <p className="mt-1 text-xl font-bold text-risk-danger">{totalActiveRisk}건</p>
-              <p className="mt-1 text-xs text-white/35">6개 서비스 도메인 합계</p>
-            </Card>
-            <Card>
-              <p className="text-xs font-medium text-white/40">피해 접수</p>
-              <p className="mt-1 text-xl font-bold text-risk-warning">{disasterIncidents.length}건</p>
-              <p className="mt-1 text-xs text-white/35">사건 신고 누적</p>
-            </Card>
-            <Card>
-              <p className="text-xs font-medium text-white/40">상황전파 기관 연결</p>
-              <p className="mt-1 text-xl font-bold text-risk-safe">
-                {connectedAgencies} / {agencyStatuses.length}
-              </p>
-              <p className="mt-1 text-xs text-white/35">기관 상황실 연결 상태</p>
-            </Card>
+            {regionStats.map((region) => (
+              <Card key={region.key}>
+                <p className="text-xs font-medium text-white/40">{region.label}</p>
+                <div className="mt-2 grid grid-cols-2 gap-2 text-center">
+                  <div>
+                    <p className="text-lg font-bold text-white">{region.members}</p>
+                    <p className="text-[10px] text-white/35">근무(명)</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-risk-warning">{region.incidents}</p>
+                    <p className="text-[10px] text-white/35">피해접수(건)</p>
+                  </div>
+                </div>
+                <p className="mt-2 text-[10px] text-white/25">위험자산·상황전파는 도 전체 기준만 집계됩니다</p>
+              </Card>
+            ))}
           </div>
 
           <div className="flex flex-col gap-4 xl:flex-row">
@@ -515,6 +545,40 @@ export function DashboardPage() {
             {serviceStatusCards.map((card) => (
               <ServiceStatusCard key={card.id} card={card} />
             ))}
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <Card title="방재 근무 현황(인원수)" subtitle="현장 대응팀 배치 인원">
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-lg border border-border-subtle bg-inset p-3">
+                  <p className="text-xl font-bold text-white">{totalDutyMembers}</p>
+                  <p className="mt-1 text-[11px] text-white/35">전체</p>
+                </div>
+                {regionStats.map((region) => (
+                  <div key={region.key} className="rounded-lg border border-border-subtle bg-inset p-3">
+                    <p className="text-xl font-bold text-white">{region.members}</p>
+                    <p className="mt-1 text-[11px] text-white/35">{region.label}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            <Card title="피해 접수 현황(건)" subtitle="지역별 누계">
+              <div className="flex h-32 items-end gap-6 px-4">
+                {regionStats.map((region) => (
+                  <div key={region.key} className="flex flex-1 flex-col items-center gap-2">
+                    <span className="text-sm font-bold text-white">{region.incidents}건</span>
+                    <div
+                      className="w-full max-w-16 rounded-t bg-risk-warning"
+                      style={{
+                        height: `${Math.max((region.incidents / Math.max(disasterIncidents.length, 1)) * 100, 6)}%`,
+                      }}
+                    />
+                    <span className="text-xs text-white/50">{region.label}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
           </div>
 
           <Card title="AI 분석 근거 및 데이터 출처" subtitle={`예측 신뢰도: 고신뢰 (${predictionConfidence.percent}%)`}>
