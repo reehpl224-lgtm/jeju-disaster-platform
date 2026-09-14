@@ -167,19 +167,54 @@ export function DashboardPage() {
       </ul>
     ),
     broadcast: (
-      <ul className="flex flex-col divide-y divide-border-subtle">
-        {recentActions.map((action) => (
-          <li key={action.id} className="py-2 text-xs">
-            <div className="flex items-center justify-between gap-2">
-              <p className="font-medium text-white/80">{action.title}</p>
-              <span className="shrink-0 text-white/35">{action.time}</span>
-            </div>
-            <p className="mt-0.5 text-white/35">
-              {action.owner} · {action.note}
-            </p>
-          </li>
-        ))}
-      </ul>
+      <div className="flex flex-col gap-4">
+        <div>
+          <p className="mb-1 text-[11px] font-semibold text-white/40">도청 → 시 상황실 → 읍면동 순차 전파</p>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {sequentialPropagation.map((step, i) => (
+              <div key={step.id} className="flex items-center gap-1.5">
+                <div className="rounded-md border border-border-subtle bg-inset px-2 py-1.5 text-center">
+                  <p className="text-[11px] font-semibold text-white/80">{step.stage}</p>
+                  <p className="text-[10px] text-white/40">{step.time}</p>
+                </div>
+                {i < sequentialPropagation.length - 1 && (
+                  <span className="text-[10px] text-risk-warning">
+                    →
+                    {(() => {
+                      const [h1, m1] = step.time.split(":").map(Number)
+                      const [h2, m2] = sequentialPropagation[i + 1].time.split(":").map(Number)
+                      return h2 * 60 + m2 - (h1 * 60 + m1)
+                    })()}
+                    분
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 rounded-lg border border-accent/40 bg-accent-soft p-2 text-[11px] font-medium text-accent">
+            목표: {simultaneousPropagationGoal.note} — {simultaneousPropagationGoal.status}
+          </p>
+          <Link to="/propagation" className="mt-2 inline-block text-[11px] font-bold text-accent">
+            전체 보기 →
+          </Link>
+        </div>
+        <div>
+          <p className="mb-1 text-[11px] font-semibold text-white/40">최근 조치 이력</p>
+          <ul className="flex flex-col divide-y divide-border-subtle">
+            {recentActions.map((action) => (
+              <li key={action.id} className="py-2 text-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-medium text-white/80">{action.title}</p>
+                  <span className="shrink-0 text-white/35">{action.time}</span>
+                </div>
+                <p className="mt-0.5 text-white/35">
+                  {action.owner} · {action.note}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     ),
     response: (
       <div className="flex flex-col gap-3">
@@ -358,11 +393,74 @@ export function DashboardPage() {
 
   // 종합 상황 탭 우측 "대응 패널" — 지도 위 플로팅 아이콘 레일(GisIconRail)로 숨어있던 항목들을
   // 고정 컬럼 탭으로 승격 (LH 재난관리 플랫폼 종합상황판 구조 참고, 2026-09-14)
-  const responseTabs: GisTimelineTab[] = DASHBOARD_RAIL_ITEMS.filter((item) => item.key !== "timeline").map((item) => ({
-    key: item.key,
-    label: `${item.icon} ${item.label}`,
-    content: railContent[item.key] ?? <p className="py-6 text-center text-xs text-white/30">2단계 상세 구현 예정 — 준비 중입니다.</p>,
-  }))
+  const responseTabs: GisTimelineTab[] = [
+    ...DASHBOARD_RAIL_ITEMS.filter((item) => item.key !== "timeline").map((item) => ({
+      key: item.key,
+      label: `${item.icon} ${item.label}`,
+      content: railContent[item.key] ?? <p className="py-6 text-center text-xs text-white/30">2단계 상세 구현 예정 — 준비 중입니다.</p>,
+    })),
+    // 상황판 스크롤을 줄이기 위해 페이지 본문에 쌓아두던 카드 대신 이 탭으로 이동(2026-09-14)
+    {
+      key: "ai-insight",
+      label: "🤖 AI 분석",
+      content: (
+        <div>
+          <p className="mb-2 text-[11px] text-white/40">예측 신뢰도: 고신뢰 ({predictionConfidence.percent}%)</p>
+          <ul className="flex flex-col gap-2">
+            {aiInsights.map((insight) => (
+              <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-2.5 text-xs">
+                <p className="font-semibold text-white/80">{insight.title}</p>
+                <p className="mt-0.5 text-white/40">{insight.basis}</p>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 rounded-lg border border-border-subtle p-2.5 text-xs text-white/50">
+            <p className="font-semibold text-white/70">센서 이상 교차검증</p>
+            <p className="mt-1">
+              정상 {sensorCrossCheck.normal} / 장애 {sensorCrossCheck.fault} / 누락 {sensorCrossCheck.missing}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "sensor-trend",
+      label: "📈 센서 추이",
+      content: (
+        <div>
+          <div className="grid grid-cols-2 gap-2">
+            {timeSeries.map((reading) => {
+              const over =
+                reading.worseWhen === "below" ? reading.value <= reading.threshold : reading.value >= reading.threshold
+              return (
+                <div key={reading.label} className="rounded-lg border border-border-subtle bg-inset p-2 text-center">
+                  <p className="text-[10px] text-white/40">{reading.label}</p>
+                  <p className={`text-sm font-bold ${over ? "text-risk-warning" : "text-white"}`}>
+                    {reading.value}
+                    {reading.unit}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+          <div className="mt-3 h-40 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={sixHourSeries} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
+                <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
+                <YAxis tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
+                <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 10, color: "#ffffffaa" }} />
+                <Line type="monotone" dataKey="돈내코수위" stroke="#0054a3" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="쇠소깍수위" stroke="#8ec21f" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="함덕수온" stroke="#f2731a" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      ),
+    },
+  ]
 
   return (
     <div className="flex flex-col gap-6">
@@ -502,7 +600,7 @@ export function DashboardPage() {
 
           <div className="flex flex-col gap-4 xl:flex-row">
             <Card title="타임라인" className="flex flex-col xl:w-80 xl:shrink-0">
-              <div className="h-[640px]">
+              <div className="h-[520px]">
                 <GisTimelinePanel tabs={timelineTabs} filters={timelineFilters} />
               </div>
             </Card>
@@ -521,7 +619,7 @@ export function DashboardPage() {
               }
               className="flex-1"
             >
-              <div className="relative h-[640px] w-full overflow-hidden rounded-lg">
+              <div className="relative h-[520px] w-full overflow-hidden rounded-lg">
                 <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" />
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
@@ -535,7 +633,7 @@ export function DashboardPage() {
             </Card>
 
             <Card title="대응 패널" className="flex flex-col xl:w-80 xl:shrink-0">
-              <div className="h-[640px]">
+              <div className="h-[520px]">
                 <GisTimelinePanel tabs={responseTabs} />
               </div>
             </Card>
@@ -546,132 +644,6 @@ export function DashboardPage() {
               <ServiceStatusCard key={card.id} card={card} />
             ))}
           </div>
-
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            <Card title="방재 근무 현황(인원수)" subtitle="현장 대응팀 배치 인원">
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="rounded-lg border border-border-subtle bg-inset p-3">
-                  <p className="text-xl font-bold text-white">{totalDutyMembers}</p>
-                  <p className="mt-1 text-[11px] text-white/35">전체</p>
-                </div>
-                {regionStats.map((region) => (
-                  <div key={region.key} className="rounded-lg border border-border-subtle bg-inset p-3">
-                    <p className="text-xl font-bold text-white">{region.members}</p>
-                    <p className="mt-1 text-[11px] text-white/35">{region.label}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            <Card title="피해 접수 현황(건)" subtitle="지역별 누계">
-              <div className="flex h-32 items-end gap-6 px-4">
-                {regionStats.map((region) => (
-                  <div key={region.key} className="flex flex-1 flex-col items-center gap-2">
-                    <span className="text-sm font-bold text-white">{region.incidents}건</span>
-                    <div
-                      className="w-full max-w-16 rounded-t bg-risk-warning"
-                      style={{
-                        height: `${Math.max((region.incidents / Math.max(disasterIncidents.length, 1)) * 100, 6)}%`,
-                      }}
-                    />
-                    <span className="text-xs text-white/50">{region.label}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-
-          <Card title="AI 분석 근거 및 데이터 출처" subtitle={`예측 신뢰도: 고신뢰 (${predictionConfidence.percent}%)`}>
-            <ul className="flex flex-col gap-3">
-              {aiInsights.map((insight) => (
-                <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-3">
-                  <p className="text-sm font-semibold text-white/80">{insight.title}</p>
-                  <p className="mt-0.5 text-xs text-white/40">{insight.basis}</p>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-4 rounded-lg border border-border-subtle p-3 text-xs text-white/50">
-              <p className="font-semibold text-white/70">센서 이상 교차검증</p>
-              <p className="mt-1">
-                정상 {sensorCrossCheck.normal} / 장애 {sensorCrossCheck.fault} / 누락 {sensorCrossCheck.missing}
-              </p>
-              <p className="mt-1 text-white/35">장애·누락 데이터는 위험 경보와 별도 표시됩니다.</p>
-            </div>
-          </Card>
-
-          <Card title="센서 시계열 검증 — 강우·수위·해양" subtitle="최근 6시간">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {timeSeries.map((reading) => {
-                const over =
-                  reading.worseWhen === "below" ? reading.value <= reading.threshold : reading.value >= reading.threshold
-                return (
-                  <div key={reading.label} className="rounded-lg border border-border-subtle bg-inset p-3">
-                    <p className="text-xs font-medium text-white/40">{reading.label}</p>
-                    <p className={`mt-1 text-lg font-bold ${over ? "text-risk-warning" : "text-white"}`}>
-                      {reading.value}
-                      {reading.unit}
-                    </p>
-                    <p className="text-[11px] text-white/35">
-                      기준 {reading.threshold}
-                      {reading.unit}
-                    </p>
-                  </div>
-                )
-              })}
-            </div>
-            <div className="mt-4 h-56 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={sixHourSeries} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
-                  <XAxis dataKey="time" tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
-                  <YAxis tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
-                  <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 12 }} />
-                  <Legend wrapperStyle={{ fontSize: 11, color: "#ffffffaa" }} />
-                  <Line type="monotone" dataKey="돈내코수위" stroke="#0054a3" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="쇠소깍수위" stroke="#8ec21f" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="함덕수온" stroke="#f2731a" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          <Card
-            title="상황 전파 · 보고체계"
-            subtitle="도청 → 시 상황실 → 읍면동 순차 전파 현황"
-            action={
-              <Link
-                to="/propagation"
-                className="rounded-full border border-accent px-3 py-1.5 text-xs font-bold text-accent hover:bg-accent-soft"
-              >
-                전체 보기 →
-              </Link>
-            }
-          >
-            <div className="flex flex-wrap items-center gap-2">
-              {sequentialPropagation.map((step, i) => (
-                <div key={step.id} className="flex items-center gap-2">
-                  <div className="rounded-lg border border-border-subtle bg-inset px-3 py-2 text-center">
-                    <p className="text-xs font-semibold text-white/80">{step.stage}</p>
-                    <p className="text-[11px] text-white/40">{step.time}</p>
-                  </div>
-                  {i < sequentialPropagation.length - 1 && (
-                    <span className="text-xs text-risk-warning">
-                      →{" "}
-                      {(() => {
-                        const [h1, m1] = step.time.split(":").map(Number)
-                        const [h2, m2] = sequentialPropagation[i + 1].time.split(":").map(Number)
-                        return h2 * 60 + m2 - (h1 * 60 + m1)
-                      })()}
-                      분 지연
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
-              목표: {simultaneousPropagationGoal.note} — {simultaneousPropagationGoal.status}
-            </div>
-          </Card>
         </>
       )}
 
