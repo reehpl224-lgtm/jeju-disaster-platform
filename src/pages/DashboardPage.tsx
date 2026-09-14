@@ -120,6 +120,15 @@ export function DashboardPage() {
     [],
   )
 
+  // 종합 상황 탭 상단 총계 스트립 — 기존 실측/mock 데이터를 그대로 합산(새 수치 지어내지 않음)
+  const totalActiveRisk = serviceStatusCards.reduce(
+    (sum, card) => sum + card.counts.danger + card.counts.alert + card.counts.warning + (card.counts.caution ?? 0),
+    0,
+  )
+  const totalDutyMembers = disasterResponseTeams.reduce((sum, team) => sum + team.members, 0)
+  const dispatchedTeams = disasterResponseTeams.filter((team) => team.status === "출동중").length
+  const connectedAgencies = agencyStatuses.filter((a) => a.status === "connected").length
+
   const [cctvDomain, setCctvDomain] = useState<CctvCamera["domain"] | "all">("all")
   const [cctvQuery, setCctvQuery] = useState("")
   const filteredCameras = useMemo(() => {
@@ -334,6 +343,14 @@ export function DashboardPage() {
     },
   ]
 
+  // 종합 상황 탭 우측 "대응 패널" — 지도 위 플로팅 아이콘 레일(GisIconRail)로 숨어있던 항목들을
+  // 고정 컬럼 탭으로 승격 (LH 재난관리 플랫폼 종합상황판 구조 참고, 2026-09-14)
+  const responseTabs: GisTimelineTab[] = DASHBOARD_RAIL_ITEMS.filter((item) => item.key !== "timeline").map((item) => ({
+    key: item.key,
+    label: `${item.icon} ${item.label}`,
+    content: railContent[item.key] ?? <p className="py-6 text-center text-xs text-white/30">2단계 상세 구현 예정 — 준비 중입니다.</p>,
+  }))
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -428,19 +445,77 @@ export function DashboardPage() {
 
       {topTab === "summary" && (
         <>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <Card>
+              <p className="text-xs font-medium text-white/40">근무 인원</p>
+              <p className="mt-1 text-xl font-bold text-white">{totalDutyMembers}명</p>
+              <p className="mt-1 text-xs text-white/35">출동중 {dispatchedTeams}개 팀</p>
+            </Card>
+            <Card>
+              <p className="text-xs font-medium text-white/40">활성 위험(위험자산)</p>
+              <p className="mt-1 text-xl font-bold text-risk-danger">{totalActiveRisk}건</p>
+              <p className="mt-1 text-xs text-white/35">6개 서비스 도메인 합계</p>
+            </Card>
+            <Card>
+              <p className="text-xs font-medium text-white/40">피해 접수</p>
+              <p className="mt-1 text-xl font-bold text-risk-warning">{disasterIncidents.length}건</p>
+              <p className="mt-1 text-xs text-white/35">사건 신고 누적</p>
+            </Card>
+            <Card>
+              <p className="text-xs font-medium text-white/40">상황전파 기관 연결</p>
+              <p className="mt-1 text-xl font-bold text-risk-safe">
+                {connectedAgencies} / {agencyStatuses.length}
+              </p>
+              <p className="mt-1 text-xs text-white/35">기관 상황실 연결 상태</p>
+            </Card>
+          </div>
+
+          <div className="flex flex-col gap-4 xl:flex-row">
+            <Card title="타임라인" className="flex flex-col xl:w-80 xl:shrink-0">
+              <div className="h-[640px]">
+                <GisTimelinePanel tabs={timelineTabs} filters={timelineFilters} />
+              </div>
+            </Card>
+
+            <Card
+              title="위험 위치 및 영향 범위 — 제주 전역 GIS"
+              subtitle={`기온 ${currentWeather.temperatureC}℃ · 강수 ${currentWeather.rainfallMm}mm · 풍속 ${currentWeather.windSpeedMs}m/s · 습도 ${currentWeather.humidityPercent}% · 갱신 ${formatHM(currentWeather.observedAt)} / 5분 주기`}
+              action={
+                <div className="flex gap-1.5">
+                  {MAP_DOMAIN_FILTERS.map((f) => (
+                    <Pill key={f.id} size="sm" active={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
+                      {f.label}
+                    </Pill>
+                  ))}
+                </div>
+              }
+              className="flex-1"
+            >
+              <div className="relative h-[640px] w-full overflow-hidden rounded-lg">
+                <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" />
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+                <span className="font-semibold text-white/30">범례</span>
+                <RiskBadge level="danger" />
+                <RiskBadge level="alert" />
+                <RiskBadge level="warning" />
+                <RiskBadge level="caution" />
+                <RiskBadge level="safe" />
+              </div>
+            </Card>
+
+            <Card title="대응 패널" className="flex flex-col xl:w-80 xl:shrink-0">
+              <div className="h-[640px]">
+                <GisTimelinePanel tabs={responseTabs} />
+              </div>
+            </Card>
+          </div>
+
           <div id="service-status-cards" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 scroll-mt-4">
             {serviceStatusCards.map((card) => (
               <ServiceStatusCard key={card.id} card={card} />
             ))}
           </div>
-
-          <Card title="실시간 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php) — 제주 전역 최근 24시간 발표">
-            <WarningsPanel />
-          </Card>
-
-          <Card title="기상청 단기예보" subtitle="풍속·강수·기온 참고 — 실시간 연동">
-            <VilageForecastPanel />
-          </Card>
 
           <Card title="AI 분석 근거 및 데이터 출처" subtitle={`예측 신뢰도: 고신뢰 (${predictionConfidence.percent}%)`}>
             <ul className="flex flex-col gap-3">
