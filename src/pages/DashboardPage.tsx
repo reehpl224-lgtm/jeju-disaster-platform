@@ -349,7 +349,7 @@ export function DashboardPage() {
                 type="button"
                 title="어느 서비스가 해당하는지 아래에서 확인"
                 onClick={() => {
-                  setTopTab("gis")
+                  setTopTab("summary")
                   window.setTimeout(() => document.getElementById("service-status-cards")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0)
                 }}
                 className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 transition hover:brightness-125 ${riskStyles[level].bg} ${riskStyles[level].border}`}
@@ -428,6 +428,20 @@ export function DashboardPage() {
 
       {topTab === "summary" && (
         <>
+          <div id="service-status-cards" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 scroll-mt-4">
+            {serviceStatusCards.map((card) => (
+              <ServiceStatusCard key={card.id} card={card} />
+            ))}
+          </div>
+
+          <Card title="실시간 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php) — 제주 전역 최근 24시간 발표">
+            <WarningsPanel />
+          </Card>
+
+          <Card title="기상청 단기예보" subtitle="풍속·강수·기온 참고 — 실시간 연동">
+            <VilageForecastPanel />
+          </Card>
+
           <Card title="AI 분석 근거 및 데이터 출처" subtitle={`예측 신뢰도: 고신뢰 (${predictionConfidence.percent}%)`}>
             <ul className="flex flex-col gap-3">
               {aiInsights.map((insight) => (
@@ -565,12 +579,6 @@ export function DashboardPage() {
             <GisTimelinePanel tabs={timelineTabs} filters={timelineFilters} />
           </div>
         </Card>
-      </div>
-
-      <div id="service-status-cards" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 scroll-mt-4">
-        {serviceStatusCards.map((card) => (
-          <ServiceStatusCard key={card.id} card={card} />
-        ))}
       </div>
       </>
       )}
