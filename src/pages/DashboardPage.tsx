@@ -600,7 +600,7 @@ export function DashboardPage() {
 
           <div className="flex flex-col gap-4 xl:flex-row">
             <Card title="타임라인" className="flex flex-col xl:w-80 xl:shrink-0">
-              <div className="h-[520px]">
+              <div className="h-[460px]">
                 <GisTimelinePanel tabs={timelineTabs} filters={timelineFilters} />
               </div>
             </Card>
@@ -619,7 +619,7 @@ export function DashboardPage() {
               }
               className="flex-1"
             >
-              <div className="relative h-[520px] w-full overflow-hidden rounded-lg">
+              <div className="relative h-[460px] w-full overflow-hidden rounded-lg">
                 <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" />
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
@@ -633,7 +633,7 @@ export function DashboardPage() {
             </Card>
 
             <Card title="대응 패널" className="flex flex-col xl:w-80 xl:shrink-0">
-              <div className="h-[520px]">
+              <div className="h-[460px]">
                 <GisTimelinePanel tabs={responseTabs} />
               </div>
             </Card>
@@ -664,7 +664,7 @@ export function DashboardPage() {
           }
           className="xl:col-span-2"
         >
-          <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
+          <div className="relative h-[460px] w-full overflow-hidden rounded-lg">
             <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" />
             <GisIconRail
               activeKey={activeRailKey}
@@ -686,7 +686,7 @@ export function DashboardPage() {
         </Card>
 
         <Card title="타임라인" className="flex flex-col">
-          <div className="h-[560px]">
+          <div className="h-[460px]">
             <GisTimelinePanel tabs={timelineTabs} filters={timelineFilters} />
           </div>
         </Card>
