@@ -241,17 +241,11 @@ export const aquaAgencyRows: AquaAgencyRow[] = [
 ]
 
 export const aquaMonitoringState = {
-  waterLevel: { label: "하천 수위", value: "효돈천(쇠소깍) +2.4m / 경계 2.0m", level: "alert" as const, tag: "초과" },
-  rainfall: { label: "강우량", value: "현재 38mm/h · 1시간 누적 72mm", level: "caution" as const, tag: "기준 초과" },
-  coast: { label: "연안 위험", value: "협재 방파제 파고 3.1m", level: "warning" as const, tag: "월파 위험" },
   ocean: { label: "양식장 해양환경", value: "표층 수온 28.6°C · 염분 24.8psu", level: "danger" as const, tag: "복합 심각(저염분+고수온)" },
 }
 
 export const aquaMonitoringEvents: AquaTimelineEntry[] = [
-  { id: "e1", time: "14:28", title: "효돈천(쇠소깍) 수위 경계 초과 감지 — 자동 e-SOP 경계 2단계 진입 · 담당자 확인 대기" },
-  { id: "e2", time: "14:20", title: "협재 CCTV — 방파제 진입 2명 탐지 — 현장 경보 실행 · 담당자: 박관제" },
   { id: "e3", time: "14:15", title: "대정 표층 수온 임계값 초과 — e-SOP 주의 1단계 승인 · 담당자: 이해양" },
-  { id: "e4", time: "14:08", title: "수위 센서 #7 데이터 품질 저하 — 이중화 센서 전환 완료 · 담당자: 최장비" },
   { id: "e5", time: "13:55", title: "양식장 어가 맞춤 안내 발송 — 수신 확인 34 / 미확인 6 · 재발송 예정" },
 ]
 

@@ -11,7 +11,7 @@ export function CoastMonitoringPage() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-white">현장 모니터링</h1>
-          <p className="mt-1 text-sm text-white/50">하천·연안·양식장 통합 현장 대응 상태</p>
+          <p className="mt-1 text-sm text-white/50">연안 안전관리 현장 대응 상태</p>
         </div>
         <div className="flex gap-2">
           <Link
@@ -29,7 +29,7 @@ export function CoastMonitoringPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {coastMonitoringDomains.map((domain) => (
           <Card key={domain.id}>
             <p className="text-xs font-medium text-white/40">{domain.label}</p>

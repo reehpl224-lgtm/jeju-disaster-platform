@@ -12,9 +12,9 @@ export function AquaMonitoringPage() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-white">실시간 모니터링</h1>
-          <p className="mt-1 text-sm text-white/50">하천·연안·양식장 통합 실시간 위험 감시</p>
+          <p className="mt-1 text-sm text-white/50">저염분수·고수온 실시간 위험 감시</p>
           <p className="mt-1 text-[11px] text-white/30">
-            아래 통합 현황 카드·기관 대응·이벤트 이력은 정적 프로토타입 시연 데이터입니다 — 실제 연동 관측값은 아래 해양관측 카드 참고
+            아래 현황 카드·기관 대응·이벤트 이력은 정적 프로토타입 시연 데이터입니다 — 실제 연동 관측값은 아래 해양관측 카드 참고
           </p>
         </div>
         <div className="flex gap-2">
