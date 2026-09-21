@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { Card } from "../../components/ui/Card"
+import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
+import { coastAlertChannels } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { coastEventDetail, coastEvents } from "../../data/mockCoast"
 
@@ -69,6 +71,8 @@ export function CoastAlertPage() {
           </div>
         </div>
       </Card>
+
+      <PlanItemsCard title="현장 경보 채널" subtitle="사고 감지 시 현장 경보·안내 수단" items={coastAlertChannels} />
     </div>
   )
 }

@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { Card } from "../../components/ui/Card"
+import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
+import { riverFieldAlertGoal } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { riverAlertDispatch } from "../../data/mockRiver"
 
@@ -79,6 +81,8 @@ export function RiverAlertPage() {
           </tbody>
         </table>
       </Card>
+
+      <PlanItemsCard title="현장 직접 경보 목표" subtitle="범람 예측 시 현장 경보 응답시간" items={riverFieldAlertGoal} />
     </div>
   )
 }

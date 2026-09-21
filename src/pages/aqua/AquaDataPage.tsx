@@ -1,4 +1,6 @@
 import { Card } from "../../components/ui/Card"
+import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
+import { aquaPlannedData } from "../../data/mockMeetingItems"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaActionLog, aquaDataIssues, aquaDataSources, aquaSummary } from "../../data/mockAqua"
@@ -96,6 +98,8 @@ export function AquaDataPage() {
           ))}
         </ul>
       </Card>
+
+      <PlanItemsCard title="연계 예정 데이터" subtitle="착수보고회에서 요청·권고된 추가 데이터" items={aquaPlannedData} />
     </div>
   )
 }

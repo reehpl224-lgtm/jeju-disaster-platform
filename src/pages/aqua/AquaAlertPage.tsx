@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { Card } from "../../components/ui/Card"
+import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
+import { aquaAlertTargets } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaAlertDraft } from "../../data/mockAqua"
 
@@ -123,6 +125,8 @@ export function AquaAlertPage() {
           경보 취소 (철회)
         </button>
       </div>
+
+      <PlanItemsCard title="경보 전파 대상" subtitle="양식가 대상 전파 체계와 대상 확대 검토" items={aquaAlertTargets} />
     </div>
   )
 }

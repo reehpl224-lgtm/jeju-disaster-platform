@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
+import { coastSmsRelay } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { coastDispatch } from "../../data/mockCoast"
 
@@ -79,6 +81,8 @@ export function CoastDispatchPage() {
           {escalated ? "연계 실패 대응 완료" : "연계 실패 안내"}
         </button>
       </div>
+
+      <PlanItemsCard title="관계 기관 SMS 전파" subtitle="해경·소방 실시간 SMS 전파 체계 점검" items={coastSmsRelay} />
     </div>
   )
 }

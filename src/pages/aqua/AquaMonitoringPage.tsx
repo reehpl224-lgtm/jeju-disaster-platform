@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
+import { aquaSensorOps } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaAgencyRows, aquaMonitoringEvents, aquaMonitoringState, khoaLiveObservations } from "../../data/mockAqua"
 import { classifyMarineRiskLevel } from "../../data/marineAlertThresholds"
@@ -100,6 +102,8 @@ export function AquaMonitoringPage() {
           ))}
         </ul>
       </Card>
+
+      <PlanItemsCard title="해상 센서 운영 관리" subtitle="풍력발전기 주변 센서 설치·운영 시 관리 항목" items={aquaSensorOps} />
     </div>
   )
 }

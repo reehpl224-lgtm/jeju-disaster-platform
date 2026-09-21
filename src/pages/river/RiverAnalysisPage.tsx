@@ -1,5 +1,7 @@
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../../components/ui/Card"
+import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
+import { riverPipeline, riverHydrology } from "../../data/mockMeetingItems"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
@@ -168,6 +170,10 @@ export function RiverAnalysisPage() {
           ]}
         />
       </Card>
+
+      <PlanItemsCard title="제주 수문 특성 반영" subtitle="건천·급경사·조석 영향에 특화된 AI 모델" items={riverHydrology} />
+
+      <PlanItemsCard title="데이터 파이프라인" subtitle="ETRI 수문 빅데이터 · LDB 표준 · AX 허브 융합 데이터셋" items={riverPipeline} />
     </div>
   )
 }

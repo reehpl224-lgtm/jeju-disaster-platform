@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
+import { commonSchedule, consortiumRoles } from "../../data/mockMeetingItems"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { legacySystems } from "../../data/mockHeavyRain"
@@ -270,6 +272,10 @@ export function DataSystemPage() {
           </div>
         </div>
       </Card>
+
+      <PlanItemsCard title="연동 규격·추진 일정" subtitle="컨소시엄 전달 사항과 협의체 일정" items={commonSchedule} />
+
+      <PlanItemsCard title="컨소시엄 역할 분담" subtitle="기관별 담당 영역" items={consortiumRoles} />
     </div>
   )
 }

@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
+import { coastVerification, coastInstallReview } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
@@ -116,6 +118,10 @@ export function CoastMonitoringPage() {
           </tbody>
         </table>
       </Card>
+
+      <PlanItemsCard title="성능 검증 계획" subtitle="모의 상황 연출·시뮬레이션 기반 감지율·미탐률 검증" items={coastVerification} />
+
+      <PlanItemsCard title="설치·장비 사전 검토" subtitle="카메라 위치·성능, 비식별화, 토목 협의" items={coastInstallReview} />
     </div>
   )
 }
