@@ -1495,3 +1495,9 @@ h1, h2, h3, p { margin: 0; }
   .regions--wide .region-card--row { background: #2b2c2d; }
   .regions--wide > .region-col { overflow-y: auto; padding-bottom: 4px; }
 }
+
+@layer components {
+  .jvmap svg { overflow: hidden; user-select: none; }
+  .jvmap__reset { position: absolute; right: 12px; bottom: 10px; z-index: 2; padding: 4px 10px; font-size: 11px; border-radius: 9999px; background: var(--background); border: 1px solid var(--foreground-faint); color: var(--foreground); }
+  .jvmap__reset:hover { border-color: var(--primary); color: var(--primary); }
+}

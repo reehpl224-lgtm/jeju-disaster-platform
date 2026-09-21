@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useMemo, useRef, useState, type PointerEvent } from "react"
 import { JEJU_OUTLINE, type LngLat } from "../../data/jejuOutline"
 import type { RiskMarker } from "../../types/domain"
 
@@ -85,9 +85,44 @@ export function JejuVectorMap({ markers }: { markers: RiskMarker[] }) {
   )
   const outside = markers.filter((m) => !inBounds(m))
 
+  // 드래그로 지도 이동 — viewBox 원점을 옮긴다
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [dragging, setDragging] = useState(false)
+  const drag = useRef<{ px: number; py: number; ox: number; oy: number; k: number } | null>(null)
+  const limitX = W * 0.6
+  const limitY = H * 0.6
+  const clamp = (v: number, lim: number) => Math.max(-lim, Math.min(lim, v))
+
+  const onDown = (e: PointerEvent<SVGSVGElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    drag.current = { px: e.clientX, py: e.clientY, ox: pan.x, oy: pan.y, k: Math.min(r.width / W, r.height / H) }
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setDragging(true)
+  }
+  const onMove = (e: PointerEvent<SVGSVGElement>) => {
+    const d = drag.current
+    if (!d) return
+    setPan({ x: clamp(d.ox + (e.clientX - d.px) / d.k, limitX), y: clamp(d.oy + (e.clientY - d.py) / d.k, limitY) })
+  }
+  const onUp = () => {
+    drag.current = null
+    setDragging(false)
+  }
+  const moved = pan.x !== 0 || pan.y !== 0
+
   return (
     <div className="jvmap">
-      <svg viewBox={`0 0 ${W.toFixed(0)} ${H.toFixed(0)}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="제주도 위험 마커 지도">
+      <svg
+        viewBox={`${(-pan.x).toFixed(1)} ${(-pan.y).toFixed(1)} ${W.toFixed(0)} ${H.toFixed(0)}`}
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="제주도 위험 마커 지도"
+        style={{ cursor: dragging ? "grabbing" : "grab", touchAction: "none" }}
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={onUp}
+        onPointerCancel={onUp}
+      >
         {paths.map((p) => (
           <path key={p.name} d={p.d} className={`jvmap__region jvmap__region--${p.name === "제주시" ? "jeju" : "seogwipo"}`} />
         ))}
@@ -113,6 +148,11 @@ export function JejuVectorMap({ markers }: { markers: RiskMarker[] }) {
           )
         })}
       </svg>
+      {moved && (
+        <button type="button" className="jvmap__reset" onClick={() => setPan({ x: 0, y: 0 })}>
+          위치 초기화
+        </button>
+      )}
       {outside.length > 0 && (
         <div className="jvmap__out">
           <b>지도 범위 밖 (해상)</b>
