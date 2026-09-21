@@ -14,7 +14,7 @@ export function TyphoonAlertPage() {
         </div>
         <Link
           to="/typhoon/closure"
-          className="rounded-full border border-accent px-3 py-1.5 text-xs font-bold text-accent hover:bg-accent-soft"
+          className="inline-flex h-9 items-center rounded-md border border-accent px-4 text-xs font-bold text-accent hover:bg-accent-soft"
         >
           상황 종료 처리
         </Link>

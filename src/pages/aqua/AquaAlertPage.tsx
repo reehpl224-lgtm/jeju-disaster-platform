@@ -104,7 +104,7 @@ export function AquaAlertPage() {
         <button
           type="button"
           onClick={() => setResult("success")}
-          className="rounded-full bg-accent px-4 py-2.5 text-sm font-bold text-black transition hover:bg-accent-hover"
+          className="inline-flex h-10 items-center justify-center rounded-md bg-accent px-5 text-sm font-bold text-black transition hover:bg-accent-hover"
         >
           경보 전송 요청
         </button>

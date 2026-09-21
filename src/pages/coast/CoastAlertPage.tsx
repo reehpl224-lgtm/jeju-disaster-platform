@@ -37,14 +37,14 @@ export function CoastAlertPage() {
                   <button
                     type="button"
                     onClick={() => setApproved(event.id)}
-                    className="rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-black hover:bg-accent-hover"
+                    className="inline-flex h-9 items-center rounded-md bg-accent px-4 text-xs font-bold text-black hover:bg-accent-hover"
                   >
                     e-SOP 경보 승인
                   </button>
                   <button
                     type="button"
                     onClick={() => setRejected(event.id)}
-                    className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
+                    className="inline-flex h-9 items-center rounded-md border border-white/20 px-4 text-xs font-bold text-white hover:bg-white/10"
                   >
                     반려
                   </button>

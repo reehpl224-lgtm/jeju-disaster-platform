@@ -14,7 +14,7 @@ export function HeavyRainClosurePage() {
             {c.caseId} · {c.title}
           </p>
         </div>
-        <Link to="/heavy-rain" className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset">
+        <Link to="/heavy-rain" className="inline-flex h-9 items-center rounded-md border border-white/20 px-4 text-xs font-bold text-white hover:bg-white/10">
           호우 대시보드로 →
         </Link>
       </div>

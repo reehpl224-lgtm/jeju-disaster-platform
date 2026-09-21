@@ -20,13 +20,13 @@ export function AquaMonitoringPage() {
         <div className="flex gap-2">
           <Link
             to="/aqua/response"
-            className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
+            className="inline-flex h-9 items-center rounded-md border border-white/20 px-4 text-xs font-bold text-white hover:bg-white/10"
           >
             e-SOP 대응 절차로 이동 →
           </Link>
           <Link
             to="/aqua/closure"
-            className="rounded-full border border-accent px-3 py-1.5 text-xs font-bold text-accent hover:bg-accent-soft"
+            className="inline-flex h-9 items-center rounded-md border border-accent px-4 text-xs font-bold text-accent hover:bg-accent-soft"
           >
             상황 종료 처리
           </Link>

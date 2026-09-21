@@ -1,0 +1,36 @@
+/* 하위 화면(.page-content) — demo-10 클론의 콘텐츠 페이지 규칙을 화면 공통으로 적용.
+   Tailwind 유틸리티보다 우선해야 해서 레이어 밖에 둔다(좁은 범위 선택자로만 사용). */
+
+/* 제목 블록: 제목 20px + 부제 12px */
+.page-content h1 { font-size: 20px; font-weight: 700; line-height: 1.4; }
+.page-content h1 + p { margin-top: 4px; font-size: 12px; color: var(--foreground-subtle); }
+
+/* 표: 머리 #435668, 행 높이 ~37px, 테두리 white/10 — 클론 .table */
+.page-content table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.page-content table thead tr { background: var(--background-colored); color: var(--foreground); }
+.page-content table th {
+  padding: 8px 12px; font-size: 13px; font-weight: 700; color: var(--foreground);
+  text-align: left; white-space: nowrap; background: var(--background-colored);
+}
+.page-content table td { padding: 8px 12px; border-bottom: 1px solid var(--foreground-ghost); }
+.page-content table tbody tr:hover td { background: var(--foreground-ghost); }
+.page-content table tbody { border: 0; }
+
+/* 인풋·셀렉트: 40px, #303233, 투명 보더 → 포커스 시 primary */
+.page-content input:not([type="checkbox"]):not([type="radio"]),
+.page-content select,
+.page-content textarea {
+  background-color: var(--background-lighter);
+  border: 1px solid transparent;
+  border-radius: .375rem;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color .2s;
+}
+.page-content input:not([type="checkbox"]):not([type="radio"]),
+.page-content select { min-height: 40px; }
+.page-content input:focus, .page-content select:focus, .page-content textarea:focus { border-color: var(--primary); }
+
+/* 우측 경로(breadcrumb) 줄 */
+.crumbs { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 8px; font-size: 12px; color: var(--foreground-subtle); }
+.crumbs b { color: var(--foreground-muted); font-weight: 600; }

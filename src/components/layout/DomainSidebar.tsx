@@ -53,3 +53,26 @@ export function DomainSidebar({ domain }: { domain: NonNullable<ReturnType<typeo
     </aside>
   )
 }
+
+/** 현재 경로에 해당하는 하위 화면 이름 — 사이드바 메뉴 정의에서 가장 긴 접두사 일치 */
+export function currentLabel(domain: NonNullable<ReturnType<typeof findDomain>>, pathname: string) {
+  const all: NavItem[] = [...domain.items, { to: `${domain.prefix}/dashboard`, label: "상세 대시보드" }]
+  const hit = all
+    .filter((i) => pathname === i.to || pathname.startsWith(`${i.to}/`))
+    .sort((a, b) => b.to.length - a.to.length)[0]
+  return hit?.label ?? ""
+}
+
+export function Crumbs({ items }: { items: string[] }) {
+  const shown = items.filter(Boolean)
+  return (
+    <p className="crumbs">
+      {shown.map((label, i) => (
+        <span key={label + i}>
+          {i > 0 && <span aria-hidden> › </span>}
+          {i === shown.length - 1 ? <b>{label}</b> : label}
+        </span>
+      ))}
+    </p>
+  )
+}

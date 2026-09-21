@@ -12,7 +12,7 @@ export function RiverClosurePage() {
           <h1 className="text-xl font-bold text-white">종료 보고</h1>
           <p className="mt-1 text-sm text-white/50">{c.caseId} · {c.title}</p>
         </div>
-        <Link to="/river" className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset">
+        <Link to="/river" className="inline-flex h-9 items-center rounded-md border border-white/20 px-4 text-xs font-bold text-white hover:bg-white/10">
           하천 범람 대시보드로 →
         </Link>
       </div>

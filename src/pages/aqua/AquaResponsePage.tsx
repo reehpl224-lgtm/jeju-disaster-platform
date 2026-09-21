@@ -27,7 +27,7 @@ export function AquaResponsePage() {
         </div>
         <Link
           to="/aqua/monitoring"
-          className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
+          className="inline-flex h-9 items-center rounded-md border border-white/20 px-4 text-xs font-bold text-white hover:bg-white/10"
         >
           실시간 모니터링으로 이동 →
         </Link>

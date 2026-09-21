@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom"
-import { DomainSidebar, findDomain } from "./DomainSidebar"
+import { Crumbs, currentLabel, DomainSidebar, findDomain } from "./DomainSidebar"
 import { Header } from "./Header"
 import type { MockUser } from "../../data/mockAuth"
 
@@ -24,12 +24,13 @@ export function AppShell({ user }: { user: MockUser }) {
       ) : domain ? (
         <div className="shell">
           <DomainSidebar domain={domain} />
-          <main className="content" style={{ paddingRight: 4 }}>
+          <main className="content page-content" style={{ paddingRight: 4 }}>
+            <Crumbs items={["홈", domain.title, currentLabel(domain, pathname)]} />
             <Outlet />
           </main>
         </div>
       ) : (
-        <main className="min-h-0 flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="page-content min-h-0 flex-1 overflow-y-auto p-4 md:p-6">
           <Outlet />
         </main>
       )}
