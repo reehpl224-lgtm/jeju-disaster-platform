@@ -567,7 +567,7 @@ export function DashboardPage() {
 
             <div className="center">
               <div className="regions regions--wide">
-                {/* 좌측 지역 컬럼: 제주도(현재 날씨) + 제주시 */}
+                {/* 좌측 지역 컬럼: 제주도(현재 날씨) */}
                 <div className="region-col region-col--left">
                   <div className="region-card region-card--open">
                     <p className="region-card__label">제주도 · 현재 날씨</p>
@@ -590,8 +590,6 @@ export function DashboardPage() {
                       </button>
                     </div>
                   </div>
-                  <div className="region-col__gap" />
-                  {regionCard(jeju)}
                 </div>
 
                 {/* 가운데: 제주 전역 위험 마커 */}
@@ -614,7 +612,7 @@ export function DashboardPage() {
                   </div>
                 </div>
 
-                {/* 우측 지역 컬럼: 총 합계 + 서귀포시 */}
+                {/* 우측 지역 컬럼: 총 합계 + 제주시 + 서귀포시 */}
                 <div className="region-col region-col--right">
                   <div className="region-card region-card--open">
                     <p className="region-card__label">총 합계 · 제주도 전체</p>
@@ -639,7 +637,7 @@ export function DashboardPage() {
                       </button>
                     </div>
                   </div>
-                  <div className="region-col__gap" />
+                  {regionCard(jeju)}
                   {regionCard(seogwipo)}
                 </div>
               </div>
