@@ -128,7 +128,8 @@ export function DashboardPage() {
   }))
 
   const [stripOpen, setStripOpen] = useState(true)
-  const [leftOpen, setLeftOpen] = useState(false)
+  const [leftOpen, setLeftOpen] = useState(true)
+  const [openRegions, setOpenRegions] = useState<string[]>([])
   const [summaryDockTab, setSummaryDockTab] = useState("broadcast")
   const [gisDockTab, setGisDockTab] = useState("timeline")
 
@@ -475,23 +476,52 @@ export function DashboardPage() {
       </div>
     )
 
-    const regionCard = (region: (typeof regionStats)[number]) => (
-      <>
-        <div className="region-card region-card--open">
-          <p className="region-card__label">{region.label}</p>
-          <div className="region-card__stats region-card__stats--2">
-            <button type="button">
-              <span className="k">근무(명)</span>
-              <span className="v">{region.members}</span>
+    const toggleRegion = (label: string) =>
+      setOpenRegions((prev) => (prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]))
+
+    const regionCard = (region: (typeof regionStats)[number]) => {
+      const open = openRegions.includes(region.label)
+      return (
+        <>
+          <div className={`region-card ${open ? "region-card--open" : "region-card--closed"}`}>
+            <button
+              type="button"
+              className="region-card__label"
+              aria-expanded={open}
+              onClick={() => toggleRegion(region.label)}
+              style={{ height: 24, width: "100%", justifyContent: "space-between", color: "var(--foreground)" }}
+            >
+              <span>{region.label}</span>
+              <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "var(--foreground-subtle)" }}>
+                근무 {region.members} · 피해접수 {region.incidents.length}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: open ? "rotate(180deg)" : undefined }}>
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </span>
             </button>
-            <button type="button">
-              <span className="k">피해접수(건)</span>
-              <span className="v warning">{region.incidents.length}</span>
-            </button>
+            {open && (
+              <div className="region-card__stats region-card__stats--2">
+                <button type="button">
+                  <span className="k">근무(명)</span>
+                  <span className="v">{region.members}</span>
+                </button>
+                <button type="button">
+                  <span className="k">피해접수(건)</span>
+                  <span className="v warning">{region.incidents.length}</span>
+                </button>
+              </div>
+            )}
           </div>
-        </div>
-      </>
-    )
+          {open && (
+            <>
+              <p className="region-foot">위험자산·상황전파는 도 전체 기준만 집계됩니다</p>
+              <p className="region-sub">재난 발생 {region.incidents.length}건</p>
+              {region.incidents.map(incidentRow)}
+            </>
+          )}
+        </>
+      )
+    }
 
     const [jeju, seogwipo] = regionStats
     return (
@@ -536,12 +566,31 @@ export function DashboardPage() {
 
             <div className="center">
               <div className="regions regions--wide">
-                {/* 좌측 지역 컬럼: 제주시 */}
+                {/* 좌측 지역 컬럼: 제주도(현재 날씨) + 제주시 */}
                 <div className="region-col region-col--left">
+                  <div className="region-card region-card--open">
+                    <p className="region-card__label">제주도 · 현재 날씨</p>
+                    <div className="region-card__stats">
+                      <button type="button">
+                        <span className="k">기온</span>
+                        <span className="v">{currentWeather.temperatureC}℃</span>
+                      </button>
+                      <button type="button">
+                        <span className="k">강수(mm)</span>
+                        <span className="v warning">{currentWeather.rainfallMm}</span>
+                      </button>
+                      <button type="button">
+                        <span className="k">풍속(m/s)</span>
+                        <span className="v">{currentWeather.windSpeedMs}</span>
+                      </button>
+                      <button type="button">
+                        <span className="k">습도(%)</span>
+                        <span className="v">{currentWeather.humidityPercent}</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="region-col__gap" />
                   {regionCard(jeju)}
-                  <p className="region-foot">위험자산·상황전파는 도 전체 기준만 집계됩니다</p>
-                  <p className="region-sub">재난 발생 {jeju.incidents.length}건</p>
-                  {jeju.incidents.map(incidentRow)}
                 </div>
 
                 {/* 가운데: 제주 전역 위험 마커 */}
@@ -559,7 +608,6 @@ export function DashboardPage() {
                       </option>
                     ))}
                   </select>
-                  {weatherLine}
                   <div className="jmap">
                     <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" showToolbar={false} />
                   </div>
@@ -590,10 +638,8 @@ export function DashboardPage() {
                       </button>
                     </div>
                   </div>
+                  <div className="region-col__gap" />
                   {regionCard(seogwipo)}
-                  <p className="region-foot">위험자산·상황전파는 도 전체 기준만 집계됩니다</p>
-                  <p className="region-sub">재난 발생 {seogwipo.incidents.length}건</p>
-                  {seogwipo.incidents.map(incidentRow)}
                 </div>
               </div>
             </div>

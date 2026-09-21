@@ -1440,3 +1440,8 @@ h1, h2, h3, p { margin: 0; }
 .tree > li > a.active { color: var(--primary); font-weight: 700; }
 .shell > .content { padding-top: 0; }
 }
+
+/* 종합 상황: 지도가 좁아지지 않도록 지역 컬럼 폭을 줄이고 지도 폭을 우선 확보 */
+@layer components {
+  .regions--wide { grid-template-columns: minmax(150px, 220px) minmax(260px, 1fr) minmax(150px, 220px); }
+}
