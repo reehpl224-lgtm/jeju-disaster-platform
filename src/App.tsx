@@ -45,6 +45,8 @@ const HeatClosurePage = lazy(() => import("./pages/heat/HeatClosurePage").then((
 const PropagationHomePage = lazy(() => import("./pages/propagation/PropagationHomePage").then((m) => ({ default: m.PropagationHomePage })))
 const DataSystemPage = lazy(() => import("./pages/datasystem/DataSystemPage").then((m) => ({ default: m.DataSystemPage })))
 
+const DomainBoardPage = lazy(() => import("./pages/domain/DomainBoardPage").then((m) => ({ default: m.DomainBoardPage })))
+
 function RouteFallback() {
   return (
     <div className="flex h-[60vh] items-center justify-center text-xs text-white/30">불러오는 중...</div>
@@ -63,7 +65,8 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/monitoring" element={<MonitoringPage />} />
 
-          <Route path="/aqua" element={<AquaHomePage />} />
+          <Route path="/aqua" element={<DomainBoardPage domain="aqua" />} />
+          <Route path="/aqua/dashboard" element={<AquaHomePage />} />
           <Route path="/aqua/data" element={<AquaDataPage />} />
           <Route path="/aqua/prediction" element={<AquaPredictionPage />} />
           <Route path="/aqua/farms" element={<AquaFarmsPage />} />
@@ -73,31 +76,36 @@ export default function App() {
           <Route path="/aqua/monitoring" element={<AquaMonitoringPage />} />
           <Route path="/aqua/closure" element={<AquaClosurePage />} />
 
-          <Route path="/coast" element={<CoastHomePage />} />
+          <Route path="/coast" element={<DomainBoardPage domain="coast" />} />
+          <Route path="/coast/dashboard" element={<CoastHomePage />} />
           <Route path="/coast/events" element={<CoastEventDetailPage />} />
           <Route path="/coast/alerts" element={<CoastAlertPage />} />
           <Route path="/coast/dispatch" element={<CoastDispatchPage />} />
           <Route path="/coast/monitoring" element={<CoastMonitoringPage />} />
           <Route path="/coast/closure" element={<CoastClosurePage />} />
 
-          <Route path="/river" element={<RiverHomePage />} />
+          <Route path="/river" element={<DomainBoardPage domain="river" />} />
+          <Route path="/river/dashboard" element={<RiverHomePage />} />
           <Route path="/river/analysis" element={<RiverAnalysisPage />} />
           <Route path="/river/alert" element={<RiverAlertPage />} />
           <Route path="/river/control" element={<RiverControlPage />} />
           <Route path="/river/dispatch" element={<RiverDispatchPage />} />
           <Route path="/river/closure" element={<RiverClosurePage />} />
 
-          <Route path="/heavy-rain" element={<HeavyRainHomePage />} />
+          <Route path="/heavy-rain" element={<DomainBoardPage domain="heavy-rain" />} />
+          <Route path="/heavy-rain/dashboard" element={<HeavyRainHomePage />} />
           <Route path="/heavy-rain/analysis" element={<HeavyRainAnalysisPage />} />
           <Route path="/heavy-rain/alert" element={<HeavyRainAlertPage />} />
           <Route path="/heavy-rain/closure" element={<HeavyRainClosurePage />} />
 
-          <Route path="/typhoon" element={<TyphoonHomePage />} />
+          <Route path="/typhoon" element={<DomainBoardPage domain="typhoon" />} />
+          <Route path="/typhoon/dashboard" element={<TyphoonHomePage />} />
           <Route path="/typhoon/analysis" element={<TyphoonAnalysisPage />} />
           <Route path="/typhoon/alert" element={<TyphoonAlertPage />} />
           <Route path="/typhoon/closure" element={<TyphoonClosurePage />} />
 
-          <Route path="/heat" element={<HeatHomePage />} />
+          <Route path="/heat" element={<DomainBoardPage domain="heat" />} />
+          <Route path="/heat/dashboard" element={<HeatHomePage />} />
           <Route path="/heat/analysis" element={<HeatAnalysisPage />} />
           <Route path="/heat/alert" element={<HeatAlertPage />} />
           <Route path="/heat/closure" element={<HeatClosurePage />} />

@@ -129,7 +129,7 @@ function dominant(counts: StripCard["counts"]): RiskLevel {
 }
 
 /** 하단 재난 유형(서비스) 카드 스트립 — 머리(링크) + 등급별 건수 바디 */
-export function ServiceStrip({ cards }: { cards: StripCard[] }) {
+export function ServiceStrip({ cards, currentId }: { cards: StripCard[]; currentId?: string }) {
   return (
     <div className="strip" id="service-status-cards">
       <ul>
@@ -138,7 +138,7 @@ export function ServiceStrip({ cards }: { cards: StripCard[] }) {
           // 관심 등급은 카드가 실제로 그 값을 가진(양식장 등) 경우에만 줄을 만든다
           const tiers = STRIP_TIERS.filter((t) => t.key !== "caution" || card.counts.caution !== undefined)
           return (
-            <li key={card.id}>
+            <li key={card.id} className={card.id === currentId ? "is-current" : undefined}>
               <Link className="strip__head" to={card.href} title={`${card.title} 화면`}>
                 {top !== "safe" && <span className={`dot dot--${top}`} title={`현재 최고 등급: ${riskStyles[top].label}`} />}
                 <p>
