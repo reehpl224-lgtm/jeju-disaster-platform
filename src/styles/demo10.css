@@ -1474,3 +1474,9 @@ h1, h2, h3, p { margin: 0; }
 @layer components {
   .regions--wide > .region-col { top: 80px; padding-top: 0; max-height: calc(100% - 88px); }
 }
+
+/* 분야 선택은 지도 위 빈 띠(헤더 아래)로 올리고, 지역 카드는 지도 안쪽 모서리에 배치 */
+@layer components {
+  .regions--wide > .korea__map .select { position: absolute; top: -36px; left: 0; right: 0; width: 100%; z-index: 3; }
+  .regions--wide > .region-col { top: 48px; max-height: calc(100% - 56px); }
+}
