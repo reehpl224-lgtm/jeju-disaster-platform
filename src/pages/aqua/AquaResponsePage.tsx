@@ -2,7 +2,6 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import { StageTracker } from "../../components/aqua/StageTracker"
 import { ChecklistRow } from "../../components/aqua/ChecklistRow"
 import { aquaAgencyRows, aquaChecklist, aquaResponseState, aquaStages } from "../../data/mockAqua"
@@ -33,8 +32,6 @@ export function AquaResponsePage() {
           실시간 모니터링으로 이동 →
         </Link>
       </div>
-
-      <AquaSubNav />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="현재 재난 상황">

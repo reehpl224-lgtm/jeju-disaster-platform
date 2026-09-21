@@ -6,8 +6,6 @@ import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../../components/u
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { HEAVY_RAIN_NAV } from "./heavyRainNav"
 import { broadcastLog, heavyRainAiForecast, legacySystems, weatherStations } from "../../data/mockHeavyRain"
 import { riskMarkers } from "../../data/mockDashboard"
 
@@ -79,8 +77,6 @@ export function HeavyRainHomePage() {
           (태풍은 <span className="text-white/70">별도 시스템</span>에서 관리)
         </p>
       </div>
-
-      <DomainSubNav items={HEAVY_RAIN_NAV} />
 
       <Card title="위험 위치 및 관측망 — 호우 GIS" subtitle="침수경보·우량계 관측 지점">
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">

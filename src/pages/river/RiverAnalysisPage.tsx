@@ -1,9 +1,7 @@
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
-import { RIVER_NAV } from "./riverNav"
 import {
   khoaMoseulpoTide,
   riverCctv,
@@ -23,8 +21,6 @@ export function RiverAnalysisPage() {
         <h1 className="text-xl font-bold text-white">상황 분석 — 효돈천(돈내코·쇠소깍)</h1>
         <p className="mt-1 text-sm text-white/50">위험 근거 데이터 및 센서 교차 검증</p>
       </div>
-
-      <DomainSubNav items={RIVER_NAV} />
 
       <Card title="돌발 강우 AI 조기경고" subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

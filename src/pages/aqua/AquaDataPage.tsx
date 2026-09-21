@@ -1,6 +1,5 @@
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import { aquaActionLog, aquaDataIssues, aquaDataSources } from "../../data/mockAqua"
 
 const STATUS_LEVEL = {
@@ -27,8 +26,6 @@ export function AquaDataPage() {
         <h1 className="text-xl font-bold text-white">데이터 수집 현황</h1>
         <p className="mt-1 text-sm text-white/50">저염분수·고수온 예측에 활용되는 이기종 데이터 소스 수집 상태</p>
       </div>
-
-      <AquaSubNav />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>

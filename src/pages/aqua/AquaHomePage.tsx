@@ -9,7 +9,6 @@ import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTi
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
-import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import {
   aquaActionLog,
   aquaAgencyRows,
@@ -146,8 +145,6 @@ export function AquaHomePage() {
         <h1 className="text-xl font-bold text-white">양식장 대응 — 저염분수·고수온</h1>
         <p className="mt-1 text-sm text-white/50">AI 하이브리드 예측 기반 저염분수·고수온 경보 및 양식장 e-SOP 대응</p>
       </div>
-
-      <AquaSubNav />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="위험 위치 및 영향 범위 — 양식장 GIS" subtitle="한경·대정 육상양식장 관측 지점" className="xl:col-span-2">

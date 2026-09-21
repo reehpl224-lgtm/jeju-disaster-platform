@@ -1,7 +1,5 @@
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { COAST_NAV } from "./coastNav"
 import { coastEventDetail } from "../../data/mockCoast"
 
 export function CoastEventDetailPage() {
@@ -15,8 +13,6 @@ export function CoastEventDetailPage() {
         </div>
         <RiskBadge level={d.level} label={d.status} solid />
       </div>
-
-      <DomainSubNav items={COAST_NAV} />
 
       <Card title="이벤트 기본 정보">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">

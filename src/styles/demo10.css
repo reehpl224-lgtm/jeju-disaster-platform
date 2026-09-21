@@ -1428,4 +1428,15 @@ h1, h2, h3, p { margin: 0; }
 /* 지도 범위 밖 목록은 좌상단으로 — 섬 남서부(모슬포) 이름표를 가리지 않게 */
 .center--gis > .jmap .jmap__out { top: 64px; bottom: auto; }
 
+
+/* 사이드바 트리: 링크형 항목(도메인 하위 화면 메뉴) */
+.tree > li > a {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: .5rem 1.5rem; font-size: 13px;
+  border-bottom: 1px solid var(--foreground-ghost);
+  transition: background-color .2s, color .2s;
+}
+.tree > li > a:hover { background: var(--foreground-ghost); }
+.tree > li > a.active { color: var(--primary); font-weight: 700; }
+.shell > .content { padding-top: 0; }
 }

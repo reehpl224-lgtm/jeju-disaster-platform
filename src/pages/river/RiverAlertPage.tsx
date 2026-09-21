@@ -1,8 +1,6 @@
 import { useState } from "react"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { RIVER_NAV } from "./riverNav"
 import { riverAlertDispatch } from "../../data/mockRiver"
 
 export function RiverAlertPage() {
@@ -14,8 +12,6 @@ export function RiverAlertPage() {
         <h1 className="text-xl font-bold text-white">경보 발송 현황</h1>
         <p className="mt-1 text-sm text-white/50">{d.message}</p>
       </div>
-
-      <DomainSubNav items={RIVER_NAV} />
 
       <Card title="발송 대상 및 위험 단계">
         <RiskBadge level="danger" label={d.stage} solid />

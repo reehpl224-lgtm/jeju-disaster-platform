@@ -1,6 +1,4 @@
 import { Card } from "../../components/ui/Card"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { TYPHOON_NAV } from "./typhoonNav"
 import { typhoonForecastTrack, typhoonReports, typhoonSource } from "../../data/mockTyphoon"
 
 export function TyphoonAnalysisPage() {
@@ -11,8 +9,6 @@ export function TyphoonAnalysisPage() {
         <h1 className="text-xl font-bold text-white">경로 분석 — {latest.name}</h1>
         <p className="mt-1 text-sm text-white/50">{typhoonSource.note}</p>
       </div>
-
-      <DomainSubNav items={TYPHOON_NAV} />
 
       <Card title="제주 접근 예상 경로" subtitle="기상청 예보 기준 — 자체 산출 아님">
         <table className="w-full text-left text-sm">

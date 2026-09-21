@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { HEAVY_RAIN_NAV } from "./heavyRainNav"
 import { heavyRainClosure } from "../../data/mockHeavyRain"
 
 export function HeavyRainClosurePage() {
@@ -20,8 +18,6 @@ export function HeavyRainClosurePage() {
           호우 대시보드로 →
         </Link>
       </div>
-
-      <DomainSubNav items={HEAVY_RAIN_NAV} />
 
       <Card title="사건 상태">
         <RiskBadge level="safe" label={c.status} solid />

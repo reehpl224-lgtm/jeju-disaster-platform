@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { HEAT_NAV } from "./heatNav"
 import { heatClosure } from "../../data/mockHeat"
 
 export function HeatClosurePage() {
@@ -20,8 +18,6 @@ export function HeatClosurePage() {
           폭염 대시보드로 →
         </Link>
       </div>
-
-      <DomainSubNav items={HEAT_NAV} />
 
       <Card title="사건 상태">
         <RiskBadge level="safe" label={c.status} solid />

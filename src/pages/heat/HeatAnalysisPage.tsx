@@ -1,9 +1,7 @@
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
-import { HEAT_NAV } from "./heatNav"
 import { heatLevelInfo, heatTrend } from "../../data/mockHeat"
 
 export function HeatAnalysisPage() {
@@ -13,8 +11,6 @@ export function HeatAnalysisPage() {
         <h1 className="text-xl font-bold text-white">특보 현황</h1>
         <p className="mt-1 text-sm text-white/50">{heatLevelInfo.criteria}</p>
       </div>
-
-      <DomainSubNav items={HEAT_NAV} />
 
       <Card title="현재 특보 단계" subtitle={`갱신 ${heatLevelInfo.updatedAt}`}>
         <div className="flex items-center gap-4">

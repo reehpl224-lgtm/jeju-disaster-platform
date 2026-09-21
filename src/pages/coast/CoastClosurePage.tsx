@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { COAST_NAV } from "./coastNav"
 import { coastClosure } from "../../data/mockCoast"
 
 export function CoastClosurePage() {
@@ -18,8 +16,6 @@ export function CoastClosurePage() {
           연안 관제 대시보드로 →
         </Link>
       </div>
-
-      <DomainSubNav items={COAST_NAV} />
 
       <Card title="사건 상태">
         <RiskBadge level="safe" label={c.status} solid />

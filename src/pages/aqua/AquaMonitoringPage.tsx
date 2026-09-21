@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import { aquaAgencyRows, aquaMonitoringEvents, aquaMonitoringState, khoaLiveObservations } from "../../data/mockAqua"
 import { classifyMarineRiskLevel } from "../../data/marineAlertThresholds"
 
@@ -33,8 +32,6 @@ export function AquaMonitoringPage() {
           </Link>
         </div>
       </div>
-
-      <AquaSubNav />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (

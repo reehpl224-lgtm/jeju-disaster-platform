@@ -1,8 +1,6 @@
 import { useState } from "react"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { COAST_NAV } from "./coastNav"
 import { coastEventDetail, coastEvents } from "../../data/mockCoast"
 
 export function CoastAlertPage() {
@@ -16,8 +14,6 @@ export function CoastAlertPage() {
         <h1 className="text-xl font-bold text-white">경보 승인</h1>
         <p className="mt-1 text-sm text-white/50">e-SOP 경보 승인 대기 중인 위험 이벤트 검토</p>
       </div>
-
-      <DomainSubNav items={COAST_NAV} />
 
       <Card title="승인 대기 이벤트">
         <ul className="flex flex-col divide-y divide-border-subtle">

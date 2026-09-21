@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import { aquaFarms, aquaModelConfidence, aquaQualityMetrics, aquaRiskState } from "../../data/mockAqua"
 
 export function AquaPredictionPage() {
@@ -11,8 +10,6 @@ export function AquaPredictionPage() {
         <h1 className="text-xl font-bold text-white">AI 예측 결과 대시보드</h1>
         <p className="mt-1 text-sm text-white/50">다중모델 융합 기반 저염분수·고수온 확산 경로 및 위험 판단</p>
       </div>
-
-      <AquaSubNav />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="현재 위험 판단 상태" subtitle={`갱신 ${aquaRiskState.updatedAt}`}>

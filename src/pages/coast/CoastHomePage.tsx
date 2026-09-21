@@ -8,8 +8,6 @@ import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { COAST_NAV } from "./coastNav"
 import {
   coastAgencyStatuses,
   coastAiInsights,
@@ -144,8 +142,6 @@ export function CoastHomePage() {
         <h1 className="text-xl font-bold text-white">연안 관제 대시보드</h1>
         <p className="mt-1 text-sm text-white/50">마지막 갱신: {coastSummary.lastUpdated}</p>
       </div>
-
-      <DomainSubNav items={COAST_NAV} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2">

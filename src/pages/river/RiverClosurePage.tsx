@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { RIVER_NAV } from "./riverNav"
 import { riverClosure } from "../../data/mockRiver"
 
 export function RiverClosurePage() {
@@ -18,8 +16,6 @@ export function RiverClosurePage() {
           하천 범람 대시보드로 →
         </Link>
       </div>
-
-      <DomainSubNav items={RIVER_NAV} />
 
       <Card title="사건 상태">
         <RiskBadge level="safe" label={c.status} solid />

@@ -8,8 +8,8 @@ const SIZE_CLASS: Record<PillSize, string> = {
 }
 
 export function pillClass(active: boolean, size: PillSize = "md"): string {
-  return `rounded-full ${SIZE_CLASS[size]} text-xs font-semibold transition ${
-    active ? "bg-accent text-black" : "border border-border-subtle text-white/60 hover:bg-inset"
+  return `rounded-full border ${SIZE_CLASS[size]} text-xs font-bold transition ${
+    active ? "border-accent text-accent" : "border-white/20 text-white/70 hover:border-accent"
   }`
 }
 

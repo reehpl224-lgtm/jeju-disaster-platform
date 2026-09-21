@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { HEAT_NAV } from "./heatNav"
 import { heatAlertDispatch } from "../../data/mockHeat"
 
 export function HeatAlertPage() {
@@ -21,8 +19,6 @@ export function HeatAlertPage() {
           상황 종료(해제) 처리
         </Link>
       </div>
-
-      <DomainSubNav items={HEAT_NAV} />
 
       <Card title="발송 대상 및 단계">
         <RiskBadge level="warning" label={d.stage} solid />

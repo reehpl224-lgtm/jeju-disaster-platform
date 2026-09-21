@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { TYPHOON_NAV } from "./typhoonNav"
 import { typhoonClosure } from "../../data/mockTyphoon"
 
 export function TyphoonClosurePage() {
@@ -20,8 +18,6 @@ export function TyphoonClosurePage() {
           태풍 대시보드로 →
         </Link>
       </div>
-
-      <DomainSubNav items={TYPHOON_NAV} />
 
       <Card title="사건 상태">
         <RiskBadge level="safe" label={c.status} solid />

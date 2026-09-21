@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import { aquaFarmTotals, aquaFarms } from "../../data/mockAqua"
 
 export function AquaFarmsPage() {
@@ -11,8 +10,6 @@ export function AquaFarmsPage() {
         <h1 className="text-xl font-bold text-white">영향 양식장 현황</h1>
         <p className="mt-1 text-sm text-white/50">저염분수·고수온 위험권 내 양식장 영향 상태</p>
       </div>
-
-      <AquaSubNav />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <Card>

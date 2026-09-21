@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { TYPHOON_NAV } from "./typhoonNav"
 import { typhoonAlertDispatch } from "../../data/mockTyphoon"
 
 export function TyphoonAlertPage() {
@@ -21,8 +19,6 @@ export function TyphoonAlertPage() {
           상황 종료 처리
         </Link>
       </div>
-
-      <DomainSubNav items={TYPHOON_NAV} />
 
       <Card title="발송 대상 및 단계">
         <RiskBadge level="alert" label={d.stage} solid />

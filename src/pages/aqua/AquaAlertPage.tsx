@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { AquaSubNav } from "../../components/aqua/AquaSubNav"
 import { aquaAlertDraft } from "../../data/mockAqua"
 
 export function AquaAlertPage() {
@@ -13,8 +12,6 @@ export function AquaAlertPage() {
         <h1 className="text-xl font-bold text-white">경보 생성 · 검토</h1>
         <p className="mt-1 text-sm text-white/50">저염분수·고수온 경보 초안 검토 및 승인 전송</p>
       </div>
-
-      <AquaSubNav />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="경보 기본 정보" className="xl:col-span-2">

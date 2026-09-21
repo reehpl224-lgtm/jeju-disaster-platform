@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { RIVER_NAV } from "./riverNav"
 import { riverDispatchRequest } from "../../data/mockRiver"
 
 export function RiverDispatchPage() {
@@ -29,8 +27,6 @@ export function RiverDispatchPage() {
           </Link>
         </div>
       </div>
-
-      <DomainSubNav items={RIVER_NAV} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="출동 요청 개요">

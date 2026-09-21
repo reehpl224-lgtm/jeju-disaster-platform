@@ -1,10 +1,8 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
-import { COAST_NAV } from "./coastNav"
 import { coastMonitoringDomains } from "../../data/mockCoast"
 
 export function CoastMonitoringPage() {
@@ -30,8 +28,6 @@ export function CoastMonitoringPage() {
           </Link>
         </div>
       </div>
-
-      <DomainSubNav items={COAST_NAV} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {coastMonitoringDomains.map((domain) => (

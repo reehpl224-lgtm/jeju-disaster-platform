@@ -2,8 +2,6 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { COAST_NAV } from "./coastNav"
 import { coastDispatch } from "../../data/mockCoast"
 
 export function CoastDispatchPage() {
@@ -15,8 +13,6 @@ export function CoastDispatchPage() {
         <h1 className="text-xl font-bold text-white">현장 공조 — 해경 출동 요청</h1>
         <p className="mt-1 text-sm text-white/50">{d.summary.title}</p>
       </div>
-
-      <DomainSubNav items={COAST_NAV} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="위험 사건 요약" className="xl:col-span-2">

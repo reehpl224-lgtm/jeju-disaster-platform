@@ -10,8 +10,6 @@ import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { RainfallObservationPanel } from "../../components/ui/RainfallObservationPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { RIVER_NAV } from "./riverNav"
 import {
   riverApprovalHistory,
   riverControlRows,
@@ -133,8 +131,6 @@ export function RiverHomePage() {
         <h1 className="text-xl font-bold text-white">하천 범람 — 대시보드</h1>
         <p className="mt-1 text-sm text-white/50">강우레이더·수위센서 기반 하천 범람 예측 및 경보</p>
       </div>
-
-      <DomainSubNav items={RIVER_NAV} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="위험 위치 및 영향 범위 — 하천 GIS" subtitle="효돈천(돈내코·쇠소깍) 관측 지점" className="xl:col-span-2">

@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { DomainSubNav } from "../../components/shared/DomainSubNav"
-import { RIVER_NAV } from "./riverNav"
 import { riverControlFailures, riverControlRows, riverControlTimeline, riverJointAgencies, riverPropagation } from "../../data/mockRiver"
 
 export function RiverControlPage() {
@@ -12,8 +10,6 @@ export function RiverControlPage() {
         <h1 className="text-xl font-bold text-white">현장 통제 관리</h1>
         <p className="mt-1 text-sm text-white/50">하천별 차단기·출동·통제 조치 현황</p>
       </div>
-
-      <DomainSubNav items={RIVER_NAV} />
 
       <Card title="효돈천 구간별 통제 현황">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
