@@ -126,8 +126,8 @@ function MarkerLayer({ markers }: { markers: GeoMarker[] }) {
         const spot = spots[marker.id] ?? { dir: "right" as const, offset: [6, -10] as [number, number] }
         return (
           <Fragment key={marker.id}>
-            <CircleMarker center={[marker.lat, marker.lng]} radius={14} interactive={false} pathOptions={{ color, fillColor: color, fillOpacity: 0.25, weight: 0 }} />
-            <CircleMarker center={[marker.lat, marker.lng]} radius={7} pathOptions={{ color: "#111", fillColor: color, fillOpacity: 1, weight: 2 }}>
+            <CircleMarker center={[marker.lat, marker.lng]} radius={18} interactive={false} pathOptions={{ color, fillColor: color, fillOpacity: 0.25, weight: 0 }} />
+            <CircleMarker center={[marker.lat, marker.lng]} radius={9} pathOptions={{ color: "#fff", fillColor: color, fillOpacity: 1, weight: 2.5 }}>
               <Tooltip key={spot.dir + spot.offset.join(",")} permanent direction={spot.dir} offset={spot.offset} className="jmk-label">
                 {marker.name}
               </Tooltip>
@@ -204,6 +204,7 @@ export function JejuTileMap({
   const activePanel = TOOLBOX_PANELS.find((p) => p.id === activePanelId)
 
   const geoMarkers = markers.filter((m): m is RiskMarker & { lat: number; lng: number } => m.lat != null && m.lng != null)
+  const outOfRange = geoMarkers.filter((m) => m.lat < 33.1 || m.lat > 33.6 || m.lng < 126.14 || m.lng > 126.98)
   const geoCctv = (cctvMarkers ?? []).filter((c): c is CctvCamera & { lat: number; lng: number } => c.lat != null && c.lng != null)
 
   function toggleToolboxItem(id: string) {
@@ -275,6 +276,20 @@ export function JejuTileMap({
             ))
           : null}
       </MapContainer>
+
+      {fitMarkers && mode !== "cctv" && outOfRange.length > 0 && (
+        <div className="absolute left-3 top-3 z-[500] rounded-lg border border-white/20 bg-[#1d1d1d]/95 px-3 py-2 text-[11px] text-white/70 shadow-panel">
+          <p className="mb-1 font-bold text-white">지도 범위 밖 (해상)</p>
+          <ul>
+            {outOfRange.map((m) => (
+              <li key={m.id} className="flex items-center gap-1.5 leading-relaxed">
+                <span className="inline-block h-2 w-2 rounded-full" style={{ background: MARKER_COLOR[m.level] }} />
+                {m.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* GisTimelinePanel이 지도 위에 뜨는 오버레이가 아니라 지도 옆 전용 컬럼으로 옮겨져서(2026-09-09)
           더 이상 우측 하단과 겹칠 일이 없어 툴바를 top-2로 올리고, 팝업도 다시 우측에 둘 수 있음 */}
