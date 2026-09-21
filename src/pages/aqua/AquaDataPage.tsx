@@ -1,4 +1,5 @@
 import { Card } from "../../components/ui/Card"
+import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaActionLog, aquaDataIssues, aquaDataSources } from "../../data/mockAqua"
 
@@ -27,28 +28,14 @@ export function AquaDataPage() {
         <p className="mt-1 text-sm text-white/50">저염분수·고수온 예측에 활용되는 이기종 데이터 소스 수집 상태</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <p className="text-xs font-medium text-white/40">전체 소스</p>
-          <p className="mt-1 text-xl font-bold text-white">{aquaDataSources.length}</p>
-          <p className="mt-1 text-xs text-white/35">등록된 수집 대상</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">정상 수집</p>
-          <p className="mt-1 text-xl font-bold text-risk-safe">{normalCount}</p>
-          <p className="mt-1 text-xs text-white/35">최근 5분 이내 갱신</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">지연·누락·오류</p>
-          <p className="mt-1 text-xl font-bold text-risk-warning">{issueCount}</p>
-          <p className="mt-1 text-xs text-white/35">확인 필요</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">데이터 품질 점수</p>
-          <p className="mt-1 text-xl font-bold text-white">94%</p>
-          <p className="mt-1 text-xs text-white/35">전체 소스 평균</p>
-        </Card>
-      </div>
+      <StatTiles
+        items={[
+          { label: "전체 소스", value: aquaDataSources.length, sub: "등록된 수집 대상" },
+          { label: "정상 수집", value: normalCount, sub: "최근 5분 이내 갱신", tone: "safe" },
+          { label: "지연·누락·오류", value: issueCount, sub: "확인 필요", tone: "warning" },
+          { label: "데이터 품질 점수", value: "94%", sub: "전체 소스 평균" },
+        ]}
+      />
 
       <Card title="수집 대상별 데이터 소스">
         <ul className="flex flex-col divide-y divide-border-subtle">

@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { StatTiles } from "../../components/ui/StatTiles"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
@@ -210,28 +211,14 @@ export function AquaHomePage() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <p className="text-xs font-medium text-white/40">활성 위험</p>
-          <p className="mt-1 text-xl font-bold text-risk-danger">{aquaSummary.activeRisk.count}건</p>
-          <p className="mt-1 text-xs text-white/35">{aquaSummary.activeRisk.detail}</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">승인 대기</p>
-          <p className="mt-1 text-xl font-bold text-risk-warning">{aquaSummary.pendingApproval.count}건</p>
-          <p className="mt-1 text-xs text-white/35">{aquaSummary.pendingApproval.detail}</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">영향 양식장</p>
-          <p className="mt-1 text-xl font-bold text-risk-caution">{aquaSummary.affectedFarms.count}개소</p>
-          <p className="mt-1 text-xs text-white/35">{aquaSummary.affectedFarms.detail}</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">데이터 품질</p>
-          <p className="mt-1 text-xl font-bold text-risk-safe">{aquaSummary.dataQuality.percent}%</p>
-          <p className="mt-1 text-xs text-white/35">{aquaSummary.dataQuality.detail}</p>
-        </Card>
-      </div>
+      <StatTiles
+        items={[
+          { label: "활성 위험", value: `${aquaSummary.activeRisk.count}건`, sub: aquaSummary.activeRisk.detail, tone: "danger" },
+          { label: "승인 대기", value: `${aquaSummary.pendingApproval.count}건`, sub: aquaSummary.pendingApproval.detail, tone: "warning" },
+          { label: "영향 양식장", value: `${aquaSummary.affectedFarms.count}개소`, sub: aquaSummary.affectedFarms.detail, tone: "caution" },
+          { label: "데이터 품질", value: `${aquaSummary.dataQuality.percent}%`, sub: aquaSummary.dataQuality.detail, tone: "safe" },
+        ]}
+      />
 
       <Card
         title="실시간 해양관측 — 국립해양조사원(KHOA) API"

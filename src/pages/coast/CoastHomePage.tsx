@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
@@ -212,30 +213,19 @@ export function CoastHomePage() {
         </p>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <p className="text-xs font-medium text-white/40">활성 위험 이벤트</p>
-          <p className="mt-1 text-xl font-bold text-risk-danger">{coastSummary.activeEvents.count}</p>
-          <p className="mt-1 text-xs text-white/35">{coastSummary.activeEvents.detail}</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">미확인 이벤트</p>
-          <p className="mt-1 text-xl font-bold text-risk-warning">{coastSummary.unconfirmedEvents.count}</p>
-          <p className="mt-1 text-xs text-white/35">{coastSummary.unconfirmedEvents.detail}</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">공조 진행</p>
-          <p className="mt-1 text-xl font-bold text-risk-info">{coastSummary.coordination.count}</p>
-          <p className="mt-1 text-xs text-white/35">{coastSummary.coordination.detail}</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">장비 연결 상태</p>
-          <p className="mt-1 text-xl font-bold text-risk-safe">
-            정상 {coastSummary.equipment.normal} / 오류 {coastSummary.equipment.error}
-          </p>
-          <p className="mt-1 text-xs text-white/35">{coastSummary.equipment.detail}</p>
-        </Card>
-      </div>
+      <StatTiles
+        items={[
+          { label: "활성 위험 이벤트", value: coastSummary.activeEvents.count, sub: coastSummary.activeEvents.detail, tone: "danger" },
+          { label: "미확인 이벤트", value: coastSummary.unconfirmedEvents.count, sub: coastSummary.unconfirmedEvents.detail, tone: "warning" },
+          { label: "공조 진행", value: coastSummary.coordination.count, sub: coastSummary.coordination.detail, tone: "info" },
+          {
+            label: "장비 연결 상태",
+            value: `정상 ${coastSummary.equipment.normal} / 오류 ${coastSummary.equipment.error}`,
+            sub: coastSummary.equipment.detail,
+            tone: "safe",
+          },
+        ]}
+      />
 
       <Card
         title="실측 파고·기상 참고 — 국립해양조사원(KHOA) 해양관측부이"

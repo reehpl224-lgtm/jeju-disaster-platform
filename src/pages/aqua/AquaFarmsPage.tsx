@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaFarmTotals, aquaFarms } from "../../data/mockAqua"
 
@@ -11,28 +12,15 @@ export function AquaFarmsPage() {
         <p className="mt-1 text-sm text-white/50">저염분수·고수온 위험권 내 양식장 영향 상태</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <Card>
-          <p className="text-xs font-medium text-white/40">영향 양식장</p>
-          <p className="mt-1 text-xl font-bold text-white">총 {aquaFarmTotals.total}개소</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">심각</p>
-          <p className="mt-1 text-xl font-bold text-risk-danger">{aquaFarmTotals.danger}개소</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">경계</p>
-          <p className="mt-1 text-xl font-bold text-risk-alert">{aquaFarmTotals.alert}개소</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">주의</p>
-          <p className="mt-1 text-xl font-bold text-risk-warning">{aquaFarmTotals.warning}개소</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">관심</p>
-          <p className="mt-1 text-xl font-bold text-risk-caution">{aquaFarmTotals.caution}개소</p>
-        </Card>
-      </div>
+      <StatTiles
+        items={[
+          { label: "영향 양식장", value: `총 ${aquaFarmTotals.total}개소` },
+          { label: "심각", value: `${aquaFarmTotals.danger}개소`, tone: "danger" },
+          { label: "경계", value: `${aquaFarmTotals.alert}개소`, tone: "alert" },
+          { label: "주의", value: `${aquaFarmTotals.warning}개소`, tone: "warning" },
+          { label: "관심", value: `${aquaFarmTotals.caution}개소`, tone: "caution" },
+        ]}
+      />
 
       <Card
         title="양식장별 영향 상태"

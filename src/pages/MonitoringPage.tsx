@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Card } from "../components/ui/Card"
+import { StatTiles } from "../components/ui/StatTiles"
 import { RiskBadge } from "../components/ui/RiskBadge"
 import {
   apiLinks,
@@ -74,17 +75,13 @@ export function MonitoringPage() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {connectionSummary.map((item) => (
-          <Card key={item.id}>
-            <p className="text-xs font-medium text-white/40">{item.label}</p>
-            <p className="mt-1 text-xl font-bold text-white">
-              {"percent" in item ? `${item.percent}%` : item.status}
-            </p>
-            <p className="mt-1 text-xs text-white/35">{item.detail}</p>
-          </Card>
-        ))}
-      </div>
+      <StatTiles
+        items={connectionSummary.map((item) => ({
+          label: item.label,
+          value: "percent" in item ? `${item.percent}%` : item.status,
+          sub: item.detail,
+        }))}
+      />
 
       <Card title="이상·장애 알림">
         <ul className="flex flex-col divide-y divide-border-subtle">

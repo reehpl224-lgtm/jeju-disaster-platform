@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { legacySystems } from "../../data/mockHeavyRain"
 import { apiLinks } from "../../data/mockMonitoring"
@@ -122,26 +123,13 @@ export function DataSystemPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card>
-          <p className="text-xs font-medium text-white/40">레거시 시스템</p>
-          <p className="mt-1 text-xl font-bold text-white">
-            연계 진행중 {legacyActiveCount} <span className="text-sm font-normal text-white/35">/ 총 {legacySystems.length}건</span>
-          </p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">외부 API 연계</p>
-          <p className="mt-1 text-xl font-bold text-white">
-            정상 {apiNormalCount} <span className="text-sm font-normal text-white/35">/ 지연·장애 {apiIssueCount}건</span>
-          </p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-white/40">실증 데이터 소스</p>
-          <p className="mt-1 text-xl font-bold text-white">
-            정상 {pilotNormalCount} <span className="text-sm font-normal text-white/35">/ 총 {pilotTotalCount}건</span>
-          </p>
-        </Card>
-      </div>
+      <StatTiles
+        items={[
+          { label: "레거시 시스템", value: `연계 진행중 ${legacyActiveCount}`, sub: `총 ${legacySystems.length}건` },
+          { label: "외부 API 연계", value: `정상 ${apiNormalCount}`, sub: `지연·장애 ${apiIssueCount}건` },
+          { label: "실증 데이터 소스", value: `정상 ${pilotNormalCount}`, sub: `총 ${pilotTotalCount}건` },
+        ]}
+      />
 
       <Card
         title="레거시 시스템 연계 현황"
