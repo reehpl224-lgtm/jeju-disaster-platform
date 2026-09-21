@@ -1,18 +1,26 @@
-import { Outlet } from "react-router-dom"
-import { Sidebar } from "./Sidebar"
-import { TopBar } from "./TopBar"
+import { Outlet, useLocation } from "react-router-dom"
+import { Header } from "./Header"
 import type { MockUser } from "../../data/mockAuth"
 
+/**
+ * demo-10 클론 셸 — 좌측 사이드바 없이 72px 헤더 + 본문.
+ * 대시보드(/dashboard)는 지도 전면형 상황판이라 본문이 뷰포트 높이를 그대로 채우고(.stage),
+ * 그 외 화면은 헤더 아래에서 자체 스크롤한다.
+ */
 export function AppShell({ user }: { user: MockUser }) {
+  const { pathname } = useLocation()
+  const isBoard = pathname === "/dashboard"
+
   return (
-    <div className="flex min-h-screen bg-base">
-      <Sidebar user={user} />
-      <div className="flex min-h-screen flex-1 flex-col">
-        <TopBar />
-        <main className="flex-1 p-4 md:p-6">
+    <div className="app">
+      <Header user={user} />
+      {isBoard ? (
+        <Outlet />
+      ) : (
+        <main className="min-h-0 flex-1 overflow-y-auto p-4 md:p-6">
           <Outlet />
         </main>
-      </div>
+      )}
     </div>
   )
 }

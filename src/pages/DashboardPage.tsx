@@ -1,25 +1,24 @@
 import { useMemo, useState, type ReactNode } from "react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { Card } from "../components/ui/Card"
-import { CctvCameraCard } from "../components/ui/CctvCameraCard"
 import { DutyContactPanel } from "../components/ui/DutyContactPanel"
 import { JejuTileMap } from "../components/ui/JejuTileMap"
-import { Pill } from "../components/ui/Pill"
-import { RiskBadge } from "../components/ui/RiskBadge"
-import { riskStyles } from "../components/ui/riskStyles"
-import { ServiceStatusCard } from "../components/ui/ServiceStatusCard"
-import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../components/ui/GisIconRail"
-import { GisSidePanel } from "../components/ui/GisSidePanel"
-import { GisTimelinePanel, type GisTimelineTab } from "../components/ui/GisTimelinePanel"
 import { VilageForecastPanel } from "../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../components/ui/WarningsPanel"
-import type { RiskMarker } from "../types/domain"
+import {
+  HorizontalTabsDock,
+  MessengerFab,
+  Risk,
+  ServiceStrip,
+  SideTabsDock,
+  StripToggle,
+  type DockTab,
+} from "../components/board/BoardParts"
+import type { CctvCamera, RiskMarker } from "../types/domain"
 import {
   agencyStatuses,
   aiInsights,
   dashboardSensors,
-  lastSyncedAt,
   predictionConfidence,
   recentActions,
   riskMarkers,
@@ -31,7 +30,11 @@ import {
 import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeams, shelters } from "../data/mockIncidents"
 import { cctvCameras, cctvCoverageSummary } from "../data/mockCctv"
 import { sequentialPropagation, simultaneousPropagationGoal } from "../data/mockPropagation"
-import type { CctvCamera } from "../types/domain"
+
+/**
+ * 통합 대시보드 — demo-10 클론 디자인(헤더 탭 3종: 종합 상황 / GIS 상황 / CCTV).
+ * 탭은 헤더의 링크(/dashboard?tab=…)로 전환한다. 데이터·계산식은 기존 대시보드와 동일하다.
+ */
 
 function formatHM(iso: string) {
   return iso.slice(11, 16)
@@ -54,30 +57,29 @@ const CCTV_DOMAIN_FILTERS: { id: CctvCamera["domain"] | "all"; label: string }[]
   { id: "aqua", label: "양식장" },
   { id: "general", label: "일반" },
 ]
+const CCTV_DOMAIN_LABEL = Object.fromEntries(CCTV_DOMAIN_FILTERS.map((f) => [f.id, f.label])) as Record<string, string>
 
-const DASHBOARD_RAIL_ITEMS = GIS_RAIL_ITEMS
+const REGIONS = ["제주시", "서귀포시"] as const
 
-const TOP_TABS = [
-  { key: "summary", label: "종합 상황" },
-  { key: "gis", label: "GIS 상황" },
-  { key: "cctv", label: "CCTV" },
-] as const
-type TopTabKey = (typeof TOP_TABS)[number]["key"]
+type TabKey = "summary" | "gis" | "cctv"
 
 export function DashboardPage() {
-  const [topTab, setTopTab] = useState<TopTabKey>("gis")
+  const [params] = useSearchParams()
+  const raw = params.get("tab")
+  const tab: TabKey = raw === "gis" || raw === "cctv" ? raw : "summary"
+
   const [mapDomain, setMapDomain] = useState<RiskMarker["domain"] | "all">("all")
-  const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
   const filteredMarkers = useMemo(
     () => (mapDomain === "all" ? riskMarkers : riskMarkers.filter((m) => m.domain === mapDomain)),
     [mapDomain],
   )
 
-  // 타임라인/발효중 특보 패널 필터 — demo-10.muhanit.kr GIS 상황 화면의 필터+검색+발령/해제 UI 참고
+  // 타임라인/발효중 특보 패널 필터
   const [timelineType, setTimelineType] = useState<string>("all")
   const [timelineQuery, setTimelineQuery] = useState("")
   const [showIssued, setShowIssued] = useState(true)
   const [showLifted, setShowLifted] = useState(true)
+  const [timelineTab, setTimelineTab] = useState("timeline")
 
   const incidentTypes = useMemo(() => Array.from(new Set(disasterIncidents.map((i) => i.type))), [])
 
@@ -109,16 +111,7 @@ export function DashboardPage() {
     return `${dates.reduce((a, b) => (a < b ? a : b))} ~ ${dates.reduce((a, b) => (a > b ? a : b))}`
   }, [])
 
-  const alertSummary = useMemo(
-    () =>
-      (["danger", "alert", "warning"] as const).map((level) => ({
-        level,
-        count: serviceStatusCards.reduce((sum, card) => sum + (card.counts[level] ?? 0), 0),
-      })),
-    [],
-  )
-
-  // 종합 상황 탭 상단 총계 스트립 — 기존 실측/mock 데이터를 그대로 합산(새 수치 지어내지 않음)
+  // 총 합계 — 기존 mock 데이터를 그대로 합산(새 수치를 만들지 않음)
   const totalActiveRisk = serviceStatusCards.reduce(
     (sum, card) => sum + card.counts.danger + card.counts.alert + card.counts.warning + (card.counts.caution ?? 0),
     0,
@@ -127,181 +120,244 @@ export function DashboardPage() {
   const dispatchedTeams = disasterResponseTeams.filter((team) => team.status === "출동중").length
   const connectedAgencies = agencyStatuses.filter((a) => a.status === "connected").length
 
-  // 본부별(제주시/서귀포시) 현황 — disasterIncidents.region·disasterResponseTeams.agency에 이미 있는
-  // 실제 지역 태그만 사용(지도 상 위경도 추정 등으로 지어내지 않음)
-  const REGION_BOXES = [
-    { key: "jeju-si", label: "제주시" },
-    { key: "seogwipo-si", label: "서귀포시" },
-  ] as const
-  const regionStats = REGION_BOXES.map((region) => ({
-    ...region,
-    incidents: disasterIncidents.filter((i) => i.region === region.label).length,
-    members: disasterResponseTeams
-      .filter((t) => t.agency.includes(region.label))
-      .reduce((sum, t) => sum + t.members, 0),
+  // 제주시/서귀포시 집계 — disasterIncidents.region · disasterResponseTeams.agency의 실제 지역 태그만 사용
+  const regionStats = REGIONS.map((label) => ({
+    label,
+    incidents: disasterIncidents.filter((i) => i.region === label),
+    members: disasterResponseTeams.filter((t) => t.agency.includes(label)).reduce((sum, t) => sum + t.members, 0),
   }))
 
-  const [cctvDomain, setCctvDomain] = useState<CctvCamera["domain"] | "all">("all")
-  const [cctvQuery, setCctvQuery] = useState("")
-  const filteredCameras = useMemo(() => {
-    const q = cctvQuery.trim()
-    return cctvCameras.filter((camera) => {
-      const matchesDomain = cctvDomain === "all" || camera.domain === cctvDomain
-      const matchesQuery = q === "" || camera.name.includes(q) || camera.address.includes(q)
-      return matchesDomain && matchesQuery
-    })
-  }, [cctvDomain, cctvQuery])
+  const [stripOpen, setStripOpen] = useState(true)
+  const [leftOpen, setLeftOpen] = useState(false)
+  const [summaryDockTab, setSummaryDockTab] = useState("broadcast")
+  const [gisDockTab, setGisDockTab] = useState("timeline")
 
-  const railContent: Partial<Record<GisRailKey, ReactNode>> = {
-    sensor: (
-      <ul className="flex flex-col divide-y divide-border-subtle">
-        {dashboardSensors.map((sensor) => (
-          <li key={sensor.id} className="flex items-center justify-between gap-2 py-2 text-xs">
-            <div>
-              <p className="font-medium text-white/80">{sensor.name}</p>
-              <p className="text-white/35">{sensor.location}</p>
-            </div>
-            <RiskBadge level={sensor.status} label={sensor.value} />
-          </li>
-        ))}
-      </ul>
-    ),
-    broadcast: (
-      <div className="flex flex-col gap-4">
-        <div>
-          <p className="mb-1 text-[11px] font-semibold text-white/40">도청 → 시 상황실 → 읍면동 순차 전파</p>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {sequentialPropagation.map((step, i) => (
-              <div key={step.id} className="flex items-center gap-1.5">
-                <div className="rounded-md border border-border-subtle bg-inset px-2 py-1.5 text-center">
-                  <p className="text-[11px] font-semibold text-white/80">{step.stage}</p>
-                  <p className="text-[10px] text-white/40">{step.time}</p>
-                </div>
-                {i < sequentialPropagation.length - 1 && (
-                  <span className="text-[10px] text-risk-warning">
-                    →
-                    {(() => {
-                      const [h1, m1] = step.time.split(":").map(Number)
-                      const [h2, m2] = sequentialPropagation[i + 1].time.split(":").map(Number)
-                      return h2 * 60 + m2 - (h1 * 60 + m1)
-                    })()}
-                    분
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-          <p className="mt-2 rounded-lg border border-accent/40 bg-accent-soft p-2 text-[11px] font-medium text-accent">
-            목표: {simultaneousPropagationGoal.note} — {simultaneousPropagationGoal.status}
-          </p>
-          <Link to="/propagation" className="mt-2 inline-block text-[11px] font-bold text-accent">
-            전체 보기 →
-          </Link>
-        </div>
-        <div>
-          <p className="mb-1 text-[11px] font-semibold text-white/40">최근 조치 이력</p>
-          <ul className="flex flex-col divide-y divide-border-subtle">
-            {recentActions.map((action) => (
-              <li key={action.id} className="py-2 text-xs">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-medium text-white/80">{action.title}</p>
-                  <span className="shrink-0 text-white/35">{action.time}</span>
-                </div>
-                <p className="mt-0.5 text-white/35">
-                  {action.owner} · {action.note}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    ),
-    response: (
-      <div className="flex flex-col gap-3">
-        <div>
-          <p className="mb-1 text-[11px] font-semibold text-white/40">기관별 대응 상태</p>
-          <ul className="flex flex-col divide-y divide-border-subtle">
-            {agencyStatuses.map((agency) => (
-              <li key={agency.id} className="flex items-center justify-between gap-2 py-1.5 text-xs">
-                <p className="text-white/80">{agency.agency}</p>
-                <span className={agency.status === "down" ? "text-risk-danger" : "text-risk-safe"}>
-                  {agency.status === "down" ? "⚠ 장애" : "● 연결"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="mb-1 text-[11px] font-semibold text-white/40">현장 대응팀</p>
-          <ul className="flex flex-col divide-y divide-border-subtle">
-            {disasterResponseTeams.map((team) => (
-              <li key={team.id} className="flex items-center justify-between gap-2 py-1.5 text-xs">
-                <p className="text-white/80">{team.name}</p>
-                <RiskBadge level={team.status === "출동중" ? "info" : "offline"} label={team.status} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    ),
-    contact: <DutyContactPanel />,
-    asset: (
-      <ul className="flex flex-col gap-2">
-        {shelters.map((shelter) => (
-          <li key={shelter.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
-            <div className="flex items-center justify-between gap-2">
-              <p className="font-medium text-white/80">{shelter.name}</p>
-              <RiskBadge level="safe" label={shelter.status} />
-            </div>
-            <p className="mt-1 text-white/35">
-              {shelter.region} · {shelter.address}
-            </p>
-            <p className="mt-1 text-white/50">
-              수용 {shelter.currentOccupancy} / {shelter.capacity}명
-            </p>
-          </li>
-        ))}
-      </ul>
-    ),
-    report: (
-      <div className="flex flex-col gap-2 text-xs">
-        <p className="text-white/50">종료된 사건의 상세 보고서를 조회합니다.</p>
-        <Link
-          to="/reports"
-          className="inline-flex items-center justify-center rounded-full border border-accent px-3 py-2 text-xs font-bold text-accent hover:bg-accent-soft"
-        >
-          이력·보고서 전체 조회 →
-        </Link>
-      </div>
-    ),
+  // ---- 패널 안 콘텐츠 (클론의 plist / pgroup / pbox 규칙) ----
+  const railContent: Record<string, ReactNode> = {
     timeline: (
-      <ul className="flex flex-col divide-y divide-border-subtle">
+      <ul className="plist">
         {disasterIncidents.map((incident) => (
-          <li key={incident.id} className="py-2 text-xs">
-            <div className="flex items-center gap-1.5">
-              <RiskBadge level={incident.severity} />
-              <p className="font-medium text-white/80">
+          <li key={incident.id}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Risk level={incident.severity} />
+              <span className="t">
                 [{incident.type}] {incident.title}
-              </p>
+              </span>
             </div>
-            <p className="mt-0.5 text-white/35">
+            <p className="s">
               {incident.region} · {incident.status}
             </p>
           </li>
         ))}
       </ul>
     ),
+    broadcast: (
+      <>
+        <div className="pgroup">
+          <p className="pnote">도청 → 시 상황실 → 읍면동 순차 전파</p>
+          <div className="steps">
+            {sequentialPropagation.map((step, i) => {
+              const next = sequentialPropagation[i + 1]
+              const lag = next
+                ? (() => {
+                    const [h1, m1] = step.time.split(":").map(Number)
+                    const [h2, m2] = next.time.split(":").map(Number)
+                    return h2 * 60 + m2 - (h1 * 60 + m1)
+                  })()
+                : null
+              return (
+                <span key={step.id} style={{ display: "contents" }}>
+                  <div className="step">
+                    <b>{step.stage}</b>
+                    <span>{step.time}</span>
+                  </div>
+                  {lag !== null && <span className="lag">→{lag}분</span>}
+                </span>
+              )
+            })}
+          </div>
+          <p className="pgoal">
+            목표: {simultaneousPropagationGoal.note} — {simultaneousPropagationGoal.status}
+          </p>
+          <Link className="plink" to="/propagation">
+            전체 보기 → (상황전파·보고체계)
+          </Link>
+        </div>
+        <div className="pgroup">
+          <p className="pnote">최근 조치 이력</p>
+          <ul className="plist">
+            {recentActions.map((action) => (
+              <li key={action.id}>
+                <div className="row-between">
+                  <span className="t">{action.title}</span>
+                  <span className="s" style={{ margin: 0 }}>
+                    {action.time}
+                  </span>
+                </div>
+                <p className="s">
+                  {action.owner} · {action.note}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </>
+    ),
+    sensor: (
+      <ul className="plist">
+        {dashboardSensors.map((sensor) => (
+          <li key={sensor.id} className="row-between">
+            <div>
+              <p className="t">{sensor.name}</p>
+              <p className="s">{sensor.location}</p>
+            </div>
+            <Risk level={sensor.status} label={sensor.value} />
+          </li>
+        ))}
+      </ul>
+    ),
+    response: (
+      <>
+        <div className="pgroup">
+          <p className="pnote">기관별 대응 상태</p>
+          <ul className="plist">
+            {agencyStatuses.map((agency) => (
+              <li key={agency.id} className="row-between">
+                <span>{agency.agency}</span>
+                <span style={{ color: agency.status === "down" ? "var(--risk-danger)" : "var(--risk-safe)", fontWeight: 700 }}>
+                  {agency.status === "down" ? "⚠ 장애" : "● 연결"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="pgroup">
+          <p className="pnote">현장 대응팀</p>
+          <ul className="plist">
+            {disasterResponseTeams.map((team) => (
+              <li key={team.id} className="row-between">
+                <span>{team.name}</span>
+                <Risk level={team.status === "출동중" ? "info" : "offline"} label={team.status} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </>
+    ),
+    contact: <DutyContactPanel />,
+    report: (
+      <>
+        <p style={{ fontSize: 12, color: "var(--foreground-muted)" }}>종료된 사건의 상세 보고서를 조회합니다.</p>
+        <Link
+          className="btn btn--outline btn--pill btn--block"
+          to="/reports"
+          style={{ marginTop: 10, height: 34, fontSize: 12 }}
+        >
+          이력·보고서 전체 조회 →
+        </Link>
+      </>
+    ),
+    asset: (
+      <>
+        {shelters.map((shelter) => (
+          <div className="pbox" key={shelter.id}>
+            <div className="row-between">
+              <span className="t">{shelter.name}</span>
+              <Risk level="safe" label={shelter.status} />
+            </div>
+            <p className="s">
+              {shelter.region} · {shelter.address}
+            </p>
+            <p style={{ marginTop: 4, color: "var(--foreground-muted)" }}>
+              수용 {shelter.currentOccupancy} / {shelter.capacity}명
+            </p>
+          </div>
+        ))}
+      </>
+    ),
+    messenger: <p className="pempty">2단계 상세 구현 예정 — 준비 중입니다.</p>,
+    news: <p className="pempty">2단계 상세 구현 예정 — 준비 중입니다.</p>,
+    ai: (
+      <>
+        <p className="pnote">예측 신뢰도: 고신뢰 ({predictionConfidence.percent}%)</p>
+        {aiInsights.map((insight) => (
+          <div className="pbox" key={insight.id}>
+            <p className="t">{insight.title}</p>
+            <p className="s">{insight.basis}</p>
+          </div>
+        ))}
+        <div className="pbox" style={{ marginTop: 12, background: "none" }}>
+          <p className="t">센서 이상 교차검증</p>
+          <p className="s">
+            정상 {sensorCrossCheck.normal} / 장애 {sensorCrossCheck.fault} / 누락 {sensorCrossCheck.missing}
+          </p>
+        </div>
+      </>
+    ),
+    trend: (
+      <>
+        <div className="kv-grid">
+          {timeSeries.map((reading) => {
+            const over = reading.worseWhen === "below" ? reading.value <= reading.threshold : reading.value >= reading.threshold
+            return (
+              <div className="pbox" key={reading.label}>
+                <small>{reading.label}</small>
+                <b className={over ? "over" : undefined}>
+                  {reading.value}
+                  {reading.unit}
+                </b>
+              </div>
+            )
+          })}
+        </div>
+        <div style={{ marginTop: 12, height: 160 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={sixHourSeries} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
+              <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
+              <YAxis tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
+              <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 11 }} />
+              <Legend wrapperStyle={{ fontSize: 10, color: "#ffffffaa" }} />
+              <Line type="monotone" dataKey="돈내코수위" stroke="#0054a3" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="쇠소깍수위" stroke="#8ec21f" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="함덕수온" stroke="#f2731a" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </>
+    ),
   }
 
+  const summaryDockTabs: DockTab[] = [
+    { key: "broadcast", label: "상황전파" },
+    { key: "sensor", label: "센서정보" },
+    { key: "response", label: "대응현황" },
+    { key: "contact", label: "담당자" },
+    { key: "report", label: "보고서" },
+    { key: "asset", label: "자산현황" },
+    { key: "messenger", label: "방재메신저" },
+    { key: "news", label: "안전뉴스" },
+    { key: "ai", label: "AI 분석" },
+    { key: "trend", label: "센서 추이" },
+  ].map((t) => ({ ...t, content: railContent[t.key] }))
+
+  const gisLeftTabs: DockTab[] = [
+    { key: "timeline", label: "타임라인" },
+    { key: "broadcast", label: "상황전파" },
+    { key: "sensor", label: "센서정보" },
+    { key: "response", label: "대응현황" },
+    { key: "contact", label: "담당자" },
+    { key: "report", label: "보고서" },
+    { key: "asset", label: "자산현황" },
+    { key: "messenger", label: "방재메신저" },
+    { key: "news", label: "안전뉴스" },
+  ].map((t) => ({ ...t, content: railContent[t.key] }))
+
   const timelineFilters = (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex gap-1.5">
-        <select
-          value={timelineType}
-          onChange={(e) => setTimelineType(e.target.value)}
-          className="flex-1 rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70"
-        >
-          <option value="all">전체</option>
+    <div className="pfilters">
+      <div className="row">
+        <select className="select" value={timelineType} onChange={(e) => setTimelineType(e.target.value)} aria-label="유형">
+          <option value="all">전체 유형</option>
           {incidentTypes.map((t) => (
             <option key={t} value={t}>
               {t}
@@ -309,43 +365,43 @@ export function DashboardPage() {
           ))}
         </select>
         <input
+          className="input"
           value={timelineQuery}
           onChange={(e) => setTimelineQuery(e.target.value)}
-          placeholder="검색"
-          className="w-24 rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70 placeholder:text-white/30"
+          placeholder="검색 (제목·위치)"
         />
       </div>
-      <p className="text-[10px] text-white/30">{timelineDateRange}</p>
-      <div className="flex gap-3 text-[11px] text-white/60">
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={showIssued} onChange={(e) => setShowIssued(e.target.checked)} className="accent-[var(--color-accent)]" />
-          발령
+      <p className="date">{timelineDateRange}</p>
+      <div className="checks">
+        <label className="check">
+          <input type="checkbox" checked={showIssued} onChange={(e) => setShowIssued(e.target.checked)} /> 발령
         </label>
-        <label className="flex items-center gap-1">
-          <input type="checkbox" checked={showLifted} onChange={(e) => setShowLifted(e.target.checked)} className="accent-[var(--color-accent)]" />
-          해제
+        <label className="check">
+          <input type="checkbox" checked={showLifted} onChange={(e) => setShowLifted(e.target.checked)} /> 해제
         </label>
       </div>
     </div>
   )
 
-  const timelineTabs: GisTimelineTab[] = [
+  const timelineTabs: DockTab[] = [
     {
       key: "timeline",
       label: "타임라인",
       content: (
-        <ul className="flex flex-col divide-y divide-border-subtle">
-          {filteredIncidents.length === 0 && <li className="py-4 text-center text-xs text-white/30">조건에 맞는 항목이 없습니다.</li>}
+        <ul className="plist">
+          {filteredIncidents.length === 0 && <li className="pempty">조건에 맞는 항목이 없습니다.</li>}
           {filteredIncidents.map((incident) => (
-            <li key={incident.id} className="py-2 text-xs">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-semibold text-white/60">{formatHM(incident.reportedAt)}</span>
-                <RiskBadge level={incident.status === "종료" ? "offline" : "safe"} label={incident.status === "종료" ? "해제" : "발령"} solid />
+            <li key={incident.id}>
+              <div className="row-between">
+                <span className="time">{formatHM(incident.reportedAt)}</span>
+                {incident.status === "종료" ? <Risk level="offline" label="해제" solid /> : <Risk level="safe" label="발령" solid />}
               </div>
-              <p className="mt-1 flex items-center gap-1.5">
-                <RiskBadge level={incident.severity} label={incident.type} />
+              <p className="mt">
+                <Risk level={incident.severity} label={incident.type} />
               </p>
-              <p className="mt-0.5 text-white/80">{incident.title}</p>
+              <p className="t" style={{ marginTop: 4 }}>
+                {incident.title}
+              </p>
             </li>
           ))}
         </ul>
@@ -355,344 +411,363 @@ export function DashboardPage() {
       key: "advisory",
       label: "발효중 특보",
       content: (
-        <ul className="flex flex-col gap-2">
-          {filteredAlerts.length === 0 && <li className="py-4 text-center text-xs text-white/30">조건에 맞는 항목이 없습니다.</li>}
+        <ul className="plist" style={{ gap: 8 }}>
+          {filteredAlerts.length === 0 && <li className="pempty">조건에 맞는 항목이 없습니다.</li>}
           {filteredAlerts.map((alert) => {
             const lifted = alert.expiresAt <= currentWeather.observedAt
             return (
-              <li key={alert.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
-                <div className="flex items-center justify-between gap-2">
-                  <RiskBadge level={lifted ? "offline" : "safe"} label={lifted ? "해제" : "발령"} solid />
-                  <span className="text-white/35">
-                    {formatHM(alert.issuedAt)}~{formatHM(alert.expiresAt)}
-                  </span>
+              <li key={alert.id}>
+                <div className="pbox">
+                  <div className="row-between">
+                    {lifted ? <Risk level="offline" label="해제" solid /> : <Risk level="safe" label="발령" solid />}
+                    <span className="s" style={{ margin: 0 }}>
+                      {formatHM(alert.issuedAt)}~{formatHM(alert.expiresAt)}
+                    </span>
+                  </div>
+                  <p className="mt">
+                    <Risk level={alert.level} label={alert.title} />
+                  </p>
+                  <p className="s" style={{ marginTop: 6 }}>
+                    {alert.target} · {alert.message}
+                  </p>
                 </div>
-                <p className="mt-1.5">
-                  <RiskBadge level={alert.level} label={alert.title} />
-                </p>
-                <p className="mt-1.5 text-white/50">
-                  {alert.target} · {alert.message}
-                </p>
               </li>
             )
           })}
         </ul>
       ),
     },
-    {
-      key: "forecast",
-      label: "동네예보",
-      content: <VilageForecastPanel />,
-    },
-    {
-      key: "live-warnings",
-      label: "실시간 특보 — API허브",
-      content: <WarningsPanel />,
-    },
+    { key: "forecast", label: "동네예보", content: <VilageForecastPanel /> },
+    { key: "live-warnings", label: "실시간 특보", content: <WarningsPanel /> },
   ]
 
-  // 종합 상황 탭 우측 "대응 패널" — 지도 위 플로팅 아이콘 레일(GisIconRail)로 숨어있던 항목들을
-  // 고정 컬럼 탭으로 승격 (LH 재난관리 플랫폼 종합상황판 구조 참고, 2026-09-14)
-  const responseTabs: GisTimelineTab[] = [
-    ...DASHBOARD_RAIL_ITEMS.filter((item) => item.key !== "timeline").map((item) => ({
-      key: item.key,
-      label: `${item.icon} ${item.label}`,
-      content: railContent[item.key] ?? <p className="py-6 text-center text-xs text-white/30">2단계 상세 구현 예정 — 준비 중입니다.</p>,
-    })),
-    // 상황판 스크롤을 줄이기 위해 페이지 본문에 쌓아두던 카드 대신 이 탭으로 이동(2026-09-14)
-    {
-      key: "ai-insight",
-      label: "🤖 AI 분석",
-      content: (
-        <div>
-          <p className="mb-2 text-[11px] text-white/40">예측 신뢰도: 고신뢰 ({predictionConfidence.percent}%)</p>
-          <ul className="flex flex-col gap-2">
-            {aiInsights.map((insight) => (
-              <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-2.5 text-xs">
-                <p className="font-semibold text-white/80">{insight.title}</p>
-                <p className="mt-0.5 text-white/40">{insight.basis}</p>
+  const weatherLine = (
+    <p className="weather-line">
+      기온 <b>{currentWeather.temperatureC}℃</b> · 강수 <b>{currentWeather.rainfallMm}mm</b> · 풍속{" "}
+      <b>{currentWeather.windSpeedMs}m/s</b> · 습도 <b>{currentWeather.humidityPercent}%</b> · 갱신{" "}
+      {formatHM(currentWeather.observedAt)} / 5분 주기
+    </p>
+  )
+
+  const legend = (
+    <>
+      {(["danger", "alert", "warning", "caution", "safe"] as const).map((level) => (
+        <span key={level} style={{ display: "contents" }}>
+          <Risk level={level} />{" "}
+        </span>
+      ))}
+    </>
+  )
+
+  // ============================ 종합 상황 ============================
+  if (tab === "summary") {
+    const incidentRow = (incident: (typeof disasterIncidents)[number]) => (
+      <div
+        className="region-card region-card--row"
+        key={incident.id}
+        title={`${incident.location} · ${incident.assignedTeam} · ${incident.action}`}
+      >
+        <span className={`dot dot--${incident.severity}`} />
+        <span className="label">
+          [{incident.type}] {incident.title}
+        </span>
+        {incident.status === "종료" ? <Risk level="offline" label="해제" solid /> : <Risk level={incident.severity} />}
+      </div>
+    )
+
+    const regionCard = (region: (typeof regionStats)[number]) => (
+      <>
+        <div className="region-card region-card--open">
+          <p className="region-card__label">{region.label}</p>
+          <div className="region-card__stats region-card__stats--2">
+            <button type="button">
+              <span className="k">근무(명)</span>
+              <span className="v">{region.members}</span>
+            </button>
+            <button type="button">
+              <span className="k">피해접수(건)</span>
+              <span className="v warning">{region.incidents.length}</span>
+            </button>
+          </div>
+        </div>
+      </>
+    )
+
+    const [jeju, seogwipo] = regionStats
+    return (
+      <div className="stage">
+        <div className="stage__main">
+          <div className="korea" />
+          <div className="overlay">
+            {/* 접힌 좌측 패널: 타임라인 */}
+            <aside className={`dock dock--reserve dock--pill${leftOpen ? " is-open" : ""}`}>
+              <button type="button" className="panel-pill" onClick={() => setLeftOpen(true)}>
+                <span>타임라인</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M7 5l5 7-5 7M14 5l5 7-5 7" />
+                </svg>
+              </button>
+              <section className="panel panel--left">
+                <div className="panel__head">
+                  <h2 className="panel__title">타임라인</h2>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label="접기"
+                    onClick={() => setLeftOpen(false)}
+                    style={{ width: 32, height: 32 }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M17 5l-5 7 5 7M10 5l-5 7 5 7" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="tabs" role="tablist">
+                  {timelineTabs.map((t) => (
+                    <button key={t.key} type="button" role="tab" aria-selected={timelineTab === t.key} onClick={() => setTimelineTab(t.key)}>
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                {timelineFilters}
+                <div className="panel__scroll">{(timelineTabs.find((t) => t.key === timelineTab) ?? timelineTabs[0]).content}</div>
+              </section>
+            </aside>
+
+            <div className="center">
+              <div className="regions regions--wide">
+                {/* 좌측 지역 컬럼: 제주시 */}
+                <div className="region-col region-col--left">
+                  {regionCard(jeju)}
+                  <p className="region-foot">위험자산·상황전파는 도 전체 기준만 집계됩니다</p>
+                  <p className="region-sub">재난 발생 {jeju.incidents.length}건</p>
+                  {jeju.incidents.map(incidentRow)}
+                </div>
+
+                {/* 가운데: 제주 전역 위험 마커 */}
+                <div className="korea__map" style={{ pointerEvents: "auto" }}>
+                  <select
+                    className="select"
+                    value={mapDomain}
+                    onChange={(e) => setMapDomain(e.target.value as RiskMarker["domain"] | "all")}
+                    style={{ height: 32, fontSize: 12, backgroundColor: "var(--background)", borderColor: "var(--foreground-faint)" }}
+                    aria-label="분야"
+                  >
+                    {MAP_DOMAIN_FILTERS.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        분야: {f.label}
+                      </option>
+                    ))}
+                  </select>
+                  {weatherLine}
+                  <div className="jmap">
+                    <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" showToolbar={false} />
+                  </div>
+                </div>
+
+                {/* 우측 지역 컬럼: 총 합계 + 서귀포시 */}
+                <div className="region-col region-col--right">
+                  <div className="region-card region-card--open">
+                    <p className="region-card__label">총 합계 · 제주도 전체</p>
+                    <div className="region-card__stats">
+                      <button type="button">
+                        <span className="k">근무(명) · 출동 {dispatchedTeams}팀</span>
+                        <span className="v">{totalDutyMembers}</span>
+                      </button>
+                      <button type="button">
+                        <span className="k">위험자산(건)</span>
+                        <span className="v danger">{totalActiveRisk}</span>
+                      </button>
+                      <button type="button">
+                        <span className="k">피해접수(건)</span>
+                        <span className="v warning">{disasterIncidents.length}</span>
+                      </button>
+                      <button type="button">
+                        <span className="k">상황전파 연결</span>
+                        <span className="v safe">
+                          {connectedAgencies}/{agencyStatuses.length}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  {regionCard(seogwipo)}
+                  <p className="region-foot">위험자산·상황전파는 도 전체 기준만 집계됩니다</p>
+                  <p className="region-sub">재난 발생 {seogwipo.incidents.length}건</p>
+                  {seogwipo.incidents.map(incidentRow)}
+                </div>
+              </div>
+            </div>
+
+            <SideTabsDock
+              tabs={summaryDockTabs}
+              rail="left"
+              activeKey={summaryDockTab}
+              onSelect={setSummaryDockTab}
+              dense
+              headExtra={<span style={{ fontSize: 11, color: "var(--foreground-subtle)" }}>대응 패널</span>}
+            />
+          </div>
+          <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
+        </div>
+        {stripOpen && <ServiceStrip cards={serviceStatusCards} />}
+        <MessengerFab onClick={() => setSummaryDockTab("messenger")} />
+      </div>
+    )
+  }
+
+  // ============================ GIS 상황 ============================
+  if (tab === "gis") {
+    return (
+      <div className="stage">
+        <div className="stage__main">
+          <div className="map map--dark" />
+          <div className="overlay">
+            <SideTabsDock tabs={gisLeftTabs} rail="right" activeKey={gisDockTab} onSelect={setGisDockTab} />
+
+            <div className="center center--gis">
+              <div className="jmap" style={{ pointerEvents: "auto" }}>
+                <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" toolbarAtBottom />
+              </div>
+              <div className="map-top">
+                {weatherLine}
+                <div className="chips">
+                  {MAP_DOMAIN_FILTERS.map((f) => (
+                    <button key={f.id} type="button" className="chip" aria-pressed={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div />
+              <div className="timebar">
+                <div className="risk-legend">범례 {legend}</div>
+              </div>
+            </div>
+
+            <HorizontalTabsDock tabs={timelineTabs} filters={timelineFilters} activeKey={timelineTab} onSelect={setTimelineTab} />
+          </div>
+          <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
+        </div>
+        {stripOpen && <ServiceStrip cards={serviceStatusCards} />}
+        <MessengerFab onClick={() => setGisDockTab("messenger")} />
+      </div>
+    )
+  }
+
+  // ============================ CCTV ============================
+  return <CctvView />
+}
+
+function CctvView() {
+  const [domain, setDomain] = useState<CctvCamera["domain"] | "all">("all")
+  const [query, setQuery] = useState("")
+  const cameras = useMemo(() => {
+    const q = query.trim()
+    return cctvCameras.filter((camera) => {
+      const matchesDomain = domain === "all" || camera.domain === domain
+      const matchesQuery = q === "" || camera.name.includes(q) || camera.address.includes(q)
+      return matchesDomain && matchesQuery
+    })
+  }, [domain, query])
+
+  return (
+    <div className="shell">
+      <aside className="sidebar">
+        <div className="sidebar__search">
+          <label className="label" htmlFor="cam-q">
+            검색어
+          </label>
+          <div className="row">
+            <input
+              className="input"
+              id="cam-q"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="주소 또는 카메라명"
+            />
+          </div>
+        </div>
+        <div className="tabs">
+          <button type="button" aria-selected="true">
+            분야
+          </button>
+        </div>
+        <ul className="tree">
+          {CCTV_DOMAIN_FILTERS.map((f) => {
+            const count = f.id === "all" ? cctvCameras.length : cctvCameras.filter((c) => c.domain === f.id).length
+            return (
+              <li key={f.id}>
+                <button type="button" aria-pressed={domain === f.id} onClick={() => setDomain(f.id)}>
+                  <span>
+                    {f.label} <span className="count">({count})</span>
+                  </span>
+                </button>
               </li>
-            ))}
-          </ul>
-          <div className="mt-3 rounded-lg border border-border-subtle p-2.5 text-xs text-white/50">
-            <p className="font-semibold text-white/70">센서 이상 교차검증</p>
-            <p className="mt-1">
-              정상 {sensorCrossCheck.normal} / 장애 {sensorCrossCheck.fault} / 누락 {sensorCrossCheck.missing}
+            )
+          })}
+        </ul>
+      </aside>
+
+      <main className="content">
+        <div className="content__head">
+          <div>
+            <h2 className="content__title">CCTV 통합 조회</h2>
+            <p className="content__sub">
+              3개 실증 서비스 확정 대상지 카메라 + 도심 대표 카메라 · 영상 스트림은 백엔드 연동 전이라 표시하지 않음
             </p>
           </div>
         </div>
-      ),
-    },
-    {
-      key: "sensor-trend",
-      label: "📈 센서 추이",
-      content: (
-        <div>
-          <div className="grid grid-cols-2 gap-2">
-            {timeSeries.map((reading) => {
-              const over =
-                reading.worseWhen === "below" ? reading.value <= reading.threshold : reading.value >= reading.threshold
+        <div className="coverage">
+          <div className="pbox">
+            <small>도 자체관제</small>
+            <b>약 {(cctvCoverageSummary.ownOperatedTotal / 10000).toFixed(1)}만대</b>
+          </div>
+          <div className="pbox">
+            <small>불법주정차 포함</small>
+            <b>약 {(cctvCoverageSummary.includingIllegalParkingTotal / 10000).toFixed(1)}만대</b>
+          </div>
+          <div className="pbox">
+            <small>자치경찰단 ITS 연계</small>
+            <b>
+              {cctvCoverageSummary.itsLinkedCount} / {cctvCoverageSummary.itsTotalCount.toLocaleString()}대
+            </b>
+            <p>예산·라이선스 문제로 일부만 연계</p>
+          </div>
+          <div className="pbox">
+            <small>이 화면의 대표 카메라</small>
+            <b>{cctvCoverageSummary.representativeCount}대</b>
+            <p>실제 규모와 혼동하지 않도록 구분 표기</p>
+          </div>
+        </div>
+        {cameras.length === 0 ? (
+          <p className="pempty">검색 결과가 없습니다.</p>
+        ) : (
+          <div className="grid-cards">
+            {cameras.map((camera) => {
+              const online = camera.status === "online"
               return (
-                <div key={reading.label} className="rounded-lg border border-border-subtle bg-inset p-2 text-center">
-                  <p className="text-[10px] text-white/40">{reading.label}</p>
-                  <p className={`text-sm font-bold ${over ? "text-risk-warning" : "text-white"}`}>
-                    {reading.value}
-                    {reading.unit}
-                  </p>
-                </div>
+                <article className="card cam-card" key={camera.id}>
+                  <div className={`cam-card__screen${online ? "" : " is-off"}`}>
+                    {online ? "실시간 영상 연동 예정" : "오프라인 — 영상 수신 없음"}
+                  </div>
+                  <h3>
+                    {camera.name}
+                    <span className={`risk ${online ? "risk--info" : "risk--offline"}`}>{online ? "연결" : "오프라인"}</span>
+                  </h3>
+                  <p>{camera.address}</p>
+                  <div className="row-between" style={{ fontSize: 11, color: "var(--foreground-subtle)" }}>
+                    <span>
+                      {CCTV_DOMAIN_LABEL[camera.domain]} · {camera.operator}
+                    </span>
+                    <span>최종 수신 {formatHM(camera.lastFrameAt)}</span>
+                  </div>
+                </article>
               )
             })}
           </div>
-          <div className="mt-3 h-40 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={sixHourSeries} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
-                <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
-                <YAxis tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
-                <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 11 }} />
-                <Legend wrapperStyle={{ fontSize: 10, color: "#ffffffaa" }} />
-                <Line type="monotone" dataKey="돈내코수위" stroke="#0054a3" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="쇠소깍수위" stroke="#8ec21f" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="함덕수온" stroke="#f2731a" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      ),
-    },
-  ]
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h1 className="text-xl font-bold text-white">GIS 통합 대시보드</h1>
-          <p className="text-xs text-white/35">데이터 최종 수신: {lastSyncedAt}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            {alertSummary.map(({ level, count }) => (
-              <button
-                key={level}
-                type="button"
-                title="어느 서비스가 해당하는지 아래에서 확인"
-                onClick={() => {
-                  setTopTab("summary")
-                  window.setTimeout(() => document.getElementById("service-status-cards")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0)
-                }}
-                className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 transition hover:brightness-125 ${riskStyles[level].bg} ${riskStyles[level].border}`}
-              >
-                <span className={`inline-block h-1.5 w-1.5 rounded-full ${riskStyles[level].dot}`} />
-                <span className={`text-sm font-bold tabular-nums ${riskStyles[level].text}`}>{count}</span>
-                <span className="text-[11px] text-white/40">{riskStyles[level].label}</span>
-              </button>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <Link
-              to="/monitoring"
-              className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
-            >
-              시스템 모니터링
-            </Link>
-            <Link
-              to="/reports"
-              className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-semibold text-white/60 hover:bg-inset"
-            >
-              이력·보고서
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <nav className="flex flex-wrap gap-1.5 border-b border-border-subtle pb-3">
-        {TOP_TABS.map((tab) => (
-          <Pill key={tab.key} active={topTab === tab.key} onClick={() => setTopTab(tab.key)}>
-            {tab.label}
-          </Pill>
-        ))}
-      </nav>
-
-      {topTab === "cctv" && (
-        <Card
-          title="CCTV 통합 조회"
-          subtitle={`도 자체관제 약 ${(cctvCoverageSummary.ownOperatedTotal / 10000).toFixed(1)}만대 · 불법주정차 포함 약 ${(
-            cctvCoverageSummary.includingIllegalParkingTotal / 10000
-          ).toFixed(1)}만대 · 자치경찰단 ITS ${cctvCoverageSummary.itsLinkedCount}/${cctvCoverageSummary.itsTotalCount}대만 연계 (대표 ${
-            cctvCoverageSummary.representativeCount
-          }대 표시)`}
-          action={
-            <div className="flex flex-wrap items-center gap-2">
-              <input
-                type="text"
-                value={cctvQuery}
-                onChange={(e) => setCctvQuery(e.target.value)}
-                placeholder="주소 또는 카메라명 검색"
-                className="w-48 rounded-full border border-border-subtle bg-inset px-3 py-1.5 text-xs text-white/80 placeholder:text-white/30 focus:border-accent focus:outline-none"
-              />
-              <div className="flex gap-1.5">
-                {CCTV_DOMAIN_FILTERS.map((f) => (
-                  <Pill key={f.id} size="sm" active={cctvDomain === f.id} onClick={() => setCctvDomain(f.id)}>
-                    {f.label}
-                  </Pill>
-                ))}
-              </div>
-            </div>
-          }
-        >
-          {filteredCameras.length === 0 ? (
-            <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
-              검색 결과가 없습니다.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {filteredCameras.map((camera) => (
-                <CctvCameraCard key={camera.id} camera={camera} />
-              ))}
-            </div>
-          )}
-        </Card>
-      )}
-
-      {topTab === "summary" && (
-        <>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <Card className="border-accent/40">
-              <p className="text-xs font-medium text-white/40">제주도 전체</p>
-              <div className="mt-2 grid grid-cols-2 gap-2 text-center">
-                <div>
-                  <p className="text-lg font-bold text-white">{totalDutyMembers}</p>
-                  <p className="text-[10px] text-white/35">근무(명) · 출동중 {dispatchedTeams}팀</p>
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-risk-danger">{totalActiveRisk}</p>
-                  <p className="text-[10px] text-white/35">위험자산(건)</p>
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-risk-warning">{disasterIncidents.length}</p>
-                  <p className="text-[10px] text-white/35">피해접수(건)</p>
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-risk-safe">
-                    {connectedAgencies}/{agencyStatuses.length}
-                  </p>
-                  <p className="text-[10px] text-white/35">상황전파 연결</p>
-                </div>
-              </div>
-            </Card>
-            {regionStats.map((region) => (
-              <Card key={region.key}>
-                <p className="text-xs font-medium text-white/40">{region.label}</p>
-                <div className="mt-2 grid grid-cols-2 gap-2 text-center">
-                  <div>
-                    <p className="text-lg font-bold text-white">{region.members}</p>
-                    <p className="text-[10px] text-white/35">근무(명)</p>
-                  </div>
-                  <div>
-                    <p className="text-lg font-bold text-risk-warning">{region.incidents}</p>
-                    <p className="text-[10px] text-white/35">피해접수(건)</p>
-                  </div>
-                </div>
-                <p className="mt-2 text-[10px] text-white/25">위험자산·상황전파는 도 전체 기준만 집계됩니다</p>
-              </Card>
-            ))}
-          </div>
-
-          <div className="flex flex-col gap-4 xl:flex-row">
-            <Card title="타임라인" className="flex flex-col xl:w-80 xl:shrink-0">
-              <div className="h-[460px]">
-                <GisTimelinePanel tabs={timelineTabs} filters={timelineFilters} />
-              </div>
-            </Card>
-
-            <Card
-              title="위험 위치 및 영향 범위 — 제주 전역 GIS"
-              subtitle={`기온 ${currentWeather.temperatureC}℃ · 강수 ${currentWeather.rainfallMm}mm · 풍속 ${currentWeather.windSpeedMs}m/s · 습도 ${currentWeather.humidityPercent}% · 갱신 ${formatHM(currentWeather.observedAt)} / 5분 주기`}
-              action={
-                <div className="flex gap-1.5">
-                  {MAP_DOMAIN_FILTERS.map((f) => (
-                    <Pill key={f.id} size="sm" active={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
-                      {f.label}
-                    </Pill>
-                  ))}
-                </div>
-              }
-              className="flex-1"
-            >
-              <div className="relative h-[460px] w-full overflow-hidden rounded-lg">
-                <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" />
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
-                <span className="font-semibold text-white/30">범례</span>
-                <RiskBadge level="danger" />
-                <RiskBadge level="alert" />
-                <RiskBadge level="warning" />
-                <RiskBadge level="caution" />
-                <RiskBadge level="safe" />
-              </div>
-            </Card>
-
-            <Card title="대응 패널" className="flex flex-col xl:w-80 xl:shrink-0">
-              <div className="h-[460px]">
-                <GisTimelinePanel tabs={responseTabs} />
-              </div>
-            </Card>
-          </div>
-
-          <div id="service-status-cards" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 scroll-mt-4">
-            {serviceStatusCards.map((card) => (
-              <ServiceStatusCard key={card.id} card={card} />
-            ))}
-          </div>
-        </>
-      )}
-
-      {topTab === "gis" && (
-      <>
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card
-          title="위험 위치 및 영향 범위 — 제주 전역 GIS"
-          subtitle={`기온 ${currentWeather.temperatureC}℃ · 강수 ${currentWeather.rainfallMm}mm · 풍속 ${currentWeather.windSpeedMs}m/s · 습도 ${currentWeather.humidityPercent}% · 갱신 ${formatHM(currentWeather.observedAt)} / 5분 주기`}
-          action={
-            <div className="flex gap-1.5">
-              {MAP_DOMAIN_FILTERS.map((f) => (
-                <Pill key={f.id} size="sm" active={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
-                  {f.label}
-                </Pill>
-              ))}
-            </div>
-          }
-          className="xl:col-span-2"
-        >
-          <div className="relative h-[460px] w-full overflow-hidden rounded-lg">
-            <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" />
-            <GisIconRail
-              activeKey={activeRailKey}
-              onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))}
-              items={DASHBOARD_RAIL_ITEMS}
-            />
-            {activeRailKey && (
-              <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={railContent} />
-            )}
-          </div>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
-            <span className="font-semibold text-white/30">범례</span>
-            <RiskBadge level="danger" />
-            <RiskBadge level="alert" />
-            <RiskBadge level="warning" />
-            <RiskBadge level="caution" />
-            <RiskBadge level="safe" />
-          </div>
-        </Card>
-
-        <Card title="타임라인" className="flex flex-col">
-          <div className="h-[460px]">
-            <GisTimelinePanel tabs={timelineTabs} filters={timelineFilters} />
-          </div>
-        </Card>
-      </div>
-      </>
-      )}
+        )}
+      </main>
     </div>
   )
 }
+

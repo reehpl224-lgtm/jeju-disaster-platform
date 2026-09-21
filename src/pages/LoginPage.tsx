@@ -26,7 +26,7 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-base p-4">
-      <div className="w-full max-w-sm rounded-2xl border border-border-subtle bg-panel p-8">
+      <div className="w-full max-w-lg rounded-3xl border border-white/20 bg-base p-8 shadow-xl lg:p-16">
         <div className="mb-1 flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-base">🚨</span>
           <h1 className="text-lg font-bold text-white">재난관리 플랫폼</h1>

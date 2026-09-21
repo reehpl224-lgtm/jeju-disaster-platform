@@ -93,10 +93,16 @@ export function JejuTileMap({
   markers,
   cctvMarkers,
   className,
+  showToolbar = true,
+  toolbarAtBottom = false,
 }: {
   markers: RiskMarker[]
   cctvMarkers?: CctvCamera[]
   className?: string
+  /** false면 지도 위 모드/지역 툴바를 숨긴다(종합 상황판의 작은 지도용) */
+  showToolbar?: boolean
+  /** true면 툴바를 우하단에 둔다(GIS 상황판은 상단 중앙에 분야 칩이 있어서) */
+  toolbarAtBottom?: boolean
 }) {
   const [mode, setMode] = useState<MapMode>("general")
   const [regionKey, setRegionKey] = useState("all")
@@ -200,7 +206,12 @@ export function JejuTileMap({
 
       {/* GisTimelinePanel이 지도 위에 뜨는 오버레이가 아니라 지도 옆 전용 컬럼으로 옮겨져서(2026-09-09)
           더 이상 우측 하단과 겹칠 일이 없어 툴바를 top-2로 올리고, 팝업도 다시 우측에 둘 수 있음 */}
-      <div className="absolute right-2 top-2 z-[500] flex max-w-[calc(100%-16px)] flex-col items-end gap-1.5">
+      {showToolbar && (
+      <div
+        className={`absolute right-2 z-[500] flex max-w-[calc(100%-16px)] items-end gap-1.5 ${
+          toolbarAtBottom ? "bottom-14 flex-col-reverse" : "top-2 flex-col"
+        }`}
+      >
         <div className="flex flex-wrap items-center justify-end gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
           <select
             value="jeju"
@@ -318,6 +329,7 @@ export function JejuTileMap({
           </div>
         )}
       </div>
+      )}
     </div>
   )
 }

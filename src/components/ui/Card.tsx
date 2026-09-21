@@ -9,7 +9,7 @@ interface CardProps {
 
 export function Card({ title, subtitle, action, className = "", children }: PropsWithChildren<CardProps>) {
   return (
-    <section className={`rounded-xl border border-border-subtle bg-panel p-4 shadow-card ${className}`}>
+    <section className={`rounded-lg border border-white/20 bg-panel p-4 md:px-5 shadow-card ${className}`}>
       {(title || action) && (
         <div className="mb-3 flex items-start justify-between gap-2">
           <div>
