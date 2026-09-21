@@ -1469,3 +1469,8 @@ h1, h2, h3, p { margin: 0; }
   .regions--wide > .region-col--left { left: 12px; }
   .regions--wide > .region-col--right { right: 12px; }
 }
+
+/* 지역 카드는 분야 선택(select) 아래에서 시작해 겹치지 않게 */
+@layer components {
+  .regions--wide > .region-col { top: 80px; padding-top: 0; max-height: calc(100% - 88px); }
+}
