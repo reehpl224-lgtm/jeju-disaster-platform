@@ -1,6 +1,6 @@
 import "leaflet/dist/leaflet.css"
-import { useEffect, useState } from "react"
-import { CircleMarker, MapContainer, Popup, TileLayer, useMap, ZoomControl } from "react-leaflet"
+import { Fragment, useEffect, useState } from "react"
+import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap, ZoomControl } from "react-leaflet"
 import type { CctvCamera, RiskLevel, RiskMarker } from "../../types/domain"
 import { riskStyles } from "./riskStyles"
 import { TOOLBOX_PANELS, type ToolboxChipItem } from "./mapToolboxData"
@@ -15,13 +15,13 @@ const DOMAIN_LABEL: Record<RiskMarker["domain"], string> = {
 }
 
 const MARKER_COLOR: Record<RiskLevel, string> = {
-  danger: "var(--color-risk-danger)",
-  alert: "var(--color-risk-alert)",
-  warning: "var(--color-risk-warning)",
-  caution: "var(--color-risk-caution)",
-  safe: "var(--color-risk-safe)",
-  info: "var(--color-risk-info)",
-  offline: "var(--color-risk-offline)",
+  danger: "#ff3b30",
+  alert: "#f8390d",
+  warning: "#f2731a",
+  caution: "#f9cd00",
+  safe: "#8ec21f",
+  info: "#0054a3",
+  offline: "#8a8d90",
 }
 
 const JEJU_CENTER: [number, number] = [33.38, 126.53]
@@ -162,8 +162,8 @@ export function JejuTileMap({
                 center={[cam.lat, cam.lng]}
                 radius={6}
                 pathOptions={{
-                  color: cam.status === "online" ? "var(--color-risk-safe)" : "var(--color-risk-offline)",
-                  fillColor: cam.status === "online" ? "var(--color-risk-safe)" : "var(--color-risk-offline)",
+                  color: cam.status === "online" ? "#8ec21f" : "#8a8d90",
+                  fillColor: cam.status === "online" ? "#8ec21f" : "#8a8d90",
                   fillOpacity: 0.8,
                   weight: 2,
                 }}
@@ -182,12 +182,21 @@ export function JejuTileMap({
           : geoMarkers.map((marker) => {
               const color = MARKER_COLOR[marker.level]
               return (
+                <Fragment key={marker.id}>
                 <CircleMarker
-                  key={marker.id}
+                  center={[marker.lat, marker.lng]}
+                  radius={14}
+                  interactive={false}
+                  pathOptions={{ color, fillColor: color, fillOpacity: 0.25, weight: 0 }}
+                />
+                <CircleMarker
                   center={[marker.lat, marker.lng]}
                   radius={7}
-                  pathOptions={{ color, fillColor: color, fillOpacity: 0.7, weight: 2 }}
+                  pathOptions={{ color: "#111", fillColor: color, fillOpacity: 1, weight: 2 }}
                 >
+                  <Tooltip direction="top" offset={[0, -8]}>
+                    {marker.name}
+                  </Tooltip>
                   <Popup>
                     <div className="min-w-40 text-xs">
                       <p className="font-semibold text-white/90">{marker.name}</p>
@@ -200,6 +209,7 @@ export function JejuTileMap({
                     </div>
                   </Popup>
                 </CircleMarker>
+                </Fragment>
               )
             })}
       </MapContainer>
