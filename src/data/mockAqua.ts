@@ -42,12 +42,12 @@ export const aquaSummary = {
   pendingApproval: { count: 2, detail: "주의 승인 1 · 경계 승인 1" },
   /** 아쿠아팜스 페이지(aquaFarmTotals)와 반드시 같은 수치를 쓸 것 — 총량이 화면마다 다르면 담당자가 신뢰 못함 */
   affectedFarms: { count: 24, detail: "심각 5 · 경계 7 · 주의 7 · 관심 5" },
-  /** aquaDataSources 품질점수 평균(null인 s7 제외) — 소스가 바뀌면 이 값도 다시 계산할 것 */
-  dataQuality: { percent: 94, detail: "전체 소스 평균" },
+  /** aquaDataSources 품질점수 평균(null 제외) — 소스가 바뀌면 이 값도 다시 계산할 것 */
+  dataQuality: { percent: 93, detail: "전체 소스 평균" },
 }
 
 export const aquaJourneys = [
-  { id: "data", label: "데이터 수집", desc: "전체 24개 소스 · 정상 19 · 지연·누락 3 · 오류 2", href: "/aqua/data" },
+  { id: "data", label: "데이터 수집", desc: "전체 5개 소스 · 정상 4 · 지연 1", href: "/aqua/data" },
   { id: "prediction", label: "AI 예측", desc: "고위험 3등급 · 예측 신뢰도 87%", href: "/aqua/prediction" },
   { id: "farms", label: "영향 양식장", desc: "24개소 위험권 · 전일 대비 +3개소", href: "/aqua/farms" },
   { id: "alerts", label: "경보 승인", desc: "경계 3단계 · 승인 요청 대기 중", href: "/aqua/alerts" },
@@ -93,24 +93,19 @@ export const aquaDataSources: AquaDataSource[] = [
     qualityScore: 99,
     note: "data.go.kr 공공API 실연동 완료 (2026-09-09 확인)",
   },
-  { id: "s2", name: "위성 영상 (Sentinel-2 — 저염분 추적)", detail: "해색·염분 추정", updatedAt: "06:20", cycle: "6시간", status: "normal", qualityScore: 93, note: "구름량 12%" },
-  { id: "s3", name: "AI CCTV 탐지 메타데이터 — 연안 6개소", detail: "위험행동 탐지", updatedAt: "14:49", cycle: "실시간", status: "delayed", qualityScore: 82, note: "마지막 수신 14분 경과" },
-  { id: "s4", name: "수위 센서 — 효돈천(돈내코·쇠소깍)", detail: "하천 수위", updatedAt: "14:50", cycle: "1분", status: "normal", qualityScore: 95, note: "누락 0건" },
-  { id: "s5", name: "강우 레이더 (기상청 API)", detail: "강수량", updatedAt: "14:52", cycle: "5분", status: "normal", qualityScore: 98, note: "누락 0건" },
-  { id: "s6", name: "GIS 레이어 — 침수 예측 격자", detail: "침수 예측", updatedAt: "14:45", cycle: "10분", status: "normal", qualityScore: 97, note: "누락 0건" },
-  { id: "s7", name: "현장 수동 관측 — 도청·서귀포시", detail: "강우·수위 교차검증", updatedAt: "13:00", cycle: "1시간", status: "missing", qualityScore: null, note: "금일 2회차 미수신" },
+  { id: "s2", name: "위성 (GOCI-II — 해색·저염분 추적)", detail: "해색·염분 추정", updatedAt: "06:20", cycle: "6시간", status: "normal", qualityScore: 93, note: "구름량 12%" },
+  { id: "s3", name: "위성 (SMAP — 해면 염분)", detail: "해면 염분 관측", updatedAt: "09:10", cycle: "1~3일", status: "normal", qualityScore: 90, note: "회의(2026-09-15) 학습 데이터 소스 기준" },
+  { id: "s4", name: "해양 수치모델 (RAMS)", detail: "해양·기상 수치예측", updatedAt: "12:00", cycle: "6시간", status: "normal", qualityScore: 96, note: "회의(2026-09-15) 학습 데이터 소스 기준" },
+  { id: "s5", name: "해양 수치모델 (NEMO)", detail: "해양 순환 수치예측", updatedAt: "12:00", cycle: "24시간", status: "delayed", qualityScore: 88, note: "최신 산출물 갱신 지연" },
 ]
 
 export const aquaDataIssues: AquaDataIssue[] = [
-  { id: "i2", type: "delayed", title: "AI CCTV — 연안 6개소", cause: "네트워크 지연 (현재 14분 경과)", impact: "연안 위험행동 탐지 메타데이터 공백" },
-  { id: "i3", type: "missing", title: "현장 수동 관측 — 도청", cause: "2회차 수동 입력 미완료", impact: "강우·수위 교차검증 데이터 부족" },
+  { id: "i2", type: "delayed", title: "해양 수치모델 (NEMO)", cause: "최신 산출물 갱신 지연", impact: "예측 학습·검증에 쓰는 순환장 데이터 최신성 저하" },
 ]
 
 export const aquaActionLog: AquaActionLogEntry[] = [
-  { id: "a1", time: "14:51", title: "강우 레이더 정상 복구 확인", owner: "김철수", action: "자동 재연결 성공", status: "완료" },
-  { id: "a2", time: "14:38", title: "AI CCTV 지연 감지 (임계 10분 초과)", owner: "시스템 자동 경고", action: "네트워크 점검 요청", status: "진행 중" },
+  { id: "a2", time: "14:38", title: "NEMO 산출물 갱신 지연 감지", owner: "시스템 자동 경고", action: "수치모델 수집 파이프라인 점검 요청", status: "진행 중" },
   { id: "a3", time: "15:00", title: "해양관측부이 KHOA API 연동 확인", owner: "관리자", action: "실시간 수신 정상 확인 (중문·제주남부·제주해협)", status: "완료" },
-  { id: "a4", time: "13:05", title: "현장 관측 미수신 1회차 기록", owner: "박지훈", action: "담당 기관 유선 연락", status: "완료" },
 ]
 
 export const aquaRiskState = {

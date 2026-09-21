@@ -3,12 +3,12 @@ import type { RiverControlRow, RiverStatus, RiverTidePoint, TimelineEntry } from
 export const riverTarget = {
   area: "서귀포시 효돈천 (돈내코·쇠소깍)",
   accuracyGoal: "예측 일치율 85% 이상",
-  leadTimeGoal: "예보 선행시간 1시간 이하",
+  leadTimeGoal: "1시간 선행 범람 예측",
   aiLabels: ["Water_Level_High", "Flood_Imminent", "Debris_Flow"],
 }
 
 export const riverInfra = {
-  newBuild: ["신규 강우레이더 1식", "신규 수위계"],
+  newBuild: ["효돈천 유역 AIoT 계측망 7개소(보전복합)", "스마트폴 3개소"],
   legacy: {
     jeju: 66,
     seogwipo: 69,

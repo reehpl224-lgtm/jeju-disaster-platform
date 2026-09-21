@@ -1,7 +1,7 @@
 import { Card } from "../../components/ui/Card"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { aquaActionLog, aquaDataIssues, aquaDataSources } from "../../data/mockAqua"
+import { aquaActionLog, aquaDataIssues, aquaDataSources, aquaSummary } from "../../data/mockAqua"
 
 const STATUS_LEVEL = {
   normal: "safe",
@@ -33,7 +33,7 @@ export function AquaDataPage() {
           { label: "전체 소스", value: aquaDataSources.length, sub: "등록된 수집 대상" },
           { label: "정상 수집", value: normalCount, sub: "최근 5분 이내 갱신", tone: "safe" },
           { label: "지연·누락·오류", value: issueCount, sub: "확인 필요", tone: "warning" },
-          { label: "데이터 품질 점수", value: "94%", sub: "전체 소스 평균" },
+          { label: "데이터 품질 점수", value: `${aquaSummary.dataQuality.percent}%`, sub: "전체 소스 평균" },
         ]}
       />
 
