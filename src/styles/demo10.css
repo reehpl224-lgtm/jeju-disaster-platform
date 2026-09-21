@@ -1480,3 +1480,18 @@ h1, h2, h3, p { margin: 0; }
   .regions--wide > .korea__map .select { position: absolute; top: -36px; left: 0; right: 0; width: 100%; z-index: 3; }
   .regions--wide > .region-col { top: 48px; max-height: calc(100% - 56px); }
 }
+
+/* 지역 카드: 불투명 배경 + 내용이 잘리지 않도록 높이는 내용에 맞춤 */
+@layer components {
+  .regions--wide .region-card {
+    background: #2b2c2d;
+    height: auto; min-height: 32px; overflow: visible;
+    padding: .375rem;
+  }
+  .regions--wide .region-card--open { min-height: 0; }
+  .regions--wide .region-card__label { flex-grow: 0; min-height: 24px; white-space: nowrap; }
+  .regions--wide .region-card__stats { flex-grow: 0; padding: .375rem .5rem; row-gap: .5rem; overflow: visible; }
+  .regions--wide .region-card__stats .k { overflow: visible; }
+  .regions--wide .region-card--row { background: #2b2c2d; }
+  .regions--wide > .region-col { overflow-y: auto; padding-bottom: 4px; }
+}
