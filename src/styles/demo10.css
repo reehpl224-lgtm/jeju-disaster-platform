@@ -1460,3 +1460,12 @@ h1, h2, h3, p { margin: 0; }
   .jvmap__out li { display: flex; align-items: center; gap: 6px; line-height: 1.7; }
   .jvmap__out .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 }
+
+/* 종합 상황: 지도를 가운데 영역 전체로 넓히고 지역 카드는 그 위 좌우에 겹쳐 띄움 */
+@layer components {
+  .regions--wide { display: block; position: relative; max-width: none; margin: 0; }
+  .regions--wide > .korea__map { position: absolute; left: 12px; right: 12px; top: 40px; bottom: 0; margin: 0; height: auto; }
+  .regions--wide > .region-col { position: absolute; top: 0; z-index: 2; width: 220px; max-height: 100%; }
+  .regions--wide > .region-col--left { left: 12px; }
+  .regions--wide > .region-col--right { right: 12px; }
+}
