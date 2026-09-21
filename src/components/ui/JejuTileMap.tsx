@@ -1,4 +1,5 @@
 import "leaflet/dist/leaflet.css"
+import { latLngBounds } from "leaflet"
 import { Fragment, useEffect, useState } from "react"
 import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap, ZoomControl } from "react-leaflet"
 import type { CctvCamera, RiskLevel, RiskMarker } from "../../types/domain"
@@ -85,6 +86,21 @@ function FlyToRegion({ center, zoom }: { center: [number, number]; zoom: number 
   return null
 }
 
+/** 표시 중인 마커가 현재 화면 밖(해상 등)에 있으면 제주 전체와 마커가 모두 보이도록 화면을 맞춘다 */
+function FitToMarkers({ points }: { points: [number, number][] }) {
+  const map = useMap()
+  const key = points.map((p) => p.join(",")).join("|")
+  useEffect(() => {
+    if (points.length === 0) return
+    const box = latLngBounds([33.1, 126.14], [33.6, 126.98])
+    const all = latLngBounds(points).extend(box.getSouthWest()).extend(box.getNorthEast())
+    const view = map.getBounds()
+    if (points.some((p) => !view.contains(p))) map.fitBounds(all, { padding: [40, 40], maxZoom: 11, animate: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+  return null
+}
+
 /**
  * 무료 타일 지도(OpenStreetMap 표준 타일 + Esri 위성 타일, 둘 다 API 키 불필요) 기반 GIS 지도.
  * lat/lng이 없는 마커는 표시되지 않는다 — 실좌표가 있는 마커만 대상.
@@ -95,6 +111,7 @@ export function JejuTileMap({
   className,
   showToolbar = true,
   toolbarAtBottom = false,
+  fitMarkers = false,
 }: {
   markers: RiskMarker[]
   cctvMarkers?: CctvCamera[]
@@ -103,6 +120,8 @@ export function JejuTileMap({
   showToolbar?: boolean
   /** true면 툴바를 우하단에 둔다(GIS 상황판은 상단 중앙에 분야 칩이 있어서) */
   toolbarAtBottom?: boolean
+  /** true면 화면 밖 마커가 있을 때 자동으로 범위를 맞춘다(GIS 상황판) */
+  fitMarkers?: boolean
 }) {
   const [mode, setMode] = useState<MapMode>("general")
   const [regionKey, setRegionKey] = useState("all")
@@ -140,6 +159,7 @@ export function JejuTileMap({
         zoomControl={false}
         style={{ height: "100%", width: "100%", background: "var(--color-inset)" }}
       >
+        {fitMarkers && <FitToMarkers points={geoMarkers.map((m) => [m.lat, m.lng])} />}
         <FlyToRegion center={region.center} zoom={region.zoom} />
         {/* 기본 줌 컨트롤(top-left)은 GisIconRail과 겹쳐서 비어있는 좌하단으로 이동 */}
         <ZoomControl position="bottomleft" />

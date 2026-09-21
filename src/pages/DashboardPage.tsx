@@ -69,11 +69,12 @@ export function DashboardPage() {
   const raw = params.get("tab")
   const tab: TabKey = raw === "gis" || raw === "cctv" ? raw : "summary"
 
+  // 종합 상황과 GIS 상황의 분야 필터는 서로 독립 — 한쪽에서 '태풍'처럼 제주 밖 마커뿐인 분야를 골라도 다른 쪽 지도는 그대로
   const [mapDomain, setMapDomain] = useState<RiskMarker["domain"] | "all">("all")
-  const filteredMarkers = useMemo(
-    () => (mapDomain === "all" ? riskMarkers : riskMarkers.filter((m) => m.domain === mapDomain)),
-    [mapDomain],
-  )
+  const [summaryDomain, setSummaryDomain] = useState<RiskMarker["domain"] | "all">("all")
+  const byDomain = (d: RiskMarker["domain"] | "all") => (d === "all" ? riskMarkers : riskMarkers.filter((m) => m.domain === d))
+  const filteredMarkers = useMemo(() => byDomain(mapDomain), [mapDomain])
+  const summaryMarkers = useMemo(() => byDomain(summaryDomain), [summaryDomain])
 
   // 타임라인/발효중 특보 패널 필터
   const [timelineType, setTimelineType] = useState<string>("all")
@@ -596,8 +597,8 @@ export function DashboardPage() {
                 <div className="korea__map" style={{ pointerEvents: "auto" }}>
                   <select
                     className="select"
-                    value={mapDomain}
-                    onChange={(e) => setMapDomain(e.target.value as RiskMarker["domain"] | "all")}
+                    value={summaryDomain}
+                    onChange={(e) => setSummaryDomain(e.target.value as RiskMarker["domain"] | "all")}
                     style={{ height: 32, fontSize: 12, backgroundColor: "var(--background)", borderColor: "var(--foreground-faint)" }}
                     aria-label="분야"
                   >
@@ -608,7 +609,7 @@ export function DashboardPage() {
                     ))}
                   </select>
                   <div className="jmap">
-                    <JejuVectorMap markers={filteredMarkers} />
+                    <JejuVectorMap markers={summaryMarkers} />
                   </div>
                 </div>
 
@@ -671,7 +672,7 @@ export function DashboardPage() {
 
             <div className="center center--gis">
               <div className="jmap" style={{ pointerEvents: "auto" }}>
-                <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" toolbarAtBottom />
+                <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" toolbarAtBottom fitMarkers />
               </div>
               <div className="map-top">
                 {weatherLine}
