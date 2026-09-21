@@ -15,7 +15,7 @@ export interface ToolboxSection {
   id: string
   heading: string
   headingChecked?: boolean
-  kind: "checkbox" | "chip"
+  kind: "checkbox" | "chip" | "radio"
   items: (ToolboxCheckItem | ToolboxChipItem)[]
 }
 
@@ -109,29 +109,52 @@ export const TOOLBOX_PANELS: ToolboxPanel[] = [
     ],
   },
   {
+    // GIS 상황_재난위험도 구성예시(화면 ID 43) — 라디오 단일 선택
     id: "flood-risk",
     icon: "🌊",
     buttonLabel: "재난위험도",
     panelTitle: "재난위험도",
     sections: [
       {
-        id: "flood-map",
-        heading: "",
-        kind: "checkbox",
+        id: "flood-hazard",
+        heading: "침수위험도",
+        kind: "radio",
         items: [
-          { id: "river-flood-map", label: "하천위험지도(홍수통제소)", defaultChecked: false },
+          { id: "river-hazard-map", label: "하천위험지도(홍수통제소)", defaultChecked: true },
           { id: "city-flood-map", label: "도시침수위험지도(홍수통제소)", defaultChecked: false },
+        ],
+      },
+      {
+        id: "flood-safety",
+        heading: "범람, 안전위험도",
+        kind: "radio",
+        items: [
+          { id: "river-flood-risk", label: "하천 범람 위험도", defaultChecked: false },
+          { id: "coast-safety-risk", label: "연안 안전 위험도", defaultChecked: false },
+          { id: "low-salinity-risk", label: "저염분수 위험도", defaultChecked: false },
+          { id: "high-temp-risk", label: "고수온 위험도", defaultChecked: false },
+        ],
+      },
+      {
+        id: "ai-risk",
+        heading: "AI 예측 위험도",
+        kind: "radio",
+        items: [
+          { id: "ai-river-flood", label: "하천범람 예측 위험도 (선행 1시간)", defaultChecked: false },
+          { id: "ai-coast-safety", label: "연안안전 예측 위험도 (선행 24~48시간)", defaultChecked: false },
+          { id: "ai-aqua", label: "저염분수·고수온 예측 위험도 (선행 48~120시간)", defaultChecked: false },
         ],
       },
       {
         id: "flood-trace",
         heading: "침수흔적도",
-        kind: "checkbox",
+        kind: "radio",
         items: [{ id: "flood-history", label: "침수이력", defaultChecked: false }],
       },
     ],
   },
   {
+    // GIS 상황_CCTV/센서 구성예시(화면 ID 44) — 라디오 단일 선택
     id: "cctv",
     icon: "📹",
     buttonLabel: "CCTV/센서",
@@ -139,43 +162,66 @@ export const TOOLBOX_PANELS: ToolboxPanel[] = [
     sections: [
       {
         id: "cctv-source",
-        heading: "",
-        kind: "checkbox",
+        heading: "CCTV",
+        kind: "radio",
         items: [
-          { id: "construction-cctv", label: "건설현장", defaultChecked: false },
+          { id: "public-cctv", label: "공공CCTV", defaultChecked: true },
           { id: "disaster-cctv", label: "재난관측", defaultChecked: false },
-          { id: "public-cctv", label: "공공CCTV", defaultChecked: false },
+          { id: "coast-smart-cctv", label: "연안 지능형 CCTV", defaultChecked: false },
         ],
       },
       {
         id: "sensor",
         heading: "센서",
-        kind: "checkbox",
-        items: [{ id: "retaining-wall-sensor", label: "옹벽 센서", defaultChecked: false }],
+        kind: "radio",
+        items: [
+          { id: "coast-weather-sensor", label: "연안 기상센서", defaultChecked: false },
+          { id: "river-level-gauge", label: "하천 수위계", defaultChecked: false },
+          { id: "river-rain-radar", label: "하천 강우레이더", defaultChecked: false },
+          { id: "river-flood-sensor-center", label: "하천 침수정보센터", defaultChecked: false },
+        ],
+      },
+      {
+        id: "alarm",
+        heading: "경보장치",
+        kind: "radio",
+        items: [{ id: "coast-alarm-speaker", label: "연안 경보스피커", defaultChecked: false }],
       },
       {
         id: "traffic",
-        heading: "도로 교통",
-        kind: "checkbox",
+        heading: "도로교통",
+        kind: "radio",
         items: [{ id: "traffic-control", label: "교통 통제 정보", defaultChecked: false }],
       },
     ],
   },
   {
+    // GIS 상황_유관기관 구성예시(화면 ID 45) — 체크박스 다중 선택, 기본값 전체 체크
     id: "agency",
     icon: "🏥",
     buttonLabel: "유관기관",
     panelTitle: "유관기관",
     sections: [
       {
-        id: "agency-list",
-        heading: "",
+        id: "agency-emergency",
+        heading: "긴급대응",
         kind: "checkbox",
         items: [
-          { id: "fire-station", label: "소방서", defaultChecked: false },
-          { id: "police-station", label: "경찰서", defaultChecked: false },
-          { id: "hospital", label: "병원", defaultChecked: false },
-          { id: "shelter", label: "이재민주거시설", defaultChecked: false },
+          { id: "fire-station", label: "소방서", defaultChecked: true },
+          { id: "police-station", label: "경찰서", defaultChecked: true },
+          { id: "coast-guard", label: "해양경찰서", defaultChecked: true },
+          { id: "evac-shelter", label: "대피소", defaultChecked: true },
+          { id: "victim-housing", label: "이재민 거주시설", defaultChecked: true },
+          { id: "hospital", label: "병원", defaultChecked: true },
+        ],
+      },
+      {
+        id: "agency-marine",
+        heading: "수산·해양",
+        kind: "checkbox",
+        items: [
+          { id: "marine-research", label: "해양수산연구", defaultChecked: true },
+          { id: "flood-control-office", label: "홍수통제소", defaultChecked: true },
         ],
       },
     ],

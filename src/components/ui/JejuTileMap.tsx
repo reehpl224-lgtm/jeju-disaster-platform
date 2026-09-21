@@ -62,6 +62,18 @@ function initialToolboxChecked() {
   return state
 }
 
+function initialRadioSel() {
+  const state: Record<string, string | null> = {}
+  for (const panel of TOOLBOX_PANELS) {
+    if (!panel.sections.some((s) => s.kind === "radio")) continue
+    state[panel.id] = null
+    for (const section of panel.sections) {
+      for (const item of section.items) if (section.kind === "radio" && item.defaultChecked) state[panel.id] = item.id
+    }
+  }
+  return state
+}
+
 const CHIP_ACTIVE_CLASS: Record<ToolboxChipItem["activeColor"], string> = {
   blue: "border-risk-info bg-risk-info text-white",
   green: "border-accent bg-accent text-black",
@@ -77,6 +89,44 @@ const REGIONS: { key: string; label: string; center: [number, number]; zoom: num
   { key: "jeju-si", label: "제주시", center: [33.51, 126.53], zoom: 12 },
   { key: "seogwipo-si", label: "서귀포시", center: [33.25, 126.56], zoom: 12 },
 ]
+
+/** 시 → 읍·면 선택(GIS 상황 구성예시의 세 번째 '선택' 드롭다운). 중심 좌표는 각 읍·면 소재지 부근의 근사값 */
+const SUB_AREAS: Record<string, { key: string; label: string; center: [number, number] }[]> = {
+  "jeju-si": [
+    { key: "hallim", label: "한림읍", center: [33.414, 126.267] },
+    { key: "aewol", label: "애월읍", center: [33.462, 126.331] },
+    { key: "gujwa", label: "구좌읍", center: [33.514, 126.852] },
+    { key: "jocheon", label: "조천읍", center: [33.536, 126.64] },
+    { key: "hangyeong", label: "한경면", center: [33.339, 126.176] },
+    { key: "chuja", label: "추자면", center: [33.955, 126.3] },
+    { key: "udo", label: "우도면", center: [33.505, 126.953] },
+  ],
+  "seogwipo-si": [
+    { key: "daejeong", label: "대정읍", center: [33.224, 126.253] },
+    { key: "namwon", label: "남원읍", center: [33.279, 126.722] },
+    { key: "seongsan", label: "성산읍", center: [33.387, 126.88] },
+    { key: "andeok", label: "안덕면", center: [33.253, 126.335] },
+    { key: "pyoseon", label: "표선면", center: [33.326, 126.834] },
+  ],
+}
+
+/** 재난위험도 라디오 → 지도에 실제로 그릴 수 있는 위험 마커 분야(없으면 표기 기준 TBD 안내) */
+const RISK_RADIO_DOMAIN: Record<string, RiskMarker["domain"]> = {
+  "river-flood-risk": "river",
+  "ai-river-flood": "river",
+  "coast-safety-risk": "coast",
+  "ai-coast-safety": "coast",
+  "low-salinity-risk": "aqua",
+  "high-temp-risk": "aqua",
+  "ai-aqua": "aqua",
+}
+
+/** CCTV 라디오 → 카메라 필터(도메인). 공공CCTV는 전체 */
+const CCTV_RADIO_DOMAINS: Record<string, CctvCamera["domain"][] | "all"> = {
+  "public-cctv": "all",
+  "disaster-cctv": ["river", "aqua"],
+  "coast-smart-cctv": ["coast"],
+}
 
 function FlyToRegion({ center, zoom, skipInitial }: { center: [number, number]; zoom: number; skipInitial?: boolean }) {
   const map = useMap()
@@ -198,14 +248,42 @@ export function JejuTileMap({
 }) {
   const [mode, setMode] = useState<MapMode>("general")
   const [regionKey, setRegionKey] = useState("all")
+  const [subAreaKey, setSubAreaKey] = useState("")
+  // 라디오 패널(재난위험도·CCTV/센서)은 패널당 하나만 선택 — 값은 항목 id
+  const [radioSel, setRadioSel] = useState<Record<string, string | null>>(initialRadioSel)
   const [activePanelId, setActivePanelId] = useState<string | null>(null)
   const [toolboxChecked, setToolboxChecked] = useState<Record<string, boolean>>(initialToolboxChecked)
-  const region = REGIONS.find((r) => r.key === regionKey) ?? REGIONS[0]
+  const baseRegion = REGIONS.find((r) => r.key === regionKey) ?? REGIONS[0]
+  const subArea = (SUB_AREAS[regionKey] ?? []).find((s) => s.key === subAreaKey)
+  const region = subArea ? { ...baseRegion, center: subArea.center, zoom: 13 } : baseRegion
   const activePanel = TOOLBOX_PANELS.find((p) => p.id === activePanelId)
 
   const geoMarkers = markers.filter((m): m is RiskMarker & { lat: number; lng: number } => m.lat != null && m.lng != null)
   const outOfRange = geoMarkers.filter((m) => m.lat < 33.1 || m.lat > 33.6 || m.lng < 126.14 || m.lng > 126.98)
   const geoCctv = (cctvMarkers ?? []).filter((c): c is CctvCamera & { lat: number; lng: number } => c.lat != null && c.lng != null)
+
+  const labelOf = (id: string | null | undefined) => {
+    if (!id) return ""
+    for (const p of TOOLBOX_PANELS) for (const s of p.sections) for (const i of s.items) if (i.id === id) return i.label
+    return id
+  }
+  const riskSel = radioSel["flood-risk"]
+  const riskDomain = riskSel ? RISK_RADIO_DOMAIN[riskSel] : undefined
+  const shownMarkers = mode === "riskLevel" && riskDomain ? geoMarkers.filter((m) => m.domain === riskDomain) : geoMarkers
+  const cctvSel = radioSel["cctv"]
+  const cctvDomains = cctvSel ? CCTV_RADIO_DOMAINS[cctvSel] : undefined
+  const shownCctv = !cctvDomains ? [] : cctvDomains === "all" ? geoCctv : geoCctv.filter((c) => cctvDomains.includes(c.domain))
+  const agencyChecked = TOOLBOX_PANELS.find((p) => p.id === "agency")?.sections.flatMap((s) => s.items).filter((i) => toolboxChecked[i.id]) ?? []
+
+  // 선택한 레이어를 지도에 그릴 수 있는지 안내 — 위치 데이터가 없는 항목은 '표기 기준 확정 전(TBD)'으로 표시
+  let layerNotice: string | null = null
+  if (activePanelId === "agency") {
+    layerNotice = agencyChecked.length ? `유관기관 ${agencyChecked.length}종 선택 — 표기 기준 확정 전(TBD), 위치 데이터 준비 중` : null
+  } else if (mode === "riskLevel" && riskSel) {
+    layerNotice = riskDomain ? `${labelOf(riskSel)} — 위험 마커 ${shownMarkers.length}건 표출 중` : `${labelOf(riskSel)} — 표기 기준 확정 전(TBD)`
+  } else if (mode === "cctv" && cctvSel) {
+    layerNotice = cctvDomains ? `${labelOf(cctvSel)} — ${shownCctv.length}대 표출 중` : `${labelOf(cctvSel)} — 표기 기준 확정 전(TBD)`
+  }
 
   function toggleToolboxItem(id: string) {
     setToolboxChecked((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -233,7 +311,7 @@ export function JejuTileMap({
         zoomControl={false}
         style={{ height: "100%", width: "100%", background: "var(--color-inset)" }}
       >
-        {mode !== "cctv" && <MarkerLayer markers={geoMarkers} />}
+        {mode !== "cctv" && <MarkerLayer markers={shownMarkers} />}
         {fitMarkers && <FitToMarkers points={geoMarkers.map((m) => [m.lat, m.lng])} />}
         <FlyToRegion center={region.center} zoom={region.zoom} skipInitial={fitMarkers} />
         {/* 기본 줌 컨트롤(top-left)은 GisIconRail과 겹쳐서 비어있는 좌하단으로 이동 */}
@@ -251,7 +329,7 @@ export function JejuTileMap({
         />
 
         {mode === "cctv"
-          ? geoCctv.map((cam) => (
+          ? shownCctv.map((cam) => (
               <CircleMarker
                 key={cam.id}
                 center={[cam.lat, cam.lng]}
@@ -296,7 +374,7 @@ export function JejuTileMap({
       {showToolbar && (
       <div
         className={`absolute right-2 z-[500] flex max-w-[calc(100%-16px)] items-end gap-1.5 ${
-          toolbarAtBottom ? "bottom-14 flex-col-reverse" : "top-2 flex-col"
+          toolbarAtBottom ? "top-[92px] flex-col" : "top-2 flex-col"
         }`}
       >
         <div className="flex flex-wrap items-center justify-end gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
@@ -309,7 +387,10 @@ export function JejuTileMap({
           </select>
           <select
             value={regionKey}
-            onChange={(e) => setRegionKey(e.target.value)}
+            onChange={(e) => {
+              setRegionKey(e.target.value)
+              setSubAreaKey("")
+            }}
             className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70"
           >
             {REGIONS.map((r) => (
@@ -318,7 +399,21 @@ export function JejuTileMap({
               </option>
             ))}
           </select>
-          <div className="flex gap-0.5">
+          <select
+            value={subAreaKey}
+            onChange={(e) => setSubAreaKey(e.target.value)}
+            disabled={!SUB_AREAS[regionKey]}
+            aria-label="읍·면 선택"
+            className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70 disabled:text-white/30"
+          >
+            <option value="">선택</option>
+            {(SUB_AREAS[regionKey] ?? []).map((s) => (
+              <option key={s.key} value={s.key}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+          <div className="flex w-full flex-wrap justify-end gap-0.5">
             {MODE_BUTTONS.map((btn) => (
               <button
                 key={btn.key}
@@ -344,7 +439,7 @@ export function JejuTileMap({
         </div>
 
         {activePanel && (
-          <div className="max-h-[420px] w-64 overflow-y-auto rounded-lg border border-border-subtle bg-panel p-3 shadow-panel">
+          <div className="max-h-[360px] w-72 overflow-y-auto rounded-lg border border-border-subtle bg-panel p-3 shadow-panel">
             <div className="flex items-center justify-between border-b border-border-subtle pb-2">
               <p className="text-sm font-bold text-white/90">{activePanel.panelTitle}</p>
               <button
@@ -373,7 +468,29 @@ export function JejuTileMap({
                     </label>
                   )}
 
-                  {section.kind === "chip" ? (
+                  {section.kind === "radio" ? (
+                    <div className="flex flex-col gap-1">
+                      {section.items.map((item) => (
+                        <label
+                          key={item.id}
+                          className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-1 text-xs text-white/70 hover:bg-inset"
+                        >
+                          <input
+                            type="radio"
+                            name={activePanel.id}
+                            checked={radioSel[activePanel.id] === item.id}
+                            onChange={() => setRadioSel((prev) => ({ ...prev, [activePanel.id]: item.id }))}
+                            onClick={() => {
+                              // 이미 선택된 항목을 다시 누르면 선택 해제
+                              if (radioSel[activePanel.id] === item.id) setRadioSel((prev) => ({ ...prev, [activePanel.id]: null }))
+                            }}
+                            className="h-3.5 w-3.5 accent-[var(--color-accent)]"
+                          />
+                          {item.label}
+                        </label>
+                      ))}
+                    </div>
+                  ) : section.kind === "chip" ? (
                     <div className="flex flex-wrap gap-1.5">
                       {section.items.map((item) => {
                         const chip = item as ToolboxChipItem
@@ -413,6 +530,12 @@ export function JejuTileMap({
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {layerNotice && (
+          <div className="max-w-72 rounded-lg border border-border-subtle bg-panel px-3 py-2 text-[11px] text-white/60 shadow-panel">
+            {layerNotice}
           </div>
         )}
       </div>
