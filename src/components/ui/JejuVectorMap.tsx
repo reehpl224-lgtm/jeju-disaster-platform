@@ -26,6 +26,46 @@ const REGION_LABEL: Record<"제주시" | "서귀포시", LngLat> = {
   서귀포시: [126.56, 33.3],
 }
 
+const FONT = 16
+const textWidth = (s: string) => [...s].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? FONT * 0.95 : FONT * 0.58), 0)
+
+interface Box { x1: number; y1: number; x2: number; y2: number }
+const overlap = (a: Box, b: Box) => Math.max(0, Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1)) * Math.max(0, Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1))
+
+interface Placed { marker: RiskMarker; x: number; y: number; lx: number; ly: number; anchor: "start" | "end" | "middle" }
+
+/** 라벨 후보 위치(우상/우하/좌상/좌하/위/아래)를 돌며 이미 놓인 라벨·마커 점과 가장 덜 겹치는 자리를 고른다 */
+function placeLabels(items: { marker: RiskMarker; x: number; y: number }[]): Placed[] {
+  const boxes: Box[] = items.map(({ x, y }) => ({ x1: x - 9, y1: y - 9, x2: x + 9, y2: y + 9 }))
+  const placed: Placed[] = []
+  const order = [...items].sort((a, b) => a.y - b.y || a.x - b.x)
+  for (const { marker, x, y } of order) {
+    const w = textWidth(marker.name)
+    const gap = 12
+    const candidates: { lx: number; ly: number; anchor: Placed["anchor"]; box: Box }[] = [
+      { lx: x + gap, ly: y - 8, anchor: "start", box: { x1: x + gap, y1: y - 8 - FONT, x2: x + gap + w, y2: y - 8 + 4 } },
+      { lx: x + gap, ly: y + 20, anchor: "start", box: { x1: x + gap, y1: y + 20 - FONT, x2: x + gap + w, y2: y + 24 } },
+      { lx: x - gap, ly: y - 8, anchor: "end", box: { x1: x - gap - w, y1: y - 8 - FONT, x2: x - gap, y2: y - 8 + 4 } },
+      { lx: x - gap, ly: y + 20, anchor: "end", box: { x1: x - gap - w, y1: y + 20 - FONT, x2: x - gap, y2: y + 24 } },
+      { lx: x, ly: y - 20, anchor: "middle", box: { x1: x - w / 2, y1: y - 20 - FONT, x2: x + w / 2, y2: y - 16 } },
+      { lx: x, ly: y + 34, anchor: "middle", box: { x1: x - w / 2, y1: y + 34 - FONT, x2: x + w / 2, y2: y + 38 } },
+    ]
+    let best = candidates[0]
+    let bestScore = Infinity
+    for (const c of candidates) {
+      let score = boxes.reduce((s, b) => s + overlap(c.box, b), 0)
+      if (c.box.x1 < 0 || c.box.x2 > W || c.box.y1 < 0 || c.box.y2 > H) score += 1e4 // 지도 밖으로 나가는 자리는 피함
+      if (score < bestScore) {
+        best = c
+        bestScore = score
+      }
+    }
+    boxes.push(best.box)
+    placed.push({ marker, x, y, lx: best.lx, ly: best.ly, anchor: best.anchor })
+  }
+  return placed
+}
+
 const inBounds = (m: RiskMarker) =>
   m.lat != null && m.lng != null && m.lng >= BOUNDS.minLng && m.lng <= BOUNDS.maxLng && m.lat >= BOUNDS.minLat && m.lat <= BOUNDS.maxLat
 
@@ -39,7 +79,10 @@ export function JejuVectorMap({ markers }: { markers: RiskMarker[] }) {
       })),
     [],
   )
-  const plotted = markers.filter(inBounds)
+  const plotted = useMemo(
+    () => placeLabels(markers.filter(inBounds).map((marker) => ({ marker, ...(() => { const [x, y] = project([marker.lng as number, marker.lat as number]); return { x, y } })() }))),
+    [markers],
+  )
   const outside = markers.filter((m) => !inBounds(m))
 
   return (
@@ -56,14 +99,13 @@ export function JejuVectorMap({ markers }: { markers: RiskMarker[] }) {
             </text>
           )
         })}
-        {plotted.map((m) => {
-          const [x, y] = project([m.lng as number, m.lat as number])
+        {plotted.map(({ marker: m, x, y, lx, ly, anchor }) => {
           const color = LEVEL_COLOR[m.level] ?? LEVEL_COLOR.offline
           return (
             <g key={m.id} className="jvmap__mk">
               <circle cx={x} cy={y} r={16} fill={color} opacity={0.28} />
               <circle cx={x} cy={y} r={7} fill={color} stroke="#111" strokeWidth={2} />
-              <text x={x + 12} y={y - 10}>
+              <text x={lx} y={ly} textAnchor={anchor}>
                 {m.name}
               </text>
               <title>{`${m.name} · ${m.level}`}</title>
