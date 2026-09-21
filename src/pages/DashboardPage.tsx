@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { DutyContactPanel } from "../components/ui/DutyContactPanel"
 import { JejuTileMap } from "../components/ui/JejuTileMap"
+import { JejuVectorMap } from "../components/ui/JejuVectorMap"
 import { VilageForecastPanel } from "../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../components/ui/WarningsPanel"
 import {
@@ -609,7 +610,7 @@ export function DashboardPage() {
                     ))}
                   </select>
                   <div className="jmap">
-                    <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" showToolbar={false} />
+                    <JejuVectorMap markers={filteredMarkers} />
                   </div>
                 </div>
 
