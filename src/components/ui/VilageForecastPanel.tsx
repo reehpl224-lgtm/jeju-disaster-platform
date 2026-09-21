@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { fetchVilageForecast, formatSlotTime, PTY_LABEL, SKY_LABEL, WEATHER_REGIONS } from "../../data/weatherApi"
-import type { VilageForecastRegion, VilageForecastResponse } from "../../types/weather"
+import type { VilageForecastRegion, VilageForecastResponse, VilageForecastSlot } from "../../types/weather"
 
 /**
  * 기상청 단기예보(getVilageFcst) 실시간 연동 패널 — kma-weather-proxy를 통해 매 조회마다
@@ -120,7 +120,9 @@ export function VilageForecastPanel({ variant = "card" }: { variant?: "card" | "
         </p>
       )}
 
-      {!loading && !error && data && (
+      {!loading && !error && data && variant === "dock" && <HorizontalForecast slots={data.slots} />}
+
+      {!loading && !error && data && variant !== "dock" && (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[320px] text-[11px]">
             <thead>
@@ -151,6 +153,68 @@ export function VilageForecastPanel({ variant = "card" }: { variant?: "card" | "
           </table>
         </div>
       )}
+    </div>
+  )
+}
+
+const DAY_LABEL = ["오늘", "내일", "모레"]
+
+function dayDiff(from: string, to: string) {
+  const d = (s: string) => Date.UTC(Number(s.slice(0, 4)), Number(s.slice(4, 6)) - 1, Number(s.slice(6, 8)))
+  return Math.round((d(to) - d(from)) / 86400000)
+}
+
+/** 하늘상태·강수형태 코드 → 아이콘(맑음은 밤이면 달) */
+function weatherIcon(values: VilageForecastSlot["values"], hour: number) {
+  const pty = values.PTY
+  if (pty && pty !== "0") return pty === "3" ? "❄️" : pty === "2" ? "🌨️" : "🌧️"
+  const night = hour >= 19 || hour < 6
+  if (values.SKY === "1") return night ? "🌙" : "☀️"
+  if (values.SKY === "3") return night ? "☁️" : "⛅"
+  if (values.SKY === "4") return "☁️"
+  return "-"
+}
+
+/** 가로형 단기예보 표 — 시각이 열, 항목이 행. 응답에 있는 항목(하늘상태·기온·강수확률·습도·풍속)만 표시 */
+function HorizontalForecast({ slots }: { slots: VilageForecastSlot[] }) {
+  const base = slots[0]?.date ?? ""
+  const rows: { label: ReactNode; cell: (s: VilageForecastSlot) => ReactNode }[] = [
+    { label: "", cell: (s) => <span className="text-lg leading-none">{weatherIcon(s.values, Number(s.time.slice(0, 2)))}</span> },
+    { label: <>기온<br />(℃)</>, cell: (s) => (s.values.TMP != null ? `${s.values.TMP}°` : "-") },
+    { label: <>강수확률<br />(%)</>, cell: (s) => s.values.POP ?? "-" },
+    { label: <>습도<br />(%)</>, cell: (s) => s.values.REH ?? "-" },
+    { label: <>바람<br />(m/s)</>, cell: (s) => s.values.WSD ?? "-" },
+  ]
+  return (
+    <div className="overflow-x-auto rounded-lg border border-white/20">
+      <table className="w-max min-w-full border-collapse text-center text-xs">
+        <thead>
+          <tr className="bg-[#435668] text-white">
+            <th className="sticky left-0 z-10 w-16 bg-[#435668] px-2 py-2 font-bold">{DAY_LABEL[0]}</th>
+            {slots.map((s, i) => {
+              const newDay = i > 0 && s.date !== slots[i - 1].date
+              const diff = dayDiff(base, s.date)
+              return (
+                <th key={`${s.date}-${s.time}`} className="min-w-11 px-1.5 py-2 font-bold">
+                  {newDay ? DAY_LABEL[diff] ?? `+${diff}일` : `${s.time.slice(0, 2)}시`}
+                </th>
+              )
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, ri) => (
+            <tr key={ri} className="border-t border-white/10">
+              <th className="sticky left-0 z-10 bg-[#1d1d1d] px-2 py-2.5 text-xs font-bold leading-tight text-white/90">{row.label}</th>
+              {slots.map((s) => (
+                <td key={`${s.date}-${s.time}`} className="px-1.5 py-2.5 font-semibold text-white/85">
+                  {row.cell(s)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
