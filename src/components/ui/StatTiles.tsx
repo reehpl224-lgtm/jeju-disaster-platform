@@ -8,6 +8,7 @@ export interface StatTile {
   sub?: ReactNode
   /** 값 색 — 위험 등급 색을 쓸 때 */
   tone?: RiskLevel
+  highlight?: boolean
 }
 
 /** demo-10 클론의 통계 타일(.stats / .stat) — 한 줄 박스 안에 라벨 + 큰 숫자를 가운데 정렬로 나란히 */
@@ -17,7 +18,7 @@ export function StatTiles({ items }: { items: StatTile[] }) {
       {items.map((item) => (
         <div className="stat" key={item.label}>
           <p className="stat__label">{item.label}</p>
-          <p className="stat__value" style={item.tone ? { color: `var(--risk-${item.tone})` } : undefined}>
+          <p className="stat__value" style={item.tone ? { color: `var(--risk-${item.tone})` } : item.highlight ? { color: "var(--primary)" } : undefined}>
             {item.value}
           </p>
           {item.sub && <p style={{ marginTop: 2, fontSize: 11, color: "var(--foreground-subtle)" }}>{item.sub}</p>}

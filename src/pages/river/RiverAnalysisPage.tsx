@@ -1,5 +1,6 @@
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../../components/ui/Card"
+import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import {
@@ -47,12 +48,14 @@ export function RiverAnalysisPage() {
       </Card>
 
       <Card title="위험 근거 데이터">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <Metric label="강우량 (1h 누적)" value={riverRiskBasis.rainfall.value} detail={riverRiskBasis.rainfall.detail} trend={riverRiskBasis.rainfall.trend} />
-          <Metric label="현재 수위" value={riverRiskBasis.waterLevel.value} detail={riverRiskBasis.waterLevel.detail} trend={riverRiskBasis.waterLevel.trend} />
-          <Metric label="강우레이더 예측" value={riverRiskBasis.radar.value} detail={riverRiskBasis.radar.detail} trend={riverRiskBasis.radar.confidence} />
-          <Metric label="유역 포화도" value={riverRiskBasis.saturation.value} detail={riverRiskBasis.saturation.detail} trend={riverRiskBasis.saturation.grade} />
-        </div>
+        <StatTiles
+          items={[
+            { label: "강우량 (1h 누적)", value: riverRiskBasis.rainfall.value, sub: `${riverRiskBasis.rainfall.detail} · ${riverRiskBasis.rainfall.trend}` },
+            { label: "현재 수위", value: riverRiskBasis.waterLevel.value, sub: `${riverRiskBasis.waterLevel.detail} · ${riverRiskBasis.waterLevel.trend}` },
+            { label: "강우레이더 예측", value: riverRiskBasis.radar.value, sub: `${riverRiskBasis.radar.detail} · ${riverRiskBasis.radar.confidence}` },
+            { label: "유역 포화도", value: riverRiskBasis.saturation.value, sub: `${riverRiskBasis.saturation.detail} · ${riverRiskBasis.saturation.grade}` },
+          ]}
+        />
       </Card>
 
       <Card
@@ -145,33 +148,26 @@ export function RiverAnalysisPage() {
       </Card>
 
       <Card title="데이터 신뢰도 종합" subtitle={riverDataConfidence.note}>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          <MiniStat label="강우 센서" value={riverDataConfidence.rain} />
-          <MiniStat label="수위 센서" value={riverDataConfidence.waterLevel} />
-          <MiniStat label="강우레이더" value={riverDataConfidence.radar} />
-          <MiniStat label="현장 영상" value={riverDataConfidence.video} />
-          <MiniStat label="종합 신뢰도" value={riverDataConfidence.overall} highlight />
-        </div>
+        <StatTiles
+          items={[
+            { label: "강우 센서", value: riverDataConfidence.rain },
+            { label: "수위 센서", value: riverDataConfidence.waterLevel },
+            { label: "강우레이더", value: riverDataConfidence.radar },
+            { label: "현장 영상", value: riverDataConfidence.video },
+            { label: "종합 신뢰도", value: riverDataConfidence.overall, highlight: true },
+          ]}
+        />
       </Card>
 
       <Card title="레거시 연계 데이터" subtitle={riverInfra.legacy.note}>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <MiniStat label="제주시 침수정보센서" value={`${riverInfra.legacy.jeju}개소`} />
-          <MiniStat label="서귀포시 침수정보센서" value={`${riverInfra.legacy.seogwipo}개소`} />
-          <MiniStat label="총 연계 규모" value={`${riverInfra.legacy.total}개소`} highlight />
-        </div>
+        <StatTiles
+          items={[
+            { label: "제주시 침수정보센서", value: `${riverInfra.legacy.jeju}개소` },
+            { label: "서귀포시 침수정보센서", value: `${riverInfra.legacy.seogwipo}개소` },
+            { label: "총 연계 규모", value: `${riverInfra.legacy.total}개소`, highlight: true },
+          ]}
+        />
       </Card>
-    </div>
-  )
-}
-
-function Metric({ label, value, detail, trend }: { label: string; value: string; detail: string; trend: string }) {
-  return (
-    <div className="rounded-lg border border-border-subtle p-3">
-      <p className="text-xs font-medium text-white/40">{label}</p>
-      <p className="mt-1 text-lg font-bold text-white">{value}</p>
-      <p className="text-[11px] text-white/35">{detail}</p>
-      <p className="text-[11px] font-semibold text-risk-warning">{trend}</p>
     </div>
   )
 }
@@ -185,11 +181,3 @@ function Field({ label, value }: { label: string; value: string }) {
   )
 }
 
-function MiniStat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className="rounded-lg border border-border-subtle p-2.5 text-center">
-      <p className="text-[11px] text-white/35">{label}</p>
-      <p className={`mt-1 text-sm font-bold ${highlight ? "text-accent" : "text-white/80"}`}>{value}</p>
-    </div>
-  )
-}
