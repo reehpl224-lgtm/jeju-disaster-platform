@@ -440,7 +440,7 @@ export function DashboardPage() {
         </ul>
       ),
     },
-    { key: "forecast", label: "동네예보", content: <VilageForecastPanel /> },
+    { key: "forecast", label: "동네예보", content: <VilageForecastPanel variant="dock" /> },
     { key: "live-warnings", label: "실시간 특보", content: <WarningsPanel /> },
   ]
 
@@ -561,7 +561,7 @@ export function DashboardPage() {
                     </button>
                   ))}
                 </div>
-                {timelineFilters}
+                {(timelineTab === "timeline" || timelineTab === "advisory") && timelineFilters}
                 <div className="panel__scroll">{(timelineTabs.find((t) => t.key === timelineTab) ?? timelineTabs[0]).content}</div>
               </section>
             </aside>
@@ -690,7 +690,7 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <HorizontalTabsDock tabs={timelineTabs} filters={timelineFilters} activeKey={timelineTab} onSelect={setTimelineTab} />
+            <HorizontalTabsDock tabs={timelineTabs} filters={timelineTab === "timeline" || timelineTab === "advisory" ? timelineFilters : undefined} activeKey={timelineTab} onSelect={setTimelineTab} />
           </div>
           <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
         </div>
