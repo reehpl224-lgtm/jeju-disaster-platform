@@ -1,8 +1,9 @@
 import "leaflet/dist/leaflet.css"
 import { latLngBounds } from "leaflet"
-import { Fragment, useEffect, useState } from "react"
+import { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap, ZoomControl } from "react-leaflet"
 import type { CctvCamera, RiskLevel, RiskMarker } from "../../types/domain"
+import { placeTileLabels, type LabelSpot } from "./labelPlacement"
 import { riskStyles } from "./riskStyles"
 import { TOOLBOX_PANELS, type ToolboxChipItem } from "./mapToolboxData"
 
@@ -77,13 +78,76 @@ const REGIONS: { key: string; label: string; center: [number, number]; zoom: num
   { key: "seogwipo-si", label: "서귀포시", center: [33.25, 126.56], zoom: 12 },
 ]
 
-function FlyToRegion({ center, zoom }: { center: [number, number]; zoom: number }) {
+function FlyToRegion({ center, zoom, skipInitial }: { center: [number, number]; zoom: number; skipInitial?: boolean }) {
   const map = useMap()
+  const first = useRef(true)
   useEffect(() => {
+    // 마커 범위 맞춤(FitToMarkers)이 처음 화면을 잡는 경우, 첫 렌더의 flyTo가 그것을 덮어쓰지 않게 건너뜀
+    if (first.current && skipInitial) {
+      first.current = false
+      return
+    }
+    first.current = false
     map.flyTo(center, zoom, { duration: 0.6 })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center[0], center[1], zoom])
   return null
+}
+
+/** 마커 이름표 자리를 화면 좌표 기준으로 계산 — 줌/크기가 바뀔 때마다 다시 배치 */
+function useLabelSpots(points: { id: string; name: string; lat: number; lng: number }[], enabled: boolean): Record<string, LabelSpot> {
+  const map = useMap()
+  const [spots, setSpots] = useState<Record<string, LabelSpot>>({})
+  const key = points.map((p) => p.id).join("|")
+  const compute = useCallback(() => {
+    if (!enabled) return
+    const size = map.getSize()
+    setSpots(placeTileLabels(points.map((p) => ({ id: p.id, name: p.name, ...map.latLngToContainerPoint([p.lat, p.lng]) })), size.x, size.y))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, enabled, key])
+  useEffect(() => {
+    compute()
+    map.on("zoomend resize", compute)
+    return () => {
+      map.off("zoomend resize", compute)
+    }
+  }, [map, compute])
+  return spots
+}
+
+type GeoMarker = RiskMarker & { lat: number; lng: number }
+
+function MarkerLayer({ markers }: { markers: GeoMarker[] }) {
+  const spots = useLabelSpots(markers, true)
+  return (
+    <>
+      {markers.map((marker) => {
+        const color = MARKER_COLOR[marker.level]
+        const spot = spots[marker.id] ?? { dir: "right" as const, offset: [6, -10] as [number, number] }
+        return (
+          <Fragment key={marker.id}>
+            <CircleMarker center={[marker.lat, marker.lng]} radius={14} interactive={false} pathOptions={{ color, fillColor: color, fillOpacity: 0.25, weight: 0 }} />
+            <CircleMarker center={[marker.lat, marker.lng]} radius={7} pathOptions={{ color: "#111", fillColor: color, fillOpacity: 1, weight: 2 }}>
+              <Tooltip key={spot.dir + spot.offset.join(",")} permanent direction={spot.dir} offset={spot.offset} className="jmk-label">
+                {marker.name}
+              </Tooltip>
+              <Popup>
+                <div className="min-w-40 text-xs">
+                  <p className="font-semibold text-white/90">{marker.name}</p>
+                  <p className="mt-0.5 text-white/50">
+                    {DOMAIN_LABEL[marker.domain]} · {riskStyles[marker.level].label}
+                  </p>
+                  {marker.temperature && <p className="mt-1">수온 {marker.temperature}</p>}
+                  {marker.salinity && <p>염분 {marker.salinity}</p>}
+                  {marker.value && !marker.temperature && !marker.salinity && <p className="mt-1">{marker.value}</p>}
+                </div>
+              </Popup>
+            </CircleMarker>
+          </Fragment>
+        )
+      })}
+    </>
+  )
 }
 
 /** 표시 중인 마커가 현재 화면 밖(해상 등)에 있으면 제주 전체와 마커가 모두 보이도록 화면을 맞춘다 */
@@ -92,10 +156,19 @@ function FitToMarkers({ points }: { points: [number, number][] }) {
   const key = points.map((p) => p.join(",")).join("|")
   useEffect(() => {
     if (points.length === 0) return
-    const box = latLngBounds([33.1, 126.14], [33.6, 126.98])
-    const all = latLngBounds(points).extend(box.getSouthWest()).extend(box.getNorthEast())
-    const view = map.getBounds()
-    if (points.some((p) => !view.contains(p))) map.fitBounds(all, { padding: [40, 40], maxZoom: 11, animate: true })
+    // 첫 렌더 직후에는 컨테이너 크기가 아직 확정되지 않을 수 있어 잠시 뒤에 맞춘다
+    const timer = window.setTimeout(() => {
+      map.invalidateSize()
+      const box = latLngBounds([33.1, 126.14], [33.6, 126.98])
+      // 제주 안 마커가 하나라도 있으면 제주 기준으로 보고(해상 마커 때문에 섬이 작아지지 않게),
+      // 제주 안 마커가 없는 분야(예: 태풍)일 때만 해당 마커까지 포함해 범위를 맞춘다
+      const inJeju = points.filter((p) => box.contains(p))
+      const target = inJeju.length > 0 ? inJeju : points
+      const all = latLngBounds(target).extend(box.getSouthWest()).extend(box.getNorthEast())
+      const view = map.getBounds()
+      if (target.some((p) => !view.contains(p))) map.fitBounds(all, { padding: [40, 40], maxZoom: 11, animate: true })
+    }, 350)
+    return () => window.clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key])
   return null
@@ -159,8 +232,9 @@ export function JejuTileMap({
         zoomControl={false}
         style={{ height: "100%", width: "100%", background: "var(--color-inset)" }}
       >
+        {mode !== "cctv" && <MarkerLayer markers={geoMarkers} />}
         {fitMarkers && <FitToMarkers points={geoMarkers.map((m) => [m.lat, m.lng])} />}
-        <FlyToRegion center={region.center} zoom={region.zoom} />
+        <FlyToRegion center={region.center} zoom={region.zoom} skipInitial={fitMarkers} />
         {/* 기본 줌 컨트롤(top-left)은 GisIconRail과 겹쳐서 비어있는 좌하단으로 이동 */}
         <ZoomControl position="bottomleft" />
         <TileLayer
@@ -199,39 +273,7 @@ export function JejuTileMap({
                 </Popup>
               </CircleMarker>
             ))
-          : geoMarkers.map((marker) => {
-              const color = MARKER_COLOR[marker.level]
-              return (
-                <Fragment key={marker.id}>
-                <CircleMarker
-                  center={[marker.lat, marker.lng]}
-                  radius={14}
-                  interactive={false}
-                  pathOptions={{ color, fillColor: color, fillOpacity: 0.25, weight: 0 }}
-                />
-                <CircleMarker
-                  center={[marker.lat, marker.lng]}
-                  radius={7}
-                  pathOptions={{ color: "#111", fillColor: color, fillOpacity: 1, weight: 2 }}
-                >
-                  <Tooltip direction="top" offset={[0, -8]}>
-                    {marker.name}
-                  </Tooltip>
-                  <Popup>
-                    <div className="min-w-40 text-xs">
-                      <p className="font-semibold text-white/90">{marker.name}</p>
-                      <p className="mt-0.5 text-white/50">
-                        {DOMAIN_LABEL[marker.domain]} · {riskStyles[marker.level].label}
-                      </p>
-                      {marker.temperature && <p className="mt-1">수온 {marker.temperature}</p>}
-                      {marker.salinity && <p>염분 {marker.salinity}</p>}
-                      {marker.value && !marker.temperature && !marker.salinity && <p className="mt-1">{marker.value}</p>}
-                    </div>
-                  </Popup>
-                </CircleMarker>
-                </Fragment>
-              )
-            })}
+          : null}
       </MapContainer>
 
       {/* GisTimelinePanel이 지도 위에 뜨는 오버레이가 아니라 지도 옆 전용 컬럼으로 옮겨져서(2026-09-09)

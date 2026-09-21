@@ -34,3 +34,7 @@
 /* 우측 경로(breadcrumb) 줄 */
 .crumbs { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 8px; font-size: 12px; color: var(--foreground-subtle); }
 .crumbs b { color: var(--foreground-muted); font-weight: 600; }
+
+/* 타일 지도 마커 이름표 */
+.leaflet-tooltip.jmk-label { background: transparent; border: 0; box-shadow: none; padding: 0; color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; text-shadow: -1px -1px 0 #111, 1px -1px 0 #111, -1px 1px 0 #111, 1px 1px 0 #111, 0 0 3px #111; pointer-events: none; }
+.leaflet-tooltip.jmk-label::before { display: none; }
