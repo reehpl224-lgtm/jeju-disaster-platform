@@ -5,6 +5,7 @@ import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap, ZoomCont
 import type { CctvCamera, RiskLevel, RiskMarker } from "../../types/domain"
 import { placeTileLabels, type LabelSpot } from "./labelPlacement"
 import { riskStyles } from "./riskStyles"
+import { RIVER_LEVEL_LABEL } from "../../data/mockRiver"
 import { TOOLBOX_PANELS, type ToolboxChipItem } from "./mapToolboxData"
 
 const DOMAIN_LABEL: Record<RiskMarker["domain"], string> = {
@@ -185,7 +186,8 @@ function MarkerLayer({ markers }: { markers: GeoMarker[] }) {
                 <div className="min-w-40 text-xs">
                   <p className="font-semibold text-white/90">{marker.name}</p>
                   <p className="mt-0.5 text-white/50">
-                    {DOMAIN_LABEL[marker.domain]} · {riskStyles[marker.level].label}
+                    {DOMAIN_LABEL[marker.domain]} ·{" "}
+                    {marker.domain === "river" ? RIVER_LEVEL_LABEL[marker.level] ?? riskStyles[marker.level].label : riskStyles[marker.level].label}
                   </p>
                   {marker.temperature && <p className="mt-1">수온 {marker.temperature}</p>}
                   {marker.salinity && <p>염분 {marker.salinity}</p>}

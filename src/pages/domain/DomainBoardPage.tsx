@@ -6,6 +6,7 @@ import { HorizontalTabsDock, MessengerFab, Risk, ServiceStrip, SideTabsDock, Str
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { cctvCameras } from "../../data/mockCctv"
 import { riskMarkers, serviceStatusCards } from "../../data/mockDashboard"
+import { RIVER_LEVEL_LABEL } from "../../data/mockRiver"
 import { DOMAIN_CONFIGS } from "./domainConfigs"
 
 /**
@@ -73,9 +74,12 @@ export function DomainBoardPage({ domain }: { domain: string }) {
             <div className="timebar">
               <div className="risk-legend">
                 범례{" "}
-                {(["danger", "alert", "warning", "caution", "safe"] as const).map((level) => (
-                  <Risk key={level} level={level} />
-                ))}
+                {(["danger", "alert", "warning", "caution", "safe"] as const)
+                  // 하천(안전·경계·대피·중대피)·저염분수(정상·주의·경계·심각)는 발표자료 4단계라 '관심'이 없음
+                  .filter((level) => !(level === "caution" && (config.id === "river" || config.id === "aqua")))
+                  .map((level) => (
+                    <Risk key={level} level={level} label={config.id === "river" ? RIVER_LEVEL_LABEL[level] : undefined} />
+                  ))}
               </div>
             </div>
           </div>

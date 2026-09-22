@@ -52,7 +52,7 @@ export function AquaResponsePage() {
         </Card>
       </div>
 
-      <Card title="e-SOP 단계별 대응 절차" subtitle="4단계 — 심각 · 현재 진행 중">
+      <Card title="e-SOP 단계별 대응 절차" subtitle="3단계 — 심각 · 현재 진행 중">
         <div className="flex flex-col gap-2.5">
           {checklist.map((item) => (
             <ChecklistRow
@@ -106,14 +106,14 @@ export function AquaResponsePage() {
           </table>
         </Card>
 
-        <Card title="다음 단계 안내" subtitle="5단계(해제) 전환 조건">
+        <Card title="다음 단계 안내" subtitle="해제 전환 조건">
           <ul className="flex flex-col gap-2 text-sm text-white/70">
             <li>· 염분 26.0 psu 이상 · 수온 28.0℃ 미만으로 회복된 상태가 6시간 이상 지속 시 하향 검토</li>
             <li>
               ·{" "}
               {remainingCount > 0
-                ? `현재 4단계 미완료 항목 ${remainingCount}건 해소 후 종료 처리 가능`
-                : "4단계 미완료 항목 모두 해소됨 — 5단계(해제) 전환 검토 가능"}
+                ? `현재 3단계(심각) 미완료 항목 ${remainingCount}건 해소 후 종료 처리 가능`
+                : "3단계(심각) 미완료 항목 모두 해소됨 — 해제 전환 검토 가능"}
             </li>
           </ul>
         </Card>

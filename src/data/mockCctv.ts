@@ -67,9 +67,9 @@ export const cctvCameras: CctvCamera[] = [
   },
   {
     id: "cctv-coast-03",
-    name: "협재 해수욕장",
+    name: "협재 해수욕장 (2차년도 실증 후보 · 기존 CCTV)",
     address: "제주특별자치도 제주시 한림읍 협재리",
-    domain: "coast",
+    domain: "general",
     operator: "도 자체관제",
     status: "online",
     lastFrameAt: "2026-09-08T14:30:00+09:00",

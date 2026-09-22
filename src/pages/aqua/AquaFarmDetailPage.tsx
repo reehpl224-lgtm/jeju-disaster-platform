@@ -6,13 +6,13 @@ import { classifySalinity, classifyTemperature, marineStageToRiskLevel } from ".
 import type { AquaFarm } from "../../types/aqua"
 import type { RiskLevel } from "../../types/domain"
 
-/** e-SOP 5단계 번호체계(aquaStages와 동일: 관심1·주의2·경계3·심각4·해제5) 기준 표기 */
+/** e-SOP 4단계 번호체계(발표자료 정상0·주의1·경계2·심각3, aquaStages와 동일) 기준 표기 */
 const STAGE_LABEL: Record<RiskLevel, string> = {
-  danger: "4단계 — 심각",
-  alert: "3단계 — 경계",
-  warning: "2단계 — 주의",
-  caution: "1단계 — 관심",
-  safe: "해제",
+  danger: "3단계 — 심각",
+  alert: "2단계 — 경계",
+  warning: "1단계 — 주의",
+  caution: "해당 없음",
+  safe: "0단계 — 정상",
   info: "정보",
   offline: "확인 불가",
 }
@@ -27,7 +27,7 @@ const RECOMMENDED_ACTION: Record<RiskLevel, string> = {
   offline: "해당 없음",
 }
 
-const LEVEL_ORDER: RiskLevel[] = ["safe", "caution", "warning", "alert", "danger"]
+const LEVEL_ORDER: RiskLevel[] = ["safe", "warning", "alert", "danger"]
 
 function nextStageCondition(farm: AquaFarm): string {
   const rank = LEVEL_ORDER.indexOf(farm.level)

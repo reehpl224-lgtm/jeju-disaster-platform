@@ -161,7 +161,6 @@ export function AquaHomePage() {
             <RiskBadge level="danger" />
             <RiskBadge level="alert" />
             <RiskBadge level="warning" />
-            <RiskBadge level="caution" />
             <RiskBadge level="safe" />
           </div>
         </Card>

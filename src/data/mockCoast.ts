@@ -2,7 +2,7 @@ import type { CoastAgencyStatus, CoastEvent, CoastFieldAlert, TimelineEntry } fr
 
 export const coastSummary = {
   lastUpdated: "14:32:07",
-  targetArea: "함덕·삼양·협재 해수욕장",
+  targetArea: "함덕·삼양 해수욕장 (1차년도 실증지 · 협재 등은 2차년도 후보)",
   infra: "AIoT 스마트폴 신설 (지능형 CCTV + 기상센서 + 경보스피커)",
   permitNote: "공유수면 점용허가 등 인허가 절차 필요 (스마트폴 신설 구간)",
   aiLabels: ["Person_In_Water", "Danger_Zone_Person", "Rip_Current", "Overtopping"],
@@ -18,8 +18,8 @@ export const coastSummary = {
 export const coastSafetyAssets: { id: string; name: string; location: string; status: "정상" | "오류"; detail: string }[] = [
   { id: "ca1", name: "함덕 AIoT 스마트폴 #1", location: "함덕해수욕장", status: "정상", detail: "CCTV·기상센서·경보스피커 정상" },
   { id: "ca2", name: "삼양 AIoT 스마트폴 #1", location: "삼양해수욕장", status: "정상", detail: "CCTV·기상센서·경보스피커 정상" },
-  { id: "ca3", name: "협재 AIoT 스마트폴 #1", location: "협재해수욕장", status: "오류", detail: "파고 센서 결측 2시간" },
-  { id: "ca4", name: "협재 AIoT 스마트폴 #2", location: "협재해수욕장", status: "오류", detail: "경보스피커 응답 없음" },
+  { id: "ca3", name: "함덕 AIoT 스마트폴 #2", location: "함덕해수욕장", status: "오류", detail: "파고 센서 결측 2시간" },
+  { id: "ca4", name: "삼양 AIoT 스마트폴 #2", location: "삼양해수욕장", status: "오류", detail: "경보스피커 응답 없음" },
 ]
 
 export const coastAiInsights = [
@@ -42,19 +42,19 @@ export const coastAiInsights = [
 export const coastEvents: CoastEvent[] = [
   { id: "e1", level: "danger", type: "익수 의심", source: "AI CCTV · 스마트폴", location: "함덕해수욕장", time: "14:28", status: "미확인" },
   { id: "e2", level: "danger", type: "위험구역 진입", source: "AI CCTV", location: "삼양해수욕장 방파제", time: "14:15", status: "경보 실행 중" },
-  { id: "e3", level: "danger", type: "이안류 감지", source: "해상 센서 · GIS", location: "협재해수욕장 외해", time: "14:09", status: "해경 공조 진행" },
+  { id: "e3", level: "danger", type: "이안류 감지", source: "해상 센서 · GIS", location: "함덕해수욕장 외해", time: "14:09", status: "해경 공조 진행" },
   { id: "e4", level: "warning", type: "이안류 감지", source: "해상 센서", location: "삼양해수욕장", time: "13:55", status: "미확인" },
-  { id: "e5", level: "warning", type: "월파 경보", source: "기상 센서 · GIS", location: "협재해수욕장", time: "13:40", status: "현장 경보 완료" },
+  { id: "e5", level: "warning", type: "월파 경보", source: "기상 센서 · GIS", location: "삼양해수욕장", time: "13:40", status: "현장 경보 완료" },
 ]
 
 export const coastFieldAlerts: CoastFieldAlert[] = [
   { id: "f1", location: "함덕해수욕장", level: "danger", time: "14:28 발령", detail: "스피커·경광등 작동 중" },
   { id: "f2", location: "삼양해수욕장 방파제", level: "danger", time: "14:15 발령", detail: "현장 단말 수신 확인" },
-  { id: "f3", location: "협재해수욕장", level: "warning", time: "13:55 발령", detail: "문자·앱 전파 완료" },
+  { id: "f3", location: "삼양해수욕장", level: "warning", time: "13:55 발령", detail: "문자·앱 전파 완료" },
 ]
 
 export const coastAgencyStatuses: CoastAgencyStatus[] = [
-  { id: "a1", agency: "해경 출동", status: "출동 중", detail: "협재 이안류 — 출동 중 (14:12 요청)", level: "info" },
+  { id: "a1", agency: "해경 출동", status: "출동 중", detail: "함덕 이안류 — 출동 중 (14:12 요청)", level: "info" },
   { id: "a2", agency: "해경 대기", status: "승인 대기", detail: "함덕 익수 — 출동 대기 승인 대기", level: "caution" },
   { id: "a3", agency: "소방 대기", status: "현장 접수", detail: "삼양 방파제 — 현장 접수 완료", level: "offline" },
 ]

@@ -17,23 +17,21 @@ export const aquaSummary = {
   targetArea: "제주 서남부 한경·대정 육상양식장",
   spatialResolution: "1km 이하",
   aiLabels: ["Low_Salinity_Plume", "High_Temp_Water"],
-  /** 염분 단독 기준 5단계 — marineAlertThresholds.ts classifySalinity()와 반드시 일치시킬 것 */
+  /** 염분 단독 기준 4단계(발표자료 정상·주의·경계·심각) — marineAlertThresholds.ts classifySalinity()와 반드시 일치시킬 것 */
   salinityLevels: [
-    { level: "safe", label: "정상", range: "31.0 psu 이상" },
-    { level: "caution", label: "관심", range: "28.0~31.0 psu" },
-    { level: "warning", label: "주의", range: "26.0~28.0 psu" },
-    { level: "alert", label: "경계", range: "24.0~26.0 psu" },
+    { level: "safe", label: "정상", range: "28.0 psu 초과 (평상 30~31)" },
+    { level: "warning", label: "주의", range: "26.0 초과 ~ 28.0 psu 이하" },
+    { level: "alert", label: "경계", range: "24.0 ~ 26.0 psu 이하" },
     { level: "danger", label: "심각", range: "24.0 psu 미만" },
   ] as { level: RiskLevel; label: string; range: string }[],
   /** 복합(수온+염분) 승격 규칙 — 단순 "한 단계 승격"이 아니라 조건별로 도달 단계가 다르므로 정확히 표기.
    *  marineAlertThresholds.ts의 combinedOverride()와 반드시 일치시킬 것 */
   combinedRuleNote:
     "수온 28.0℃ 이상 동반 시: 염분 26.0 이하→심각 / 염분 28.0 이하→경계 이상. 수온 26.0~28.0℃면 염분 28.0 이하→주의 이상으로 승격",
-  /** 수온 단독 기준 5단계 — marineAlertThresholds.ts classifyTemperature()와 반드시 일치시킬 것.
+  /** 수온 단독 기준 4단계 — marineAlertThresholds.ts classifyTemperature()와 반드시 일치시킬 것.
    *  28.0℃ 이상 구간은 값 자체가 아니라 지속일수로 주의/경계/심각이 갈리므로 range에 지속일수를 함께 표기 */
   temperatureLevels: [
-    { level: "safe", label: "정상", range: "25.0℃ 미만" },
-    { level: "caution", label: "관심", range: "25.0~28.0℃" },
+    { level: "safe", label: "정상", range: "28.0℃ 미만" },
     { level: "warning", label: "주의", range: "28.0℃ 이상 (당일 도달)" },
     { level: "alert", label: "경계", range: "28.0℃ 이상 1~2일 지속" },
     { level: "danger", label: "심각", range: "28.0℃ 이상 3일 이상 지속" },
@@ -41,7 +39,7 @@ export const aquaSummary = {
   activeRisk: { count: 3, detail: "저염분수 1 · 고수온 1 · 복합 1" },
   pendingApproval: { count: 2, detail: "주의 승인 1 · 경계 승인 1" },
   /** 아쿠아팜스 페이지(aquaFarmTotals)와 반드시 같은 수치를 쓸 것 — 총량이 화면마다 다르면 담당자가 신뢰 못함 */
-  affectedFarms: { count: 24, detail: "심각 5 · 경계 7 · 주의 7 · 관심 5" },
+  affectedFarms: { count: 19, detail: "심각 5 · 경계 7 · 주의 7" },
   /** aquaDataSources 품질점수 평균(null 제외) — 소스가 바뀌면 이 값도 다시 계산할 것 */
   dataQuality: { percent: 93, detail: "전체 소스 평균" },
 }
@@ -49,9 +47,9 @@ export const aquaSummary = {
 export const aquaJourneys = [
   { id: "data", label: "데이터 수집", desc: "전체 5개 소스 · 정상 4 · 지연 1", href: "/aqua/data" },
   { id: "prediction", label: "AI 예측", desc: "고위험 3등급 · 예측 신뢰도 87%", href: "/aqua/prediction" },
-  { id: "farms", label: "영향 양식장", desc: "24개소 위험권 · 전일 대비 +3개소", href: "/aqua/farms" },
-  { id: "alerts", label: "경보 승인", desc: "경계 3단계 · 승인 요청 대기 중", href: "/aqua/alerts" },
-  { id: "response", label: "e-SOP 대응", desc: "4단계 심각 · 미완료 조치 2건", href: "/aqua/response" },
+  { id: "farms", label: "영향 양식장", desc: "19개소 위험권 · 전일 대비 +3개소", href: "/aqua/farms" },
+  { id: "alerts", label: "경보 승인", desc: "경계 2단계 · 승인 요청 대기 중", href: "/aqua/alerts" },
+  { id: "response", label: "e-SOP 대응", desc: "3단계 심각 · 미완료 조치 2건", href: "/aqua/response" },
   { id: "monitoring", label: "실시간 모니터링", desc: "표층 수온 28.6℃ · 염분 24.8psu", href: "/aqua/monitoring" },
 ]
 
@@ -134,11 +132,11 @@ export const aquaQualityMetrics: AquaQualityMetric[] = [
 ]
 
 /**
- * 전체 영향 양식장(aquaFarmTotals.total=24개소) 중 대표 사례 7건만 개별 데이터로 관리 — 확정 관측지점
+ * 전체 영향 양식장(aquaFarmTotals.total=19개소) 중 대표 사례 7건만 개별 데이터로 관리 — 확정 관측지점
  * 3곳(한경 금등·한경 용수·대정 일과, AGENTS.md §2-①)에서 감지된 저염분수·고수온이 확산되어 영향을
  * 받는 더 넓은 한경·대정 지역의 개별 양식장이므로 GIS 마커(관측지점 3곳)보다 수가 많음.
- * 나머지 17개소는 이름 없이 aquaFarmTotals 집계에만 존재 — 화면에는 "대표 N개소" 문구로 명시할 것,
- * 전체 24개소인 것처럼 착각하게 두지 말 것.
+ * 나머지 12개소는 이름 없이 aquaFarmTotals 집계에만 존재 — 화면에는 "대표 N개소" 문구로 명시할 것,
+ * 전체 19개소인 것처럼 착각하게 두지 말 것.
  */
 export const aquaFarms: AquaFarm[] = [
   { id: "f1", name: "한경 금등 전복 양식장", region: "한경면 금등리", species: "전복·소라", level: "danger", riskType: "저염분수+고수온", etaHours: 18, salinity: 24.1, temperature: 30.2 },
@@ -165,7 +163,8 @@ export const aquaFarms: AquaFarm[] = [
   },
 ]
 
-export const aquaFarmTotals = { total: 24, danger: 5, alert: 7, warning: 7, caution: 5 }
+// 4단계 전환(2026-09-22)으로 이전 '관심' 5개소는 정상 범위(28psu 초과)라 영향권에서 제외됨
+export const aquaFarmTotals = { total: 19, danger: 5, alert: 7, warning: 7 }
 
 export const aquaAlertDraft = {
   region: "한경면·대정읍 일원",
@@ -175,8 +174,8 @@ export const aquaAlertDraft = {
   scope: "한경면·대정읍",
   effectiveAt: "즉시 발효",
   validFor: "3시간",
-  // aquaStages 5단계 번호체계(관심1·주의2·경계3·심각4·해제5) 기준 — 심각은 4단계
-  currentGrade: "🔴 심각 (4단계)",
+  // aquaStages 4단계 번호체계(정상0·주의1·경계2·심각3, 발표자료) 기준 — 심각은 3단계
+  currentGrade: "🔴 심각 (3단계)",
   affectedFarms: 14,
   affectedPopulation: "약 2,300명",
   eta: "15:50 (약 88분 후)",
@@ -206,8 +205,8 @@ export const aquaAlertDraft = {
 export const aquaResponseState = {
   title: "저염분수·고수온 위험 — 한경·대정 해역",
   level: "심각",
-  // aquaStages 5단계 번호체계(관심1·주의2·경계3·심각4·해제5) 기준 — 심각은 4단계
-  grade: "4단계 / 심각",
+  // aquaStages 4단계 번호체계(정상0·주의1·경계2·심각3, 발표자료) 기준 — 심각은 3단계
+  grade: "3단계 / 심각",
   location: "한경·대정 해역 · 영향 양식장 3개소",
   detectedAt: "2026-09-04 09:22",
   eta: "D-2 / 16시간 후",
@@ -216,13 +215,12 @@ export const aquaResponseState = {
   radius: "약 1.2 km",
 }
 
-// aquaResponseState.grade("4단계/심각")와 항상 같은 현재 단계를 가리켜야 함
+// aquaResponseState.grade("3단계/심각")와 항상 같은 현재 단계를 가리켜야 함
 export const aquaStages: AquaStage[] = [
-  { step: 1, label: "관심", status: "완료" },
-  { step: 2, label: "주의", status: "완료" },
-  { step: 3, label: "경계", status: "완료" },
-  { step: 4, label: "심각", status: "진행 중" },
-  { step: 5, label: "해제", status: "대기" },
+  { step: 1, label: "주의", status: "완료" },
+  { step: 2, label: "경계", status: "완료" },
+  { step: 3, label: "심각", status: "진행 중" },
+  { step: 4, label: "해제", status: "대기" },
 ]
 
 export const aquaChecklist: AquaChecklistItem[] = [
@@ -254,7 +252,7 @@ export const aquaClosureSummary = {
   location: "한경·대정 해역 · 영향 양식장 3개소",
   startedAt: "2026-09-04 09:22",
   endedAt: "2026-09-04 14:47",
-  finalGrade: "관심 (1단계) — 해제",
+  finalGrade: "주의 (1단계) — 해제",
   duration: "5시간 25분",
 }
 

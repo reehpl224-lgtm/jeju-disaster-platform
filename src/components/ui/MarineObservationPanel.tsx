@@ -53,8 +53,8 @@ export function MarineObservationPanel() {
         ))}
       </div>
       <p className="text-[10px] text-white/25">
-        기상청 API허브(apihub.kma.go.kr) 실연동 — 해양기상부이·파고부이(sea_obs.php). "협재"만 연안 3대
-        실증 대상지와 정확히 일치하고, 나머지는 인근 참고 지점입니다.
+        기상청 API허브(apihub.kma.go.kr) 실연동 — 해양기상부이·파고부이(sea_obs.php). "협재"는 연안 2차년도
+        실증 후보지와 같은 지점이고, 나머지는 인근 참고 지점입니다.
       </p>
     </div>
   )

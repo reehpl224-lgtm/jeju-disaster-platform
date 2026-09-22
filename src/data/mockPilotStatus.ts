@@ -88,9 +88,9 @@ export const PILOT_SERVICES: PilotService[] = [
       { id: "r4", title: "10·30·60분 다중 선행 예측 + 단계 전환 예상시각(ETA)", status: "year1", sources: ["partner"], basis: "발표자료 — Dual-Branch(시계열 예측 + AE/VAE 이상징후) 앙상블 위험 점수", note: "출력 형식을 상황 분석 화면에 미리보기로 표시", href: "/river/analysis" },
       { id: "r5", title: "1시간 선행 범람 예측(정확도 85%↑)", status: "year1", sources: ["partner", "legacy"], basis: "발표자료 KPI — 1차년도는 ETRI 학습데이터(2011~2023) 모의검증, 실측 검증은 2차년도" },
       { id: "r6", title: "서귀포시 자동 우량경보망 FEP 연계 + 4단계 실시간 QA", status: "year1", sources: ["legacy"], basis: "발표자료 — 기존 노후 우량망을 어댑터로 실시간 연계, 오작동·노이즈 격리", note: "레거시를 AI 입력으로 쓰는 1차년도 핵심 작업" },
-      { id: "r7", title: "효돈천 AIoT 5종 복합 계측망(비접촉 레이더 수위·유속, 기상, 강우, CCTV)", status: "year1", sources: ["new-infra"], basis: "발표자료 — 1분 주기 LTE 전송, 통신 장애 시 72시간 엣지 버퍼링", note: "1차년도 상류 3개소 — 전체 개소 수는 회의록(7개소)과 발표자료(6개소)가 다름" },
+      { id: "r7", title: "효돈천 AIoT 5종 복합 계측망(비접촉 레이더 수위·유속, 기상, 강우, CCTV)", status: "year1", sources: ["new-infra"], basis: "발표자료 — 1분 주기 LTE 전송, 통신 장애 시 72시간 엣지 버퍼링", note: "전체 6개소(스마트폴 포함) — 1차년도 상류 3개소, 2차년도 중·하류 3개소" },
       { id: "r8", title: "5초 직결 현장 경보(고출력 앰프·다국어 DID)", status: "conditional", sources: ["new-infra"], basis: "발표자료 — 관리자 승인 → 스마트폴 제어 → ACK 수신까지 5초", note: "1차년도는 테스트베드 시험, 스마트폴 현장 실증은 2차년도", href: "/river/alert" },
-      { id: "r9", title: "e-SOP 6단계 흐름(자동 인지 → SOP 호출 → 체크리스트 → 관리자 승인 → 스마트폴 연계 → 이력)", status: "demo", sources: ["dummy"], basis: "발표자료 — 복합판단 기반 4단계 위험기준 + 실행형 e-SOP", note: "화면은 있으나 단계 체계가 발표자료와 다름(아래 확정 필요)", href: "/river/control" },
+      { id: "r9", title: "e-SOP 6단계 흐름(자동 인지 → SOP 호출 → 체크리스트 → 관리자 승인 → 스마트폴 연계 → 이력)", status: "demo", sources: ["dummy"], basis: "발표자료 — 복합판단 기반 4단계 위험기준 + 실행형 e-SOP", note: "앱 단계를 안전·경계·대피·중대피 4단계로 변경 완료(2026-09-22)", href: "/river/control" },
       { id: "r10", title: "NGSI-LD 표준화 · 융합 AI 데이터 3종 AX 허브 등록", status: "year1", sources: ["partner", "legacy"], basis: "발표자료 — 1차 3종 생성, 2차 카탈로그 정식 등록" },
       { id: "r11", title: "컨트롤타워 전용 위젯(10/30/60분 위험도 차트·2D/3D 위험지도)·sLLM 연동", status: "later", sources: ["partner"], basis: "발표자료 일정 — 2027년 AX 플랫폼 전용 시각화 위젯 개발·이관" },
       { id: "r12", title: "행정시 자체 장비 흡수 표출(제주시 하천 유속측정계 등)", status: "later", sources: ["legacy"], basis: "현업 면담 — 현재 도청 미연계, 제조사별 협의 필요" },
@@ -103,9 +103,8 @@ export const PILOT_SERVICES: PilotService[] = [
       { id: "rl5", name: "조기경보시스템", use: "범람 경보의 현장 전파 채널", status: "협의 중", level: "caution" },
     ],
     decisions: [
-      "위험단계 체계 — 발표자료는 4단계(안전·경계·대피·중대피, 수위 0~80·80~150·150~300·300cm 초과), 앱은 3단계(주의·경계·심각)",
-      "계측망 개소 — 회의록 '7개소 + 스마트폴 3개소' vs 발표자료 '6개소(1차 상류 3개소)'",
-      "데이터 리스트의 위기단계 30~50% 공백 구간과 수위·유량 기준 결합 규칙",
+      "기존 수위·강우 기준(제2효례교)에 신규 유속 계측·AI 예측을 결합하는 단계 판단 규칙(실증사가 고도화 예정)",
+      "데이터 리스트의 계획홍수량(Q%) 기준과 수위 기준의 관계 — 30~50% 공백 구간 포함",
     ],
   },
   {
@@ -124,7 +123,7 @@ export const PILOT_SERVICES: PilotService[] = [
     ],
     features: [
       { id: "a1", title: "해양관측부이 수온·염분 실측", status: "demo", sources: ["live-api"], basis: "KHOA 공공API 실연동(확인 시점 스냅샷)", href: "/aqua/monitoring" },
-      { id: "a2", title: "위험등급 자동 판정", status: "demo", sources: ["dummy"], basis: "국립수산과학원 기준(5단계)", note: "발표자료는 정상·주의·경계·심각 4단계 — 체계 확정 필요", href: "/aqua" },
+      { id: "a2", title: "위험등급 자동 판정", status: "demo", sources: ["dummy"], basis: "발표자료·사업계획서 4단계(정상·주의·경계·심각)", note: "관측지점 임계치는 근사값 — 수요처 협의 후 확정", href: "/aqua" },
       { id: "a3", title: "AI 하이브리드 예측(정밀 48시간·경향 120시간, 정합도 85%)", status: "year1", sources: ["partner", "live-api"], basis: "발표자료 — ROMS·NEMO 앙상블 + U-Net 계열, 1차년도 12월 초기모델", href: "/aqua/prediction" },
       { id: "a4", title: "1km 이하 초해상화 예측", status: "later", sources: ["partner"], basis: "발표자료 — 1차년도는 8km 재현, 1km 고도화는 2차년도", note: "화면의 '공간해상도 1km 이하'는 최종 목표" },
       { id: "a5", title: "위성 수괴 탐지·독립 검증(GOCI-II 일 4회 · SMAP)", status: "year1", sources: ["partner", "live-api"], basis: "발표자료 — 26 psu 미만·26~28·28~30 구간 분류, 학습에 쓰지 않는 독립 검증", href: "/aqua/data" },
@@ -145,8 +144,7 @@ export const PILOT_SERVICES: PilotService[] = [
       { id: "al5", name: "제주도 재난관리시스템", use: "경보 발령 시 상황 등록 연계", status: "협의 중", level: "caution" },
     ],
     decisions: [
-      "위험단계 — 발표자료 4단계(정상·주의·경계·심각) vs 국립수산과학원 기준 5단계(관심 포함)",
-      "염분 정상 기준(30.0 vs 31.0 psu)과 역순 표기된 경계·심각 구간",
+      "관측지점 단계 임계치 — 사업계획서는 해역 접근 위치 기준이며 '수요처 협의 후 확정'(현재 앱은 28·26·24psu 근사)",
       "신규 센서 2지점 설치(추가제안) 확정 여부와 경보 발송 승인권자",
     ],
   },
@@ -185,7 +183,6 @@ export const PILOT_SERVICES: PilotService[] = [
       { id: "cl5", name: "민방위경보시스템", use: "광역 경보 방송 — 중앙 시스템과만 연계", status: "미연계", level: "offline" },
     ],
     decisions: [
-      "1차년도 실증지 — 발표자료는 함덕·삼양 2개소(협재는 2차 후보), 앱은 함덕·삼양·협재 3곳을 확정 대상으로 표기",
       "4대 위험요인 결합 방식과 단계별 임계치(실증 후 보정 전 초기값)",
       "함덕·삼양 현장 맞춤 시나리오와 카메라 설치 위치(50~170m) 확정",
     ],
