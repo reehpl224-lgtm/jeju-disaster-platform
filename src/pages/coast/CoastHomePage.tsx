@@ -229,7 +229,7 @@ export function CoastHomePage() {
 
       <Card
         title="실측 파고·기상 참고 — 국립해양조사원(KHOA) 해양관측부이"
-        subtitle="함덕·삼양 AIoT 스마트폴과는 다른 국가 관측망 지점 — 인근 해역 파고·풍속 참고용"
+        subtitle="함덕·협재 AIoT 스마트폴과는 다른 국가 관측망 지점 — 인근 해역 파고·풍속 참고용"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {khoaBuoyMarineConditions.map((buoy) => (

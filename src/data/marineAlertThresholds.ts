@@ -1,39 +1,46 @@
 import type { RiskLevel } from "../types/domain"
 
 /**
- * 저염분수·고수온 위험단계 — 실증사(지오시스템리서치) 착수보고 발표자료·사업계획서 기준 4단계
- * 정상(0)·주의(1)·경계(2)·심각(3) (2026-09-22 사용자 확정: 이전 국립수산과학원 5단계 → 발표자료 4단계).
+ * 저염분수·고수온 위험등급 임계값 — "TP-P22_002_플랫폼 데이터 리스트.xlsx" 저염분수·고수온 시트의 "상태 구간 설정" 기준
+ * (국립수산과학원 및 제주특별자치도 해양수산연구원 대응 매뉴얼 인용, 2026-09-22 사용자 확정)
  *
- * 사업계획서 [표25]의 단계 정의:
- *  - 정상: 염분 31psu 이상(제주 하계 평상 30~31psu), 고수온 없음
- *  - 주의: 저염분수(28psu 이하) 수괴가 제주 서남부 해역에 접근
- *  - 경계: 저염분수(26psu 이하)/고수온이 연안 10마일 이내 접근
- *  - 심각: 대정·한경 양식장 취수구 인근 덮침 실황 + 고수온 동반
- * 표25는 "해역 접근 위치" 기준이라 관측지점 단일값 판정용 수치는 아래처럼 근사했다 — 이전 5단계의
- * 수치 경계를 그대로 두고 '관심(28~31psu)'만 정상에 합쳤다. 사업계획서도 "단계별 임계치는 수요처
- * 협의 후 확정"이라고 명시하므로, 확정되면 이 파일만 고치면 된다.
+ * 구간 컬럼(수온 구간·염분 구간)을 판정 기준으로 쓴다. 원본에서 확인이 필요한 점:
+ * - 염분 정상: 구간 컬럼은 "30.0 이상", 복합 조건 컬럼은 "31.0 psu 이상"으로 서로 다름 → 구간 컬럼(30.0) 사용
+ * - 경보·심각 염분 구간이 "28.0 이상 ~ 26.0 미만", "26.0 이상 ~ 24.0 미만"으로 역순 표기 → 단독 조건
+ *   컬럼(경보 24.1~26.0, 심각 24.0 이하)을 근거로 경보 24.0~26.0 미만, 심각 24.0 미만으로 해석
+ *
+ * 원본은 정상/관심/주의/경보/심각 5단계이며, 앱 전역 RiskLevel(정상<관심<주의<경계<심각)과
+ * 순서·이름이 그대로 1:1로 대응한다 — 경보→경계로만 이름을 맞추면 된다.
+ *
+ * 원본 표기 오류 수정 사항 (엑셀 원본도 함께 수정함):
+ * - 염분 구간 컬럼에서 '심각' 행이 '경보' 행과 완전히 동일한 값("26.0 이상 ~ 24.0 미만")을
+ *   그대로 복사해 놓은 오류가 있었음(경보·주의·관심 행은 "상한 이상 ~ 하한 미만" 표기가
+ *   서로 일관돼 정상이었고, 심각 행만 갱신되지 않고 남아있던 복붙 실수). "복합 수치 조합
+ *   조건" 컬럼(심각 단독조건=염분 24.0psu 이하)을 근거로 '심각' 행을 "24.0 이하"로 정정.
  */
-export type MarineStage = "NORMAL" | "WATCH" | "ALERT" | "CRITICAL"
+export type MarineStage = "NORMAL" | "INTEREST" | "WATCH" | "ALERT" | "CRITICAL"
 
-export const MARINE_STAGES: MarineStage[] = ["NORMAL", "WATCH", "ALERT", "CRITICAL"]
+export const MARINE_STAGES: MarineStage[] = ["NORMAL", "INTEREST", "WATCH", "ALERT", "CRITICAL"]
 
+/** 원본 문서가 쓰는 해양환경 도메인 고유 명칭(정상/관심/주의/경보/심각) — 앱 전역 RiskLevel 라벨(정상/관심/주의/경계/심각)과 경보↔경계만 다르고 나머지는 동일 */
 export const MARINE_STAGE_LABEL: Record<MarineStage, string> = {
   NORMAL: "정상",
+  INTEREST: "관심",
   WATCH: "주의",
-  ALERT: "경계",
+  ALERT: "경보",
   CRITICAL: "심각",
 }
 
-const STAGE_RANK: Record<MarineStage, number> = { NORMAL: 0, WATCH: 1, ALERT: 2, CRITICAL: 3 }
+const STAGE_RANK: Record<MarineStage, number> = { NORMAL: 1, INTEREST: 2, WATCH: 3, ALERT: 4, CRITICAL: 5 }
 
 function worse(a: MarineStage, b: MarineStage): MarineStage {
   return STAGE_RANK[a] >= STAGE_RANK[b] ? a : b
 }
 
-/** 발표자료: 주의 = "28psu 이하", 경계 = "26psu 이하" — 경계값은 해당 단계에 포함 */
 export function classifySalinity(psu: number): MarineStage {
-  if (psu > 28.0) return "NORMAL"
-  if (psu > 26.0) return "WATCH"
+  if (psu >= 30.0) return "NORMAL"
+  if (psu >= 28.0) return "INTEREST"
+  if (psu >= 26.0) return "WATCH"
   if (psu >= 24.0) return "ALERT"
   return "CRITICAL"
 }
@@ -44,7 +51,9 @@ export function classifySalinity(psu: number): MarineStage {
  * 같은 28℃ 이상 구간을 지속일수로 3단계 세분화한다.
  */
 export function classifyTemperature(tempC: number, sustainedDays = 0): MarineStage {
-  if (tempC < 28.0) return "NORMAL"
+  // 원본: 정상 "25.0 이하", 관심 "25.1 ~ 27.9"
+  if (tempC <= 25.0) return "NORMAL"
+  if (tempC < 28.0) return "INTEREST"
   if (sustainedDays >= 3) return "CRITICAL"
   if (sustainedDays >= 1) return "ALERT"
   return "WATCH"
@@ -54,7 +63,7 @@ export function classifyTemperature(tempC: number, sustainedDays = 0): MarineSta
  * 복합(AND) 승격 규칙 — 원본 "복합 수치 조합 조건" 컬럼 근거.
  * 단일 지표 등급의 worst-of보다, 두 지표가 동시에 특정 구간에 들면 더 위로 승격될 수 있다.
  * - 심각: 수온 ≥28.0℃ AND 염분 ≤26.0psu
- * - 경계: 수온 ≥28.0℃ AND 염분 ≤28.0psu
+ * - 경보: 수온 ≥28.0℃ AND 염분 ≤28.0psu
  * - 주의: 수온 26.0~27.9℃ AND 염분 ≤28.0psu
  */
 function combinedOverride(salinityPsu: number, tempC: number): MarineStage | null {
@@ -85,9 +94,10 @@ export function classifyMarineRisk(
   return stage
 }
 
-/** 앱 전역 RiskLevel로의 매핑 — 저염분수는 '관심(caution)'을 쓰지 않는다 */
+/** 앱 전역 5단계(정상/관심/주의/경계/심각)로의 매핑 — 경보→경계만 이름이 다름 */
 const STAGE_TO_RISK_LEVEL: Record<MarineStage, RiskLevel> = {
   NORMAL: "safe",
+  INTEREST: "caution",
   WATCH: "warning",
   ALERT: "alert",
   CRITICAL: "danger",

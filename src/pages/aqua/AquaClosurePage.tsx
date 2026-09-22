@@ -33,7 +33,7 @@ export function AquaClosurePage() {
           <Field label="총 대응 시간" value={aquaClosureSummary.duration} />
           <div className="rounded-lg border border-border-subtle bg-inset px-3 py-2">
             <p className="text-[11px] text-white/35">최종 위험 등급</p>
-            <RiskBadge level="warning" label={aquaClosureSummary.finalGrade} solid />
+            <RiskBadge level="caution" label={aquaClosureSummary.finalGrade} solid />
           </div>
         </div>
       </Card>

@@ -143,10 +143,11 @@ export function RiverHomePage() {
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
             <span className="font-semibold text-white/30">범례</span>
-            <RiskBadge level="danger" label="중대피" />
-            <RiskBadge level="alert" label="대피" />
-            <RiskBadge level="warning" label="경계" />
-            <RiskBadge level="safe" label="안전" />
+            <RiskBadge level="danger" />
+            <RiskBadge level="alert" />
+            <RiskBadge level="warning" />
+            <RiskBadge level="caution" />
+            <RiskBadge level="safe" />
           </div>
         </Card>
 
@@ -231,7 +232,7 @@ export function RiverHomePage() {
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-bold text-white/85">{river.name}</p>
-                <RiskBadge level={river.level} label={river.stage} solid />
+                <RiskBadge level={river.level} solid />
               </div>
               <p className="mt-2 text-xs text-white/40">경보 단계</p>
               <p className="text-sm font-semibold text-white/80">{river.stage}</p>

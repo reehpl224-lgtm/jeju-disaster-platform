@@ -35,7 +35,7 @@ export const aquaAlertTargets: PlanItem[] = [
 export const coastVerification: PlanItem[] = [
   { id: "cv1", title: "성능 검증 방식", detail: "겨울철(12월) 착수라 실제 해수욕장 사고 연출이 어려워, 모의 상황 연출·시뮬레이션으로 감지율·미탐률을 검증", status: "계획 확정", level: "info" },
   { id: "cv2", title: "함덕 해수욕장 시나리오", detail: "표류·익수 사고 발생 확률이 비교적 낮은 특성을 반영해 현장 맞춤형으로 재조정", status: "재조정 필요", level: "caution" },
-  { id: "cv3", title: "삼양 해수욕장 시나리오", detail: "표류·익수 사고 발생 확률이 비교적 낮은 특성을 반영해 현장 맞춤형으로 재조정", status: "재조정 필요", level: "caution" },
+  { id: "cv3", title: "협재 해수욕장 시나리오", detail: "회의에서는 함덕·삼양 기준으로 재조정이 논의됨 — 1차년도 실증지가 함덕·협재로 확정(2026-09-22)되어 협재 기준으로 수립 필요", status: "재조정 필요", level: "caution" },
 ]
 
 export const coastInstallReview: PlanItem[] = [

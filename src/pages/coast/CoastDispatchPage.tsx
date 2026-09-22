@@ -50,7 +50,7 @@ export function CoastDispatchPage() {
 
       <Card title="GIS 위치 정보">
         <div className="flex h-44 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
-          삼양해수욕장 북측 방파제 위험 구역 GIS 지도
+          협재해수욕장 인근 방파제 위험 구역 GIS 지도
         </div>
       </Card>
 

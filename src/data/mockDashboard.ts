@@ -26,18 +26,18 @@ export const serviceStatusCards: {
   { id: "heat", title: "폭염 대응", icon: "🔆", href: "/heat", counts: { warning: 1, alert: 0, danger: 0 } },
   // riverStatuses(돈내코 warning 1 · 쇠소깍 danger 1, 14:32 심각 상향)와 반드시 같은 수치를 쓸 것
   { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 1, alert: 0, danger: 1 } },
-  // aquaFarmTotals(mockAqua.ts) 기준: danger 5 · alert 7 · warning 7 (총 19개소, 저염분수는 4단계라 관심 없음)
-  { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 7, alert: 7, danger: 5 } },
+  // aquaFarmTotals(mockAqua.ts) 기준: danger 5 · alert 7 · warning 7 · caution 5 (총 24개소)
+  { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 7, alert: 7, danger: 5, caution: 5 } },
   { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 2, alert: 0, danger: 3 } },
 ]
 
 export const riskMarkers: RiskMarker[] = [
   { id: "donnaeko", name: "효돈천(돈내코)", x: 178, y: 198, level: "warning", domain: "river", lat: 33.276, lng: 126.593 },
-  // riverStatuses 기준 14:32에 중대피 3단계로 상향(riverControlTimeline ct7)
+  // riverStatuses 기준 14:32에 심각 3단계로 상향(riverControlTimeline ct7)
   { id: "soesokkak", name: "효돈천(쇠소깍)", x: 196, y: 222, level: "danger", domain: "river", lat: 33.247, lng: 126.619 },
   { id: "hamdeok", name: "함덕 해수욕장", x: 222, y: 92, level: "danger", domain: "coast", lat: 33.543, lng: 126.670 },
   // coastEvents 기준 실제 최고위험(둘 다 danger 이벤트가 진행 중) 반영 — serviceStatusCards.coast(danger 3건)와도 일치시킬 것
-  { id: "samyang", name: "삼양 해수욕장", x: 195, y: 88, level: "danger", domain: "coast", lat: 33.520, lng: 126.585 },
+  { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "danger", domain: "coast", lat: 33.394, lng: 126.239 },
   { id: "hangyeong-geumdeung", name: "한경 금등", x: 40, y: 125, level: "alert", domain: "aqua", temperature: "24.7°C", salinity: "25.9 psu", lat: 33.322, lng: 126.175 },
   { id: "hangyeong-yongsu", name: "한경 용수", x: 44, y: 185, level: "alert", domain: "aqua", temperature: "25.8°C", salinity: "25.3 psu", lat: 33.310, lng: 126.166 },
   { id: "daejeong-ilgwa", name: "대정 일과", x: 60, y: 240, level: "alert", domain: "aqua", temperature: "26.8°C", salinity: "24.6 psu", lat: 33.221, lng: 126.252 },
@@ -51,6 +51,7 @@ export const riskMarkers: RiskMarker[] = [
   // 정상(safe) 지점도 지도에 노출 — dashboardSensors(위 참고)에 이미 있는 "정상" 상태 센서 2건을 그대로 재사용
   // (기존 인근 마커와 겹치지 않도록 좌표만 살짝 offset)
   { id: "hyodong-radar", name: "효돈천 AIoT 계측망 #1 (상류)", x: 182, y: 190, level: "safe", domain: "heavyRain", lat: 33.283, lng: 126.580 },
+  { id: "hyeopjae-smartpole", name: "협재 AIoT 스마트폴", x: 58, y: 144, level: "safe", domain: "coast", lat: 33.396, lng: 126.242 },
   // 국립해양조사원(KHOA) 실시간 해양관측 API 실연동 — 수온·염분 실측값(mockAqua.ts khoaLiveObservations와 동일 소스,
   // 2026-09-09 확인). classifyMarineRiskLevel(염분,수온) 기준 판정: 중문=주의, 나머지 3곳=관심.
   // 제주남부(KG_0021)는 제주 본섬 훨씬 남쪽 국가 관측망 지점이라 지도 초기 화면(전체 줌 11) 기준으로는 화면 밖에 위치함.
@@ -88,7 +89,7 @@ export const recentActions: RecentAction[] = [
   { id: "a1", time: "09:31", title: "효돈천(쇠소깍) 경계 단계 승인", owner: "재난대응1팀", note: "하천 범람" },
   { id: "a2", time: "09:18", title: "효돈천(돈내코) 수위 이상 감지", owner: "재난대응2팀", note: "센서 교차검증 완료" },
   { id: "a3", time: "08:55", title: "함덕 방파제 위험구역 진입 탐지", owner: "연안관제팀", note: "현장 경보 실행" },
-  { id: "a4", time: "08:40", title: "삼양 해경 출동 공조 요청", owner: "연안관제팀", note: "해경 수신 확인" },
+  { id: "a4", time: "08:40", title: "협재 해경 출동 공조 요청", owner: "연안관제팀", note: "해경 수신 확인" },
   { id: "a5", time: "08:12", title: "한경·대정 고수온 주의 승인", owner: "재난대응1팀", note: "양식장 18개소 안내 발송" },
 ]
 
@@ -126,6 +127,6 @@ export const dashboardSensors = [
   { id: "sn2", name: "효돈천 수위센서 #HD-02", type: "하천", location: "쇠소깍 하류", value: "1.87 m", status: "caution" as RiskLevel, updatedAt: "09:46" },
   { id: "sn3", name: "효돈천 AIoT 계측망 #1 (상류)", type: "기상", location: "서귀포시 효돈동", value: "강우 없음", status: "safe" as RiskLevel, updatedAt: "09:47" },
   { id: "sn4", name: "함덕 AIoT 스마트폴", type: "연안", location: "함덕해수욕장", value: "수온 28.4°C", status: "warning" as RiskLevel, updatedAt: "09:40" },
-  { id: "sn5", name: "삼양 AIoT 스마트폴", type: "연안", location: "삼양해수욕장", value: "파고 1.2 m", status: "safe" as RiskLevel, updatedAt: "09:45" },
+  { id: "sn5", name: "협재 AIoT 스마트폴", type: "연안", location: "협재해수욕장", value: "파고 1.2 m", status: "safe" as RiskLevel, updatedAt: "09:45" },
   { id: "sn6", name: "한경 염분센서", type: "해안관측", location: "한경면 해역", value: "24.6 psu", status: "alert" as RiskLevel, updatedAt: "09:30" },
 ]

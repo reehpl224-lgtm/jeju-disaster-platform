@@ -23,7 +23,7 @@ export function AquaPredictionPage() {
           <p className="mt-1 text-xs text-white/40">{aquaRiskState.lowSalinity.location}</p>
         </Card>
         <Card title="고수온 예상 도달">
-          <RiskBadge level="warning" label={aquaRiskState.highTemp.eta} solid />
+          <RiskBadge level="caution" label={aquaRiskState.highTemp.eta} solid />
           <p className="mt-3 text-sm text-white/85">{aquaRiskState.highTemp.time}</p>
           <p className="mt-1 text-xs text-white/40">{aquaRiskState.highTemp.location}</p>
         </Card>

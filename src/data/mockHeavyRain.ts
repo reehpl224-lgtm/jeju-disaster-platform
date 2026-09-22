@@ -163,7 +163,7 @@ export const heavyRainClosure: HeavyRainClosure = {
 }
 
 export const broadcastLog: BroadcastLogEntry[] = [
-  { id: "bl-1", channel: "재해문자전광판", message: "효돈천 하천범람 중대피 단계 — 접근 자제", time: "14:32" },
+  { id: "bl-1", channel: "재해문자전광판", message: "효돈천 하천범람 심각 단계 — 접근 자제", time: "14:32" },
   { id: "bl-2", channel: "자동음성통보", message: "한천 인근 주민 대상 대피 안내 방송", time: "14:10" },
   { id: "bl-3", channel: "재해문자전광판", message: "제주 전역 호우 예비특보 발효", time: "13:00" },
 ]

@@ -17,42 +17,38 @@ export const riverInfra = {
   },
 }
 
-// 쇠소깍은 14:32에 중대피 3단계로 상향(riverControlTimeline ct7, riverAlertDispatch 참고) — 아래 값들은 그 최신 상태 기준
+// 쇠소깍은 14:32에 심각 3단계로 상향(riverControlTimeline ct7, riverAlertDispatch 참고) — 아래 값들은 그 최신 상태 기준
 /**
- * 효돈천 4단계 위험단계 — 실증사(소다시스템) 사업계획서 <표 11> "기존 조기경보시스템 위험단계별 기준값" 그대로.
- * 기존 효돈천 자동우량경보시스템(서귀포시)이 이미 쓰고 있는 체계이며, 실증사는 이 기준에 신규 수위·유속 계측과
- * AI 예측을 결합해 단계 판단을 고도화한다(2026-09-22 사용자 확정: 발표자료 기준으로 앱 단계 체계 변경).
- * 수위는 제2효례교 수위계, 강우는 20분 누적 기준.
+ * 하천 위험단계 상태 구간 — "TP-P22_002_플랫폼 데이터 리스트.xlsx" 하천 범람예측·경보 시스템 시트 "상태 구간 설정" 그대로(2026-09-22 사용자 확정).
+ * 원본 단계명 '경보'는 앱 공통 라벨 '경계'(alert)로 표기한다. 원본의 계획홍수량 30%~50% 사이는 비어 있음(원본 그대로).
  */
-export const riverStageCriteria: { stage: number; label: string; level: "safe" | "warning" | "alert" | "danger"; rain20min: string; waterLevel: string; meaning: string }[] = [
-  { stage: 0, label: "안전", level: "safe", rain20min: "0~20 mm", waterLevel: "0~80 cm", meaning: "정상 상태 — 상시 모니터링" },
-  { stage: 1, label: "경계", level: "warning", rain20min: "20~30 mm", waterLevel: "80~150 cm", meaning: "위험 증가 — 집중 감시·관리자 사전 알림" },
-  { stage: 2, label: "대피", level: "alert", rain20min: "30~40 mm", waterLevel: "150~300 cm", meaning: "대피 필요 — 현장 통제·대피 안내" },
-  { stage: 3, label: "중대피", level: "danger", rain20min: "40 mm 이상", waterLevel: "300 cm 이상", meaning: "심각한 위험 — 즉시 경보·대피·비상 대응" },
+export const riverStageCriteria: { level: "safe" | "caution" | "warning" | "alert" | "danger"; label: string; flowRatio: string; waterState: string; meaning: string; action: string }[] = [
+  { level: "safe", label: "정상", flowRatio: "20% 미만", waterState: "평시 수위 유지", meaning: "통상적인 하천 흐름 유지(침수 위험 없음)", action: "상시 모니터링, 시설물 정기 점검, 시스템 상태 확인" },
+  { level: "caution", label: "관심", flowRatio: "20% ~ 30%", waterState: "유의 수위 도달", meaning: "강우에 의한 하천 수위 상승 시작", action: "모니터링 강화, 통제 지점·연락망 점검, 산책로 예비 통제" },
+  { level: "warning", label: "주의", flowRatio: "50%", waterState: "주의보 수위 도달", meaning: "수위 급상승으로 홍수주의보 수준 도달", action: "하천변 출입 통제, 하상도로 차단, 주민 안내 방송" },
+  { level: "alert", label: "경계(경보)", flowRatio: "70%", waterState: "경보 수위 도달", meaning: "제방 유실 위험에 근접한 경계 상태", action: "제방 점검, 저지대 대피 준비, 비상근무 체계 전환" },
+  { level: "danger", label: "심각", flowRatio: "100%", waterState: "계획홍수위 도달", meaning: "계획홍수위 도달로 범람 임박·발생", action: "즉시 주민 대피 명령, 재난문자(CBS) 발송, 긴급 차단" },
 ]
 
-/** 하천 전용 단계 라벨 — 앱 공통 RiskLevel 라벨(주의·경계·심각) 대신 효돈천 4단계 이름을 쓴다 */
-export const RIVER_LEVEL_LABEL: Record<string, string> = { safe: "안전", warning: "경계", alert: "대피", danger: "중대피" }
-
 export const riverStatuses: RiverStatus[] = [
-  { id: "soesokkak", name: "효돈천(쇠소깍)", level: "danger", stage: "3단계 · 중대피", eta: "약 38분 후 (14:22)", updatedAt: "14:32" },
-  { id: "donnaeko", name: "효돈천(돈내코)", level: "warning", stage: "1단계 · 경계", eta: "약 1시간 22분 후 (15:06)", updatedAt: "14:07" },
+  { id: "soesokkak", name: "효돈천(쇠소깍)", level: "danger", stage: "3단계 · 심각", eta: "약 38분 후 (14:22)", updatedAt: "14:32" },
+  { id: "donnaeko", name: "효돈천(돈내코)", level: "warning", stage: "1단계 · 주의", eta: "약 1시간 22분 후 (15:06)", updatedAt: "14:07" },
 ]
 
 export const riverApprovalHistory: TimelineEntry[] = [
   { id: "h1", time: "14:05", title: "1단계 발령 승인 — 승인자: 김OO 재난대응팀장" },
-  { id: "h2", time: "13:42", title: "이상징후 사전 감지 등록 — 시스템 자동 감지" },
+  { id: "h2", time: "13:42", title: "관심 단계 등록 — 시스템 자동 감지" },
   { id: "h3", time: "13:10", title: "강우 임계값 도달 알림 — 자동 알림" },
 ]
 
 export const riverSopStage = {
-  current: "중대피 단계 (3단계)",
-  next: "다음 절차: 주민 대피 안내 및 도로 통제 요청 · 제2효례교 수위가 중대피 기준(3.0m) 아래로 회복되면 대피 단계로 하향 검토",
+  current: "심각 단계 (3단계)",
+  next: "다음 절차: 주민 대피 안내 및 도로 통제 요청 · 수위가 경계 기준(3.5m) 아래로 회복되면 하향 검토",
 }
 
 export const riverRiskBasis = {
   rainfall: { value: "87.4 mm", detail: "임계값 대비 143%", trend: "↑ 상승 중" },
-  waterLevel: { value: "3.82 m", detail: "중대피 기준 3.0m 초과", trend: "↑ 급상승" },
+  waterLevel: { value: "3.82 m", detail: "경계 수위 3.5m 초과", trend: "↑ 급상승" },
   radar: { value: "120분 지속", detail: "90분 내 최고조 예상", confidence: "높음 (87%)" },
   saturation: { value: "94%", detail: "추가 흡수 여력 없음", grade: "매우 높음" },
 }
@@ -82,7 +78,7 @@ export const riverSuddenRainAlert = {
 export const riverTideCorrelation = {
   location: "효돈천(쇠소깍) — 감조구간",
   note: "쇠소깍은 하구에 위치해 밀물 시간대에 조위가 겹치면 수위가 추가 상승합니다. 상류 돈내코 구간은 조수 영향이 없습니다.",
-  boundaryLevelM: 3.0,
+  boundaryLevelM: 3.5,
   nextHighTide: "15:10 예상 (조위 +1.35m)",
   series: [
     { time: "12:00", waterLevelM: 2.1, tideLevelM: 0.1, predicted: false },
@@ -151,7 +147,7 @@ export const riverDataConfidence = {
 }
 
 export const riverAlertDispatch = {
-  stage: "중대피 단계 3",
+  stage: "심각 단계 3",
   title: "하천 범람 위험",
   target: "주민 480명",
   targetDetail: "관광객 포함 추가 1,140명",
@@ -159,7 +155,7 @@ export const riverAlertDispatch = {
   rivers: "효돈천(돈내코·쇠소깍)",
   district: "서귀포시 하효동·상효동",
   approver: "김재난 담당관",
-  message: "중대피 단계 — 효돈천(돈내코·쇠소깍) 범람 위험",
+  message: "심각 단계 — 효돈천(돈내코·쇠소깍) 범람 위험",
   channels: [
     { id: "ch1", name: "문자 (CBS/SMS)", sent: 5960, success: 5841, fail: 119, rate: "98.0%", lastSent: "14:32:09" },
     { id: "ch2", name: "모바일 앱 푸시", sent: 3210, success: 3198, fail: 12, rate: "99.6%", lastSent: "14:32:11" },
@@ -170,8 +166,8 @@ export const riverAlertDispatch = {
 }
 
 export const riverControlRows: RiverControlRow[] = [
-  { id: "r1", river: "효돈천(쇠소깍)", stage: "⚠ 중대피 3단계", location: "서귀포시 하효동 쇠소깍 일원", gate: "오류 발생", dispatch: "대기 중", ack: "미확인" },
-  { id: "r2", river: "효돈천(돈내코)", stage: "⚠ 경계 1단계", location: "서귀포시 상효동 돈내코 계곡", gate: "정상 작동", dispatch: "완료", ack: "확인" },
+  { id: "r1", river: "효돈천(쇠소깍)", stage: "⚠ 심각 3단계", location: "서귀포시 하효동 쇠소깍 일원", gate: "오류 발생", dispatch: "대기 중", ack: "미확인" },
+  { id: "r2", river: "효돈천(돈내코)", stage: "⚠ 주의 1단계", location: "서귀포시 상효동 돈내코 계곡", gate: "정상 작동", dispatch: "완료", ack: "확인" },
 ]
 
 export const riverControlFailures = [
@@ -187,13 +183,13 @@ export const riverPropagation = [
 ]
 
 export const riverControlTimeline: TimelineEntry[] = [
-  { id: "ct1", time: "13:45", title: "경계 1단계 발령 승인" },
-  { id: "ct2", time: "14:05", title: "대피 2단계 상향 승인" },
+  { id: "ct1", time: "13:45", title: "주의 1단계 발령 승인" },
+  { id: "ct2", time: "14:05", title: "경계 2단계 상향 승인" },
   { id: "ct3", time: "14:10", title: "주민 문자 전파 완료" },
   { id: "ct4", time: "14:12", title: "돈내코 차단기 작동 확인" },
   { id: "ct5", time: "14:22", title: "쇠소깍 차단기 오류 감지" },
   { id: "ct6", time: "14:25", title: "쇠소깍 출동 미배정 확인" },
-  { id: "ct7", time: "14:32", title: "쇠소깍 중대피 3단계 상향 승인 — 대규모 경보 발송 — 현재 진행 중" },
+  { id: "ct7", time: "14:32", title: "쇠소깍 심각 3단계 상향 승인 — 대규모 경보 발송 — 현재 진행 중" },
 ]
 
 export const riverJointAgencies = [
@@ -203,10 +199,10 @@ export const riverJointAgencies = [
   { id: "j4", agency: "경찰서 (서귀포시)", status: "대기 중" },
 ]
 
-// 요청 시각(14:01~14:05)은 중대피 3단계 상향(14:32, riverControlTimeline ct7) 이전이므로 그 시점 실제 단계인 대피 2단계로 표기
+// 요청 시각(14:01~14:05)은 심각 3단계 상향(14:32, riverControlTimeline ct7) 이전이므로 그 시점 실제 단계인 경계 2단계로 표기
 export const riverDispatchRequest = {
   target: "효돈천 쇠소깍 구간",
-  stage: "⚠ 대피 2단계",
+  stage: "⚠ 경계 2단계",
   eta: "14:22 (약 18분 후)",
   impact: "인근 주민 80세대 / 관광객 밀집",
   requestedAt: "14:04",
@@ -219,7 +215,7 @@ export const riverDispatchRequest = {
     "GIS 취약 구간: 돈내코 계곡 교량 하부 2개소",
   ],
   process: [
-    { id: "pr1", time: "14:01", title: "e-SOP 대피 2단계 자동 발동" },
+    { id: "pr1", time: "14:01", title: "e-SOP 경계 2단계 자동 발동" },
     { id: "pr2", time: "14:03", title: "담당자 위험 분석 검토 완료" },
     { id: "pr3", time: "14:04", title: "출동 요청 승인 (김현우)" },
     { id: "pr4", time: "14:05", title: "기관별 출동 요청 전송 완료" },
@@ -228,11 +224,11 @@ export const riverDispatchRequest = {
 
 export const riverClosure = {
   caseId: "RIV-2026-0904",
-  title: "효돈천(쇠소깍) 범람 대피 대응",
+  title: "효돈천(쇠소깍) 범람 경계 대응",
   status: "종료 완료",
   // durationDetail("종료 승인 16:23")·duration("2시간 18분", 14:05→16:23 기준)과 반드시 같은 시각을 쓸 것
   confirmedBy: "재난대응1팀 김재난 · 2026-09-04 16:23",
-  type: "하천 범람 위험 · 대피 2단계",
+  type: "하천 범람 위험 · 경계 2단계",
   location: "서귀포시 효돈천 쇠소깍 일원",
   duration: "2시간 18분",
   durationDetail: "최초 감지 14:05 → 종료 승인 16:23",
@@ -240,14 +236,14 @@ export const riverClosure = {
   agencyDetail: "총 대응 기관 4개소",
   aiSummary: [
     { id: "as1", label: "범람 예측 정확도", value: "예측 대비 실측 오차 −0.2m (과대 예측)" },
-    { id: "as2", label: "수위 회복 확인", value: "3.82m → 1.40m (대피 기준 1.5m 미만)" },
+    { id: "as2", label: "수위 회복 확인", value: "3.82m → 2.10m (경계 수위 이하)" },
   ],
   observed: [
     { id: "ob1", label: "최고 수위(관측)", value: "3.9m (14:32)" },
     { id: "ob2", label: "누적 강우량", value: "112mm (6시간)" },
   ],
   closureConditions: [
-    "제2효례교 수위 대피 기준(1.5m) 미만으로 30분 이상 유지",
+    "수위 경계 기준(3.5m) 이하로 30분 이상 유지",
     "차단기·현장 통제 조치 정상 복구 완료",
     "출동 기관 전원 철수 확인",
     "센서·CCTV 정상 운용 복구",

@@ -50,32 +50,30 @@ export function RiverAnalysisPage() {
         </div>
       </Card>
 
-      <Card
-        title="효돈천 4단계 위험단계 기준"
-        subtitle="기존 효돈천 자동우량경보시스템 기준(실증사 소다시스템 사업계획서 <표 11>) — 실증사가 신규 유속 계측·AI 예측을 결합해 고도화 예정"
-      >
+      <Card title="하천 위험단계 상태 구간" subtitle="출처: TP-P22_002_플랫폼 데이터 리스트.xlsx — 계획홍수량(Q%)·수위 상태 기준 5단계 (원본 '경보' = 앱 '경계')">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs text-white/40">
               <th className="font-medium">단계</th>
-              <th className="font-medium">제2효례교 수위</th>
-              <th className="font-medium">강우량(20분)</th>
-              <th className="font-medium">의미·대응</th>
+              <th className="font-medium">계획홍수량(Q%)</th>
+              <th className="font-medium">수위 상태</th>
+              <th className="font-medium">주요 대응·통제</th>
             </tr>
           </thead>
           <tbody>
             {riverStageCriteria.map((c) => (
-              <tr key={c.stage} className="border-t border-border-subtle">
-                <td className="whitespace-nowrap">
-                  <RiskBadge level={c.level} label={`${c.stage}단계 · ${c.label}`} />
+              <tr key={c.label} className="border-t border-border-subtle align-top">
+                <td className="whitespace-nowrap py-1.5">
+                  <RiskBadge level={c.level} label={c.label} />
                 </td>
-                <td className="text-white/80">{c.waterLevel}</td>
-                <td className="text-white/80">{c.rain20min}</td>
-                <td className="text-xs text-white/55">{c.meaning}</td>
+                <td className="text-white/80">{c.flowRatio}</td>
+                <td className="text-white/80">{c.waterState}</td>
+                <td className="text-xs text-white/55">{c.action}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        <p className="mt-2 text-[11px] text-white/35">원본의 계획홍수량 30%~50% 사이 구간은 비어 있어 확인이 필요합니다.</p>
       </Card>
 
       <Card title="위험 근거 데이터">
@@ -101,7 +99,7 @@ export function RiverAnalysisPage() {
               <YAxis tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
               <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 11, color: "#ffffffaa" }} />
-              <ReferenceLine y={riverTideCorrelation.boundaryLevelM} stroke="#f2731a" strokeDasharray="4 4" label={{ value: "중대피 기준 3.0m", fill: "#f2731a", fontSize: 11, position: "insideTopLeft" }} />
+              <ReferenceLine y={riverTideCorrelation.boundaryLevelM} stroke="#f2731a" strokeDasharray="4 4" label={{ value: "경계 수위 3.5m", fill: "#f2731a", fontSize: 11, position: "insideTopLeft" }} />
               <Line type="monotone" dataKey="waterLevelM" name="쇠소깍 수위(m)" stroke="#8ec21f" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="tideLevelM" name="조위(m)" stroke="#0054a3" strokeWidth={2} strokeDasharray="5 3" dot={false} />
             </LineChart>

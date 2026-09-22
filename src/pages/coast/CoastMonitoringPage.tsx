@@ -5,7 +5,7 @@ import { coastVerification, coastInstallReview } from "../../data/mockMeetingIte
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
-import { coastMonitoringDomains } from "../../data/mockCoast"
+import { coastMonitoringDomains, coastStageCriteria } from "../../data/mockCoast"
 
 export function CoastMonitoringPage() {
   return (
@@ -117,6 +117,36 @@ export function CoastMonitoringPage() {
             </tr>
           </tbody>
         </table>
+      </Card>
+
+      <Card title="연안 위험단계 상태 구간" subtitle="출처: TP-P22_002_플랫폼 데이터 리스트.xlsx — 유의파고·풍속·조위·위험 범위 기준 5단계 (원본 '경보' = 앱 '경계')">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] text-left text-sm">
+            <thead>
+              <tr className="text-xs text-white/40">
+                <th className="font-medium">단계</th>
+                <th className="font-medium">유의파고</th>
+                <th className="font-medium">풍속</th>
+                <th className="font-medium">조위(수위)</th>
+                <th className="font-medium">위험 범위</th>
+              </tr>
+            </thead>
+            <tbody>
+              {coastStageCriteria.map((c) => (
+                <tr key={c.label} className="border-t border-border-subtle align-top" title={c.action}>
+                  <td className="whitespace-nowrap py-1.5">
+                    <RiskBadge level={c.level} label={c.label} />
+                  </td>
+                  <td className="text-white/80">{c.waveHeight}</td>
+                  <td className="text-white/80">{c.windSpeed}</td>
+                  <td className="text-xs text-white/70">{c.tide}</td>
+                  <td className="text-xs text-white/55">{c.riskRange}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-[11px] text-white/35">세 지표(파고·풍속·조위) 중 몇 개를 충족하면 단계를 올리는지는 원본에 정의돼 있지 않습니다.</p>
       </Card>
 
       <PlanItemsCard title="성능 검증 계획" subtitle="모의 상황 연출·시뮬레이션 기반 감지율·미탐률 검증" items={coastVerification} />
