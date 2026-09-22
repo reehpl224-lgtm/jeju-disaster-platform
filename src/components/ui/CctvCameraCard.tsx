@@ -2,7 +2,7 @@ import type { CctvCamera } from "../../types/domain"
 import { RiskBadge } from "./RiskBadge"
 
 const DOMAIN_LABEL: Record<CctvCamera["domain"], string> = {
-  aqua: "양식장",
+  aqua: "해안관측",
   coast: "연안",
   river: "하천",
   general: "일반",

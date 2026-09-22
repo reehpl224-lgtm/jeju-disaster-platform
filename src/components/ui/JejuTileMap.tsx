@@ -10,7 +10,7 @@ import { TOOLBOX_PANELS, type ToolboxChipItem } from "./mapToolboxData"
 const DOMAIN_LABEL: Record<RiskMarker["domain"], string> = {
   river: "하천",
   coast: "연안",
-  aqua: "양식장",
+  aqua: "해안관측",
   heavyRain: "호우",
   typhoon: "태풍",
   heat: "폭염",

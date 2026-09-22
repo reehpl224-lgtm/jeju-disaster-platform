@@ -49,14 +49,14 @@ const MAP_DOMAIN_FILTERS: { id: RiskMarker["domain"] | "all"; label: string }[] 
   { id: "heat", label: "폭염" },
   { id: "river", label: "하천" },
   { id: "coast", label: "연안" },
-  { id: "aqua", label: "양식장" },
+  { id: "aqua", label: "해안관측" },
 ]
 
 const CCTV_DOMAIN_FILTERS: { id: CctvCamera["domain"] | "all"; label: string }[] = [
   { id: "all", label: "전체" },
   { id: "river", label: "하천" },
   { id: "coast", label: "연안" },
-  { id: "aqua", label: "양식장" },
+  { id: "aqua", label: "해안관측" },
   { id: "general", label: "일반" },
 ]
 const CCTV_DOMAIN_LABEL = Object.fromEntries(CCTV_DOMAIN_FILTERS.map((f) => [f.id, f.label])) as Record<string, string>

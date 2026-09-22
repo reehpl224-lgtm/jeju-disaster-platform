@@ -129,5 +129,5 @@ export const dashboardSensors = [
   { id: "sn3", name: "신규 강우레이더", type: "기상", location: "서귀포시 효돈동", value: "강우 없음", status: "safe" as RiskLevel, updatedAt: "09:47" },
   { id: "sn4", name: "함덕 AIoT 스마트폴", type: "연안", location: "함덕해수욕장", value: "수온 28.4°C", status: "warning" as RiskLevel, updatedAt: "09:40" },
   { id: "sn5", name: "협재 AIoT 스마트폴", type: "연안", location: "협재해수욕장", value: "파고 1.2 m", status: "safe" as RiskLevel, updatedAt: "09:45" },
-  { id: "sn6", name: "한경 염분센서", type: "양식장", location: "한경면 해역", value: "24.6 psu", status: "alert" as RiskLevel, updatedAt: "09:30" },
+  { id: "sn6", name: "한경 염분센서", type: "해안관측", location: "한경면 해역", value: "24.6 psu", status: "alert" as RiskLevel, updatedAt: "09:30" },
 ]
