@@ -387,69 +387,67 @@ export function JejuTileMap({
         }`}
         style={toolbarTop != null ? { top: toolbarTop } : undefined}
       >
-        {/* items-end: 두 줄(선택창/모드 버튼)이 각자 내용 폭만큼만 차지하고 오른쪽에 붙는다 —
-            자식에 w-full을 주면 이 박스 자체가 지도 폭 전체로 늘어나 버려서(2026-09-22 확인) 쓰지 않는다 */}
-        <div className="flex flex-col items-end gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
-          <div className="flex flex-wrap items-center justify-end gap-1.5">
-            <select
-              value="jeju"
-              disabled
-              className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/50"
-            >
-              <option value="jeju">제주특별자치도</option>
-            </select>
-            <select
-              value={regionKey}
-              onChange={(e) => {
-                setRegionKey(e.target.value)
-                setSubAreaKey("")
-              }}
-              className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70"
-            >
-              {REGIONS.map((r) => (
-                <option key={r.key} value={r.key}>
-                  {r.label}
-                </option>
-              ))}
-            </select>
-            <select
-              value={subAreaKey}
-              onChange={(e) => setSubAreaKey(e.target.value)}
-              disabled={!SUB_AREAS[regionKey]}
-              aria-label="읍·면 선택"
-              className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70 disabled:text-white/30"
-            >
-              <option value="">선택</option>
-              {(SUB_AREAS[regionKey] ?? []).map((s) => (
-                <option key={s.key} value={s.key}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex flex-wrap justify-end gap-0.5">
-            {MODE_BUTTONS.map((btn) => (
-              <button
-                key={btn.key}
-                type="button"
-                onClick={() => handleModeClick(btn.key)}
-                className={`rounded-md px-2 py-1 text-[11px] font-semibold transition ${
-                  mode === btn.key ? "bg-accent text-black" : "text-white/50 hover:bg-inset"
-                }`}
-              >
-                {btn.label}
-              </button>
+        {/* 선택창 줄과 모드 버튼 줄을 서로 다른 박스로 분리 — 참고 화면(demo-10)처럼 두 그룹이
+            시각적으로 구분되게. 각 박스는 items-end 바깥 컨테이너 안에서 자기 내용 폭만큼만 차지한다 */}
+        <div className="flex flex-wrap items-center justify-end gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
+          <select
+            value="jeju"
+            disabled
+            className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/50"
+          >
+            <option value="jeju">제주특별자치도</option>
+          </select>
+          <select
+            value={regionKey}
+            onChange={(e) => {
+              setRegionKey(e.target.value)
+              setSubAreaKey("")
+            }}
+            className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70"
+          >
+            {REGIONS.map((r) => (
+              <option key={r.key} value={r.key}>
+                {r.label}
+              </option>
             ))}
+          </select>
+          <select
+            value={subAreaKey}
+            onChange={(e) => setSubAreaKey(e.target.value)}
+            disabled={!SUB_AREAS[regionKey]}
+            aria-label="읍·면 선택"
+            className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70 disabled:text-white/30"
+          >
+            <option value="">선택</option>
+            {(SUB_AREAS[regionKey] ?? []).map((s) => (
+              <option key={s.key} value={s.key}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-wrap justify-end gap-0.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
+          {MODE_BUTTONS.map((btn) => (
             <button
+              key={btn.key}
               type="button"
-              onClick={handleAgencyClick}
+              onClick={() => handleModeClick(btn.key)}
               className={`rounded-md px-2 py-1 text-[11px] font-semibold transition ${
-                activePanelId === "agency" ? "bg-accent text-black" : "text-white/50 hover:bg-inset"
+                mode === btn.key ? "bg-accent text-black" : "text-white/50 hover:bg-inset"
               }`}
             >
-              유관기관
+              {btn.label}
             </button>
-          </div>
+          ))}
+          <button
+            type="button"
+            onClick={handleAgencyClick}
+            className={`rounded-md px-2 py-1 text-[11px] font-semibold transition ${
+              activePanelId === "agency" ? "bg-accent text-black" : "text-white/50 hover:bg-inset"
+            }`}
+          >
+            유관기관
+          </button>
         </div>
 
         {activePanel && (
