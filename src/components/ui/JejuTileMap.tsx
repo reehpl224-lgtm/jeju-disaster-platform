@@ -387,43 +387,47 @@ export function JejuTileMap({
         }`}
         style={toolbarTop != null ? { top: toolbarTop } : undefined}
       >
-        <div className="flex flex-wrap items-center justify-end gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
-          <select
-            value="jeju"
-            disabled
-            className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/50"
-          >
-            <option value="jeju">제주특별자치도</option>
-          </select>
-          <select
-            value={regionKey}
-            onChange={(e) => {
-              setRegionKey(e.target.value)
-              setSubAreaKey("")
-            }}
-            className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70"
-          >
-            {REGIONS.map((r) => (
-              <option key={r.key} value={r.key}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={subAreaKey}
-            onChange={(e) => setSubAreaKey(e.target.value)}
-            disabled={!SUB_AREAS[regionKey]}
-            aria-label="읍·면 선택"
-            className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70 disabled:text-white/30"
-          >
-            <option value="">선택</option>
-            {(SUB_AREAS[regionKey] ?? []).map((s) => (
-              <option key={s.key} value={s.key}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-          <div className="flex w-full flex-wrap justify-end gap-0.5">
+        {/* items-end: 두 줄(선택창/모드 버튼)이 각자 내용 폭만큼만 차지하고 오른쪽에 붙는다 —
+            자식에 w-full을 주면 이 박스 자체가 지도 폭 전체로 늘어나 버려서(2026-09-22 확인) 쓰지 않는다 */}
+        <div className="flex flex-col items-end gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
+          <div className="flex flex-wrap items-center justify-end gap-1.5">
+            <select
+              value="jeju"
+              disabled
+              className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/50"
+            >
+              <option value="jeju">제주특별자치도</option>
+            </select>
+            <select
+              value={regionKey}
+              onChange={(e) => {
+                setRegionKey(e.target.value)
+                setSubAreaKey("")
+              }}
+              className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70"
+            >
+              {REGIONS.map((r) => (
+                <option key={r.key} value={r.key}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+            <select
+              value={subAreaKey}
+              onChange={(e) => setSubAreaKey(e.target.value)}
+              disabled={!SUB_AREAS[regionKey]}
+              aria-label="읍·면 선택"
+              className="rounded-md border border-border-subtle bg-inset px-2 py-1 text-[11px] text-white/70 disabled:text-white/30"
+            >
+              <option value="">선택</option>
+              {(SUB_AREAS[regionKey] ?? []).map((s) => (
+                <option key={s.key} value={s.key}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-wrap justify-end gap-0.5">
             {MODE_BUTTONS.map((btn) => (
               <button
                 key={btn.key}
