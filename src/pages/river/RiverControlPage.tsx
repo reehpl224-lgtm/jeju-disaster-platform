@@ -16,7 +16,7 @@ export function RiverControlPage() {
           {riverControlRows.map((row) => (
             <div key={row.id} className="rounded-lg border border-border-subtle p-3">
               <p className="text-sm font-bold text-white/85">{row.river}</p>
-              <p className="mt-1 text-xs font-semibold text-risk-warning">{row.stage}</p>
+              <p className={`mt-1 text-xs font-semibold ${row.gate === "정상 작동" ? "text-risk-safe" : "text-risk-warning"}`}>{row.stage}</p>
               <p className="mt-1 text-xs text-white/35">{row.location}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <RiskBadge level={row.gate === "정상 작동" ? "safe" : "danger"} label={`차단기 ${row.gate}`} />
@@ -29,6 +29,9 @@ export function RiverControlPage() {
       </Card>
 
       <Card title="실패 항목 및 대체 조치">
+        {riverControlFailures.length === 0 && (
+          <p className="rounded-lg border border-border-subtle bg-inset p-3 text-sm text-white/40">실패 이력 없음 — 전 구간 정상 통제 중</p>
+        )}
         <ul className="flex flex-col gap-3">
           {riverControlFailures.map((f) => (
             <li key={f.id} className="rounded-lg border border-risk-danger/40 bg-risk-danger-bg p-3">

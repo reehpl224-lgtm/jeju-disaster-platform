@@ -12,8 +12,16 @@ import type {
 } from "../types/aqua"
 import type { RiskLevel } from "../types/domain"
 
+/**
+ * 2026-09-22 리셋 — 사용자 요청으로 더미 "진행 중 사건" 데이터를 초기화하고, 파트별 케이스
+ * 프로토타입의 첫 사례로 "저염분수 관심(1단계) 단계 — 확인→대응→조치→처리" 흐름을 새로 구성함.
+ * 실제 API 연동 데이터(khoaLiveObservations)는 그대로 두고 건드리지 않음.
+ * 케이스: 한경 용수 인근 관측지점에서 염분이 관심 구간(28.0~30.0psu)까지 하락 — 아직 경보 발령
+ * 전 단계로, TP-P22_002 데이터 리스트의 관심 단계 행동요령("비상 대응 장비 점검 및 어장 예찰
+ * 활동 강화")에 맞춰 "내부 점검·예찰" 중심으로 구성했고, 아직 대외 경보는 발송하지 않았다.
+ */
 export const aquaSummary = {
-  lastUpdated: "14:32",
+  lastUpdated: "09:15",
   targetArea: "제주 서남부 한경·대정 육상양식장",
   spatialResolution: "1km 이하",
   aiLabels: ["Low_Salinity_Plume", "High_Temp_Water"],
@@ -38,21 +46,23 @@ export const aquaSummary = {
     { level: "alert", label: "경계", range: "28.0℃ 이상 1~2일 지속" },
     { level: "danger", label: "심각", range: "28.0℃ 이상 3일 이상 지속" },
   ] as { level: RiskLevel; label: string; range: string }[],
-  activeRisk: { count: 3, detail: "저염분수 1 · 고수온 1 · 복합 1" },
-  pendingApproval: { count: 2, detail: "주의 승인 1 · 경계 승인 1" },
+  // 케이스: 한경 용수 인근 저염분수 관심 1건 — 고수온 동반 없음
+  activeRisk: { count: 1, detail: "저염분수 관심 1건 (한경 용수 인근)" },
+  // 관심 단계는 대외 경보 승인 절차가 필요 없음(TP-P22_002 관심 행동요령 = 내부 장비 점검·예찰) — 승인 대기 없음
+  pendingApproval: { count: 0, detail: "승인 대기 없음 — 관심 단계는 내부 점검 중" },
   /** 아쿠아팜스 페이지(aquaFarmTotals)와 반드시 같은 수치를 쓸 것 — 총량이 화면마다 다르면 담당자가 신뢰 못함 */
-  affectedFarms: { count: 24, detail: "심각 5 · 경계 7 · 주의 7 · 관심 5" },
+  affectedFarms: { count: 3, detail: "관심 3 (심각·경계·주의 없음)" },
   /** aquaDataSources 품질점수 평균(null 제외) — 소스가 바뀌면 이 값도 다시 계산할 것 */
   dataQuality: { percent: 93, detail: "전체 소스 평균" },
 }
 
 export const aquaJourneys = [
   { id: "data", label: "데이터 수집", desc: "전체 5개 소스 · 정상 4 · 지연 1", href: "/aqua/data" },
-  { id: "prediction", label: "AI 예측", desc: "고위험 3등급 · 예측 신뢰도 87%", href: "/aqua/prediction" },
-  { id: "farms", label: "영향 양식장", desc: "24개소 위험권 · 전일 대비 +3개소", href: "/aqua/farms" },
-  { id: "alerts", label: "경보 승인", desc: "경계 3단계 · 승인 요청 대기 중", href: "/aqua/alerts" },
-  { id: "response", label: "e-SOP 대응", desc: "4단계 심각 · 미완료 조치 2건", href: "/aqua/response" },
-  { id: "monitoring", label: "실시간 모니터링", desc: "표층 수온 28.6℃ · 염분 24.8psu", href: "/aqua/monitoring" },
+  { id: "prediction", label: "AI 예측", desc: "관심 1등급 · 예측 신뢰도 87%", href: "/aqua/prediction" },
+  { id: "farms", label: "영향 양식장", desc: "3개소 관심권 · 전일 대비 +1개소", href: "/aqua/farms" },
+  { id: "alerts", label: "경보 승인", desc: "관심 단계 · 대외 경보 미발령(내부 점검 중)", href: "/aqua/alerts" },
+  { id: "response", label: "e-SOP 대응", desc: "1단계 관심 · 점검 항목 2건 진행 중", href: "/aqua/response" },
+  { id: "monitoring", label: "실시간 모니터링", desc: "표층 수온 24.6℃ · 염분 29.4psu", href: "/aqua/monitoring" },
 ]
 
 /**
@@ -61,6 +71,7 @@ export const aquaJourneys = [
  * 서비스키로 2026-09-09 확인한 실제 API 응답값을 그대로 캡처한 스냅샷입니다(이 앱은 정적
  * 프로토타입이라 실시간 재조회는 하지 않음 — 값을 바꾸려면 API를 다시 호출해 갱신해야 함).
  * 해양관측부이 API(TW_0075·KG_0021·KG_0028) + 조위관측소 API(DT_0023, 모슬포) 기준.
+ * 실제 서비스 데이터이므로 2026-09-22 리셋 대상에서 제외 — 값을 임의로 바꾸지 말 것.
  */
 export const khoaLiveObservations: {
   id: string
@@ -87,16 +98,16 @@ export const aquaDataSources: AquaDataSource[] = [
     id: "s1",
     name: "해양관측부이 (국립해양조사원 KHOA API)",
     detail: "중문·제주남부·제주해협 3개소 — 실시간 수온·염분",
-    updatedAt: "15:00",
+    updatedAt: "09:00",
     cycle: "1시간",
     status: "normal",
     qualityScore: 99,
     note: "data.go.kr 공공API 실연동 완료 (2026-09-09 확인)",
   },
-  { id: "s2", name: "위성 (GOCI-II — 해색·저염분 추적)", detail: "해색·염분 추정", updatedAt: "06:20", cycle: "6시간", status: "normal", qualityScore: 93, note: "구름량 12%" },
-  { id: "s3", name: "위성 (SMAP — 해면 염분)", detail: "해면 염분 관측", updatedAt: "09:10", cycle: "1~3일", status: "normal", qualityScore: 90, note: "회의(2026-09-15) 학습 데이터 소스 기준" },
-  { id: "s4", name: "해양 수치모델 (ROMS)", detail: "해양순환 수치예측 (2020~2025 Hindcast)", updatedAt: "12:00", cycle: "6시간", status: "normal", qualityScore: 96, note: "실증사 발표자료 기준 — 회의록의 RAMS 표기를 ROMS로 정정" },
-  { id: "s5", name: "해양 수치모델 (NEMO)", detail: "해양 순환 수치예측", updatedAt: "12:00", cycle: "24시간", status: "delayed", qualityScore: 88, note: "최신 산출물 갱신 지연" },
+  { id: "s2", name: "위성 (GOCI-II — 해색·저염분 추적)", detail: "해색·염분 추정", updatedAt: "06:20", cycle: "6시간", status: "normal", qualityScore: 93, note: "구름량 8%" },
+  { id: "s3", name: "위성 (SMAP — 해면 염분)", detail: "해면 염분 관측", updatedAt: "08:10", cycle: "1~3일", status: "normal", qualityScore: 90, note: "회의(2026-09-15) 학습 데이터 소스 기준" },
+  { id: "s4", name: "해양 수치모델 (ROMS)", detail: "해양순환 수치예측 (2020~2025 Hindcast)", updatedAt: "08:00", cycle: "6시간", status: "normal", qualityScore: 96, note: "실증사 발표자료 기준 — 회의록의 RAMS 표기를 ROMS로 정정" },
+  { id: "s5", name: "해양 수치모델 (NEMO)", detail: "해양 순환 수치예측", updatedAt: "전일 24:00", cycle: "24시간", status: "delayed", qualityScore: 88, note: "최신 산출물 갱신 지연" },
 ]
 
 export const aquaDataIssues: AquaDataIssue[] = [
@@ -104,60 +115,61 @@ export const aquaDataIssues: AquaDataIssue[] = [
 ]
 
 export const aquaActionLog: AquaActionLogEntry[] = [
-  { id: "a2", time: "14:38", title: "NEMO 산출물 갱신 지연 감지", owner: "시스템 자동 경고", action: "수치모델 수집 파이프라인 점검 요청", status: "진행 중" },
-  { id: "a3", time: "15:00", title: "해양관측부이 KHOA API 연동 확인", owner: "관리자", action: "실시간 수신 정상 확인 (중문·제주남부·제주해협)", status: "완료" },
+  { id: "a1", time: "08:52", title: "한경 용수 인근 염분 관심 구간 진입 감지", owner: "시스템 자동 판정", action: "AI 자동 관심 단계 판정 · 담당자 확인 대기", status: "진행 중" },
+  { id: "a2", time: "08:40", title: "NEMO 산출물 갱신 지연 감지", owner: "시스템 자동 경고", action: "수치모델 수집 파이프라인 점검 요청", status: "진행 중" },
+  { id: "a3", time: "09:00", title: "해양관측부이 KHOA API 연동 확인", owner: "관리자", action: "실시간 수신 정상 확인 (중문·제주남부·제주해협)", status: "완료" },
 ]
 
+/**
+ * AI 예측 결과 대시보드(/aqua/prediction) 상단 카드 — riskLevel이 RiskBadge 색상을 결정한다
+ * (이전에는 페이지 코드에 "danger"가 하드코딩돼 있어 실제 등급과 무관하게 항상 빨간 배지가
+ * 떴던 문제를 2026-09-22에 함께 고침).
+ */
 export const aquaRiskState = {
-  level: "고위험 [3등급]",
-  headline: "저염분수 제주 서부 해역 접근 확인",
-  confidence: 87,
-  updatedAt: "14:32",
-  lowSalinity: { eta: "D-2 / 16시간 후", time: "2026-09-06 06:00", location: "한경면 해역 1.2km 전방" },
-  highTemp: { eta: "D-4 / 38시간 후", time: "2026-09-08 04:00", location: "대정읍 해역 남서 방향 진행" },
-  affectedFarmCount: 17,
-  affectedFarmDelta: "전일 대비 +3개소 추가",
+  level: "관심 [1등급]",
+  riskLevel: "caution" as RiskLevel,
+  headline: "저염분수 한경 용수 인근 접근 확인 (관심 단계)",
+  confidence: 84,
+  updatedAt: "09:15",
+  lowSalinity: { eta: "D+3 / 72시간 후", riskLevel: "caution" as RiskLevel, time: "2026-09-25 09:00", location: "한경면 용수리 해역 인근" },
+  highTemp: { eta: "해당 없음", riskLevel: "safe" as RiskLevel, time: "-", location: "고수온 동반 신호 없음" },
+  affectedFarmCount: 3,
+  affectedFarmDelta: "전일 대비 +1개소",
 }
 
 export const aquaModelConfidence: AquaModelConfidence[] = [
-  { id: "m1", name: "HYCOM 모델", percent: 89 },
+  { id: "m1", name: "HYCOM 모델", percent: 88 },
   { id: "m2", name: "ROMS 모델", percent: 85 },
-  { id: "m3", name: "위성 관측 보정", percent: 91 },
-  { id: "m4", name: "현장 부이 관측", percent: 82 },
+  { id: "m3", name: "위성 관측 보정", percent: 90 },
+  { id: "m4", name: "현장 부이 관측", percent: 86 },
 ]
 
 export const aquaQualityMetrics: AquaQualityMetric[] = [
   { id: "q1", name: "위성 SST", level: "safe", percent: 98, note: "수신 지연 없음" },
-  { id: "q2", name: "해양 부이 수온", level: "safe", percent: 94, note: "국립해양조사원 KHOA API · 최근 수신 15:00" },
-  { id: "q3", name: "현장 염분 관측", level: "caution", percent: 71, note: "우도 부이 미수신 2시간" },
-  { id: "q4", name: "강우·하천 유량", level: "safe", percent: 96, note: "최근 수신 14:25" },
+  { id: "q2", name: "해양 부이 수온", level: "safe", percent: 96, note: "국립해양조사원 KHOA API · 최근 수신 09:00" },
+  { id: "q3", name: "현장 염분 관측", level: "caution", percent: 82, note: "우도 부이 미수신 1시간" },
+  { id: "q4", name: "강우·하천 유량", level: "safe", percent: 97, note: "최근 수신 09:10" },
 ]
 
 /**
- * 전체 영향 양식장(aquaFarmTotals.total=24개소) 중 대표 사례 7건만 개별 데이터로 관리 — 확정 관측지점
- * 3곳(한경 금등·한경 용수·대정 일과, AGENTS.md §2-①)에서 감지된 저염분수·고수온이 확산되어 영향을
- * 받는 더 넓은 한경·대정 지역의 개별 양식장이므로 GIS 마커(관측지점 3곳)보다 수가 많음.
- * 나머지 17개소는 이름 없이 aquaFarmTotals 집계에만 존재 — 화면에는 "대표 N개소" 문구로 명시할 것,
- * 전체 24개소인 것처럼 착각하게 두지 말 것.
+ * 영향 양식장(관심 단계 3개소) — 확정 관측지점 3곳(한경 금등·한경 용수·대정 일과, AGENTS.md §2-①)
+ * 중 한경 용수 인근에서 감지된 저염분수 신호가 인근 양식장으로 번지는 초기 단계를 보여준다.
+ * 2026-09-22: 이전 "심각" 사건 더미데이터를 리셋하고 관심 단계 케이스로 전면 재구성함 — 대표
+ * 사례 3건이 곧 전체(aquaFarmTotals.total=3)이며, 숨겨진 양식장은 없음.
  */
 export const aquaFarms: AquaFarm[] = [
-  { id: "f1", name: "한경 금등 전복 양식장", region: "한경면 금등리", species: "전복·소라", level: "danger", riskType: "저염분수+고수온", etaHours: 18, salinity: 24.1, temperature: 30.2 },
-  // temp 30.5℃가 3일 이상 지속 중 — classifyTemperature(30.5, 3)=CRITICAL(심각). tempSustainedDays로 근거를 화면에 노출(그냥 level만 적으면 담당자가 왜 심각인지 확인 불가)
-  { id: "f2", name: "대정 일과 넙치 양식장", region: "대정읍 일과리", species: "넙치", level: "danger", riskType: "고수온", etaHours: 20, temperature: 30.5, tempSustainedDays: 3 },
-  { id: "f3", name: "한경 용수 미역 양식장", region: "한경면 용수리", species: "미역·톳", level: "alert", riskType: "저염분수", etaHours: 28, salinity: 24.9 },
-  { id: "f4", name: "한경 신창 광어 양식장", region: "한경면 신창리", species: "광어", level: "warning", riskType: "고수온", etaHours: 32, temperature: 29.6 },
-  { id: "f5", name: "대정 무릉 해삼 양식장", region: "대정읍 무릉리", species: "해삼·전복", level: "alert", riskType: "저염분수", etaHours: 48, salinity: 25.4 },
-  { id: "f6", name: "대정 영락 돌돔 양식장", region: "대정읍 영락리", species: "돌돔", level: "danger", riskType: "복합", etaHours: 52, salinity: 25.6, temperature: 29.1 },
+  { id: "f1", name: "한경 용수 미역 양식장", region: "한경면 용수리", species: "미역·톳", level: "caution", riskType: "저염분수 관심", etaHours: 60, salinity: 29.4 },
+  { id: "f2", name: "대정 무릉 해삼 양식장", region: "대정읍 무릉리", species: "해삼·전복", level: "caution", riskType: "저염분수 관심", etaHours: 72, salinity: 29.8 },
   {
-    id: "f7",
+    id: "f3",
     name: "한경 조수 1호 양식장",
     region: "제주시 한경면 조수리",
     species: "전복 / 넙치",
-    level: "alert",
-    riskType: "저염분수 유입 예측",
-    etaHours: 12,
-    salinity: 24.5,
-    temperature: 24.2,
+    level: "caution",
+    riskType: "저염분수 관심",
+    etaHours: 54,
+    salinity: 29.1,
+    temperature: 23.8,
     manager: "김○○ (010-****-1234)",
     phone: "010-****-1234",
     area: "2.4 ha",
@@ -165,122 +177,143 @@ export const aquaFarms: AquaFarm[] = [
   },
 ]
 
-export const aquaFarmTotals = { total: 24, danger: 5, alert: 7, warning: 7, caution: 5 }
+export const aquaFarmTotals = { total: 3, danger: 0, alert: 0, warning: 0, caution: 3 }
 
+/**
+ * 경보 초안(/aqua/alerts) — 관심 단계는 TP-P22_002 행동요령상 "비상 대응 장비 점검 및 어장 예찰
+ * 활동 강화"이며 대외 경보 발송 대상이 아니다. 그래서 초안은 "작성됨"이지만 승인 요청 전 단계로
+ * 유지하고, 실제로는 어가 대상 경보를 아직 보내지 않은 상태를 보여준다 — 담당자가 상황을 지켜보며
+ * 필요 시(주의 단계 진입 시) 바로 이어서 진행할 수 있도록 준비만 해둔 것.
+ */
 export const aquaAlertDraft = {
-  region: "한경면·대정읍 일원",
+  region: "한경면 용수리 일원",
   riskType: "저염분수",
-  // e-SOP 경보 등급 — 아래 currentGrade(같은 초안의 최종 위험 등급)와 항상 같은 값이어야 함
-  grade: "심각",
-  scope: "한경면·대정읍",
-  effectiveAt: "즉시 발효",
-  validFor: "3시간",
-  // aquaStages 5단계 번호체계(관심1·주의2·경계3·심각4·해제5) 기준 — 심각은 4단계
-  currentGrade: "🔴 심각 (4단계)",
-  affectedFarms: 14,
-  affectedPopulation: "약 2,300명",
-  eta: "15:50 (약 88분 후)",
-  affectedArea: "한경 ~ 대정 연안",
+  grade: "관심",
+  riskLevel: "caution" as RiskLevel,
+  scope: "한경면 용수리 인근 양식장",
+  effectiveAt: "미발효 (내부 점검 단계)",
+  validFor: "-",
+  // aquaStages 5단계 번호체계(관심1·주의2·경계3·심각4·해제5) 기준
+  currentGrade: "관심 (1단계)",
+  affectedFarms: 3,
+  affectedPopulation: "해당 없음 (대외 경보 미발령)",
+  eta: "해당 없음",
+  affectedArea: "한경면 용수리 인근 해역",
   channels: ["문자(CBS·SMS)", "재난안전앱", "현장 단말", "상황판"],
-  smsTarget: 1842,
-  appTarget: 976,
-  fieldDevices: 23,
-  boards: "도·서귀포 2개소",
-  confidence: 87,
+  smsTarget: 0,
+  appTarget: 0,
+  fieldDevices: 0,
+  boards: "대기 (미발송)",
+  confidence: 84,
   satelliteMatch: "확인됨",
-  fieldDelta: "±0.3°C",
+  fieldDelta: "±0.2 psu",
   approvalSteps: [
-    { id: "d1", stage: "작성", owner: "김재난", time: "14:05" },
-    { id: "d2", stage: "1차 검토", owner: "이담당", time: "14:18" },
-    { id: "d3", stage: "승인 요청", owner: "-", time: "대기 중" },
+    { id: "d1", stage: "작성", owner: "이해양", time: "08:55" },
+    { id: "d2", stage: "1차 검토", owner: "-", time: "대기 중" },
+    { id: "d3", stage: "승인 요청", owner: "-", time: "미착수 (관심 단계는 내부 점검 우선)" },
     { id: "d4", stage: "최종 승인", owner: "-", time: "미완료" },
   ],
   audit: [
-    { id: "au1", time: "14:05", title: "경보 초안 작성 — 김재난" },
-    { id: "au2", time: "14:12", title: "근거 데이터 첨부 — 시스템" },
-    { id: "au3", time: "14:18", title: "1차 내용 검토 완료 — 이담당" },
-    { id: "au4", time: "14:22", title: "모델 신뢰도 재확인 — 시스템" },
+    { id: "au1", time: "08:52", title: "관심 단계 자동 판정 — 시스템" },
+    { id: "au2", time: "08:55", title: "경보 초안 작성 (미발송) — 이해양" },
+    { id: "au3", time: "09:05", title: "근거 데이터 첨부 — 시스템" },
   ] as AquaTimelineEntry[],
 }
 
+/**
+ * e-SOP 대응(/aqua/response) 현재 상황 카드 — riskLevel이 RiskBadge 색상을 결정한다
+ * (이전에는 "danger" 하드코딩으로 관심 단계에서도 빨간 배지가 떴음, 2026-09-22 수정).
+ */
 export const aquaResponseState = {
-  title: "저염분수·고수온 위험 — 한경·대정 해역",
-  level: "심각",
-  // aquaStages 5단계 번호체계(관심1·주의2·경계3·심각4·해제5) 기준 — 심각은 4단계
-  grade: "4단계 / 심각",
-  location: "한경·대정 해역 · 영향 양식장 3개소",
-  detectedAt: "2026-09-04 09:22",
-  eta: "D-2 / 16시간 후",
-  salinity: "24.6 psu / 기준 26.0 psu",
-  temperature: "29.8 °C / 기준 28.0 °C",
-  radius: "약 1.2 km",
+  title: "저염분수 관심 — 한경 용수 인근",
+  level: "관심",
+  riskLevel: "caution" as RiskLevel,
+  // aquaStages 5단계 번호체계(관심1·주의2·경계3·심각4·해제5) 기준
+  grade: "1단계 / 관심",
+  location: "한경면 용수리 인근 해역 · 영향 양식장 3개소",
+  detectedAt: "2026-09-22 08:52",
+  eta: "D+3 / 72시간 후",
+  salinity: "29.4 psu / 정상 기준 30.0 psu",
+  temperature: "24.6 °C / 정상 기준 25.0 °C",
+  radius: "약 0.6 km",
 }
 
-// aquaResponseState.grade("4단계/심각")와 항상 같은 현재 단계를 가리켜야 함
+// aquaResponseState.grade("1단계/관심")와 항상 같은 현재 단계를 가리켜야 함
 export const aquaStages: AquaStage[] = [
-  { step: 1, label: "관심", status: "완료" },
-  { step: 2, label: "주의", status: "완료" },
-  { step: 3, label: "경계", status: "완료" },
-  { step: 4, label: "심각", status: "진행 중" },
+  { step: 1, label: "관심", status: "진행 중" },
+  { step: 2, label: "주의", status: "대기" },
+  { step: 3, label: "경계", status: "대기" },
+  { step: 4, label: "심각", status: "대기" },
   { step: 5, label: "해제", status: "대기" },
 ]
 
+/**
+ * 관심 단계 체크리스트 — TP-P22_002 행동요령("비상 대응 장비 점검 및 어장 예찰 활동 강화")을
+ * 구체적인 점검 항목으로 풀어썼다. 심각 단계의 "긴급 회수·조기 출하 지원"과 달리 아직은
+ * 예방 점검 성격의 조치만 있음 — 2026-09-22 관심 단계 케이스로 재구성.
+ */
 export const aquaChecklist: AquaChecklistItem[] = [
-  { id: "c1", label: "어가 맞춤 SOP 안내 발송", owner: "최경보", time: "09:46", status: "완료" },
-  { id: "c2", label: "먹이 공급 중단 권고 전달", owner: "박통제", time: "09:48", status: "완료" },
-  { id: "c3", label: "양식장 현장 점검 요청", owner: "최경보", time: "-", status: "미완료" },
-  { id: "c4", label: "어가 알림 앱 푸시 발송", owner: "최경보", time: "발송 실패 09:51", status: "실패" },
-  { id: "c5", label: "도·서귀포시 상황실 공유", owner: "김재난", time: "-", status: "대기" },
+  { id: "c1", label: "예비 센서 세트 점검(파울링·통신 상태)", owner: "최경보", time: "09:05", status: "완료" },
+  { id: "c2", label: "한경 용수 인근 양식장 예찰 방문 요청", owner: "박통제", time: "09:10", status: "완료" },
+  { id: "c3", label: "액화산소 공급 장비 대기 상태 확인", owner: "최경보", time: "-", status: "미완료" },
+  { id: "c4", label: "모니터링 주기 단축(1시간 → 30분)", owner: "이해양", time: "-", status: "미완료" },
+  { id: "c5", label: "도·서귀포시 상황실 관심 단계 공유", owner: "김재난", time: "-", status: "대기" },
 ]
 
 export const aquaAgencyRows: AquaAgencyRow[] = [
-  { id: "ag1", agency: "제주특별자치도 재난안전과", role: "총괄 승인", approve: "완료", execute: "완료", receive: "완료" },
-  { id: "ag2", agency: "제주시 한경면사무소", role: "한경 현장 안내", execute: "진행 중", approve: "완료", receive: "완료" },
-  { id: "ag3", agency: "서귀포시 대정읍사무소", role: "대정 현장 안내", execute: "진행 중", approve: "완료", receive: "완료" },
-  { id: "ag4", agency: "제주특별자치도 해양수산연구원", role: "예측 검증", approve: "완료", execute: "완료", receive: "대기" },
+  { id: "ag1", agency: "제주특별자치도 재난안전과", role: "총괄 모니터링", approve: "-", execute: "확인", receive: "완료" },
+  { id: "ag2", agency: "제주시 한경면사무소", role: "한경 용수 현장 예찰", execute: "진행 중", approve: "-", receive: "완료" },
+  { id: "ag3", agency: "서귀포시 대정읍사무소", role: "대정 현장 상시 관찰", execute: "대기", approve: "-", receive: "완료" },
+  { id: "ag4", agency: "제주특별자치도 해양수산연구원", role: "예측 검증", approve: "-", execute: "진행 중", receive: "완료" },
 ]
 
 export const aquaMonitoringState = {
-  ocean: { label: "양식장 해양환경", value: "표층 수온 28.6°C · 염분 24.8psu", level: "danger" as const, tag: "복합 심각(저염분+고수온)" },
+  ocean: { label: "양식장 해양환경", value: "표층 수온 24.6°C · 염분 29.4psu", level: "caution" as const, tag: "관심(저염분수 초기 신호)" },
 }
 
 export const aquaMonitoringEvents: AquaTimelineEntry[] = [
-  { id: "e3", time: "14:15", title: "대정 표층 수온 임계값 초과 — e-SOP 주의 1단계 승인 · 담당자: 이해양" },
-  { id: "e5", time: "13:55", title: "양식장 어가 맞춤 안내 발송 — 수신 확인 34 / 미확인 6 · 재발송 예정" },
+  { id: "e1", time: "08:52", title: "한경 용수 인근 염분 29.4psu 감지 — AI 관심 단계 자동 판정" },
+  { id: "e2", time: "09:05", title: "예비 센서 세트 점검 완료 · 예찰 방문 요청 — 담당자: 최경보" },
+  { id: "e3", time: "09:15", title: "현재 관심 단계 유지 중 — 30분 주기 모니터링 강화" },
 ]
 
+/**
+ * 종료 보고서(/aqua/closure) — 오늘(2026-09-22) 진행 중인 관심 단계 케이스가 아니라, 지난주
+ * 정상적으로 종료된 관심 단계 사례를 예시로 남겨둔 것이다(날짜가 다름에 주의). 현재 진행 중인
+ * 케이스는 아직 종료되지 않았으므로 /aqua/response · /aqua/monitoring에서 진행 상황을 확인할 것.
+ */
 export const aquaClosureSummary = {
-  type: "저염분수·고수온 위험",
-  location: "한경·대정 해역 · 영향 양식장 3개소",
-  startedAt: "2026-09-04 09:22",
-  endedAt: "2026-09-04 14:47",
-  finalGrade: "관심 (1단계) — 해제",
-  duration: "5시간 25분",
+  type: "저염분수 관심 단계 (지난 사례)",
+  location: "대정읍 일과리 해역 · 영향 양식장 2개소",
+  startedAt: "2026-09-15 07:40",
+  endedAt: "2026-09-15 11:20",
+  finalGrade: "관심 (1단계) — 정상 회복 해제",
+  finalLevel: "safe" as RiskLevel,
+  duration: "3시간 40분",
 }
 
 export const aquaClosureTimeline: AquaTimelineEntry[] = [
-  { id: "ct1", time: "09:22", title: "[탐지] 해양 부이 염분 임계값 초과 — 한경면 해역" },
-  { id: "ct2", time: "09:35", title: "[경보] e-SOP 주의 단계 승인 — 담당자 이해양" },
-  { id: "ct3", time: "10:11", title: "[안내] 어가 맞춤 SOP 안내 발송 완료 (34개소)" },
-  { id: "ct4", time: "11:30", title: "[검증] 위성 관측 보정 데이터 반영 · 신뢰도 87%" },
-  { id: "ct5", time: "13:15", title: "[모니터링] 염분·수온 회복 추세 확인" },
-  { id: "ct6", time: "14:47", title: "[종료] 상황 종료 승인 — 담당자 이해양" },
+  { id: "ct1", time: "07:40", title: "[탐지] 해양 부이 염분 관심 구간 진입 — 대정읍 일과리 해역" },
+  { id: "ct2", time: "07:50", title: "[점검] 예비 센서·액화산소 장비 점검 완료" },
+  { id: "ct3", time: "08:30", title: "[예찰] 인근 양식장 2개소 현장 확인 — 이상 없음" },
+  { id: "ct4", time: "09:40", title: "[모니터링] 염분 회복 추세 확인 (29.6 → 30.2psu)" },
+  { id: "ct5", time: "11:20", title: "[종료] 정상 회복 확인 · 관심 단계 해제 승인 — 담당자 이해양" },
 ]
 
 export const aquaClosurePrediction = {
-  predictedSalinity: "24.3 psu",
-  actualSalinity: "24.9 psu",
-  error: "+0.6 psu (과소 예측)",
+  predictedSalinity: "29.5 psu",
+  actualSalinity: "29.6 psu",
+  error: "+0.1 psu (양호)",
   reasoning: [
-    "[위성] GOCI-II 해색 산출물 — 저염분수 확산 범위 확인",
-    "[부이] 한경면 해양관측부이 실측값 정상 수신·교차검증 완료",
-    "[모델] HYCOM·ROMS 앙상블 신뢰도 87% — 위성 관측과 일치",
-    "[GIS] 영향 반경 약 1.2km — 양식장 3개소 포함",
+    "[위성] GOCI-II 해색 산출물 — 저염분수 확산 범위 국지적(일과리 인근)으로 확인",
+    "[부이] 대정 인근 해양관측부이 실측값 정상 수신·교차검증 완료",
+    "[모델] HYCOM·ROMS 앙상블 신뢰도 88% — 위성 관측과 일치",
+    "[GIS] 영향 반경 약 0.5km — 양식장 2개소 포함, 확산 없음",
   ],
 }
 
 export const aquaRetraining = {
-  target: "예측·실측 편차 데이터 8건",
-  status: "검토 중 · 재학습 대기",
-  updatedAt: "2026-09-04 15:02",
+  target: "예측·실측 편차 데이터 3건",
+  status: "검토 완료 · 반영 대기",
+  updatedAt: "2026-09-15 11:30",
 }

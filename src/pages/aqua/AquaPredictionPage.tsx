@@ -13,17 +13,17 @@ export function AquaPredictionPage() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="현재 위험 판단 상태" subtitle={`갱신 ${aquaRiskState.updatedAt}`}>
-          <RiskBadge level="danger" label={aquaRiskState.level} solid />
+          <RiskBadge level={aquaRiskState.riskLevel} label={aquaRiskState.level} solid />
           <p className="mt-3 text-sm font-semibold text-white/85">{aquaRiskState.headline}</p>
           <p className="mt-1 text-xs text-white/40">예측 신뢰도 {aquaRiskState.confidence}% · 데이터 품질 양호</p>
         </Card>
         <Card title="저염분수 예상 도달">
-          <RiskBadge level="warning" label={aquaRiskState.lowSalinity.eta} solid />
+          <RiskBadge level={aquaRiskState.lowSalinity.riskLevel} label={aquaRiskState.lowSalinity.eta} solid />
           <p className="mt-3 text-sm text-white/85">{aquaRiskState.lowSalinity.time}</p>
           <p className="mt-1 text-xs text-white/40">{aquaRiskState.lowSalinity.location}</p>
         </Card>
         <Card title="고수온 예상 도달">
-          <RiskBadge level="caution" label={aquaRiskState.highTemp.eta} solid />
+          <RiskBadge level={aquaRiskState.highTemp.riskLevel} label={aquaRiskState.highTemp.eta} solid />
           <p className="mt-3 text-sm text-white/85">{aquaRiskState.highTemp.time}</p>
           <p className="mt-1 text-xs text-white/40">{aquaRiskState.highTemp.location}</p>
         </Card>

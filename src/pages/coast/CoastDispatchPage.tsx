@@ -18,7 +18,7 @@ export function CoastDispatchPage() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="위험 사건 요약" className="xl:col-span-2">
-          <RiskBadge level="danger" label={d.summary.level} solid />
+          <RiskBadge level={d.summary.level} label={d.summary.title} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="발생 위치" value={d.summary.location} />
             <Row label="탐지 시각" value={d.summary.detectedAt} />

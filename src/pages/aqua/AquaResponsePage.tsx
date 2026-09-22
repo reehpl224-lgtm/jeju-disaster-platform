@@ -35,7 +35,7 @@ export function AquaResponsePage() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="현재 재난 상황">
-          <RiskBadge level="danger" label={aquaResponseState.level} solid />
+          <RiskBadge level={aquaResponseState.riskLevel} label={aquaResponseState.level} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="위험 등급" value={aquaResponseState.grade} />
             <Row label="발생 위치" value={aquaResponseState.location} />
@@ -52,7 +52,7 @@ export function AquaResponsePage() {
         </Card>
       </div>
 
-      <Card title="e-SOP 단계별 대응 절차" subtitle="4단계 — 심각 · 현재 진행 중">
+      <Card title="e-SOP 단계별 대응 절차" subtitle={`${aquaResponseState.grade} · 현재 진행 중`}>
         <div className="flex flex-col gap-2.5">
           {checklist.map((item) => (
             <ChecklistRow
@@ -108,12 +108,12 @@ export function AquaResponsePage() {
 
         <Card title="다음 단계 안내" subtitle="5단계(해제) 전환 조건">
           <ul className="flex flex-col gap-2 text-sm text-white/70">
-            <li>· 염분 26.0 psu 이상 · 수온 28.0℃ 미만으로 회복된 상태가 6시간 이상 지속 시 하향 검토</li>
+            <li>· 염분 30.0 psu 이상으로 24시간 이상 유지 시 정상 하향(해제) 검토</li>
             <li>
               ·{" "}
               {remainingCount > 0
-                ? `현재 4단계 미완료 항목 ${remainingCount}건 해소 후 종료 처리 가능`
-                : "4단계 미완료 항목 모두 해소됨 — 5단계(해제) 전환 검토 가능"}
+                ? `현재 단계 미완료 항목 ${remainingCount}건 해소 후 종료 처리 가능`
+                : "현재 단계 미완료 항목 모두 해소됨 — 5단계(해제) 전환 검토 가능"}
             </li>
           </ul>
         </Card>

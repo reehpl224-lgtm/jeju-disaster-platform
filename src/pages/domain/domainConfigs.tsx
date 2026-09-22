@@ -895,7 +895,7 @@ export function aquaConfig(): DomainConfig {
   )
   const pred = (
     <>
-      <Box title={rs.level} lines={[rs.headline, `신뢰도 ${rs.confidence}% · 갱신 ${rs.updatedAt}`]} right={<Risk level="alert" label="고위험" />} />
+      <Box title={rs.level} lines={[rs.headline, `신뢰도 ${rs.confidence}% · 갱신 ${rs.updatedAt}`]} right={<Risk level={rs.riskLevel} label={rs.level} />} />
       <Kv
         items={[
           { k: "저염분수 도달", v: rs.lowSalinity.eta, d: `${rs.lowSalinity.time} · ${rs.lowSalinity.location}` },
@@ -959,7 +959,7 @@ export function aquaConfig(): DomainConfig {
   const ad = AQ.aquaAlertDraft
   const alert = (
     <>
-      <Box title={`${ad.riskType} ${ad.grade} 경보 초안`} lines={[`${ad.region} · ${ad.effectiveAt} · 유효 ${ad.validFor}`]} right={<Risk level="danger" label={ad.grade} />} />
+      <Box title={`${ad.riskType} ${ad.grade} 경보 초안`} lines={[`${ad.region} · ${ad.effectiveAt} · 유효 ${ad.validFor}`]} right={<Risk level={ad.riskLevel} label={ad.grade} />} />
       <Group title="영향">
         <Rows
           pairs={[
@@ -996,7 +996,7 @@ export function aquaConfig(): DomainConfig {
   const rsp = AQ.aquaResponseState
   const response = (
     <>
-      <Box title={rsp.title} lines={[rsp.location, `탐지 ${rsp.detectedAt} · 도달 ${rsp.eta}`]} right={<Risk level="danger" label={rsp.grade} />} />
+      <Box title={rsp.title} lines={[rsp.location, `탐지 ${rsp.detectedAt} · 도달 ${rsp.eta}`]} right={<Risk level={rsp.riskLevel} label={rsp.grade} />} />
       <Rows pairs={[["염분", rsp.salinity], ["수온", rsp.temperature], ["영향 반경", rsp.radius]]} />
       <Group title="e-SOP 단계">
         <Steps items={AQ.aquaStages.map((st) => ({ title: `${st.step}. ${st.label}`, sub: st.status, on: st.status === "진행 중" }))} />
@@ -1254,7 +1254,7 @@ export function coastConfig(): DomainConfig {
   const rq = dp.request
   const dispatch = (
     <>
-      <Box title={dp.summary.title} lines={[dp.summary.location, `탐지 ${dp.summary.detectedAt}`]} right={<Risk level="danger" label={dp.summary.level} />} />
+      <Box title={dp.summary.title} lines={[dp.summary.location, `탐지 ${dp.summary.detectedAt}`]} right={<Risk level={dp.summary.level} />} />
       <Kv
         items={[
           { k: "AI 신뢰도", v: `${dp.confidence}%` },

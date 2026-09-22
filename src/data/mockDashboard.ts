@@ -7,7 +7,7 @@ import type {
   TimeSeriesReading,
 } from "../types/domain"
 
-export const lastSyncedAt = "2026-09-04 09:47"
+export const lastSyncedAt = "2026-09-22 09:15"
 
 /** GIS 지도 하단 서비스 카드 그리드 — 참고 솔루션(demo-10.muhanit.kr) GIS 상황 화면의 주의/경계/심각 카운트 카드 구조 */
 export const serviceStatusCards: {
@@ -24,23 +24,26 @@ export const serviceStatusCards: {
   { id: "typhoon", title: "태풍", icon: "🌀", href: "/typhoon", counts: { warning: 0, alert: 1, danger: 0 } },
   // heatLevelInfo(mockHeat.ts) 기준: 제주 전역 폭염주의보(warning) 1건
   { id: "heat", title: "폭염 대응", icon: "🔆", href: "/heat", counts: { warning: 1, alert: 0, danger: 0 } },
-  // riverStatuses(돈내코 warning 1 · 쇠소깍 danger 1, 14:32 심각 상향)와 반드시 같은 수치를 쓸 것
-  { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 1, alert: 0, danger: 1 } },
-  // aquaFarmTotals(mockAqua.ts) 기준: danger 5 · alert 7 · warning 7 · caution 5 (총 24개소)
-  { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 7, alert: 7, danger: 5, caution: 5 } },
-  { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 2, alert: 0, danger: 3 } },
+  // riverStatuses(돈내코·쇠소깍 모두 safe)와 반드시 같은 수치를 쓸 것 — 2026-09-22 평시 리셋
+  { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 0, alert: 0, danger: 0 } },
+  // aquaFarmTotals(mockAqua.ts) 기준: caution 3 · 나머지 0 — 한경 용수 인근 저염분수 관심 케이스(2026-09-22)
+  { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 0, alert: 0, danger: 0, caution: 3 } },
+  // coastSummary(mockCoast.ts) 기준: 진행 중 이벤트 0건 — 2026-09-22 평시 리셋
+  { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 0, alert: 0, danger: 0 } },
 ]
 
 export const riskMarkers: RiskMarker[] = [
-  { id: "donnaeko", name: "효돈천(돈내코)", x: 178, y: 198, level: "warning", domain: "river", lat: 33.276, lng: 126.593 },
-  // riverStatuses 기준 14:32에 심각 3단계로 상향(riverControlTimeline ct7)
-  { id: "soesokkak", name: "효돈천(쇠소깍)", x: 196, y: 222, level: "danger", domain: "river", lat: 33.247, lng: 126.619 },
-  { id: "hamdeok", name: "함덕 해수욕장", x: 222, y: 92, level: "danger", domain: "coast", lat: 33.543, lng: 126.670 },
-  // coastEvents 기준 실제 최고위험(둘 다 danger 이벤트가 진행 중) 반영 — serviceStatusCards.coast(danger 3건)와도 일치시킬 것
-  { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "danger", domain: "coast", lat: 33.394, lng: 126.239 },
-  { id: "hangyeong-geumdeung", name: "한경 금등", x: 40, y: 125, level: "alert", domain: "aqua", temperature: "24.7°C", salinity: "25.9 psu", lat: 33.322, lng: 126.175 },
-  { id: "hangyeong-yongsu", name: "한경 용수", x: 44, y: 185, level: "alert", domain: "aqua", temperature: "25.8°C", salinity: "25.3 psu", lat: 33.310, lng: 126.166 },
-  { id: "daejeong-ilgwa", name: "대정 일과", x: 60, y: 240, level: "alert", domain: "aqua", temperature: "26.8°C", salinity: "24.6 psu", lat: 33.221, lng: 126.252 },
+  // riverStatuses(mockRiver.ts) 기준 정상 — 2026-09-22 평시 리셋
+  { id: "donnaeko", name: "효돈천(돈내코)", x: 178, y: 198, level: "safe", domain: "river", lat: 33.276, lng: 126.593 },
+  { id: "soesokkak", name: "효돈천(쇠소깍)", x: 196, y: 222, level: "safe", domain: "river", lat: 33.247, lng: 126.619 },
+  // coastSummary(mockCoast.ts) 기준 정상 — 2026-09-22 평시 리셋
+  { id: "hamdeok", name: "함덕 해수욕장", x: 222, y: 92, level: "safe", domain: "coast", lat: 33.543, lng: 126.670 },
+  { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "safe", domain: "coast", lat: 33.394, lng: 126.239 },
+  // aquaFarms/aquaRiskState(mockAqua.ts) 저염분수 관심 케이스(2026-09-22, 한경 용수 인근)와 일치시킬 것.
+  // classifySalinity(marineAlertThresholds.ts) 기준: 30.5→정상, 29.4·29.7→관심(caution)
+  { id: "hangyeong-geumdeung", name: "한경 금등", x: 40, y: 125, level: "safe", domain: "aqua", temperature: "24.0°C", salinity: "30.5 psu", lat: 33.322, lng: 126.175 },
+  { id: "hangyeong-yongsu", name: "한경 용수", x: 44, y: 185, level: "caution", domain: "aqua", temperature: "24.6°C", salinity: "29.4 psu", lat: 33.310, lng: 126.166 },
+  { id: "daejeong-ilgwa", name: "대정 일과", x: 60, y: 240, level: "caution", domain: "aqua", temperature: "24.5°C", salinity: "29.7 psu", lat: 33.221, lng: 126.252 },
   // weatherStations(mockHeavyRain.ts) ws-1 "경보 발령"과 반드시 같은 등급을 쓸 것
   { id: "hancheon", name: "한천 침수경보", x: 145, y: 80, level: "alert", domain: "heavyRain", lat: 33.499, lng: 126.520 },
   // typhoonReports(mockTyphoon.ts) 최신 발표(ty-1) "태풍경보"와 반드시 같은 등급을 쓸 것.
@@ -62,10 +65,11 @@ export const riskMarkers: RiskMarker[] = [
 ]
 
 export const timeSeries: TimeSeriesReading[] = [
-  { label: "효돈천(돈내코) 수위", value: 2.34, threshold: 2.0, unit: "m", worseWhen: "above" },
-  { label: "효돈천(쇠소깍) 수위", value: 1.87, threshold: 1.5, unit: "m", worseWhen: "above" },
-  { label: "함덕 해수온", value: 28.4, threshold: 28.0, unit: "°C", worseWhen: "above" },
-  { label: "한경 염분", value: 24.6, threshold: 26.0, unit: "psu", worseWhen: "below" },
+  { label: "효돈천(돈내코) 수위", value: 1.05, threshold: 2.0, unit: "m", worseWhen: "above" },
+  { label: "효돈천(쇠소깍) 수위", value: 0.98, threshold: 1.5, unit: "m", worseWhen: "above" },
+  { label: "함덕 해수온", value: 24.6, threshold: 28.0, unit: "°C", worseWhen: "above" },
+  // classifySalinity(marineAlertThresholds.ts) 정상 기준 30.0psu — 한경 용수 인근 관심 케이스(29.4psu)만 임계 초과로 표시
+  { label: "한경 염분", value: 29.4, threshold: 30.0, unit: "psu", worseWhen: "below" },
 ]
 
 export const aiInsights: AiInsight[] = [
@@ -82,28 +86,29 @@ export const agencyStatuses: AgencyStatus[] = [
   { id: "seogwipo", agency: "서귀포시 상황실", role: "현장 대응", status: "connected", lastAction: "09:39 갱신" },
   { id: "coast-guard", agency: "제주해양경찰서", role: "연안 출동", status: "connected", lastAction: "09:38 갱신" },
   { id: "fire", agency: "제주소방본부", role: "구조 출동", status: "connected", lastAction: "09:35 갱신" },
-  { id: "kma", agency: "기상청 제주지방기상청", role: "기상 연계", status: "down", lastAction: "09:38 발생 · 강우레이더 API 미수신" },
+  { id: "kma", agency: "기상청 제주지방기상청", role: "기상 연계", status: "connected", lastAction: "09:10 갱신" },
 ]
 
+// 2026-09-22 리셋 — 하천·연안은 평시 정기점검, 저염분 고수온만 관심 단계 케이스 진행 중
 export const recentActions: RecentAction[] = [
-  { id: "a1", time: "09:31", title: "효돈천(쇠소깍) 경계 단계 승인", owner: "재난대응1팀", note: "하천 범람" },
-  { id: "a2", time: "09:18", title: "효돈천(돈내코) 수위 이상 감지", owner: "재난대응2팀", note: "센서 교차검증 완료" },
-  { id: "a3", time: "08:55", title: "함덕 방파제 위험구역 진입 탐지", owner: "연안관제팀", note: "현장 경보 실행" },
-  { id: "a4", time: "08:40", title: "협재 해경 출동 공조 요청", owner: "연안관제팀", note: "해경 수신 확인" },
-  { id: "a5", time: "08:12", title: "한경·대정 고수온 주의 승인", owner: "재난대응1팀", note: "양식장 18개소 안내 발송" },
+  { id: "a1", time: "09:10", title: "함덕·협재 AIoT 스마트폴 상시 점검 완료", owner: "연안관제팀", note: "장비 4기 전 기기 정상" },
+  { id: "a2", time: "09:05", title: "기상청 강우레이더 API 연동 정상 확인", owner: "시스템", note: "기관 연계 이상 없음" },
+  { id: "a3", time: "09:00", title: "효돈천(돈내코·쇠소깍) 정기 점검 완료", owner: "하천관제팀", note: "이상 없음 · 정상 단계 유지" },
+  { id: "a4", time: "08:58", title: "한경 용수 인근 현장 예찰 요청 접수", owner: "양식정책팀", note: "저염분수 관심 단계 대응" },
+  { id: "a5", time: "08:52", title: "한경 용수 인근 염분 관심 구간 진입 감지", owner: "시스템 자동 판정", note: "AI 자동 관심 단계 판정 · 담당자 확인 대기" },
 ]
 
-export const sensorCrossCheck = { normal: 14, fault: 2, missing: 1 }
+export const sensorCrossCheck = { normal: 16, fault: 0, missing: 1 }
 
 export const predictionConfidence = { level: "고신뢰", percent: 92 }
 
 export const sixHourSeries = [
-  { time: "04:00", 돈내코수위: 1.62, 쇠소깍수위: 1.31, 함덕수온: 27.6 },
-  { time: "05:00", 돈내코수위: 1.74, 쇠소깍수위: 1.38, 함덕수온: 27.7 },
-  { time: "06:00", 돈내코수위: 1.88, 쇠소깍수위: 1.44, 함덕수온: 27.9 },
-  { time: "07:00", 돈내코수위: 2.02, 쇠소깍수위: 1.55, 함덕수온: 28.0 },
-  { time: "08:00", 돈내코수위: 2.19, 쇠소깍수위: 1.68, 함덕수온: 28.2 },
-  { time: "09:00", 돈내코수위: 2.34, 쇠소깍수위: 1.87, 함덕수온: 28.4 },
+  { time: "04:00", 돈내코수위: 1.02, 쇠소깍수위: 0.95, 함덕수온: 24.3 },
+  { time: "05:00", 돈내코수위: 1.03, 쇠소깍수위: 0.96, 함덕수온: 24.4 },
+  { time: "06:00", 돈내코수위: 1.03, 쇠소깍수위: 0.96, 함덕수온: 24.4 },
+  { time: "07:00", 돈내코수위: 1.04, 쇠소깍수위: 0.97, 함덕수온: 24.5 },
+  { time: "08:00", 돈내코수위: 1.04, 쇠소깍수위: 0.97, 함덕수온: 24.5 },
+  { time: "09:00", 돈내코수위: 1.05, 쇠소깍수위: 0.98, 함덕수온: 24.6 },
 ]
 
 export const weatherTimeline: { time: string; level: RiskLevel }[] = [
@@ -122,11 +127,12 @@ export const weatherTimeline: { time: string; level: RiskLevel }[] = [
 
 export const weatherTimelineNow = "09:47"
 
+// 2026-09-22 리셋 — 하천·연안 센서는 정상, 한경 염분센서만 저염분수 관심 케이스(29.4psu)로 표시
 export const dashboardSensors = [
-  { id: "sn1", name: "효돈천 수위센서 #HD-01", type: "하천", location: "돈내코 계곡 인근", value: "2.34 m", status: "warning" as RiskLevel, updatedAt: "09:47" },
-  { id: "sn2", name: "효돈천 수위센서 #HD-02", type: "하천", location: "쇠소깍 하류", value: "1.87 m", status: "caution" as RiskLevel, updatedAt: "09:46" },
-  { id: "sn3", name: "효돈천 AIoT 계측망 #1 (상류)", type: "기상", location: "서귀포시 효돈동", value: "강우 없음", status: "safe" as RiskLevel, updatedAt: "09:47" },
-  { id: "sn4", name: "함덕 AIoT 스마트폴", type: "연안", location: "함덕해수욕장", value: "수온 28.4°C", status: "warning" as RiskLevel, updatedAt: "09:40" },
-  { id: "sn5", name: "협재 AIoT 스마트폴", type: "연안", location: "협재해수욕장", value: "파고 1.2 m", status: "safe" as RiskLevel, updatedAt: "09:45" },
-  { id: "sn6", name: "한경 염분센서", type: "해안관측", location: "한경면 해역", value: "24.6 psu", status: "alert" as RiskLevel, updatedAt: "09:30" },
+  { id: "sn1", name: "효돈천 수위센서 #HD-01", type: "하천", location: "돈내코 계곡 인근", value: "1.05 m", status: "safe" as RiskLevel, updatedAt: "09:10" },
+  { id: "sn2", name: "효돈천 수위센서 #HD-02", type: "하천", location: "쇠소깍 하류", value: "0.98 m", status: "safe" as RiskLevel, updatedAt: "09:10" },
+  { id: "sn3", name: "효돈천 AIoT 계측망 #1 (상류)", type: "기상", location: "서귀포시 효돈동", value: "강우 없음", status: "safe" as RiskLevel, updatedAt: "09:10" },
+  { id: "sn4", name: "함덕 AIoT 스마트폴", type: "연안", location: "함덕해수욕장", value: "수온 24.6°C", status: "safe" as RiskLevel, updatedAt: "09:10" },
+  { id: "sn5", name: "협재 AIoT 스마트폴", type: "연안", location: "협재해수욕장", value: "파고 0.6 m", status: "safe" as RiskLevel, updatedAt: "09:10" },
+  { id: "sn6", name: "한경 염분센서", type: "해안관측", location: "한경면 해역", value: "29.4 psu", status: "caution" as RiskLevel, updatedAt: "08:52" },
 ]

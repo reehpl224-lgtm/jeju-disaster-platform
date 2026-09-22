@@ -34,7 +34,7 @@ const COAST_ASSET_STATUS_LEVEL: Record<(typeof coastSafetyAssets)[number]["statu
   오류: "danger",
 }
 
-const RIVER_SENSOR_STATUS_LEVEL: Record<(typeof riverSensorCheck)[number]["status"], "safe" | "danger"> = {
+const RIVER_SENSOR_STATUS_LEVEL: Record<"정상" | "이상", "safe" | "danger"> = {
   정상: "safe",
   이상: "danger",
 }

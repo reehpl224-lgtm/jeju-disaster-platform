@@ -477,6 +477,41 @@ warning/caution으로 낮게 표시돼 있었던 것(`mockDashboard.ts`의 `risk
 - 하나의 도메인 안에서 단계 번호("1단계", "2단계"...)를 쓸 때는 위 3번 표의 순서(주의=1, 경계=2,
   심각=3)를 따르세요.
 
+**2026-09-22 — 더미데이터 전면 리셋 + 저염분 고수온 "관심 단계" 케이스 신설.** 사용자 요청("실제
+서비스되는 데이터는 제외하고 더미데이터는 리셋시켜줘. 각 파트별로 케이스를 만들어서... 확인·대응·조치·처리
+프로세스를 체크하고 싶어")에 따라 3개 실증서비스의 더미 "진행 중 사건"을 모두 초기화하고, 첫 사례로
+`/aqua`(저염분 고수온)에 **관심(1단계) 케이스**를 만들었습니다.
+
+- **리셋 대상에서 제외한 실제 데이터**(값을 임의로 바꾸지 말 것 — 각 파일 상단에 주석으로도 표시됨):
+  `khoaLiveObservations`(mockAqua.ts), `khoaBuoyMarineConditions`(mockKhoaBuoy.ts),
+  `khoaMoseulpoTide`(mockRiver.ts), KMA API를 렌더 시점에 직접 호출하는 패널들
+  (`VilageForecastPanel`/`WarningsPanel`/`RainfallObservationPanel`/`MarineObservationPanel`/
+  `TyphoonNowPanel`/`TyphoonNameListPanel`).
+- **아쿠아(저염분 고수온) 관심 케이스** — 한경 용수 인근 29.4psu(관심 구간, `classifySalinity` 기준)
+  감지를 중심 시나리오로 `mockAqua.ts` 전체 재작성. 대외 경보는 미발령(TP-P22_002 관심 단계 조치가
+  "장비 점검·예찰 강화"뿐 내부 대응이라서) — `aquaAlertDraft`가 "작성" 단계에서 멈춰 있고 발송 대상이
+  전부 0인 게 버그가 아니라 의도된 상태입니다. `aquaFarms`는 7개소→3개소(전부 caution)로 줄였고
+  `aquaFarmTotals`와 반드시 같은 수치를 씁니다.
+- **하천·연안은 정상(0단계) 평시로 리셋만 하고 케이스는 아직 안 만듦** — `riverStatuses`/`coastSummary`
+  등이 전부 safe/0건이며, `riverClosure`/`coastClosure`는 "종료 보고서 양식이 어떤 모습인지" 보여주는
+  과거 사례(지난 날짜, 제목에 "(지난 사례)" 명시)로 남겨뒀습니다. 하천·연안에 단계별 케이스를 만들 때는
+  이번 아쿠아 케이스를 템플릿으로 삼으세요: (1) 대상 지표를 하나 골라 임계값 구간에 걸치게 하고,
+  (2) 확인→대응→조치→처리 각 페이지의 문구를 그 단계의 실제 SOP 조치 내용(3번 섹션의 표)에 맞춰 다시
+  쓰고, (3) `riskLevel`류 필드를 추가해 배지 색이 하드코딩되지 않고 그 단계를 따라가게 하고, (4) 관련
+  없는 상태(예: 관심 단계인데 승인 대기 건수)는 0/해당없음으로 명시적으로 끄세요.
+- **이번에 새로 찾은 "배지 색 하드코딩" 버그 7건 이상을 고쳤습니다** — `RiskBadge`/`Risk`의 `level`
+  props가 실제 데이터 대신 `"danger"` 등으로 박혀 있어서, 데이터가 안전해져도 배지는 계속 빨갛게 뜨는
+  문제였습니다. 고친 파일: `AquaAlertPage`/`AquaResponsePage`/`AquaClosurePage`/`AquaPredictionPage`/
+  `RiverAlertPage`/`RiverDispatchPage`/`RiverHomePage`(e-SOP 배지)/`CoastDispatchPage`,
+  `domainConfigs.tsx`(aquaConfig 3곳 + coastConfig 1곳). 이런 버그를 막으려면 **데이터 객체 쪽에
+  `level`/`riskLevel` 필드를 두고 페이지는 그 필드를 참조**하는 패턴을 쓰세요 — 라벨 텍스트만 있고
+  `RiskLevel` 타입 필드가 없는 상태(status) 객체를 새로 만들면 나중에 또 이 실수가 반복됩니다.
+- 목록이 `[]`로 비었을 때 이전엔 테이블/카드 안에 **하드코딩된 예시 행**이 남아 있어서 데이터를 비워도
+  화면엔 옛날 사건이 계속 보이는 경우가 있었습니다(`RiverAlertPage`의 "수신 실패" 표,
+  `RiverDispatchPage`의 "기관별 출동 요청" 표, `RiverControlPage`의 "실패 항목" 카드). 빈 배열일 때는
+  "이력 없음" 같은 명시적 안내 문구로 대체하세요 — 그냥 `.map()`만 믿고 방치하면 이런 하드코딩이
+  숨어 있는지 확인이 안 됩니다.
+
 ## 5. 알려진 미해결 이슈 (다음에 손댈 후보)
 
 - **`/dashboard`의 `GisTimelinePanel`/`GisSidePanel`/`GisIconRail`이 `JejuTileMap`(Leaflet) 뒤에

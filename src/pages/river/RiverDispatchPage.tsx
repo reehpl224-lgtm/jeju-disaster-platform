@@ -30,7 +30,7 @@ export function RiverDispatchPage() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="출동 요청 개요">
-          <RiskBadge level="alert" label={d.stage} solid />
+          <RiskBadge level={d.level} label={d.stage} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="대상 하천·구역" value={d.target} />
             <Row label="범람 예상 시각" value={d.eta} />
@@ -73,18 +73,9 @@ export function RiverDispatchPage() {
           </thead>
           <tbody className="divide-y divide-border-subtle">
             <tr>
-              <td className="py-2 text-white/70">제주소방서 북제주</td>
-              <td className="py-2 text-white/40">14:05</td>
-              <td className="py-2"><RiskBadge level="safe" label="확인" /></td>
-              <td className="py-2 text-white/40">출동 완료</td>
-              <td className="py-2 text-white/40">14:18</td>
-            </tr>
-            <tr>
-              <td className="py-2 text-white/70">제주경찰서</td>
-              <td className="py-2 text-white/40">14:05</td>
-              <td className="py-2"><RiskBadge level="caution" label="대기 중" /></td>
-              <td className="py-2 text-white/40">출동 준비</td>
-              <td className="py-2 text-white/40">-</td>
+              <td className="py-3 text-center text-white/30" colSpan={5}>
+                출동 요청 이력 없음 — 평시 감시 중
+              </td>
             </tr>
           </tbody>
         </table>

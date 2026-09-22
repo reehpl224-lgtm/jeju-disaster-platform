@@ -16,7 +16,7 @@ export function RiverAlertPage() {
       </div>
 
       <Card title="발송 대상 및 위험 단계">
-        <RiskBadge level="danger" label={d.stage} solid />
+        <RiskBadge level={riverAlertDispatch.level} label={d.stage} solid />
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Field label="발송 대상" value={`${d.target} (${d.targetDetail})`} />
           <Field label="발송 시각" value={d.sentAt} />
@@ -43,7 +43,7 @@ export function RiverAlertPage() {
       </div>
 
       <Card title="수신 실패 항목" subtitle={`전체 실패: ${d.totalFail}건`}>
-        {retried ? (
+        {d.totalFail === 0 ? null : retried ? (
           <p className="rounded-lg border border-risk-safe/40 bg-risk-safe-bg p-2.5 text-xs text-risk-safe">
             ✓ 재시도 요청을 보냈습니다. 채널사 응답을 기다리는 중입니다.
           </p>
@@ -66,18 +66,20 @@ export function RiverAlertPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
-            <tr>
-              <td className="py-2 text-white/70">현장 단말</td>
-              <td className="py-2 text-white/40">FD-118 서귀포 남부</td>
-              <td className="py-2 text-white/40">중계 응답 없음</td>
-              <td className="py-2 text-white/40">14:32:15</td>
-            </tr>
-            <tr>
-              <td className="py-2 text-white/70">문자(SMS)</td>
-              <td className="py-2 text-white/40">타임아웃 118건</td>
-              <td className="py-2 text-white/40">통신사 지연</td>
-              <td className="py-2 text-white/40">14:32:09</td>
-            </tr>
+            {d.totalFail === 0 ? (
+              <tr>
+                <td className="py-3 text-center text-white/30" colSpan={4}>
+                  실패 이력 없음 — 현재 발령된 경보가 없습니다
+                </td>
+              </tr>
+            ) : (
+              <tr>
+                <td className="py-2 text-white/70">현장 단말</td>
+                <td className="py-2 text-white/40">FD-118 서귀포 남부</td>
+                <td className="py-2 text-white/40">중계 응답 없음</td>
+                <td className="py-2 text-white/40">14:32:15</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </Card>
