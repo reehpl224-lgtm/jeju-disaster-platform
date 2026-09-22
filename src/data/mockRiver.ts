@@ -20,14 +20,15 @@ export const riverInfra = {
 // 쇠소깍은 14:32에 심각 3단계로 상향(riverControlTimeline ct7, riverAlertDispatch 참고) — 아래 값들은 그 최신 상태 기준
 /**
  * 하천 위험단계 상태 구간 — "TP-P22_002_플랫폼 데이터 리스트.xlsx" 하천 범람예측·경보 시스템 시트 "상태 구간 설정" 그대로(2026-09-22 사용자 확정).
- * 원본 단계명 '경보'는 앱 공통 라벨 '경계'(alert)로 표기한다. 원본의 계획홍수량 30%~50% 사이는 비어 있음(원본 그대로).
+ * 원본 단계명 '경보'는 앱 공통 라벨 '경계'(alert)로 표기한다. 원본은 20~30% 다음이 50%로 30~50% 구간이 비어 있어, 원본의 50%·70%·100%를 각 단계 '도달' 기준으로 보고
+ * 관심을 다음 단계(주의 50%) 직전까지 연장해 빈 구간 없이 이어지게 임의 설정함(2026-09-22 사용자 요청) — 공식 기준 확정 시 수정.
  */
 export const riverStageCriteria: { level: "safe" | "caution" | "warning" | "alert" | "danger"; label: string; flowRatio: string; waterState: string; meaning: string; action: string }[] = [
   { level: "safe", label: "정상", flowRatio: "20% 미만", waterState: "평시 수위 유지", meaning: "통상적인 하천 흐름 유지(침수 위험 없음)", action: "상시 모니터링, 시설물 정기 점검, 시스템 상태 확인" },
-  { level: "caution", label: "관심", flowRatio: "20% ~ 30%", waterState: "유의 수위 도달", meaning: "강우에 의한 하천 수위 상승 시작", action: "모니터링 강화, 통제 지점·연락망 점검, 산책로 예비 통제" },
-  { level: "warning", label: "주의", flowRatio: "50%", waterState: "주의보 수위 도달", meaning: "수위 급상승으로 홍수주의보 수준 도달", action: "하천변 출입 통제, 하상도로 차단, 주민 안내 방송" },
-  { level: "alert", label: "경계(경보)", flowRatio: "70%", waterState: "경보 수위 도달", meaning: "제방 유실 위험에 근접한 경계 상태", action: "제방 점검, 저지대 대피 준비, 비상근무 체계 전환" },
-  { level: "danger", label: "심각", flowRatio: "100%", waterState: "계획홍수위 도달", meaning: "계획홍수위 도달로 범람 임박·발생", action: "즉시 주민 대피 명령, 재난문자(CBS) 발송, 긴급 차단" },
+  { level: "caution", label: "관심", flowRatio: "20% 이상 ~ 50% 미만", waterState: "유의 수위 도달", meaning: "강우에 의한 하천 수위 상승 시작", action: "모니터링 강화, 통제 지점·연락망 점검, 산책로 예비 통제" },
+  { level: "warning", label: "주의", flowRatio: "50% 이상 ~ 70% 미만", waterState: "주의보 수위 도달", meaning: "수위 급상승으로 홍수주의보 수준 도달", action: "하천변 출입 통제, 하상도로 차단, 주민 안내 방송" },
+  { level: "alert", label: "경계(경보)", flowRatio: "70% 이상 ~ 100% 미만", waterState: "경보 수위 도달", meaning: "제방 유실 위험에 근접한 경계 상태", action: "제방 점검, 저지대 대피 준비, 비상근무 체계 전환" },
+  { level: "danger", label: "심각", flowRatio: "100% 이상", waterState: "계획홍수위 도달", meaning: "계획홍수위 도달로 범람 임박·발생", action: "즉시 주민 대피 명령, 재난문자(CBS) 발송, 긴급 차단" },
 ]
 
 export const riverStatuses: RiverStatus[] = [

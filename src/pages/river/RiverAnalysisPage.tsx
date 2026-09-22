@@ -73,7 +73,7 @@ export function RiverAnalysisPage() {
             ))}
           </tbody>
         </table>
-        <p className="mt-2 text-[11px] text-white/35">원본의 계획홍수량 30%~50% 사이 구간은 비어 있어 확인이 필요합니다.</p>
+        <p className="mt-2 text-[11px] text-white/35">원본은 관심 20~30% 다음이 주의 50%로 30~50%가 비어 있어, 관심을 50% 미만까지 연장해 임의로 이었습니다(공식 기준 확정 시 수정).</p>
       </Card>
 
       <Card title="위험 근거 데이터">
