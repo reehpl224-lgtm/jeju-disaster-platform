@@ -680,7 +680,7 @@ export function DashboardPage() {
                   className="relative h-full w-full"
                   toolbarAtBottom
                   fitMarkers
-                  toolbarTop={mapTopHeight + 8}
+                  toolbarTop={mapTopHeight + 16}
                 />
               </div>
               <div className="map-top" ref={mapTopRef}>

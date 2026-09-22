@@ -58,7 +58,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
                 cctvMarkers={cctvCameras}
                 className="relative h-full w-full"
                 toolbarAtBottom
-                toolbarTop={mapTopHeight + 8}
+                toolbarTop={mapTopHeight + 16}
               />
             </div>
             <div className="map-top" ref={mapTopRef}>
