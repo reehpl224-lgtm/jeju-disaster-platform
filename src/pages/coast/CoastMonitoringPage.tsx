@@ -6,6 +6,11 @@ import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
 import { coastMonitoringDomains, coastStageCriteria } from "../../data/mockCoast"
+import { COAST_COMBINE_RULES, classifyCoastRisk } from "../../data/coastAlertThresholds"
+import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
+
+// 결합 규칙 적용 예시 — KHOA 부이 실측 스냅샷(조위 정보 없음 → 평시 가정, AI 이벤트 없음)
+const BUOY_EXAMPLES = khoaBuoyMarineConditions.map((b) => ({ ...b, result: classifyCoastRisk({ waveM: b.waveHeightM, windMs: b.windSpeedMs }) }))
 
 export function CoastMonitoringPage() {
   return (
@@ -146,7 +151,29 @@ export function CoastMonitoringPage() {
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-[11px] text-white/35">세 지표(파고·풍속·조위) 중 몇 개를 충족하면 단계를 올리는지는 원본에 정의돼 있지 않습니다.</p>
+        <div className="mt-4 rounded-lg border border-border-subtle p-3">
+          <p className="text-xs font-bold text-white/70">지표 결합 규칙 (임의 설정 — 원본에 규칙 없음, 공식 기준 확정 시 수정)</p>
+          <ol className="mt-1.5 flex list-decimal flex-col gap-1 pl-4 text-[11px] text-white/60">
+            {COAST_COMBINE_RULES.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ol>
+          <p className="mt-3 text-xs font-bold text-white/70">적용 예시 — KHOA 해양관측부이 실측 스냅샷</p>
+          <ul className="mt-1.5 flex flex-col divide-y divide-border-subtle">
+            {BUOY_EXAMPLES.map((b) => (
+              <li key={b.id} className="flex items-center justify-between gap-3 py-2 text-xs">
+                <div>
+                  <p className="font-medium text-white/80">
+                    {b.stationName} <span className="text-white/35">({b.stationCode} · {b.observedAt})</span>
+                  </p>
+                  <p className="mt-0.5 text-white/40">{b.result.reasons.join(" · ")}</p>
+                </div>
+                <RiskBadge level={b.result.level} />
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-[11px] text-white/30">부이는 외해·해협 지점이라 해수욕장 현장값이 아니며, 조위 정보가 없어 평시로 가정했습니다.</p>
+        </div>
       </Card>
 
       <PlanItemsCard title="성능 검증 계획" subtitle="모의 상황 연출·시뮬레이션 기반 감지율·미탐률 검증" items={coastVerification} />
