@@ -89,6 +89,24 @@ export function PilotStatusPage() {
               </Link>
             }
           >
+            <div className="mb-5">
+              <p className="mb-2 text-xs font-bold text-white/60">실증사 성과지표(KPI) — 발표자료 기준</p>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {svc.kpis.map((k) => (
+                  <div key={k.label} className="rounded-lg border border-border-subtle bg-white/[0.03] px-3 py-2">
+                    <p className="text-xs font-semibold text-white/85">{k.label}</p>
+                    <p className="mt-1 text-[11px] text-white/60">
+                      <span className="mr-1 font-bold text-accent">1차</span>
+                      {k.year1}
+                    </p>
+                    <p className="text-[11px] text-white/40">
+                      <span className="mr-1 font-bold text-white/50">2차</span>
+                      {k.year2}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
               <div className="xl:col-span-2">
                 <p className="mb-2 text-xs font-bold text-white/60">기능별 구현 가능성</p>

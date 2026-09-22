@@ -95,7 +95,7 @@ export const aquaDataSources: AquaDataSource[] = [
   },
   { id: "s2", name: "위성 (GOCI-II — 해색·저염분 추적)", detail: "해색·염분 추정", updatedAt: "06:20", cycle: "6시간", status: "normal", qualityScore: 93, note: "구름량 12%" },
   { id: "s3", name: "위성 (SMAP — 해면 염분)", detail: "해면 염분 관측", updatedAt: "09:10", cycle: "1~3일", status: "normal", qualityScore: 90, note: "회의(2026-09-15) 학습 데이터 소스 기준" },
-  { id: "s4", name: "해양 수치모델 (RAMS)", detail: "해양·기상 수치예측", updatedAt: "12:00", cycle: "6시간", status: "normal", qualityScore: 96, note: "회의(2026-09-15) 학습 데이터 소스 기준" },
+  { id: "s4", name: "해양 수치모델 (ROMS)", detail: "해양순환 수치예측 (2020~2025 Hindcast)", updatedAt: "12:00", cycle: "6시간", status: "normal", qualityScore: 96, note: "실증사 발표자료 기준 — 회의록의 RAMS 표기를 ROMS로 정정" },
   { id: "s5", name: "해양 수치모델 (NEMO)", detail: "해양 순환 수치예측", updatedAt: "12:00", cycle: "24시간", status: "delayed", qualityScore: 88, note: "최신 산출물 갱신 지연" },
 ]
 
