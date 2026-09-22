@@ -1,7 +1,7 @@
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../../components/ui/Card"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
-import { riverPipeline, riverHydrology } from "../../data/mockMeetingItems"
+import { riverPipeline, riverHydrology, riverPredictionOutput } from "../../data/mockMeetingItems"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
@@ -170,6 +170,13 @@ export function RiverAnalysisPage() {
           ]}
         />
       </Card>
+
+      <PlanItemsCard
+        title="AI 범람 예측 출력 항목 (미리보기)"
+        subtitle="실증사 AI 엔진이 컨트롤타워로 보낼 예측 결과 형식 — 연동되면 이 항목들이 실제 값으로 채워짐"
+        items={riverPredictionOutput}
+        source="출처: 하천범람 실증사(소다시스템) 착수보고 발표자료의 NGSI-LD 예시 — 표시된 값은 형식 예시이며 효돈천 현재 값이 아닙니다."
+      />
 
       <PlanItemsCard title="제주 수문 특성 반영" subtitle="건천·급경사·조석 영향에 특화된 AI 모델" items={riverHydrology} />
 

@@ -73,6 +73,17 @@ export const riverFieldAlertGoal: PlanItem[] = [
   { id: "rf1", title: "현장 직접 경보 5초 이내", detail: "범람 예측 시 5초 이내에 현장으로 직접 경보하고 관계 기관에 전파하는 것이 사업 목표", status: "응답시간 검증 예정", level: "info" },
 ]
 
+/** AI 범람 예측 출력 항목 — 소다시스템 착수보고 발표자료의 NGSI-LD 엔티티(FloodRiskPrediction·WaterResourceObservation) 예시.
+ *  status 자리는 발표자료에 적힌 "예시값"이며 효돈천의 현재 관측·예측값이 아니다 */
+export const riverPredictionOutput: PlanItem[] = [
+  { id: "po1", title: "선행시간별 예측 (10·30·60분)", detail: "선행시간마다 위험등급을 따로 산출 — 1시간 선행 목표의 세부 단위", status: "10/30/60분", level: "info" },
+  { id: "po2", title: "단계 전환 예상 시각 (ETA)", detail: "현재 등급에서 다음 등급으로 넘어가기까지 남은 시간 — 선제 통제 판단 근거", status: "예시 30분", level: "info" },
+  { id: "po3", title: "예측 신뢰도", detail: "예측 결과와 함께 제공 — 담당자가 발령 여부를 판단할 때 참고", status: "예시 88.5%", level: "info" },
+  { id: "po4", title: "이상 점수 (LSTM-AE)", detail: "센서 시계열의 평소와 다른 패턴 정도 — 센서 이상·돌발 상황 탐지", status: "예시 0.78", level: "info" },
+  { id: "po5", title: "관측 입력 (수위·유속·강우)", detail: "Edge 계측 → 4단계 품질검사(QA) 통과 후 입력", status: "예시 1.85m·2.40m/s·45mm/h", level: "info" },
+  { id: "po6", title: "현장 경보 채널", detail: "예측 단계 상향 시 현장 방송과 DID 전광판으로 직접 경보", status: "방송 + DID", level: "info" },
+]
+
 // ── 공통(데이터 시스템) ──
 export const commonSchedule: PlanItem[] = [
   { id: "cm1", title: "데이터 연동 규격 사전 정의 문서", detail: "실증 컨소시엄에 전달 (회의 다음 날까지)", status: "전달 예정", level: "info" },

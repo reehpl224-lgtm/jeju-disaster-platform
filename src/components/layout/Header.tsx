@@ -24,6 +24,7 @@ const SERVICE_NAV = [
   { to: "/coast", label: "연안 안전관리", icon: "🌊" },
 ]
 const OPS_NAV = [
+  { to: "/pilot-status", label: "실증서비스 구현 현황", icon: "🧪" },
   { to: "/propagation", label: "상황전파·보고체계", icon: "📡" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
   { to: "/data-systems", label: "데이터 시스템 연계현황", icon: "🗄️" },
