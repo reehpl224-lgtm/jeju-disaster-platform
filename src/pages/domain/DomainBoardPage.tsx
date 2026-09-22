@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react"
+import { useElementHeight } from "../../hooks/useElementHeight"
 import { Navigate, useSearchParams } from "react-router-dom"
 import { DetailLink } from "../../components/board/PanelParts"
 import { HorizontalTabsDock, MessengerFab, Risk, ServiceStrip, SideTabsDock, StripToggle, type DockTab } from "../../components/board/BoardParts"
@@ -16,6 +17,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
   const config = useMemo(() => (build ? build() : null), [build])
   const [params, setParams] = useSearchParams()
   const [rightTab, setRightTab] = useState("tl")
+  const [mapTopRef, mapTopHeight] = useElementHeight<HTMLDivElement>()
   const [stripOpen, setStripOpen] = useState(true)
 
   if (!config) return <Navigate to="/dashboard" replace />
@@ -51,9 +53,15 @@ export function DomainBoardPage({ domain }: { domain: string }) {
 
           <div className="center center--gis">
             <div className="jmap" style={{ pointerEvents: "auto" }}>
-              <JejuTileMap markers={markers} cctvMarkers={cctvCameras} className="relative h-full w-full" toolbarAtBottom />
+              <JejuTileMap
+                markers={markers}
+                cctvMarkers={cctvCameras}
+                className="relative h-full w-full"
+                toolbarAtBottom
+                toolbarTop={mapTopHeight + 8}
+              />
             </div>
-            <div className="map-top">
+            <div className="map-top" ref={mapTopRef}>
               <p
                 className="weather-line"
                 style={{ padding: "6px 14px", background: "var(--background)", border: "1px solid var(--foreground-faint)", borderRadius: 9999 }}

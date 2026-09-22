@@ -235,6 +235,7 @@ export function JejuTileMap({
   showToolbar = true,
   toolbarAtBottom = false,
   fitMarkers = false,
+  toolbarTop,
 }: {
   markers: RiskMarker[]
   cctvMarkers?: CctvCamera[]
@@ -245,6 +246,9 @@ export function JejuTileMap({
   toolbarAtBottom?: boolean
   /** true면 화면 밖 마커가 있을 때 자동으로 범위를 맞춘다(GIS 상황판) */
   fitMarkers?: boolean
+  /** 모드 툴바·지도범위밖 목록의 상단 여백(px) — 지도 위에 날씨/칩 등 다른 오버레이가 있을 때
+   *  그 실측 높이를 넘겨 겹침을 막는다. 생략하면 toolbarAtBottom 값에 따라 고정 오프셋(92px/8px)을 쓴다 */
+  toolbarTop?: number
 }) {
   const [mode, setMode] = useState<MapMode>("general")
   const [regionKey, setRegionKey] = useState("all")
@@ -356,7 +360,12 @@ export function JejuTileMap({
       </MapContainer>
 
       {fitMarkers && mode !== "cctv" && outOfRange.length > 0 && (
-        <div className="absolute left-3 top-3 z-[500] rounded-lg border border-white/20 bg-[#1d1d1d]/95 px-3 py-2 text-[11px] text-white/70 shadow-panel">
+        <div
+          className={`absolute left-3 z-[500] rounded-lg border border-white/20 bg-[#1d1d1d]/95 px-3 py-2 text-[11px] text-white/70 shadow-panel ${
+            toolbarTop == null ? "top-3" : ""
+          }`}
+          style={toolbarTop != null ? { top: toolbarTop } : undefined}
+        >
           <p className="mb-1 font-bold text-white">지도 범위 밖 (해상)</p>
           <ul>
             {outOfRange.map((m) => (
@@ -373,9 +382,10 @@ export function JejuTileMap({
           더 이상 우측 하단과 겹칠 일이 없어 툴바를 top-2로 올리고, 팝업도 다시 우측에 둘 수 있음 */}
       {showToolbar && (
       <div
-        className={`absolute right-2 z-[500] flex max-w-[calc(100%-16px)] items-end gap-1.5 ${
-          toolbarAtBottom ? "top-[92px] flex-col" : "top-2 flex-col"
+        className={`absolute right-2 z-[500] flex max-w-[calc(100%-16px)] flex-col items-end gap-1.5 ${
+          toolbarTop == null ? (toolbarAtBottom ? "top-[92px]" : "top-2") : ""
         }`}
+        style={toolbarTop != null ? { top: toolbarTop } : undefined}
       >
         <div className="flex flex-wrap items-center justify-end gap-1.5 rounded-lg border border-border-subtle bg-panel/95 p-1.5 shadow-panel">
           <select

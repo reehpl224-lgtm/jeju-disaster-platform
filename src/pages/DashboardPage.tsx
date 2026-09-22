@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react"
+import { useElementHeight } from "../hooks/useElementHeight"
 import { Link, useSearchParams } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { DutyContactPanel } from "../components/ui/DutyContactPanel"
@@ -129,6 +130,7 @@ export function DashboardPage() {
     members: disasterResponseTeams.filter((t) => t.agency.includes(label)).reduce((sum, t) => sum + t.members, 0),
   }))
 
+  const [mapTopRef, mapTopHeight] = useElementHeight<HTMLDivElement>()
   const [stripOpen, setStripOpen] = useState(true)
   const [leftOpen, setLeftOpen] = useState(true)
   const [openRegions, setOpenRegions] = useState<string[]>([])
@@ -672,9 +674,16 @@ export function DashboardPage() {
 
             <div className="center center--gis">
               <div className="jmap" style={{ pointerEvents: "auto" }}>
-                <JejuTileMap markers={filteredMarkers} cctvMarkers={cctvCameras} className="relative h-full w-full" toolbarAtBottom fitMarkers />
+                <JejuTileMap
+                  markers={filteredMarkers}
+                  cctvMarkers={cctvCameras}
+                  className="relative h-full w-full"
+                  toolbarAtBottom
+                  fitMarkers
+                  toolbarTop={mapTopHeight + 8}
+                />
               </div>
-              <div className="map-top">
+              <div className="map-top" ref={mapTopRef}>
                 {weatherLine}
                 <div className="chips">
                   {MAP_DOMAIN_FILTERS.map((f) => (
