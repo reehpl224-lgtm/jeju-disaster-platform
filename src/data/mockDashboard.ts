@@ -18,18 +18,20 @@ export const serviceStatusCards: {
   counts: { warning: number; alert: number; danger: number; caution?: number }
 }[] = [
   // 카드 순서: 사용자 지정(2026-09-08) — 호우·태풍·폭염 대응·하천범람·저염분 고수온·연안 안전
-  // weatherStations(mockHeavyRain.ts) 기준: ws-2·ws-3 warning(2) · ws-1 alert(1) · danger 없음
-  { id: "heavy-rain", title: "호우", icon: "☔", href: "/heavy-rain", counts: { warning: 2, alert: 1, danger: 0 } },
-  // typhoonReports(mockTyphoon.ts) 기준: 최신 발표(ty-1) 태풍경보 1건 → alert
-  { id: "typhoon", title: "태풍", icon: "🌀", href: "/typhoon", counts: { warning: 0, alert: 1, danger: 0 } },
-  // heatLevelInfo(mockHeat.ts) 기준: 제주 전역 폭염주의보(warning) 1건
-  { id: "heat", title: "폭염 대응", icon: "🔆", href: "/heat", counts: { warning: 1, alert: 0, danger: 0 } },
+  // 2026-09-23: 저염분 고수온 카드처럼 전 카드에 관심(caution) 행을 추가 — 4단계(관심·주의·경계·심각) 통일
+  // weatherStations(mockHeavyRain.ts) 기준: ws-4·ws-6 caution(2) · ws-2·ws-3 warning(2) · ws-1 alert(1) · danger 없음
+  { id: "heavy-rain", title: "호우", icon: "☔", href: "/heavy-rain", counts: { warning: 2, alert: 1, danger: 0, caution: 2 } },
+  // typhoonReports(mockTyphoon.ts) 기준: 최신 발표(ty-1) 태풍경보 1건 → alert. 발표 이력(ty-2·ty-3)은
+  // 같은 태풍 1개의 과거 단계 기록이라 별개 관심 건수로 세지 않음(caution 0)
+  { id: "typhoon", title: "태풍", icon: "🌀", href: "/typhoon", counts: { warning: 0, alert: 1, danger: 0, caution: 0 } },
+  // heatLevelInfo(mockHeat.ts) 기준: 제주 전역 폭염주의보(warning) 1건 — 섬 전체 단일 등급이라 caution 0
+  { id: "heat", title: "폭염 대응", icon: "🔆", href: "/heat", counts: { warning: 1, alert: 0, danger: 0, caution: 0 } },
   // riverStatuses(돈내코·쇠소깍 모두 safe)와 반드시 같은 수치를 쓸 것 — 2026-09-22 평시 리셋
-  { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 0, alert: 0, danger: 0 } },
+  { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
   // aquaFarmTotals(mockAqua.ts) 기준: caution 3 · 나머지 0 — 한경 용수 인근 저염분수 관심 케이스(2026-09-22)
   { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 0, alert: 0, danger: 0, caution: 3 } },
   // coastSummary(mockCoast.ts) 기준: 진행 중 이벤트 0건 — 2026-09-22 평시 리셋
-  { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 0, alert: 0, danger: 0 } },
+  { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
 ]
 
 export const riskMarkers: RiskMarker[] = [
