@@ -454,9 +454,9 @@ export function DashboardPage() {
     </p>
   )
 
-  // GIS 지도 분야 필터 — 지도 위 토글(JejuTileMap 자체 메뉴)과 겹치지 않도록 좌측 패널로 이동(2026-09-23)
+  // GIS 지도 분야 필터 — 지도 왼쪽 빈 해역(2026-09-23 사용자 지정 위치)에 세로 버튼열로 배치
   const mapDomainFilterChips = (
-    <div className="chips" style={{ padding: "0 0 .75rem" }}>
+    <div className="absolute left-3 top-[34%] z-[500] flex flex-col gap-2">
       {MAP_DOMAIN_FILTERS.map((f) => (
         <button key={f.id} type="button" className="chip" aria-pressed={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
           {f.label}
@@ -681,7 +681,7 @@ export function DashboardPage() {
         <div className="stage__main">
           <div className="map map--dark" />
           <div className="overlay">
-            <SideTabsDock tabs={gisLeftTabs} rail="right" activeKey={gisDockTab} onSelect={setGisDockTab} topContent={mapDomainFilterChips} />
+            <SideTabsDock tabs={gisLeftTabs} rail="right" activeKey={gisDockTab} onSelect={setGisDockTab} />
 
             <div className="center center--gis">
               <div className="jmap" style={{ pointerEvents: "auto" }}>
@@ -693,6 +693,7 @@ export function DashboardPage() {
                   fitMarkers
                   toolbarTop={mapTopHeight + 16}
                 />
+                {mapDomainFilterChips}
               </div>
               <div className="map-top" ref={mapTopRef}>
                 {weatherLine}
