@@ -32,6 +32,7 @@ export function SideTabsDock({
   activeKey,
   onSelect,
   headExtra,
+  topContent,
   dense,
 }: {
   tabs: DockTab[]
@@ -39,6 +40,8 @@ export function SideTabsDock({
   activeKey: string
   onSelect: (key: string) => void
   headExtra?: ReactNode
+  /** 탭과 무관하게 항상 보이는 영역(제목 줄 아래, 탭 콘텐츠 위) — 예: 지도 분야 필터 칩 */
+  topContent?: ReactNode
   dense?: boolean
 }) {
   const active = tabs.find((t) => t.key === activeKey) ?? tabs[0]
@@ -50,6 +53,7 @@ export function SideTabsDock({
           <h2 className="panel__title">{active?.label}</h2>
           {headExtra}
         </div>
+        {topContent}
         <div className="panel__scroll">{active?.content}</div>
       </section>
       <div className={`rail rail--${rail}${dense ? " rail--dense" : ""}`} role="tablist" aria-orientation="vertical">

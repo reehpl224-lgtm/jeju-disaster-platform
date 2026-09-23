@@ -454,6 +454,17 @@ export function DashboardPage() {
     </p>
   )
 
+  // GIS 지도 분야 필터 — 지도 위 토글(JejuTileMap 자체 메뉴)과 겹치지 않도록 좌측 패널로 이동(2026-09-23)
+  const mapDomainFilterChips = (
+    <div className="chips" style={{ padding: "0 0 .75rem" }}>
+      {MAP_DOMAIN_FILTERS.map((f) => (
+        <button key={f.id} type="button" className="chip" aria-pressed={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
+          {f.label}
+        </button>
+      ))}
+    </div>
+  )
+
   const legend = (
     <>
       {(["danger", "alert", "warning", "caution", "safe"] as const).map((level) => (
@@ -670,7 +681,7 @@ export function DashboardPage() {
         <div className="stage__main">
           <div className="map map--dark" />
           <div className="overlay">
-            <SideTabsDock tabs={gisLeftTabs} rail="right" activeKey={gisDockTab} onSelect={setGisDockTab} />
+            <SideTabsDock tabs={gisLeftTabs} rail="right" activeKey={gisDockTab} onSelect={setGisDockTab} topContent={mapDomainFilterChips} />
 
             <div className="center center--gis">
               <div className="jmap" style={{ pointerEvents: "auto" }}>
@@ -685,13 +696,6 @@ export function DashboardPage() {
               </div>
               <div className="map-top" ref={mapTopRef}>
                 {weatherLine}
-                <div className="chips">
-                  {MAP_DOMAIN_FILTERS.map((f) => (
-                    <button key={f.id} type="button" className="chip" aria-pressed={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
               </div>
               <div />
               <div className="timebar">
@@ -699,7 +703,12 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <HorizontalTabsDock tabs={timelineTabs} filters={timelineTab === "timeline" || timelineTab === "advisory" ? timelineFilters : undefined} activeKey={timelineTab} onSelect={setTimelineTab} />
+            <HorizontalTabsDock
+              tabs={timelineTabs}
+              filters={timelineTab === "timeline" || timelineTab === "advisory" ? timelineFilters : undefined}
+              activeKey={timelineTab}
+              onSelect={setTimelineTab}
+            />
           </div>
           <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
         </div>
