@@ -358,14 +358,18 @@ export function JejuTileMap({
           : null}
       </MapContainer>
 
-      {/* 세로로 긴 카드로 지도 왼쪽 중단(빈 해역)에 배치 — 상단 툴바 줄과 분리(2026-09-23) */}
       {fitMarkers && mode !== "cctv" && outOfRange.length > 0 && (
-        <div className="absolute left-3 top-[28%] z-[500] flex w-[132px] flex-col gap-3 rounded-lg border border-white/20 bg-[#1d1d1d]/95 px-3 py-4 text-[11px] text-white/70 shadow-panel">
-          <p className="font-bold text-white">지도 범위 밖 (해상)</p>
-          <ul className="flex flex-col gap-3">
+        <div
+          className={`absolute left-3 z-[500] rounded-lg border border-white/20 bg-[#1d1d1d]/95 px-3 py-2 text-[11px] text-white/70 shadow-panel ${
+            toolbarTop == null ? "top-3" : ""
+          }`}
+          style={toolbarTop != null ? { top: toolbarTop } : undefined}
+        >
+          <p className="mb-1 font-bold text-white">지도 범위 밖 (해상)</p>
+          <ul>
             {outOfRange.map((m) => (
               <li key={m.id} className="flex items-center gap-1.5 leading-relaxed">
-                <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: MARKER_COLOR[m.level] }} />
+                <span className="inline-block h-2 w-2 rounded-full" style={{ background: MARKER_COLOR[m.level] }} />
                 {m.name}
               </li>
             ))}
