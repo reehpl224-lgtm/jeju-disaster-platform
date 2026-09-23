@@ -31,7 +31,6 @@ const JEJU_CENTER: [number, number] = [33.38, 126.53]
 type MapMode = "general" | "weather" | "weatherModel" | "riskLevel" | "cctv" | "aerial"
 
 const MODE_BUTTONS: { key: MapMode; label: string }[] = [
-  { key: "general", label: "일반지도" },
   { key: "weather", label: "기상/재난" },
   { key: "weatherModel", label: "기상모델" },
   { key: "riskLevel", label: "재난위험도" },
