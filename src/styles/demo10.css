@@ -1307,7 +1307,8 @@ h1, h2, h3, p { margin: 0; }
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding-right: 4px;
+  /* 스크롤바와 콘텐츠(배지 등) 사이 여백 — 너무 붙어 보여서 넓힘 */
+  padding-right: 10px;
   scrollbar-width: thin;
   scrollbar-color: var(--foreground-faint) transparent;
 }
