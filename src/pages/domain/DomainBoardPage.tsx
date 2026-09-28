@@ -31,7 +31,10 @@ export function DomainBoardPage({ domain }: { domain: string }) {
     content: (
       <>
         {t.content}
-        <DetailLink to={t.to}>{t.label} 상세 화면</DetailLink>
+        {/* "대시보드" 탭은 GIS 보드를 보면서 동시에 열어두고 싶은 경우가 많아 새 창으로 연다(2026-09-28) */}
+        <DetailLink to={t.to} newTab={t.key === "home"}>
+          {t.label} 상세 화면
+        </DetailLink>
       </>
     ),
   }))

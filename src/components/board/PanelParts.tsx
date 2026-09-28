@@ -142,10 +142,19 @@ export function Note({ children, tone }: { children: ReactNode; tone?: "warning"
   )
 }
 
-/** 앱 하위 화면(기존 상세 페이지)으로 가는 링크 — 승인·발송 등 동작은 그 화면에서 한다 */
-export function DetailLink({ to, children }: { to: string; children: ReactNode }) {
+/**
+ * 앱 하위 화면(기존 상세 페이지)으로 가는 링크 — 승인·발송 등 동작은 그 화면에서 한다.
+ * newTab이 true면 새 창(탭)으로 연다 — "대시보드 상세 화면"처럼 GIS 보드를 보면서 동시에
+ * 열어두고 싶은 화면에 씀(2026-09-28 사용자 요청).
+ */
+export function DetailLink({ to, children, newTab }: { to: string; children: ReactNode; newTab?: boolean }) {
   return (
-    <Link className="plink" to={to} style={{ display: "block", marginTop: 14 }}>
+    <Link
+      className="plink"
+      to={to}
+      style={{ display: "block", marginTop: 14 }}
+      {...(newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+    >
       {children} →
     </Link>
   )
