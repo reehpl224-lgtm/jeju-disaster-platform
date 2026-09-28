@@ -1481,7 +1481,19 @@ h1, h2, h3, p { margin: 0; }
   .jvmap__region--seogwipo { fill: #34434f; }
   .jvmap__label { font-size: 22px; font-weight: 700; fill: #ffffff80; pointer-events: none; }
   .jvmap__mk text { font-size: 16px; font-weight: 700; fill: #fff; paint-order: stroke; stroke: #111; stroke-width: 4px; }
-  .jvmap__out { position: absolute; left: 12px; bottom: 10px; font-size: 11px; color: var(--foreground-muted); }
+  /* 다른 요소는 전부 카드/필 형태인데 이 목록만 지도 위에 맨텍스트로 떠 있어 화면이 붕 떠 보임 — 같은 박스 처리로 통일 */
+  .jvmap__out {
+    position: absolute;
+    left: 12px;
+    bottom: 10px;
+    max-width: 220px;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: var(--foreground-muted);
+    background: color-mix(in srgb, var(--background) 88%, transparent);
+    border: 1px solid var(--foreground-faint);
+    border-radius: .5rem;
+  }
   .jvmap__out b { display: block; margin-bottom: 4px; color: var(--foreground); }
   .jvmap__out li { display: flex; align-items: center; gap: 6px; line-height: 1.7; }
   .jvmap__out .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
