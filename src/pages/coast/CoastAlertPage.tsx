@@ -17,7 +17,7 @@ export function CoastAlertPage() {
         <p className="mt-1 text-sm text-white/50">e-SOP 경보 승인 대기 중인 위험 이벤트 검토</p>
       </div>
 
-      <Card title="승인 대기 이벤트">
+      <Card title="승인 대기 이벤트" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {pending.map((event) => (
             <li key={event.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
@@ -57,7 +57,7 @@ export function CoastAlertPage() {
         </ul>
       </Card>
 
-      <Card title="선택 이벤트 — AI 판단 근거" subtitle={coastEventDetail.id}>
+      <Card title="선택 이벤트 — AI 판단 근거" subtitle={coastEventDetail.id} dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="rounded-lg border border-border-subtle p-3">
             <p className="text-sm font-semibold text-white/80">이안류 위험도</p>

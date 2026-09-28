@@ -15,7 +15,7 @@ export function RiverAlertPage() {
         <p className="mt-1 text-sm text-white/50">{d.message}</p>
       </div>
 
-      <Card title="발송 대상 및 위험 단계">
+      <Card title="발송 대상 및 위험 단계" dummy>
         <RiskBadge level={riverAlertDispatch.level} label={d.stage} solid />
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Field label="발송 대상" value={`${d.target} (${d.targetDetail})`} />
@@ -42,7 +42,7 @@ export function RiverAlertPage() {
         ))}
       </div>
 
-      <Card title="수신 실패 항목" subtitle={`전체 실패: ${d.totalFail}건`}>
+      <Card title="수신 실패 항목" subtitle={`전체 실패: ${d.totalFail}건`} dummy>
         {d.totalFail === 0 ? null : retried ? (
           <p className="rounded-lg border border-risk-safe/40 bg-risk-safe-bg p-2.5 text-xs text-risk-safe">
             ✓ 재시도 요청을 보냈습니다. 채널사 응답을 기다리는 중입니다.

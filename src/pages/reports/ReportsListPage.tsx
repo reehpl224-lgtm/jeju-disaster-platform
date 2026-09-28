@@ -178,6 +178,7 @@ export function ReportsListPage() {
 
       <Card
         title={`검색 결과 ${filtered.length}건`}
+        dummy
         action={
           <select
             value={sortBy}

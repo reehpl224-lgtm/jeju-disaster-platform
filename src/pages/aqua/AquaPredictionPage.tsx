@@ -12,17 +12,17 @@ export function AquaPredictionPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="현재 위험 판단 상태" subtitle={`갱신 ${aquaRiskState.updatedAt}`}>
+        <Card title="현재 위험 판단 상태" subtitle={`갱신 ${aquaRiskState.updatedAt}`} dummy>
           <RiskBadge level={aquaRiskState.riskLevel} label={aquaRiskState.level} solid />
           <p className="mt-3 text-sm font-semibold text-white/85">{aquaRiskState.headline}</p>
           <p className="mt-1 text-xs text-white/40">예측 신뢰도 {aquaRiskState.confidence}% · 데이터 품질 양호</p>
         </Card>
-        <Card title="저염분수 예상 도달">
+        <Card title="저염분수 예상 도달" dummy>
           <RiskBadge level={aquaRiskState.lowSalinity.riskLevel} label={aquaRiskState.lowSalinity.eta} solid />
           <p className="mt-3 text-sm text-white/85">{aquaRiskState.lowSalinity.time}</p>
           <p className="mt-1 text-xs text-white/40">{aquaRiskState.lowSalinity.location}</p>
         </Card>
-        <Card title="고수온 예상 도달">
+        <Card title="고수온 예상 도달" dummy>
           <RiskBadge level={aquaRiskState.highTemp.riskLevel} label={aquaRiskState.highTemp.eta} solid />
           <p className="mt-3 text-sm text-white/85">{aquaRiskState.highTemp.time}</p>
           <p className="mt-1 text-xs text-white/40">{aquaRiskState.highTemp.location}</p>
@@ -32,6 +32,7 @@ export function AquaPredictionPage() {
       <Card
         title="저염분수·고수온 유입 경로 및 영향 범위"
         subtitle={`영향 양식장 ${aquaRiskState.affectedFarmCount}개소 위험권 내 · ${aquaRiskState.affectedFarmDelta}`}
+        dummy
       >
         <div className="flex h-56 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
           저염분수·고수온 유입 경로 GIS 지도 (2단계 상세 구현 예정)
@@ -39,7 +40,7 @@ export function AquaPredictionPage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="다중 모델 신뢰도">
+        <Card title="다중 모델 신뢰도" dummy>
           <ul className="flex flex-col gap-3">
             {aquaModelConfidence.map((model) => (
               <li key={model.id}>
@@ -55,7 +56,7 @@ export function AquaPredictionPage() {
           </ul>
         </Card>
 
-        <Card title="데이터 품질 지표">
+        <Card title="데이터 품질 지표" dummy>
           <ul className="flex flex-col gap-2.5">
             {aquaQualityMetrics.map((metric) => (
               <li key={metric.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-2.5">
@@ -70,7 +71,7 @@ export function AquaPredictionPage() {
         </Card>
       </div>
 
-      <Card title="영향 양식장 목록 (미리보기)" action={<Link to="/aqua/farms" className="text-xs font-semibold text-white/50 hover:text-accent">전체 양식장 보기 →</Link>}>
+      <Card title="영향 양식장 목록 (미리보기)" dummy action={<Link to="/aqua/farms" className="text-xs font-semibold text-white/50 hover:text-accent">전체 양식장 보기 →</Link>}>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {aquaFarms.slice(0, 4).map((farm) => (
             <li key={farm.id} className="flex items-center justify-between gap-2 py-2.5 text-sm">

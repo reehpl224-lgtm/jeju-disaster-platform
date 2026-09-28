@@ -20,7 +20,7 @@ export function HeatAlertPage() {
         </Link>
       </div>
 
-      <Card title="발송 대상 및 단계">
+      <Card title="발송 대상 및 단계" dummy>
         <RiskBadge level="warning" label={d.stage} solid />
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Field label="발송 대상" value={`${d.target} (${d.targetDetail})`} />
@@ -42,7 +42,7 @@ export function HeatAlertPage() {
         ))}
       </div>
 
-      <Card title="수신 실패 현황" subtitle={`전체 실패: ${d.totalFail.toLocaleString()}건`}>
+      <Card title="수신 실패 현황" subtitle={`전체 실패: ${d.totalFail.toLocaleString()}건`} dummy>
         <p className="text-xs text-white/40">전국 단위 대량 발송 특성상 일부 통신 지연 실패 포함 — 재전송 진행 중.</p>
       </Card>
     </div>

@@ -11,7 +11,7 @@ export function RiverControlPage() {
         <p className="mt-1 text-sm text-white/50">하천별 차단기·출동·통제 조치 현황</p>
       </div>
 
-      <Card title="효돈천 구간별 통제 현황">
+      <Card title="효돈천 구간별 통제 현황" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {riverControlRows.map((row) => (
             <div key={row.id} className="rounded-lg border border-border-subtle p-3">
@@ -28,7 +28,7 @@ export function RiverControlPage() {
         </div>
       </Card>
 
-      <Card title="실패 항목 및 대체 조치">
+      <Card title="실패 항목 및 대체 조치" dummy>
         {riverControlFailures.length === 0 && (
           <p className="rounded-lg border border-border-subtle bg-inset p-3 text-sm text-white/40">실패 이력 없음 — 전 구간 정상 통제 중</p>
         )}
@@ -48,7 +48,7 @@ export function RiverControlPage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="전파 이력 및 승인 근거">
+        <Card title="전파 이력 및 승인 근거" dummy>
           <ul className="flex flex-col gap-2">
             {riverPropagation.map((p) => (
               <li key={p.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-2.5 text-sm">
@@ -59,7 +59,7 @@ export function RiverControlPage() {
           </ul>
         </Card>
 
-        <Card title="공동 대응 기관 현황">
+        <Card title="공동 대응 기관 현황" dummy>
           <ul className="flex flex-col gap-2">
             {riverJointAgencies.map((a) => (
               <li key={a.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-2.5 text-sm">
@@ -71,7 +71,7 @@ export function RiverControlPage() {
         </Card>
       </div>
 
-      <Card title="단계별 타임라인">
+      <Card title="단계별 타임라인" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {riverControlTimeline.map((t) => (
             <li key={t.id} className="flex gap-3 py-2.5 text-sm">

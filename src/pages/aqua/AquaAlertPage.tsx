@@ -16,7 +16,7 @@ export function AquaAlertPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="경보 기본 정보" className="xl:col-span-2">
+        <Card title="경보 기본 정보" className="xl:col-span-2" dummy>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="경보 대상 지역" value={aquaAlertDraft.region} />
             <Field label="위험 유형" value={aquaAlertDraft.riskType} />
@@ -38,7 +38,7 @@ export function AquaAlertPage() {
           </div>
         </Card>
 
-        <Card title="근거 데이터 요약">
+        <Card title="근거 데이터 요약" dummy>
           <dl className="flex flex-col gap-2 text-sm">
             <Row label="예측 모델 신뢰도" value={`${aquaAlertDraft.confidence}%`} />
             <Row label="위성 관측 일치" value={aquaAlertDraft.satelliteMatch} />
@@ -48,7 +48,7 @@ export function AquaAlertPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="위험 등급 및 영향 범위">
+        <Card title="위험 등급 및 영향 범위" dummy>
           <RiskBadge level={aquaAlertDraft.riskLevel} label={aquaAlertDraft.currentGrade} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="영향 예상 양식장" value={`${aquaAlertDraft.affectedFarms}개소`} />
@@ -58,7 +58,7 @@ export function AquaAlertPage() {
           </dl>
         </Card>
 
-        <Card title="수신 대상 요약">
+        <Card title="수신 대상 요약" dummy>
           <dl className="flex flex-col gap-2 text-sm">
             <Row label="문자 수신 예상" value={`${aquaAlertDraft.smsTarget.toLocaleString()}명`} />
             <Row label="앱 푸시 대상" value={`${aquaAlertDraft.appTarget.toLocaleString()}명`} />
@@ -68,7 +68,7 @@ export function AquaAlertPage() {
         </Card>
       </div>
 
-      <Card title="작성 · 검토 · 승인 상태">
+      <Card title="작성 · 검토 · 승인 상태" dummy>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {aquaAlertDraft.approvalSteps.map((step) => (
             <div key={step.id} className="rounded-lg border border-border-subtle p-3 text-center">
@@ -80,7 +80,7 @@ export function AquaAlertPage() {
         </div>
       </Card>
 
-      <Card title="감사 이력">
+      <Card title="감사 이력" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {aquaAlertDraft.audit.map((entry) => (
             <li key={entry.id} className="flex gap-3 py-2 text-sm">

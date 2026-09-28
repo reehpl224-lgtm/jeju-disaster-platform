@@ -29,7 +29,7 @@ export function RiverDispatchPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="출동 요청 개요">
+        <Card title="출동 요청 개요" dummy>
           <RiskBadge level={d.level} label={d.stage} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="대상 하천·구역" value={d.target} />
@@ -40,7 +40,7 @@ export function RiverDispatchPage() {
           </dl>
         </Card>
 
-        <Card title="위험 분석 요약">
+        <Card title="위험 분석 요약" dummy>
           <ul className="flex flex-col gap-2 text-sm text-white/70">
             {d.analysis.map((line) => (
               <li key={line}>· {line}</li>
@@ -49,7 +49,7 @@ export function RiverDispatchPage() {
         </Card>
       </div>
 
-      <Card title="요청 경위">
+      <Card title="요청 경위" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {d.process.map((p) => (
             <li key={p.id} className="flex gap-3 py-2.5 text-sm">
@@ -60,7 +60,7 @@ export function RiverDispatchPage() {
         </ul>
       </Card>
 
-      <Card title="기관별 출동 요청 현황">
+      <Card title="기관별 출동 요청 현황" dummy>
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs text-white/35">

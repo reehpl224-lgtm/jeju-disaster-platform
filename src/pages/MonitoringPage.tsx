@@ -65,7 +65,7 @@ export function MonitoringPage() {
         </button>
       </div>
 
-      <Card title="전체 운영 상태">
+      <Card title="전체 운영 상태" dummy>
         <div className="flex items-center gap-3">
           <RiskBadge level="safe" label={overallStatus.status} />
           <p className="text-sm text-white/50">
@@ -83,7 +83,7 @@ export function MonitoringPage() {
         }))}
       />
 
-      <Card title="이상·장애 알림">
+      <Card title="이상·장애 알림" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {incidentLog.map((incident) => (
             <li key={incident.id} className="flex gap-3 py-3">
@@ -98,7 +98,7 @@ export function MonitoringPage() {
         </ul>
       </Card>
 
-      <Card title="데이터 수집원 및 센서 연결 상태">
+      <Card title="데이터 수집원 및 센서 연결 상태" dummy>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {sensorGroups.map((group) => (
             <div key={group.id} className="rounded-lg border border-border-subtle p-3">
@@ -115,7 +115,7 @@ export function MonitoringPage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="GIS·AI 분석 서비스 처리 상태">
+        <Card title="GIS·AI 분석 서비스 처리 상태" dummy>
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="text-xs text-white/35">
@@ -140,7 +140,7 @@ export function MonitoringPage() {
           </table>
         </Card>
 
-        <Card title="연계 API 운영 현황">
+        <Card title="연계 API 운영 현황" dummy>
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="text-xs text-white/35">
@@ -167,7 +167,7 @@ export function MonitoringPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="기관별 공동 대응 상태">
+        <Card title="기관별 공동 대응 상태" dummy>
           <ul className="flex flex-col divide-y divide-border-subtle">
             {jointResponseLog.map((agency) => (
               <li key={agency.id} className="flex items-center justify-between py-2.5 text-sm">
@@ -183,7 +183,7 @@ export function MonitoringPage() {
           </ul>
         </Card>
 
-        <Card title="주요 조치 이력">
+        <Card title="주요 조치 이력" dummy>
           <ul className="flex flex-col divide-y divide-border-subtle">
             {monitoringActionLog.map((log) => (
               <li key={log.id} className="flex gap-3 py-2.5 text-sm">

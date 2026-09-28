@@ -26,7 +26,7 @@ export function RiverAnalysisPage() {
         <p className="mt-1 text-sm text-white/50">위험 근거 데이터 및 센서 교차 검증</p>
       </div>
 
-      <Card title="돌발 강우 AI 조기경고" subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`}>
+      <Card title="돌발 강우 AI 조기경고" subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`} dummy>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div>
@@ -76,7 +76,7 @@ export function RiverAnalysisPage() {
         <p className="mt-2 text-[11px] text-white/35">원본은 관심 20~30% 다음이 주의 50%로 30~50%가 비어 있어, 관심을 50% 미만까지 연장해 임의로 이었습니다(공식 기준 확정 시 수정).</p>
       </Card>
 
-      <Card title="위험 근거 데이터">
+      <Card title="위험 근거 데이터" dummy>
         <StatTiles
           items={[
             { label: "강우량 (1h 누적)", value: riverRiskBasis.rainfall.value, sub: `${riverRiskBasis.rainfall.detail} · ${riverRiskBasis.rainfall.trend}` },
@@ -90,6 +90,7 @@ export function RiverAnalysisPage() {
       <Card
         title="수위 × 조수 연계 시계열 (효돈천 쇠소깍 · 감조구간)"
         subtitle={`${riverTideCorrelation.note} · 다음 만조 ${riverTideCorrelation.nextHighTide}`}
+        dummy
       >
         <div className="h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -136,7 +137,7 @@ export function RiverAnalysisPage() {
         <VilageForecastPanel />
       </Card>
 
-      <Card title="영향 범위 GIS">
+      <Card title="영향 범위 GIS" dummy>
         <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
           GIS 영향 범위 지도 — 범람 예상 구역·대피 경로·통제 지점 표시
         </div>
@@ -148,7 +149,7 @@ export function RiverAnalysisPage() {
         </div>
       </Card>
 
-      <Card title="현장 영상 및 센서 교차 검증">
+      <Card title="현장 영상 및 센서 교차 검증" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {riverCctv.map((cctv) => (
             <div key={cctv.id} className="rounded-lg border border-border-subtle p-3">
@@ -176,7 +177,7 @@ export function RiverAnalysisPage() {
         </div>
       </Card>
 
-      <Card title="데이터 신뢰도 종합" subtitle={riverDataConfidence.note}>
+      <Card title="데이터 신뢰도 종합" subtitle={riverDataConfidence.note} dummy>
         <StatTiles
           items={[
             { label: "강우 센서", value: riverDataConfidence.rain },

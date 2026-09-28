@@ -75,13 +75,13 @@ export function AquaMonitoringPage() {
         </div>
       </Card>
 
-      <Card title="GIS 위험 위치 및 영향 범위 지도">
+      <Card title="GIS 위험 위치 및 영향 범위 지도" dummy>
         <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
           하천 범람 경계 · 연안 위험구역 · 양식장 영향권 · 출동 대기 위치 표시 (2단계 상세 구현 예정)
         </div>
       </Card>
 
-      <Card title="기관별 대응 상태">
+      <Card title="기관별 대응 상태" dummy>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {aquaAgencyRows.map((row) => (
             <div key={row.id} className="rounded-lg border border-border-subtle p-3 text-center">
@@ -92,7 +92,7 @@ export function AquaMonitoringPage() {
         </div>
       </Card>
 
-      <Card title="최근 감지 이벤트 및 조치 이력">
+      <Card title="최근 감지 이벤트 및 조치 이력" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {aquaMonitoringEvents.map((event) => (
             <li key={event.id} className="flex gap-3 py-2.5 text-sm">

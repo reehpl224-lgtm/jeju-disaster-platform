@@ -133,7 +133,7 @@ export function RiverHomePage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="위험 위치 및 영향 범위 — 하천 GIS" subtitle="효돈천(돈내코·쇠소깍) 관측 지점" className="xl:col-span-2">
+        <Card title="위험 위치 및 영향 범위 — 하천 GIS" subtitle="효돈천(돈내코·쇠소깍) 관측 지점" className="xl:col-span-2" dummy>
           <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
             <JejuTileMap markers={RIVER_MARKERS} cctvMarkers={RIVER_CCTV} className="relative h-full w-full" />
             <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
@@ -151,7 +151,7 @@ export function RiverHomePage() {
           </div>
         </Card>
 
-        <Card title="타임라인">
+        <Card title="타임라인" dummy>
           <div className="h-[560px]">
             <GisTimelinePanel tabs={TIMELINE_TABS} />
           </div>
@@ -161,6 +161,7 @@ export function RiverHomePage() {
       <Card
         title="AI 예측 — 돌발 강우 조기경고"
         subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`}
+        dummy
       >
         <div className="flex flex-wrap items-center gap-4">
           <div>
@@ -222,7 +223,7 @@ export function RiverHomePage() {
         <WarningsPanel wrnCodes={["R", "W"]} />
       </Card>
 
-      <Card title="하천 위험 요약" subtitle="카드를 누르면 해당 하천의 현장 통제 현황으로 이동합니다">
+      <Card title="하천 위험 요약" subtitle="카드를 누르면 해당 하천의 현장 통제 현황으로 이동합니다" dummy>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {riverStatuses.map((river) => (
             <Link
@@ -245,7 +246,7 @@ export function RiverHomePage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="경보 승인 이력">
+        <Card title="경보 승인 이력" dummy>
           <ul className="flex flex-col divide-y divide-border-subtle">
             {riverApprovalHistory.map((h) => (
               <li key={h.id} className="flex gap-3 py-2.5 text-sm">
@@ -256,7 +257,7 @@ export function RiverHomePage() {
           </ul>
         </Card>
 
-        <Card title="e-SOP 단계 연결">
+        <Card title="e-SOP 단계 연결" dummy>
           <p className="text-sm font-semibold text-white/85">현재 적용 단계</p>
           <RiskBadge level={riverSopStage.level} label={riverSopStage.current} solid />
           <p className="mt-3 text-sm text-white/60">{riverSopStage.next}</p>

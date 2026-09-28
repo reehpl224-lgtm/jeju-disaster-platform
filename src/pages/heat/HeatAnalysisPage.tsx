@@ -12,14 +12,14 @@ export function HeatAnalysisPage() {
         <p className="mt-1 text-sm text-white/50">{heatLevelInfo.criteria}</p>
       </div>
 
-      <Card title="현재 특보 단계" subtitle={`갱신 ${heatLevelInfo.updatedAt}`}>
+      <Card title="현재 특보 단계" subtitle={`갱신 ${heatLevelInfo.updatedAt}`} dummy>
         <div className="flex items-center gap-4">
           <RiskBadge level={heatLevelInfo.level} label={heatLevelInfo.label} solid />
           <p className="text-lg font-bold text-white">체감온도 {heatLevelInfo.feelsLikeC}℃</p>
         </div>
       </Card>
 
-      <Card title="최근 5일 기온 추이" subtitle="최고기온 · 체감온도">
+      <Card title="최근 5일 기온 추이" subtitle="최고기온 · 체감온도" dummy>
         <div className="h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={heatTrend} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>

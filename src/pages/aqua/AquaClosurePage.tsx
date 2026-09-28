@@ -24,7 +24,7 @@ export function AquaClosurePage() {
         </Link>
       </div>
 
-      <Card title="사건 요약">
+      <Card title="사건 요약" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Field label="사건 유형" value={aquaClosureSummary.type} />
           <Field label="발생 위치" value={aquaClosureSummary.location} />
@@ -38,7 +38,7 @@ export function AquaClosurePage() {
         </div>
       </Card>
 
-      <Card title="조치 이력 타임라인">
+      <Card title="조치 이력 타임라인" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {aquaClosureTimeline.map((entry) => (
             <li key={entry.id} className="flex gap-3 py-2.5 text-sm">
@@ -50,7 +50,7 @@ export function AquaClosurePage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="예측·실측 데이터 비교">
+        <Card title="예측·실측 데이터 비교" dummy>
           <dl className="flex flex-col gap-2 text-sm">
             <Row label="예측 최저 염분" value={aquaClosurePrediction.predictedSalinity} />
             <Row label="실측 최저 염분" value={aquaClosurePrediction.actualSalinity} />
@@ -61,7 +61,7 @@ export function AquaClosurePage() {
           </div>
         </Card>
 
-        <Card title="판단 근거 — 위성·부이·GIS">
+        <Card title="판단 근거 — 위성·부이·GIS" dummy>
           <ul className="flex flex-col gap-2 text-sm text-white/70">
             {aquaClosurePrediction.reasoning.map((line) => (
               <li key={line}>· {line}</li>
@@ -70,7 +70,7 @@ export function AquaClosurePage() {
         </Card>
       </div>
 
-      <Card title="재학습 반영 상태">
+      <Card title="재학습 반영 상태" dummy>
         <dl className="flex flex-col gap-2 text-sm">
           <Row label="반영 대상 이벤트" value={aquaRetraining.target} />
           <Row label="반영 상태" value={aquaRetraining.status} />

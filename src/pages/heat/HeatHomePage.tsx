@@ -61,7 +61,7 @@ export function HeatHomePage() {
         <p className="mt-1 text-sm text-white/50">열섬지도 기반 시원한 길·더운 길 안내, 무더위쉼터 위치 안내</p>
       </div>
 
-      <Card title="위험 위치 및 열섬 지점 — 폭염 GIS" subtitle="더운 길·무더위쉼터 관측 지점">
+      <Card title="위험 위치 및 열섬 지점 — 폭염 GIS" subtitle="더운 길·무더위쉼터 관측 지점" dummy>
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
           <JejuTileMap markers={HEAT_MARKERS} className="relative h-full w-full" />
           <GisIconRail
@@ -83,7 +83,7 @@ export function HeatHomePage() {
         </div>
       </Card>
 
-      <Card title="현재 폭염 위기단계" subtitle={`${heatLevelInfo.criteria} · 갱신 ${heatLevelInfo.updatedAt}`}>
+      <Card title="현재 폭염 위기단계" subtitle={`${heatLevelInfo.criteria} · 갱신 ${heatLevelInfo.updatedAt}`} dummy>
         <div className="flex items-center gap-4">
           <RiskBadge level={heatLevelInfo.level} label={heatLevelInfo.label} solid />
           <p className="text-lg font-bold text-white">체감온도 {heatLevelInfo.feelsLikeC}℃</p>
@@ -98,7 +98,7 @@ export function HeatHomePage() {
         <VilageForecastPanel />
       </Card>
 
-      <Card title="시원한 길 · 더운 길 안내">
+      <Card title="시원한 길 · 더운 길 안내" dummy>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <p className="mb-2 text-xs font-semibold text-risk-safe">🌳 시원한 길</p>
@@ -128,6 +128,7 @@ export function HeatHomePage() {
       <Card
         title="무더위쉼터 안내"
         subtitle={`"무더위 쉼터를 몰라서 못 간다"는 현장 지적 반영 — 대표 ${heatShelters.length}개소 표시`}
+        dummy
         action={
           <div className="flex flex-wrap items-center gap-2">
             <input

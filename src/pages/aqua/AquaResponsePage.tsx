@@ -34,7 +34,7 @@ export function AquaResponsePage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="현재 재난 상황">
+        <Card title="현재 재난 상황" dummy>
           <RiskBadge level={aquaResponseState.riskLevel} label={aquaResponseState.level} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="위험 등급" value={aquaResponseState.grade} />
@@ -47,12 +47,12 @@ export function AquaResponsePage() {
           </dl>
         </Card>
 
-        <Card title="진행 단계 요약" subtitle="현재 단계 진입 09:44 · 담당: 최경보 (재난대응1팀)">
+        <Card title="진행 단계 요약" subtitle="현재 단계 진입 09:44 · 담당: 최경보 (재난대응1팀)" dummy>
           <StageTracker stages={aquaStages} />
         </Card>
       </div>
 
-      <Card title="e-SOP 단계별 대응 절차" subtitle={`${aquaResponseState.grade} · 현재 진행 중`}>
+      <Card title="e-SOP 단계별 대응 절차" subtitle={`${aquaResponseState.grade} · 현재 진행 중`} dummy>
         <div className="flex flex-col gap-2.5">
           {checklist.map((item) => (
             <ChecklistRow
@@ -83,7 +83,7 @@ export function AquaResponsePage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="담당 기관별 상태">
+        <Card title="담당 기관별 상태" dummy>
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="text-xs text-white/35">
@@ -106,7 +106,7 @@ export function AquaResponsePage() {
           </table>
         </Card>
 
-        <Card title="다음 단계 안내" subtitle="5단계(해제) 전환 조건">
+        <Card title="다음 단계 안내" subtitle="5단계(해제) 전환 조건" dummy>
           <ul className="flex flex-col gap-2 text-sm text-white/70">
             <li>· 염분 30.0 psu 이상으로 24시간 이상 유지 시 정상 하향(해제) 검토</li>
             <li>

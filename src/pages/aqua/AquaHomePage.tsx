@@ -148,7 +148,7 @@ export function AquaHomePage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="위험 위치 및 영향 범위 — 저염분·고수온 GIS" subtitle="한경·대정 해안 관측지점(한경 금등·용수, 대정 일과) — 양식장 내부가 아닌 해안에 설치" className="xl:col-span-2">
+        <Card title="위험 위치 및 영향 범위 — 저염분·고수온 GIS" subtitle="한경·대정 해안 관측지점(한경 금등·용수, 대정 일과) — 양식장 내부가 아닌 해안에 설치" className="xl:col-span-2" dummy>
           <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
             <JejuTileMap markers={AQUA_MARKERS} cctvMarkers={AQUA_CCTV} className="relative h-full w-full" />
             <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
@@ -166,7 +166,7 @@ export function AquaHomePage() {
           </div>
         </Card>
 
-        <Card title="타임라인">
+        <Card title="타임라인" dummy>
           <div className="h-[560px]">
             <GisTimelinePanel tabs={TIMELINE_TABS} />
           </div>
@@ -259,7 +259,7 @@ export function AquaHomePage() {
         <VilageForecastPanel />
       </Card>
 
-      <Card title="대응 여정" subtitle={`최근 갱신 ${aquaSummary.lastUpdated}`}>
+      <Card title="대응 여정" subtitle={`최근 갱신 ${aquaSummary.lastUpdated}`} dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {aquaJourneys.map((journey) => (
             <Link

@@ -68,7 +68,7 @@ function Dispatch({ d }: { d: DispatchLike }) {
   return (
     <>
       <Box title={d.title} lines={[d.message]} />
-      <Group title="발송 정보">
+      <Group title="발송 정보" dummy>
         <Rows
           pairs={[
             ["단계", <St key="s" text={d.stage} lv="alert" />],
@@ -79,7 +79,7 @@ function Dispatch({ d }: { d: DispatchLike }) {
           ]}
         />
       </Group>
-      <Group title="채널별 발송 결과">
+      <Group title="채널별 발송 결과" dummy>
         <ul className="plist">
           {d.channels.map((c) => (
             <li key={c.name}>
@@ -128,21 +128,21 @@ function Closure({ c }: { c: ClosureLike }) {
   return (
     <>
       <Box title={`${c.caseId} · ${c.title}`} lines={[c.confirmedBy]} right={<St text={c.status} lv="safe" />} />
-      <Group title="사건 개요">
+      <Group title="사건 개요" dummy>
         <Rows pairs={info} />
       </Group>
       {c.aiSummary && (
-        <Group title="AI 분석 요약">
+        <Group title="AI 분석 요약" dummy>
           <Rows pairs={c.aiSummary.map((a) => [a.label, a.value] as [string, ReactNode])} />
         </Group>
       )}
-      <Group title="관측 결과">
+      <Group title="관측 결과" dummy>
         <Rows pairs={c.observed.map((o) => [o.label, o.value] as [string, ReactNode])} />
       </Group>
-      <Group title="종료 조건">
+      <Group title="종료 조건" dummy>
         <Checks items={c.closureConditions} />
       </Group>
-      <Group title="보고서">
+      <Group title="보고서" dummy>
         <Rows
           pairs={[
             ["작성 부서", c.report.department],
@@ -161,7 +161,7 @@ function RelatedCams({ domain }: { domain: CctvCamera["domain"] }) {
   const items = cctvCameras.filter((c) => c.domain === domain)
   if (items.length === 0) return null
   return (
-    <Group title={`관련 CCTV (${items.length})`}>
+    <Group title={`관련 CCTV (${items.length})`} dummy>
       <ul className="plist">
         {items.map((c) => (
           <li className="row-between" key={c.id}>
@@ -278,7 +278,7 @@ export function heavyRainConfig(): DomainConfig {
         {f.aiNote}
       </p>
       <Note tone="caution">{f.confirmNote}</Note>
-      <Group title="관측소 현황">
+      <Group title="관측소 현황" dummy>
         <ul className="plist">
           {HR.weatherStations.map((s) => (
             <li className="row-between" key={s.id}>
@@ -293,14 +293,14 @@ export function heavyRainConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
-      <Group title="재해문자전광판·자동음성 송출">
+      <Group title="재해문자전광판·자동음성 송출" dummy>
         <Tl entries={HR.broadcastLog.map((b) => ({ time: b.time, title: `[${b.channel}] ${b.message}` }))} />
       </Group>
     </>
   )
   const analysis = (
     <>
-      <Group title="강우 추이 (15분 간격)">
+      <Group title="강우 추이 (15분 간격)" dummy>
         <MiniChart
           data={HR.heavyRainTrend}
           keys={["rainfallMm", "cumulativeMm"]}
@@ -310,7 +310,7 @@ export function heavyRainConfig(): DomainConfig {
           refLine={{ y: f.forecastMm, label: `예보 ${f.forecastMm}mm/h` }}
         />
       </Group>
-      <Group title="누적 강우 순위">
+      <Group title="누적 강우 순위" dummy>
         <ul className="plist">
           {HR.heavyRainTopStations.map((t) => (
             <li className="row-between" key={t.rank}>
@@ -404,7 +404,7 @@ export function typhoonConfig(): DomainConfig {
   )
   const analysis = (
     <>
-      <Group title="예상 경로 — 제주와의 거리">
+      <Group title="예상 경로 — 제주와의 거리" dummy>
         <MiniChart
           data={trk.map((p) => ({ ...p, t: p.time.slice(5, 13).replace("-", "/") }))}
           keys={["distanceFromJejuKm", "maxWindMs"]}
@@ -413,7 +413,7 @@ export function typhoonConfig(): DomainConfig {
           xkey="t"
         />
       </Group>
-      <Group title="예상 경로">
+      <Group title="예상 경로" dummy>
         <ul className="plist">
           {trk.map((p) => (
             <li key={p.time}>
@@ -428,7 +428,7 @@ export function typhoonConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
-      <Group title="발표 이력">
+      <Group title="발표 이력" dummy>
         <ul className="plist">
           {rp.map((r) => (
             <li className="row-between" key={r.id}>
@@ -497,7 +497,7 @@ export function heatConfig(): DomainConfig {
         lines={[`체감온도 ${li.feelsLikeC}℃ · ${li.updatedAt} 기준`, li.criteria]}
         right={<Risk level={li.level} label={li.label} />}
       />
-      <Group title="무더위쉼터">
+      <Group title="무더위쉼터" dummy>
         <ul className="plist">
           {HT.heatShelters.map((s) => (
             <li className="row-between" key={s.id}>
@@ -512,7 +512,7 @@ export function heatConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
-      <Group title="이동 경로 안내">
+      <Group title="이동 경로 안내" dummy>
         <ul className="plist">
           {HT.heatRouteTips.map((r) => (
             <li key={r.id}>
@@ -536,7 +536,7 @@ export function heatConfig(): DomainConfig {
         ]}
         over={["체감온도"]}
       />
-      <Group title="최근 5일 기온">
+      <Group title="최근 5일 기온" dummy>
         <MiniChart
           data={HT.heatTrend}
           keys={["maxTempC", "feelsLikeC"]}
@@ -621,7 +621,7 @@ export function riverConfig(): DomainConfig {
       <Note>
         {RV.riverSopStage.current} — {RV.riverSopStage.next}
       </Note>
-      <Group title="위험 판단 근거">
+      <Group title="위험 판단 근거" dummy>
         <Kv
           items={[
             { k: "강우량", v: rb.rainfall.value, d: `${rb.rainfall.detail} ${rb.rainfall.trend}` },
@@ -632,7 +632,7 @@ export function riverConfig(): DomainConfig {
           over={["강우량", "수위"]}
         />
       </Group>
-      <Group title="돌발 강우 감지">
+      <Group title="돌발 강우 감지" dummy>
         <Box
           title={`예보 ${sr.forecastMm}mm → 실측 ${sr.observedMm}mm`}
           lines={[`감지 ${sr.detectedAt} · ${sr.trendNote}`, sr.aiNote]}
@@ -640,10 +640,10 @@ export function riverConfig(): DomainConfig {
         />
         <Note tone="caution">{sr.confirmNote}</Note>
       </Group>
-      <Group title="승인 이력">
+      <Group title="승인 이력" dummy>
         <Tl entries={RV.riverApprovalHistory} />
       </Group>
-      <Group title="감시 대상">
+      <Group title="감시 대상" dummy>
         <Rows
           pairs={[
             ["대상", tg.area],
@@ -661,7 +661,7 @@ export function riverConfig(): DomainConfig {
   const dc = RV.riverDataConfidence
   const analysis = (
     <>
-      <Group title={`수위·조위 상관 — ${tc.location}`}>
+      <Group title={`수위·조위 상관 — ${tc.location}`} dummy>
         <MiniChart
           data={tc.series}
           keys={["waterLevelM", "tideLevelM"]}
@@ -677,10 +677,10 @@ export function riverConfig(): DomainConfig {
           {tc.note}
         </p>
       </Group>
-      <Group title="영향 범위">
+      <Group title="영향 범위" dummy>
         <Rows pairs={[["면적", im.area], ["인구", im.population], ["시설", im.facilities], ["대피 경로", im.evacuationRoutes]]} />
       </Group>
-      <Group title="센서 교차검증">
+      <Group title="센서 교차검증" dummy>
         <ul className="plist">
           {RV.riverSensorCheck.map((s) => (
             <li key={s.id}>
@@ -695,12 +695,12 @@ export function riverConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
-      <Group title="CCTV 확인">
+      <Group title="CCTV 확인" dummy>
         <Rows
           pairs={RV.riverCctv.map((c) => [c.label, <span key={c.id}>{c.detected} · {c.quality} <span className="s">{c.time}</span></span>] as [string, ReactNode])}
         />
       </Group>
-      <Group title={`데이터 신뢰도 — ${dc.overall}`}>
+      <Group title={`데이터 신뢰도 — ${dc.overall}`} dummy>
         <Rows
           pairs={[
             ["강우", <St key="a" text={dc.rain} />],
@@ -733,12 +733,12 @@ export function riverConfig(): DomainConfig {
           </li>
         ))}
       </ul>
-      <Group title="조치 실패">
+      <Group title="조치 실패" dummy>
         {RV.riverControlFailures.map((f) => (
           <Box key={f.id} title={f.title} lines={[`${f.time} · ${f.cause}`, f.action]} right={<Risk level="danger" label="실패" />} />
         ))}
       </Group>
-      <Group title="전파 현황">
+      <Group title="전파 현황" dummy>
         <Rows pairs={RV.riverPropagation.map((p) => [p.channel, <St key={p.channel} text={p.status} lv={p.status.includes("미전달") ? "warning" : "safe"} />] as [string, ReactNode])} />
       </Group>
     </>
@@ -751,10 +751,10 @@ export function riverConfig(): DomainConfig {
         lines={[`도달 예상 ${dr.eta}`, dr.impact, `요청 ${dr.requestedAt} · ${dr.requester}`]}
         right={<Risk level="alert" label={dr.stage.replace("⚠ ", "")} />}
       />
-      <Group title="위험 분석">
+      <Group title="위험 분석" dummy>
         <Checks items={dr.analysis} />
       </Group>
-      <Group title="처리 과정">
+      <Group title="처리 과정" dummy>
         <Tl entries={dr.process} />
       </Group>
     </>
@@ -829,7 +829,7 @@ export function aquaConfig(): DomainConfig {
         ]}
         over={["활성 위험"]}
       />
-      <Group title="업무 흐름">
+      <Group title="업무 흐름" dummy>
         <ul className="plist">
           {AQ.aquaJourneys.map((j) => (
             <li key={j.id}>
@@ -842,7 +842,7 @@ export function aquaConfig(): DomainConfig {
       <Group title="염분 기준">{levels(s.salinityLevels)}</Group>
       <Group title="수온 기준">{levels(s.temperatureLevels)}</Group>
       <p className="pbox">{s.combinedRuleNote}</p>
-      <Group title="감시 대상">
+      <Group title="감시 대상" dummy>
         <Rows pairs={[["해역", s.targetArea], ["공간 해상도", s.spatialResolution], ["AI 라벨", s.aiLabels.join(" · ")]]} />
       </Group>
       <RelatedCams domain="aqua" />
@@ -864,7 +864,7 @@ export function aquaConfig(): DomainConfig {
           </li>
         ))}
       </ul>
-      <Group title="수집 이상">
+      <Group title="수집 이상" dummy>
         {AQ.aquaDataIssues.map((i) => (
           <Box
             key={i.id}
@@ -874,7 +874,7 @@ export function aquaConfig(): DomainConfig {
           />
         ))}
       </Group>
-      <Group title="조치 이력">
+      <Group title="조치 이력" dummy>
         <ul className="plist">
           {AQ.aquaActionLog.map((a) => (
             <li key={a.id}>
@@ -904,10 +904,10 @@ export function aquaConfig(): DomainConfig {
         ]}
         over={["저염분수 도달"]}
       />
-      <Group title="모델별 신뢰도">
+      <Group title="모델별 신뢰도" dummy>
         <Rows pairs={AQ.aquaModelConfidence.map((m) => [m.name, `${m.percent}%`] as [string, ReactNode])} />
       </Group>
-      <Group title="입력 데이터 품질">
+      <Group title="입력 데이터 품질" dummy>
         <ul className="plist">
           {AQ.aquaQualityMetrics.map((q) => (
             <li key={q.id}>
@@ -934,7 +934,7 @@ export function aquaConfig(): DomainConfig {
         ]}
         over={["심각"]}
       />
-      <Group title="대표 양식장">
+      <Group title="대표 양식장" dummy>
         <ul className="plist">
           {AQ.aquaFarms.map((f) => (
             <li key={f.id}>
@@ -960,7 +960,7 @@ export function aquaConfig(): DomainConfig {
   const alert = (
     <>
       <Box title={`${ad.riskType} ${ad.grade} 경보 초안`} lines={[`${ad.region} · ${ad.effectiveAt} · 유효 ${ad.validFor}`]} right={<Risk level={ad.riskLevel} label={ad.grade} />} />
-      <Group title="영향">
+      <Group title="영향" dummy>
         <Rows
           pairs={[
             ["현재 등급", ad.currentGrade],
@@ -971,7 +971,7 @@ export function aquaConfig(): DomainConfig {
           ]}
         />
       </Group>
-      <Group title="발송 채널">
+      <Group title="발송 채널" dummy>
         <Rows
           pairs={[
             ["채널", ad.channels.join(" · ")],
@@ -982,13 +982,13 @@ export function aquaConfig(): DomainConfig {
           ]}
         />
       </Group>
-      <Group title="근거 검증">
+      <Group title="근거 검증" dummy>
         <Rows pairs={[["모델 신뢰도", `${ad.confidence}%`], ["위성 일치", ad.satelliteMatch], ["현장 편차", ad.fieldDelta]]} />
       </Group>
-      <Group title="승인 단계">
+      <Group title="승인 단계" dummy>
         <Steps items={ad.approvalSteps.map((a) => ({ title: a.stage, sub: `${a.owner} · ${a.time}` }))} />
       </Group>
-      <Group title="감사 기록">
+      <Group title="감사 기록" dummy>
         <Tl entries={ad.audit} />
       </Group>
     </>
@@ -998,10 +998,10 @@ export function aquaConfig(): DomainConfig {
     <>
       <Box title={rsp.title} lines={[rsp.location, `탐지 ${rsp.detectedAt} · 도달 ${rsp.eta}`]} right={<Risk level={rsp.riskLevel} label={rsp.grade} />} />
       <Rows pairs={[["염분", rsp.salinity], ["수온", rsp.temperature], ["영향 반경", rsp.radius]]} />
-      <Group title="e-SOP 단계">
+      <Group title="e-SOP 단계" dummy>
         <Steps items={AQ.aquaStages.map((st) => ({ title: `${st.step}. ${st.label}`, sub: st.status, on: st.status === "진행 중" }))} />
       </Group>
-      <Group title="조치 체크리스트">
+      <Group title="조치 체크리스트" dummy>
         <ul className="plist">
           {AQ.aquaChecklist.map((c) => (
             <li key={c.id}>
@@ -1062,14 +1062,14 @@ export function aquaConfig(): DomainConfig {
     <>
       <Box title={cs.type} lines={[cs.location, `${cs.startedAt} → ${cs.endedAt} (${cs.duration})`]} right={<Risk level="safe" label="해제" />} />
       <Rows pairs={[["최종 등급", cs.finalGrade]]} />
-      <Group title="대응 경과">
+      <Group title="대응 경과" dummy>
         <Tl entries={AQ.aquaClosureTimeline} />
       </Group>
-      <Group title="예측 검증">
+      <Group title="예측 검증" dummy>
         <Rows pairs={[["예측 염분", cp.predictedSalinity], ["실측 염분", cp.actualSalinity], ["오차", cp.error]]} />
         <Checks items={cp.reasoning} />
       </Group>
-      <Group title="재학습">
+      <Group title="재학습" dummy>
         <Rows pairs={[["대상", rt.target], ["상태", rt.status], ["갱신", rt.updatedAt]]} />
       </Group>
     </>
@@ -1132,12 +1132,12 @@ export function coastConfig(): DomainConfig {
         ]}
         over={["미확인"]}
       />
-      <Group title="AI 판단">
+      <Group title="AI 판단" dummy>
         {CO.coastAiInsights.map((a) => (
           <Box key={a.id} title={a.title} lines={[a.basis, a.match]} right={<Risk level={a.level} />} />
         ))}
       </Group>
-      <Group title="현장 경보">
+      <Group title="현장 경보" dummy>
         <ul className="plist">
           {CO.coastFieldAlerts.map((f) => (
             <li key={f.id}>
@@ -1152,7 +1152,7 @@ export function coastConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
-      <Group title="AIoT 스마트폴">
+      <Group title="AIoT 스마트폴" dummy>
         <ul className="plist">
           {CO.coastSafetyAssets.map((a) => (
             <li key={a.id}>
@@ -1165,7 +1165,7 @@ export function coastConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
-      <Group title="감시 대상">
+      <Group title="감시 대상" dummy>
         <Rows pairs={[["해수욕장", s.targetArea], ["인프라", s.infra], ["AI 라벨", s.aiLabels.join(" · ")]]} />
         <p className="s" style={{ fontSize: 11 }}>
           {s.permitNote}
@@ -1187,7 +1187,7 @@ export function coastConfig(): DomainConfig {
           ["검토자", <span key="r">{d.reviewer} <St text={d.reviewStatus} /></span>],
         ]}
       />
-      <Group title="주변 위험 요소">
+      <Group title="주변 위험 요소" dummy>
         <Rows
           pairs={[
             ["인접 연안", d.nearbyCoast],
@@ -1198,7 +1198,7 @@ export function coastConfig(): DomainConfig {
           ]}
         />
       </Group>
-      <Group title="관측">
+      <Group title="관측" dummy>
         <Kv
           items={[
             { k: "강우", v: d.rainSummary.value, d: d.rainSummary.detail },
@@ -1207,17 +1207,17 @@ export function coastConfig(): DomainConfig {
           ]}
         />
       </Group>
-      <Group title="영상 탐지">
+      <Group title="영상 탐지" dummy>
         <p className="pbox">
           {d.detection.class}
           <br />
           <span className="s">{d.detection.confidence}</span>
         </p>
       </Group>
-      <Group title="센서 교차검증">
+      <Group title="센서 교차검증" dummy>
         <Rows pairs={d.sensorCrossCheck.map((x) => [x.name, <St key={x.id} text={x.status} lv={x.status === "정상" ? "safe" : "warning"} />] as [string, ReactNode])} />
       </Group>
-      <Group title="현장 조치">
+      <Group title="현장 조치" dummy>
         <Rows pairs={[["출동", d.fieldActions.dispatch], ["통제", d.fieldActions.control], ["경보", d.fieldActions.alert]]} />
       </Group>
     </>
@@ -1242,10 +1242,10 @@ export function coastConfig(): DomainConfig {
           </li>
         ))}
       </ul>
-      <Group title="선택 이벤트 경과">
+      <Group title="선택 이벤트 경과" dummy>
         <Tl entries={d.timeline} />
       </Group>
-      <Group title="기관 상태">
+      <Group title="기관 상태" dummy>
         <Rows pairs={d.agencyStatus.map((a) => [a.agency, <St key={a.id} text={a.status} />] as [string, ReactNode])} />
       </Group>
     </>
@@ -1268,7 +1268,7 @@ export function coastConfig(): DomainConfig {
         <br />
         <span className="s">{dp.weather}</span>
       </p>
-      <Group title="출동 요청">
+      <Group title="출동 요청" dummy>
         <Rows
           pairs={[
             ["상태", <St key="s" text={rq.status} lv="caution" />],

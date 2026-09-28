@@ -19,7 +19,7 @@ export function HeavyRainClosurePage() {
         </Link>
       </div>
 
-      <Card title="사건 상태">
+      <Card title="사건 상태" dummy>
         <RiskBadge level="safe" label={c.status} solid />
         <p className="mt-2 text-xs text-white/40">{c.confirmedBy}</p>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -31,7 +31,7 @@ export function HeavyRainClosurePage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="AI 조기경보 결과">
+        <Card title="AI 조기경보 결과" dummy>
           <ul className="flex flex-col gap-2 text-sm">
             {c.aiSummary.map((item) => (
               <li key={item.id} className="flex items-center justify-between border-b border-border-subtle/60 pb-2">
@@ -42,7 +42,7 @@ export function HeavyRainClosurePage() {
           </ul>
         </Card>
 
-        <Card title="관측 근거 데이터">
+        <Card title="관측 근거 데이터" dummy>
           <ul className="flex flex-col gap-2 text-sm">
             {c.observed.map((item) => (
               <li key={item.id} className="flex items-center justify-between border-b border-border-subtle/60 pb-2">
@@ -54,7 +54,7 @@ export function HeavyRainClosurePage() {
         </Card>
       </div>
 
-      <Card title="종료 조건 충족 여부">
+      <Card title="종료 조건 충족 여부" dummy>
         <ul className="flex flex-col gap-2">
           {c.closureConditions.map((cond) => (
             <li key={cond} className="flex items-center gap-2 text-sm text-white/70">
@@ -65,7 +65,7 @@ export function HeavyRainClosurePage() {
         <p className="mt-3 text-xs font-semibold text-risk-safe">모든 종료 조건 충족 · 최종 승인 완료</p>
       </Card>
 
-      <Card title="최종 사건 종료 보고서">
+      <Card title="최종 사건 종료 보고서" dummy>
         <dl className="flex flex-col gap-2 text-sm">
           <Row label="담당 부서" value={c.report.department} />
           <Row label="승인 근거 e-SOP" value={c.report.sop} />

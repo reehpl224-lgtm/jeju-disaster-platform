@@ -17,7 +17,7 @@ export function CoastDispatchPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="위험 사건 요약" className="xl:col-span-2">
+        <Card title="위험 사건 요약" className="xl:col-span-2" dummy>
           <RiskBadge level={d.summary.level} label={d.summary.title} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="발생 위치" value={d.summary.location} />
@@ -34,7 +34,7 @@ export function CoastDispatchPage() {
           </div>
         </Card>
 
-        <Card title="해경 출동 요청 현황">
+        <Card title="해경 출동 요청 현황" dummy>
           <dl className="flex flex-col gap-2 text-sm">
             <Row label="출동 요청 상태" value={escalated ? "대체 채널 전환됨 · 응신 대기 중" : d.request.status} />
             <Row label="요청 기관" value={d.request.agency} />
@@ -48,7 +48,7 @@ export function CoastDispatchPage() {
         </Card>
       </div>
 
-      <Card title="GIS 위치 정보">
+      <Card title="GIS 위치 정보" dummy>
         <div className="flex h-44 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
           협재해수욕장 인근 방파제 위험 구역 GIS 지도
         </div>

@@ -12,7 +12,7 @@ export function HeavyRainAnalysisPage() {
         <p className="mt-1 text-sm text-white/50">강우 추이 및 관측망 근거 데이터</p>
       </div>
 
-      <Card title="강우 추이 (시간당·누적)" subtitle={`감지 시각 ${heavyRainAiForecast.detectedAt} 기준`}>
+      <Card title="강우 추이 (시간당·누적)" subtitle={`감지 시각 ${heavyRainAiForecast.detectedAt} 기준`} dummy>
         <div className="h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={heavyRainTrend} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
@@ -28,7 +28,7 @@ export function HeavyRainAnalysisPage() {
         </div>
       </Card>
 
-      <Card title="당일 누적 강수량 TOP5" subtitle="실제 서비스는 TOP50 랭킹 — 참고 사이트(demo-10.muhanit.kr) 패턴">
+      <Card title="당일 누적 강수량 TOP5" subtitle="실제 서비스는 TOP50 랭킹 — 참고 사이트(demo-10.muhanit.kr) 패턴" dummy>
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs text-white/35">
@@ -51,7 +51,7 @@ export function HeavyRainAnalysisPage() {
         </table>
       </Card>
 
-      <Card title="AI 조기경보 근거">
+      <Card title="AI 조기경보 근거" dummy>
         <p className="text-sm text-white/70">{heavyRainAiForecast.aiNote}</p>
         <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
           {heavyRainAiForecast.confirmNote}
@@ -62,7 +62,7 @@ export function HeavyRainAnalysisPage() {
         <VilageForecastPanel />
       </Card>
 
-      <Card title="관측망 근거 데이터">
+      <Card title="관측망 근거 데이터" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {weatherStations.map((station) => (
             <div key={station.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-3">

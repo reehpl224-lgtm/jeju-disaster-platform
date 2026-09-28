@@ -22,6 +22,34 @@
 - 새 기능을 추가할 때 **과설계하지 마세요.** 지금 필요한 화면 범위를 넘어서는 인증 체계, 실제 API
   연동, 대규모 상태관리 라이브러리 등을 미리 깔지 않습니다.
 
+### 화면 표기 — "*" = 실제로 가져올 수 없는 완전 가상 시나리오 더미데이터 (2026-09-28, 사용자 요청)
+
+화면의 모든 카드/섹션 제목 앞에 붙는 `*`는 **"실제로 연동해서 가져올 수 없는, 완전히 지어낸 시나리오
+더미데이터"**라는 뜻입니다. 아래 3곳의 공용 컴포넌트에 `dummy?: boolean` prop으로 구현돼 있고, 마우스
+오버 시 같은 문구가 툴팁으로 뜹니다.
+
+- `Card`(`src/components/ui/Card.tsx`) — `<Card dummy title="...">`
+- `Group`(`src/components/board/PanelParts.tsx`, `/dashboard`·도메인 워크플로 페이지의 `domainConfigs.tsx`에서 사용) — `<Group dummy title="...">`
+- `DockTab`(`src/components/board/BoardParts.tsx`, `SideTabsDock`/`HorizontalTabsDock`) — 탭 객체에 `dummy: true`
+
+**`*` 표시 여부 판단 기준** (전체 앱에 이미 일괄 적용 완료 — 새 카드/탭을 추가할 때 이 기준을 그대로 따르세요):
+- **`*` 표시 안 함(실제 값)**: 기상청 단기예보·특보·해양관측·태풍정보 등 **매 조회마다 실제 API를
+  호출하는 패널**(`VilageForecastPanel`/`WarningsPanel`/`MarineObservationPanel`/`TyphoonNowPanel`/
+  `TyphoonNameListPanel`/`RainfallObservationPanel`), **KHOA 실측 정적 스냅샷**(`khoaLiveObservations`/
+  `khoaBuoyMarineConditions`/`khoaMoseulpoTide` — 실제 값이지만 자동 갱신은 안 됨), **공식 문서 기준
+  임계값/기준표**(TP-P22_002 위험단계 상태 구간 등 — 수치 자체가 실제 정책 기준), **실제 면담·발표자료
+  근거의 연계 현황 보고**(`legacySystems`, `/pilot-status`의 서비스별 구현현황 — 새 수치를 지어내지 않고
+  근거 문서를 그대로 반영한 것), 스타일가이드(`/styleguide`, 데이터가 아니라 컴포넌트 쇼케이스).
+- **`*` 표시함(더미)**: 그 외 전부 — 센서 현재값·경보 발송 이력·AI 신뢰도/판단 근거·사건 타임라인·
+  e-SOP 진행상태·시설 목록(무더위쉼터 등)·API 응답속도/장애 시뮬레이션(`apiLinks`,
+  `MonitoringPage`·`DataSystemPage`의 "외부 API 연계 현황"은 API 자체는 실재해도 응답속도·상태 배지가
+  가짜라 더미) 등. `PlanItemsCard`(계획/로드맵 항목 나열, 이미 "계획"이라는 맥락이 명확함)는 이 표기
+  대상에서 제외했습니다.
+
+새 카드나 탭을 추가할 때 위 기준으로 판단해 `dummy` prop을 붙이세요 — 애매하면 "실시간으로 다시
+불러왔을 때 지금과 다른 값이 나올 수 있는가"로 판단하면 됩니다(그렇다면 `*` 표시 안 함, 코드를 다시
+실행해도 그 자리에서 늘 같은 지어낸 값이면 `*` 표시).
+
 ## 2. 소스 오브 트루스 (Ground Truth) — 임의로 바꾸지 말 것
 
 아래 값들은 기획자가 실제 계획서·확정 자료를 근거로 직접 확인해 준 사실입니다. 화면을 만들다가

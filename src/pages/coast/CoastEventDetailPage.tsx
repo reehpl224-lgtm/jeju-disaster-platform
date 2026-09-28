@@ -14,7 +14,7 @@ export function CoastEventDetailPage() {
         <RiskBadge level={d.level} label={d.status} solid />
       </div>
 
-      <Card title="이벤트 기본 정보">
+      <Card title="이벤트 기본 정보" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Field label="이벤트 유형" value={d.type} />
           <Field label="탐지 시각" value={d.detectedAt} />
@@ -26,7 +26,7 @@ export function CoastEventDetailPage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="GIS 위험 위치 및 영향 범위">
+        <Card title="GIS 위험 위치 및 영향 범위" dummy>
           <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-xs text-white/30">
             GIS 지도 — 위험 위치 및 영향 반경 표시
           </div>
@@ -40,7 +40,7 @@ export function CoastEventDetailPage() {
           </dl>
         </Card>
 
-        <Card title="AI 판단 근거 요약">
+        <Card title="AI 판단 근거 요약" dummy>
           <div className="flex flex-col gap-3 text-sm">
             <div className="rounded-lg border border-border-subtle p-3">
               <p className="font-semibold text-white/80">강우 · 수위</p>
@@ -66,7 +66,7 @@ export function CoastEventDetailPage() {
         </Card>
       </div>
 
-      <Card title="센서 교차 검증">
+      <Card title="센서 교차 검증" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {d.sensorCrossCheck.map((s) => (
             <div key={s.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-3">
@@ -77,7 +77,7 @@ export function CoastEventDetailPage() {
         </div>
       </Card>
 
-      <Card title="위험도 변화 타임라인">
+      <Card title="위험도 변화 타임라인" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {d.timeline.map((t) => (
             <li key={t.id} className="flex gap-3 py-2.5 text-sm">
@@ -89,7 +89,7 @@ export function CoastEventDetailPage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="기관 공조 상태">
+        <Card title="기관 공조 상태" dummy>
           <ul className="flex flex-col gap-2">
             {d.agencyStatus.map((a) => (
               <li key={a.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-2.5 text-sm">
@@ -100,7 +100,7 @@ export function CoastEventDetailPage() {
           </ul>
         </Card>
 
-        <Card title="현장 통제·출동·경보 조치 현황">
+        <Card title="현장 통제·출동·경보 조치 현황" dummy>
           <dl className="flex flex-col gap-2 text-sm">
             <Row label="출동 요청" value={d.fieldActions.dispatch} />
             <Row label="통제 조치" value={d.fieldActions.control} />

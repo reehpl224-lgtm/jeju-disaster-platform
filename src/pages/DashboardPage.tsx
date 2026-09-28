@@ -336,26 +336,26 @@ export function DashboardPage() {
   }
 
   const summaryDockTabs: DockTab[] = [
-    { key: "broadcast", label: "상황전파" },
-    { key: "sensor", label: "센서정보" },
-    { key: "response", label: "대응현황" },
+    { key: "broadcast", label: "상황전파", dummy: true },
+    { key: "sensor", label: "센서정보", dummy: true },
+    { key: "response", label: "대응현황", dummy: true },
     { key: "contact", label: "담당자" },
     { key: "report", label: "보고서" },
-    { key: "asset", label: "자산현황" },
+    { key: "asset", label: "자산현황", dummy: true },
     { key: "messenger", label: "방재메신저" },
     { key: "news", label: "안전뉴스" },
-    { key: "ai", label: "AI 분석" },
-    { key: "trend", label: "센서 추이" },
+    { key: "ai", label: "AI 분석", dummy: true },
+    { key: "trend", label: "센서 추이", dummy: true },
   ].map((t) => ({ ...t, content: railContent[t.key] }))
 
   const gisLeftTabs: DockTab[] = [
-    { key: "timeline", label: "타임라인" },
-    { key: "broadcast", label: "상황전파" },
-    { key: "sensor", label: "센서정보" },
-    { key: "response", label: "대응현황" },
+    { key: "timeline", label: "타임라인", dummy: true },
+    { key: "broadcast", label: "상황전파", dummy: true },
+    { key: "sensor", label: "센서정보", dummy: true },
+    { key: "response", label: "대응현황", dummy: true },
     { key: "contact", label: "담당자" },
     { key: "report", label: "보고서" },
-    { key: "asset", label: "자산현황" },
+    { key: "asset", label: "자산현황", dummy: true },
     { key: "messenger", label: "방재메신저" },
     { key: "news", label: "안전뉴스" },
   ].map((t) => ({ ...t, content: railContent[t.key] }))
@@ -394,6 +394,7 @@ export function DashboardPage() {
     {
       key: "timeline",
       label: "타임라인",
+      dummy: true,
       content: (
         <ul className="plist">
           {filteredIncidents.length === 0 && <li className="pempty">조건에 맞는 항목이 없습니다.</li>}
@@ -417,6 +418,7 @@ export function DashboardPage() {
     {
       key: "advisory",
       label: "발효중 특보",
+      dummy: true,
       content: (
         <ul className="plist" style={{ gap: 8 }}>
           {filteredAlerts.length === 0 && <li className="pempty">조건에 맞는 항목이 없습니다.</li>}
@@ -586,7 +588,9 @@ export function DashboardPage() {
                 {/* 좌측 지역 컬럼: 제주도(현재 날씨) */}
                 <div className="region-col region-col--left">
                   <div className="region-card region-card--open">
-                    <p className="region-card__label">제주도 · 현재 날씨</p>
+                    <p className="region-card__label">
+                      <span title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">*</span> 제주도 · 현재 날씨
+                    </p>
                     <div className="region-card__stats">
                       <button type="button">
                         <span className="k">기온</span>
@@ -631,7 +635,9 @@ export function DashboardPage() {
                 {/* 우측 지역 컬럼: 총 합계 + 제주시 + 서귀포시 */}
                 <div className="region-col region-col--right">
                   <div className="region-card region-card--open">
-                    <p className="region-card__label">총 합계 · 제주도 전체</p>
+                    <p className="region-card__label">
+                      <span title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">*</span> 총 합계 · 제주도 전체
+                    </p>
                     <div className="region-card__stats">
                       <button type="button">
                         <span className="k">근무(명) · 출동 {dispatchedTeams}팀</span>

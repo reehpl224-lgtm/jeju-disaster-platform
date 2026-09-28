@@ -161,6 +161,7 @@ export function DataSystemPage() {
       <Card
         title="외부 API 연계 현황"
         subtitle="기관별 외부 데이터 API — 배지는 이 API 데이터가 입력값으로 쓰이는 서비스"
+        dummy
       >
         <ul className="flex flex-col divide-y divide-border-subtle">
           {apiLinks.map((api) => (
@@ -185,7 +186,7 @@ export function DataSystemPage() {
         </p>
       </Card>
 
-      <Card title="실증 데이터 소스 현황" subtitle="3대 실증서비스(저염분 고수온·연안 안전관리·하천범람)가 각각 쓰는 데이터 소스">
+      <Card title="실증 데이터 소스 현황" subtitle="3대 실증서비스(저염분 고수온·연안 안전관리·하천범람)가 각각 쓰는 데이터 소스" dummy>
         <div className="flex flex-col gap-5">
           <div>
             <div className="mb-2 flex items-center justify-between gap-2">

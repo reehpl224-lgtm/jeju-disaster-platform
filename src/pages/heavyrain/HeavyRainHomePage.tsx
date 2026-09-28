@@ -78,7 +78,7 @@ export function HeavyRainHomePage() {
         </p>
       </div>
 
-      <Card title="위험 위치 및 관측망 — 호우 GIS" subtitle="침수경보·우량계 관측 지점">
+      <Card title="위험 위치 및 관측망 — 호우 GIS" subtitle="침수경보·우량계 관측 지점" dummy>
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
           <JejuTileMap markers={HEAVY_RAIN_MARKERS} className="relative h-full w-full" />
           <GisIconRail
@@ -111,6 +111,7 @@ export function HeavyRainHomePage() {
       <Card
         title="AI 침수 위험 조기경보"
         subtitle={`감지 시각 ${heavyRainAiForecast.detectedAt} · 우량계 실측 추이 기반`}
+        dummy
       >
         <div className="flex flex-wrap items-center gap-4">
           {heavyRainAiForecast.stations.map((s) => (
@@ -129,7 +130,7 @@ export function HeavyRainHomePage() {
         </div>
       </Card>
 
-      <Card title="관측망 현황" subtitle="침수센서·우량계·적설계·풍속풍향계">
+      <Card title="관측망 현황" subtitle="침수센서·우량계·적설계·풍속풍향계" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {weatherStations.map((station) => (
             <div key={station.id} className="rounded-lg border border-border-subtle p-3">
@@ -149,7 +150,7 @@ export function HeavyRainHomePage() {
         </div>
       </Card>
 
-      <Card title="자동통보 발송 이력" subtitle="재해문자전광판 · 자동음성통보">
+      <Card title="자동통보 발송 이력" subtitle="재해문자전광판 · 자동음성통보" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {broadcastLog.map((entry) => (
             <li key={entry.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">

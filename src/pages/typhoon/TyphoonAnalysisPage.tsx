@@ -10,7 +10,7 @@ export function TyphoonAnalysisPage() {
         <p className="mt-1 text-sm text-white/50">{typhoonSource.note}</p>
       </div>
 
-      <Card title="제주 접근 예상 경로" subtitle="기상청 예보 기준 — 자체 산출 아님">
+      <Card title="제주 접근 예상 경로" subtitle="기상청 예보 기준 — 자체 산출 아님" dummy>
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs text-white/35">
@@ -33,7 +33,7 @@ export function TyphoonAnalysisPage() {
         </table>
       </Card>
 
-      <Card title="관측 이력" subtitle="기상청 발표 시각 역순 — 과거 위치·세력 변화">
+      <Card title="관측 이력" subtitle="기상청 발표 시각 역순 — 과거 위치·세력 변화" dummy>
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs text-white/35">

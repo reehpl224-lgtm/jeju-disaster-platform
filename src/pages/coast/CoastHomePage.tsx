@@ -145,7 +145,7 @@ export function CoastHomePage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2">
+        <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2" dummy>
           <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
             <JejuTileMap markers={coastMarkers} cctvMarkers={COAST_CCTV} className="relative h-full w-full" />
             <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
@@ -164,14 +164,14 @@ export function CoastHomePage() {
           </div>
         </Card>
 
-        <Card title="타임라인">
+        <Card title="타임라인" dummy>
           <div className="h-[560px]">
             <GisTimelinePanel tabs={TIMELINE_TABS} />
           </div>
         </Card>
       </div>
 
-      <Card title="AI 예측 — 판단 근거" subtitle="이안류·해수욕장 위험 AI 모델이 산출한 근거 요약">
+      <Card title="AI 예측 — 판단 근거" subtitle="이안류·해수욕장 위험 AI 모델이 산출한 근거 요약" dummy>
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {coastAiInsights.map((insight) => (
             <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-3">
@@ -264,7 +264,7 @@ export function CoastHomePage() {
         <VilageForecastPanel />
       </Card>
 
-      <Card title="위험 이벤트 목록" action={<Link to="/coast/events" className="text-xs font-semibold text-white/50 hover:text-accent">전체 보기 →</Link>}>
+      <Card title="위험 이벤트 목록" dummy action={<Link to="/coast/events" className="text-xs font-semibold text-white/50 hover:text-accent">전체 보기 →</Link>}>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {coastEvents.map((event) => (
             <li key={event.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
@@ -292,7 +292,7 @@ export function CoastHomePage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="현장 경보 발령 현황">
+        <Card title="현장 경보 발령 현황" dummy>
           <ul className="flex flex-col gap-2.5">
             {coastFieldAlerts.map((alert) => (
               <li key={alert.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-3">
@@ -309,7 +309,7 @@ export function CoastHomePage() {
           </ul>
         </Card>
 
-        <Card title="관계기관 공조 상태" action={<Link to="/coast/dispatch" className="text-xs font-semibold text-white/50 hover:text-accent">공조 상세 검토 →</Link>}>
+        <Card title="관계기관 공조 상태" dummy action={<Link to="/coast/dispatch" className="text-xs font-semibold text-white/50 hover:text-accent">공조 상세 검토 →</Link>}>
           <ul className="flex flex-col gap-2.5">
             {coastAgencyStatuses.map((agency) => (
               <li key={agency.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-3">

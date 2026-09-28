@@ -49,7 +49,7 @@ export function CoastMonitoringPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="도·서귀포시 공동 대응">
+        <Card title="도·서귀포시 공동 대응" dummy>
           <ul className="flex flex-col gap-2 text-sm">
             <li className="flex items-center justify-between rounded-lg border border-border-subtle p-3">
               <p className="text-white/80">제주도 상황실</p>
@@ -63,7 +63,7 @@ export function CoastMonitoringPage() {
           <p className="mt-2 text-xs text-white/35">공조 채널 상태: 연결됨</p>
         </Card>
 
-        <Card title="현장 영상·탐지 메타데이터">
+        <Card title="현장 영상·탐지 메타데이터" dummy>
           <div className="flex h-32 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-xs text-white/30">
             현장 영상 마스킹 · AI 탐지 이벤트 (원본 미표시)
           </div>
@@ -81,13 +81,13 @@ export function CoastMonitoringPage() {
         <MarineObservationPanel />
       </Card>
 
-      <Card title="GIS 위험 위치·영향 범위">
+      <Card title="GIS 위험 위치·영향 범위" dummy>
         <div className="flex h-56 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
           하천 범람 영향 범위 · 연안 위험 구역 · 양식장 위험 반경
         </div>
       </Card>
 
-      <Card title="센서·실측값 교차 검증" subtitle="데이터 지연·결측은 일반 경보와 별도 표시됩니다">
+      <Card title="센서·실측값 교차 검증" subtitle="데이터 지연·결측은 일반 경보와 별도 표시됩니다" dummy>
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs text-white/35">

@@ -20,7 +20,7 @@ export function HeavyRainAlertPage() {
         </Link>
       </div>
 
-      <Card title="발송 대상 및 위험 단계">
+      <Card title="발송 대상 및 위험 단계" dummy>
         <RiskBadge level="alert" label={d.stage} solid />
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Field label="발송 대상" value={`${d.target} (${d.targetDetail})`} />
@@ -45,7 +45,7 @@ export function HeavyRainAlertPage() {
         ))}
       </div>
 
-      <Card title="수신 실패 현황" subtitle={`전체 실패: ${d.totalFail}건`}>
+      <Card title="수신 실패 현황" subtitle={`전체 실패: ${d.totalFail}건`} dummy>
         <p className="text-xs text-white/40">통신사 지연 등 일시적 실패로, 재전송 후 대부분 수신 확인됨.</p>
       </Card>
     </div>

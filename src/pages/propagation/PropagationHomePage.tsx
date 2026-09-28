@@ -23,7 +23,7 @@ export function PropagationHomePage() {
         </p>
       </div>
 
-      <Card title="현재 전파 체계 (순차)" subtitle="가장 최근 사건 기준 — 단계별 도달 시각">
+      <Card title="현재 전파 체계 (순차)" subtitle="가장 최근 사건 기준 — 단계별 도달 시각" dummy>
         <div className="flex flex-wrap items-center gap-2">
           {sequentialPropagation.map((step, i) => (
             <div key={step.id} className="flex items-center gap-2">
@@ -48,7 +48,7 @@ export function PropagationHomePage() {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="재난 보고체계" subtitle="행정시 → 도청 → 행안부">
+        <Card title="재난 보고체계" subtitle="행정시 → 도청 → 행안부" dummy>
           <div className="flex flex-wrap items-center gap-2 text-sm">
             {reportingChain.map((step, i) => (
               <span key={step.id} className="flex items-center gap-2">
@@ -61,7 +61,7 @@ export function PropagationHomePage() {
           </div>
         </Card>
 
-        <Card title="전파 채널 현황">
+        <Card title="전파 채널 현황" dummy>
           <ul className="flex flex-col divide-y divide-border-subtle">
             {propagationChannels.map((ch) => (
               <li key={ch.id} className="py-2.5 text-sm">
@@ -73,7 +73,7 @@ export function PropagationHomePage() {
         </Card>
       </div>
 
-      <Card title="전파 이력" subtitle="순차 전파 체계에서 실제 소요된 시간 기록">
+      <Card title="전파 이력" subtitle="순차 전파 체계에서 실제 소요된 시간 기록" dummy>
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs text-white/35">

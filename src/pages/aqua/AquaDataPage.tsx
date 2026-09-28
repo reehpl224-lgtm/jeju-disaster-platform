@@ -39,7 +39,7 @@ export function AquaDataPage() {
         ]}
       />
 
-      <Card title="수집 대상별 데이터 소스">
+      <Card title="수집 대상별 데이터 소스" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {aquaDataSources.map((source) => (
             <li key={source.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
@@ -60,7 +60,7 @@ export function AquaDataPage() {
         </ul>
       </Card>
 
-      <Card title="지연·누락·오류 원인 및 영향">
+      <Card title="지연·누락·오류 원인 및 영향" dummy>
         <ul className="flex flex-col gap-3">
           {aquaDataIssues.map((issue) => (
             <li key={issue.id} className="rounded-lg border border-border-subtle bg-inset p-3">
@@ -79,7 +79,7 @@ export function AquaDataPage() {
         </ul>
       </Card>
 
-      <Card title="수집 상태 변경 및 조치 이력">
+      <Card title="수집 상태 변경 및 조치 이력" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {aquaActionLog.map((log) => (
             <li key={log.id} className="flex items-start justify-between gap-3 py-2.5 text-sm">

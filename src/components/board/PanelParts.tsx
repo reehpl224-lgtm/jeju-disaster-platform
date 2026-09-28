@@ -25,10 +25,18 @@ export function St({ text, lv }: { text: string; lv?: RiskLevel }) {
   return <Risk level={lv ?? STATUS_LV[text] ?? "info"} label={text} />
 }
 
-export function Group({ title, children }: { title: string; children: ReactNode }) {
+/** dummy: 실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터 — 제목 앞에 "*" 표시 */
+export function Group({ title, children, dummy }: { title: string; children: ReactNode; dummy?: boolean }) {
   return (
     <div className="pgroup">
-      <p className="pnote">{title}</p>
+      <p className="pnote">
+        {dummy && (
+          <span aria-hidden title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">
+            *{" "}
+          </span>
+        )}
+        {title}
+      </p>
       {children}
     </div>
   )

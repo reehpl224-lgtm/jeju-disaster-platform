@@ -74,7 +74,7 @@ export function AquaFarmDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="기본 정보">
+        <Card title="기본 정보" dummy>
           <dl className="flex flex-col gap-2 text-sm">
             <Row label="위치" value={farm.region} />
             <Row label="면적" value={farm.area ?? "정보 없음"} />
@@ -84,7 +84,7 @@ export function AquaFarmDetailPage() {
           </dl>
         </Card>
 
-        <Card title="현재 위험 상태">
+        <Card title="현재 위험 상태" dummy>
           <RiskBadge level={farm.level} label={farm.riskType} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
             <Row label="예상 도달" value={`D+${farm.etaHours}시간`} />
@@ -92,7 +92,7 @@ export function AquaFarmDetailPage() {
           </dl>
         </Card>
 
-        <Card title="e-SOP 단계">
+        <Card title="e-SOP 단계" dummy>
           <dl className="flex flex-col gap-2 text-sm">
             <Row label="현재 단계" value={STAGE_LABEL[farm.level]} />
             <Row label="권고 조치" value={RECOMMENDED_ACTION[farm.level]} />
@@ -101,14 +101,14 @@ export function AquaFarmDetailPage() {
         </Card>
       </div>
 
-      <Card title="위치 및 영향 범위">
+      <Card title="위치 및 영향 범위" dummy>
         <div className="flex h-56 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
           양식장 GIS 지도 — 위험 반경 및 저염분수 유입 경로 오버레이 (2단계 상세 구현 예정)
         </div>
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <Card title="저염분수 예측">
+        <Card title="저염분수 예측" dummy>
           <dl className="flex flex-col gap-2 text-sm">
             <Row label="예측 염분 농도" value={farm.salinity ? `${farm.salinity} psu (임계 26.0 psu)` : "영향 없음"} />
             <Row label="경보 등급" value={salinityGrade} />
@@ -116,7 +116,7 @@ export function AquaFarmDetailPage() {
             <Row label="위성 관측 일치" value="일치 (2026-09-03)" />
           </dl>
         </Card>
-        <Card title="고수온 예측">
+        <Card title="고수온 예측" dummy>
           <dl className="flex flex-col gap-2 text-sm">
             <Row
               label="현재 수온"
@@ -128,7 +128,7 @@ export function AquaFarmDetailPage() {
         </Card>
       </div>
 
-      <Card title="예측·실측 시계열 비교" subtitle="72시간 기준">
+      <Card title="예측·실측 시계열 비교" subtitle="72시간 기준" dummy>
         <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
           저염분수 농도 및 수온 시계열 그래프 — 예측값(점선)·실측값(실선)
         </div>

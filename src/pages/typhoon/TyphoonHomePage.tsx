@@ -29,7 +29,7 @@ export function TyphoonHomePage() {
         <p className="mt-1 text-sm text-white/50">{typhoonSource.note}</p>
       </div>
 
-      <Card title="접근 위치 — 태풍 GIS" subtitle="기상청 발표 기준 접근 방향(자체 관측망 없음 — 상징적 표시)">
+      <Card title="접근 위치 — 태풍 GIS" subtitle="기상청 발표 기준 접근 방향(자체 관측망 없음 — 상징적 표시)" dummy>
         <div className="relative h-96 w-full overflow-hidden rounded-lg">
           <JejuTileMap markers={TYPHOON_MARKERS} className="relative h-full w-full" />
         </div>
@@ -42,7 +42,7 @@ export function TyphoonHomePage() {
         </div>
       </Card>
 
-      <Card title={latest.name} subtitle={`발표 ${latest.issuedAt}`}>
+      <Card title={latest.name} subtitle={`발표 ${latest.issuedAt}`} dummy>
         <div className="flex flex-wrap items-center gap-3">
           <RiskBadge level={STATUS_LEVEL[latest.status]} label={latest.status} solid />
           <p className="text-sm text-white/70">{latest.location}</p>
@@ -109,7 +109,7 @@ export function TyphoonHomePage() {
         <WarningsPanel wrnCodes={["T"]} />
       </Card>
 
-      <Card title="발표 이력" subtitle="기상청 발표 시각 역순">
+      <Card title="발표 이력" subtitle="기상청 발표 시각 역순" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {typhoonReports.map((report) => (
             <li key={report.id} className="flex items-center justify-between gap-3 py-3 text-sm">

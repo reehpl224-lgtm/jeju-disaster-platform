@@ -44,7 +44,7 @@ export function ReportDetailPage() {
         </div>
       </div>
 
-      <Card title="종료 사건 요약">
+      <Card title="종료 사건 요약" dummy>
         <RiskBadge level={record.level} label={record.levelLabel} solid />
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Field label="위험 유형" value={record.domainLabel} />
@@ -58,7 +58,7 @@ export function ReportDetailPage() {
         </div>
       </Card>
 
-      <Card title="사건 타임라인">
+      <Card title="사건 타임라인" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {timeline.map((t) => (
             <li key={t.time} className="flex flex-wrap items-center gap-3 py-2.5 text-sm">
@@ -73,7 +73,7 @@ export function ReportDetailPage() {
         </ul>
       </Card>
 
-      <Card title="e-SOP 단계 및 담당자 승인 이력">
+      <Card title="e-SOP 단계 및 담당자 승인 이력" dummy>
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs text-white/35">
@@ -98,7 +98,7 @@ export function ReportDetailPage() {
         </table>
       </Card>
 
-      <Card title="기관 공조 및 현장 조치 결과">
+      <Card title="기관 공조 및 현장 조치 결과" dummy>
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs text-white/35">
@@ -123,7 +123,7 @@ export function ReportDetailPage() {
         </table>
       </Card>
 
-      <Card title="첨부 증빙 및 보고서 미리보기">
+      <Card title="첨부 증빙 및 보고서 미리보기" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
           {attachments.map((att) => (
             <li key={att.id} className="flex items-center justify-between py-2.5 text-sm">
