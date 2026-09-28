@@ -1303,7 +1303,16 @@ h1, h2, h3, p { margin: 0; }
 /* 탭 전환(data-tabs) — 선택 안 된 패널은 숨김 */
 [data-tabpanel][hidden] { display: none !important; }
 .panel__scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: 4px; }
-.panel .tabs { flex-wrap: wrap; row-gap: 0; }
+/* 패널 폭이 좁아 탭이 다 안 들어가면 줄바꿈 대신 한 줄을 유지하고 좌우로 스와이프(스크롤) */
+.panel .tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.panel .tabs::-webkit-scrollbar { display: none; }
+.panel .tabs button { flex: 0 0 auto; white-space: nowrap; }
 
 /* ---------- 패널 필터 (타임라인) ---------- */
 .pfilters { display: flex; flex-direction: column; gap: 6px; padding-bottom: 10px; border-bottom: 1px solid var(--foreground-ghost); }
