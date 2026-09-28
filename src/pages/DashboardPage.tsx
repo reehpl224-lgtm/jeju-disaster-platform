@@ -782,6 +782,7 @@ function CctvView() {
             <p className="content__sub">
               3개 실증 서비스 확정 대상지 카메라 + 도심 대표 카메라 · 영상 스트림은 백엔드 연동 전이라 표시하지 않음
             </p>
+            <p className="content__sub">{cctvCoverageSummary.retentionNote}</p>
           </div>
         </div>
         <div className="coverage">

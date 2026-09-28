@@ -43,10 +43,15 @@ type TargetTag = { label: string; href?: string }
 
 /** 어떤 서비스/메뉴에 이 데이터가 들어가는지 — AGENTS.md·mockDashboard aiInsights·incidentLog 등에 실제로 근거가 있는 연결만 표기 */
 const LEGACY_TARGETS: Record<(typeof legacySystems)[number]["id"], TargetTag[]> = {
-  "ls-1": [{ label: "호우", href: "/heavy-rain" }],
+  "ls-ews": [{ label: "호우", href: "/heavy-rain" }],
+  "ls-flood-mgmt": [{ label: "호우", href: "/heavy-rain" }],
+  "ls-rain-alert": [{ label: "호우", href: "/heavy-rain" }],
+  "ls-flood-warn": [{ label: "호우", href: "/heavy-rain" }],
+  "ls-river-mon": [{ label: "하천범람", href: "/river" }],
+  "ls-river-flow": [{ label: "하천범람", href: "/river" }],
+  "ls-sgp-rain": [{ label: "호우", href: "/heavy-rain" }],
   "ls-2": [{ label: "공통(총괄)", href: "/dashboard" }],
   "ls-3": [{ label: "상황전파·보고체계", href: "/propagation" }],
-  "ls-4": [{ label: "호우", href: "/heavy-rain" }],
   "ls-5": [{ label: "상황전파·보고체계", href: "/propagation" }],
   "ls-6": [{ label: "기타" }],
   "ls-7": [{ label: "통합 대시보드(CCTV 통합조회)", href: "/dashboard" }],
@@ -135,7 +140,7 @@ export function DataSystemPage() {
 
       <Card
         title="레거시 시스템 연계 현황"
-        subtitle="레거시시스템 현황 조사 면담(2026-09-07) 기준 — 실제 연계 진행 상태 · 배지는 이 데이터가 반영되는 서비스"
+        subtitle="레거시시스템 현황 조사 면담(2026-09-07) + 1차년도 사용 가능 레거시 데이터 현황 문서(2026-09-28) 기준 — 실제 연계 진행 상태 · 배지는 이 데이터가 반영되는 서비스"
       >
         <ul className="flex flex-col divide-y divide-border-subtle">
           {legacySystems.map((system) => (

@@ -124,6 +124,8 @@ export interface CctvCoverageSummary {
   itsLinkedCount: number
   itsTotalCount: number
   representativeCount: number
+  /** 원본 영상 보관 제약 — "1차년도 사용 가능 레거시 데이터 현황" 문서(2026-09-28) 근거 */
+  retentionNote: string
 }
 
 /** 상황 전파 단계 — 도청 → 시 상황실 → 읍면동 순차 전파의 단계별 도달 시각 */
