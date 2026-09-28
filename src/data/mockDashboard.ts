@@ -48,6 +48,9 @@ export const riskMarkers: RiskMarker[] = [
   { id: "daejeong-ilgwa", name: "대정 일과", x: 60, y: 240, level: "caution", domain: "aqua", temperature: "24.5°C", salinity: "29.7 psu", lat: 33.221, lng: 126.252 },
   // weatherStations(mockHeavyRain.ts) ws-1 "경보 발령"과 반드시 같은 등급을 쓸 것
   { id: "hancheon", name: "한천 침수경보", x: 145, y: 80, level: "alert", domain: "heavyRain", lat: 33.499, lng: 126.520 },
+  // weatherStations(mockHeavyRain.ts) ws-3·ws-4 우량계와 반드시 같은 등급·실측값을 쓸 것 — 2026-09-28 지도에 미표시였던 것 추가
+  { id: "jeju-raingauge-3", name: "제주시 우량계 #3", x: 155, y: 65, level: "warning", domain: "heavyRain", value: "62mm/h", lat: 33.512, lng: 126.542 },
+  { id: "seogwipo-raingauge-2", name: "서귀포 우량계 #2", x: 165, y: 205, level: "caution", domain: "heavyRain", value: "48mm/h", lat: 33.254, lng: 126.560 },
   // typhoonReports(mockTyphoon.ts) 최신 발표(ty-1) "태풍경보"와 반드시 같은 등급을 쓸 것.
   // 실제 좌표는 "북서 방향 접근"(mockDashboard.ts aiInsights 문구) 기준 제주 북서쪽 해상에 상징적으로 배치 — 정밀 관측값 아님
   { id: "typhoon-kroban", name: "제24호 크로반", x: 300, y: 265, level: "alert", domain: "typhoon", lat: 34.05, lng: 125.95 },
