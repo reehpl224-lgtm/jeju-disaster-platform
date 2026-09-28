@@ -1,5 +1,5 @@
 export const COAST_NAV = [
-  { to: "/coast", label: "연안 관제", end: true },
+  { to: "/coast", label: "홈", end: true },
   { to: "/coast/data", label: "데이터 수집" },
   { to: "/coast/events", label: "위험 이벤트" },
   { to: "/coast/alerts", label: "경보 승인" },
