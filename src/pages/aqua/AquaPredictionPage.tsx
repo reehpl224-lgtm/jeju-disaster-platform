@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { aquaFarms, aquaModelConfidence, aquaQualityMetrics, aquaRiskState } from "../../data/mockAqua"
+import { aquaFarms, aquaKhoaEnhancementReview, aquaModelConfidence, aquaQualityMetrics, aquaRiskState } from "../../data/mockAqua"
 import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
 import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
@@ -76,6 +76,31 @@ export function AquaPredictionPage() {
           </ul>
         </Card>
       </div>
+
+      <Card title="KHOA 실측 기반 AI 보강 가능성 검토" subtitle={aquaKhoaEnhancementReview.feasible} dummy>
+        <p className="text-sm text-white/80">{aquaKhoaEnhancementReview.summary}</p>
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold text-risk-safe">바로 활용 가능</p>
+            <ul className="mt-1.5 flex flex-col gap-1.5 text-xs text-white/60">
+              {aquaKhoaEnhancementReview.usable.map((u) => (
+                <li key={u}>· {u}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-risk-warning">한계</p>
+            <ul className="mt-1.5 flex flex-col gap-1.5 text-xs text-white/60">
+              {aquaKhoaEnhancementReview.limited.map((l) => (
+                <li key={l}>· {l}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <p className="mt-3 rounded-lg border border-accent/30 bg-accent-soft px-3 py-2 text-xs text-accent">
+          실증사 요청 필요: {aquaKhoaEnhancementReview.vendorAsk}
+        </p>
+      </Card>
 
       <Card title="영향 양식장 목록 (미리보기)" dummy action={<Link to="/aqua/farms" className="text-xs font-semibold text-white/50 hover:text-accent">전체 양식장 보기 →</Link>}>
         <ul className="flex flex-col divide-y divide-border-subtle">
