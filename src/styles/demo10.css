@@ -1311,7 +1311,8 @@ h1, h2, h3, p { margin: 0; }
 .plist .s { margin-top: 2px; color: var(--foreground-subtle); }
 .plist .time { font-weight: 700; color: var(--foreground-muted); }
 .plist .mt { margin-top: 5px; }
-.pnote { font-size: 11px; font-weight: 600; color: var(--foreground-subtle); margin-bottom: 6px; }
+/* 라벨→콘텐츠 간격을 항목 간 기본 간격(8px, .pbox + .pbox 등)과 맞춤 — 기존 6px는 미세하게 더 좁아 들쭉날쭉했음 */
+.pnote { font-size: 11px; font-weight: 600; color: var(--foreground-subtle); margin-bottom: 8px; }
 .pnote + .plist, .pgroup + .pgroup { margin-top: 0; }
 .pgroup + .pgroup { margin-top: 12px; }
 .pbox { border: 1px solid var(--foreground-ghost); border-radius: .5rem; padding: 10px; background: var(--background-lighter); font-size: 12px; }
