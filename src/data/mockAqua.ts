@@ -144,6 +144,26 @@ export const aquaModelConfidence: AquaModelConfidence[] = [
   { id: "m4", name: "현장 부이 관측", percent: 86 },
 ]
 
+/**
+ * KHOA 실측 기반 AI 보강 가능성 검토(2026-09-28) — 사용자 요청으로 khoaLiveObservations(수온·염분·
+ * 유속)을 ROMS/NEMO 예측 모델 보정에 더 쓸 수 있는지 점검. 유속·유향(currentDirDeg/currentSpeedCms)이
+ * 있는 지점은 제주남부(KG_0021)·제주해협(KG_0028) 2곳뿐인데, 이번 관심 단계 발생 지점(한경 용수)과는
+ * 각각 약 155km·59km 떨어져 있어 확산 방향 추정에 직접 쓰기엔 무리가 있다. 반대로 한경 용수에 가장
+ * 가까운 관측점(모슬포 약 13km·중문 약 24km)은 유속 데이터 자체가 없다 — 지점 배치의 구조적 한계.
+ * 수온·염분 실측(4개소 모두 보유)은 위치와 무관하게 모델 보정 입력으로 바로 쓸 수 있어 구분함.
+ * 상세 근거·실증사 요청안: docs/khoa-ai-prediction-requests.md
+ */
+export const aquaKhoaEnhancementReview = {
+  feasible: "부분 가능",
+  summary: "수온·염분 실측(4개소)은 이미 모델 보정 입력으로 활용 가능 — 유속 기반 확산 방향 정교화는 관측점 위치 한계로 이번 사례엔 직접 적용 어려움",
+  usable: ["KHOA 실측 수온·염분(4개소, 1시간 주기) → ROMS·NEMO 예측치 실시간 편향보정(자료동화) 입력으로 즉시 활용 가능"],
+  limited: [
+    "유속·유향 관측(제주남부·제주해협)은 한경 용수와 각각 약 155km·59km 떨어져 확산 방향 추정에 직접 반영하기 어려움",
+    "한경 용수에서 가장 가까운 관측점(모슬포 약 13km·중문 약 24km)은 유속 데이터가 없음",
+  ],
+  vendorAsk: "지오시스템리서치에 (1) KHOA 실측 자료동화(nudging) 기반 ROMS·NEMO 편향보정 적용 여부, (2) 한경·대정 인근 유속 관측 지점 추가 여부를 문의할 필요가 있음",
+}
+
 export const aquaQualityMetrics: AquaQualityMetric[] = [
   { id: "q1", name: "위성 SST", level: "safe", percent: 98, note: "수신 지연 없음" },
   { id: "q2", name: "해양 부이 수온", level: "safe", percent: 96, note: "국립해양조사원 KHOA API · 최근 수신 09:00" },

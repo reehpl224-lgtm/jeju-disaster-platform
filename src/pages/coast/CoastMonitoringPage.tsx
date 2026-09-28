@@ -5,7 +5,7 @@ import { coastVerification, coastInstallReview } from "../../data/mockMeetingIte
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
-import { coastMonitoringDomains, coastStageCriteria } from "../../data/mockCoast"
+import { coastKhoaEnhancementReview, coastMonitoringDomains, coastStageCriteria } from "../../data/mockCoast"
 import { COAST_COMBINE_RULES, classifyCoastRisk } from "../../data/coastAlertThresholds"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 
@@ -172,8 +172,33 @@ export function CoastMonitoringPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[11px] text-white/30">부이는 외해·해협 지점이라 해수욕장 현장값이 아니며, 조위 정보가 없어 평시로 가정했습니다.</p>
+          <p className="mt-2 text-[11px] text-white/30">부이는 외해·해협 지점이라 해수욕장 현장값이 아니며, 조위는 모슬포 관측치(협재 약 20km·함덕 약 53km 참고용)라 평시로 가정했습니다.</p>
         </div>
+      </Card>
+
+      <Card title="KHOA 실측 기반 AI 보강 가능성 검토" subtitle={coastKhoaEnhancementReview.feasible} dummy>
+        <p className="text-sm text-white/80">{coastKhoaEnhancementReview.summary}</p>
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold text-risk-safe">바로 활용 가능</p>
+            <ul className="mt-1.5 flex flex-col gap-1.5 text-xs text-white/60">
+              {coastKhoaEnhancementReview.usable.map((u) => (
+                <li key={u}>· {u}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-risk-warning">한계</p>
+            <ul className="mt-1.5 flex flex-col gap-1.5 text-xs text-white/60">
+              {coastKhoaEnhancementReview.limited.map((l) => (
+                <li key={l}>· {l}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <p className="mt-3 rounded-lg border border-accent/30 bg-accent-soft px-3 py-2 text-xs text-accent">
+          실증사 요청 필요: {coastKhoaEnhancementReview.vendorAsk}
+        </p>
       </Card>
 
       <PlanItemsCard title="성능 검증 계획" subtitle="모의 상황 연출·시뮬레이션 기반 감지율·미탐률 검증" items={coastVerification} />
