@@ -95,7 +95,7 @@ export function Header({ user }: { user: MockUser }) {
   return (
     <header className="header" ref={wrapRef}>
       <div className="header__brand">
-        <Link to="/dashboard" aria-label="제주 재난 AX" style={{ display: "flex", alignItems: "center" }}>
+        <Link to="/dashboard" aria-label="제주 재난 대응 플랫폼" style={{ display: "flex", alignItems: "center" }}>
           <svg className="header__logo" viewBox="0 0 96 38" fill="none" aria-hidden="true">
             <text x="0" y="27" fontFamily="Pretendard, sans-serif" fontSize="26" fontWeight="800" fill="#fff">
               Je
@@ -106,9 +106,13 @@ export function Header({ user }: { user: MockUser }) {
             <path d="M2 33h68" stroke="var(--quaternary)" strokeWidth="3" strokeLinecap="round" />
             <path d="M74 33h18" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" />
           </svg>
-          <span className="header__title">제주 재난 AX</span>
+          <span className="header__title">제주 재난 대응 플랫폼</span>
         </Link>
-        <p className="header__clock">{clock}</p>
+        <p className="header__clock">
+          {/* 좁은 화면(1280px 미만)에선 날짜를 숨기고 시각만 — demo10.css 헤더 축소 규칙 */}
+          <span className="header__clock-date">{clock.slice(0, 11)}</span>
+          {clock.slice(11)}
+        </p>
         <nav className="header__nav">
           <ul>
             {DASHBOARD_TABS.map((tab) => (

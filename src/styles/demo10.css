@@ -183,6 +183,21 @@ h1, h2, h3, p { margin: 0; }
 
 .header__user { display: flex; align-items: center; gap: .5rem; height: 100%; padding-right: .5rem; }
 .header__user p { padding-right: 1rem; font-weight: 700; }
+
+/* 1280px 미만: 플랫폼 이름("제주 재난 대응 플랫폼")이 길어지고 경보 요약에 관심 단계가 더해지면서 최소 폭(1024px)에서
+   헤더가 넘쳤다 — 시계는 날짜를 숨기고 시각만, 이름·탭·배지 간격을 줄인다(2026-09-28) */
+@media (max-width: 1279px) {
+  .header__title { font-size: 17px; }
+  .header__clock { padding: 0 .625rem; }
+  .header__clock-date { display: none; }
+  .header__nav { padding: 0 .25rem; }
+  .header__nav ul { gap: .25rem; }
+  .header__nav a,
+  .header__nav span { padding: .25rem .625rem; }
+  .header__spacer { margin-right: .5rem; padding-left: .75rem !important; gap: 4px !important; }
+  .header__spacer .risk { padding-left: .4rem; padding-right: .4rem; }
+  .header__user p { padding-right: .5rem; }
+}
 .icon-btn {
   width: 40px; height: 40px;
   display: flex; align-items: center; justify-content: center;

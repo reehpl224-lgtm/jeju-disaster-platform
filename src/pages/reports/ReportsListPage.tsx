@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { incidentRecords, reportsSummary } from "../../data/mockReports"
+import { SCENARIO_NOW } from "../../data/scenarioClock"
 import type { IncidentDomain } from "../../types/reports"
 
 const DOMAIN_FILTERS: { id: IncidentDomain | "all"; label: string }[] = [
@@ -32,12 +33,12 @@ const SORT_OPTIONS = [
 ] as const
 type SortId = (typeof SORT_OPTIONS)[number]["id"]
 
-/** "2026-09-04 17:42 종료" → Date. 이 앱의 기준 "오늘"은 mockDashboard.lastSyncedAt과 동일한 2026-09-04. */
+/** "2026-09-04 17:42 종료" → Date. 기간 필터의 기준 "오늘"은 실제 현재 시각(시나리오 시계가 이력도 함께 옮김) */
 function parseEndedAt(endedAt: string): Date {
   const [datePart, timePart] = endedAt.replace(" 종료", "").split(" ")
-  return new Date(`${datePart}T${timePart}:00`)
+  return new Date(`${datePart}T${timePart}:00+09:00`)
 }
-const REFERENCE_TODAY = new Date("2026-09-04T23:59:59")
+const REFERENCE_TODAY = SCENARIO_NOW
 
 /** "8시간 28분" → 508(분). 정렬용. */
 function parseDurationMinutes(duration: string): number {

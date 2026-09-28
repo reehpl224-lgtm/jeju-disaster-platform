@@ -851,7 +851,7 @@ export function riverConfig(): DomainConfig {
           refLine={{ y: tc.boundaryLevelM, label: `경계 ${tc.boundaryLevelM}m` }}
         />
         <p className="s" style={{ fontSize: 11, marginTop: 4 }}>
-          15:00 이후 예측값 · 다음 만조 {tc.nextHighTide}
+          {tc.series.find((p) => p.predicted)?.time}부터 예측값 · 다음 만조 {tc.nextHighTide}
         </p>
         <p className="pbox" style={{ marginTop: 6 }}>
           {tc.note}

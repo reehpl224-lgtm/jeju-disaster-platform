@@ -107,7 +107,7 @@ export function RiverAnalysisPage() {
           </ResponsiveContainer>
         </div>
         <p className="mt-2 text-[11px] text-white/35">
-          14:30까지 관측값, 이후는 예측값입니다. 상류 돈내코 구간은 조수 영향이 없어 이 연계 차트에서 제외됩니다.
+          {riverTideCorrelation.series.filter((p) => !p.predicted).at(-1)?.time}까지 관측값, 이후는 예측값입니다. 상류 돈내코 구간은 조수 영향이 없어 이 연계 차트에서 제외됩니다.
         </p>
       </Card>
 

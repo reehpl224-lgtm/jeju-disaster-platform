@@ -47,7 +47,7 @@ export function AquaResponsePage() {
           </dl>
         </Card>
 
-        <Card title="진행 단계 요약" subtitle="현재 단계 진입 09:44 · 담당: 최경보 (재난대응1팀)" dummy>
+        <Card title="진행 단계 요약" subtitle={`현재 단계 진입 ${aquaResponseState.detectedAt.slice(11)} · 담당: 최경보 (재난대응1팀)`} dummy>
           <StageTracker stages={aquaStages} />
         </Card>
       </div>

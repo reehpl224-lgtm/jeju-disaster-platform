@@ -102,10 +102,10 @@ export const aquaDataSources: AquaDataSource[] = [
     cycle: "1시간",
     status: "normal",
     qualityScore: 99,
-    note: "data.go.kr 공공API 실연동 완료 (2026-09-09 확인)",
+    note: "data.go.kr 공공API 실연동 완료 (2026.09.09 확인)",
   },
   { id: "s2", name: "위성 (GOCI-II — 해색·저염분 추적)", detail: "해색·염분 추정", updatedAt: "06:20", cycle: "6시간", status: "normal", qualityScore: 93, note: "구름량 8%" },
-  { id: "s3", name: "위성 (SMAP — 해면 염분)", detail: "해면 염분 관측", updatedAt: "08:10", cycle: "1~3일", status: "normal", qualityScore: 90, note: "회의(2026-09-15) 학습 데이터 소스 기준" },
+  { id: "s3", name: "위성 (SMAP — 해면 염분)", detail: "해면 염분 관측", updatedAt: "08:10", cycle: "1~3일", status: "normal", qualityScore: 90, note: "회의(2026.09.15) 학습 데이터 소스 기준" },
   { id: "s4", name: "해양 수치모델 (ROMS)", detail: "해양순환 수치예측 (2020~2025 Hindcast)", updatedAt: "08:00", cycle: "6시간", status: "normal", qualityScore: 96, note: "실증사 발표자료 기준 — 회의록의 RAMS 표기를 ROMS로 정정" },
   { id: "s5", name: "해양 수치모델 (NEMO)", detail: "해양 순환 수치예측", updatedAt: "전일 24:00", cycle: "24시간", status: "delayed", qualityScore: 88, note: "최신 산출물 갱신 지연" },
 ]
@@ -193,7 +193,7 @@ export const aquaFarms: AquaFarm[] = [
     manager: "김○○ (010-****-1234)",
     phone: "010-****-1234",
     area: "2.4 ha",
-    registeredAt: "2019-03-15",
+    registeredAt: "2019.03.15",
   },
 ]
 

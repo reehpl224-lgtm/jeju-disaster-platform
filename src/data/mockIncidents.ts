@@ -13,7 +13,7 @@ import type {
  * 제주 전역의 범재난(호우·강풍·산불 등) 현황을 보여주는 통합 대시보드 보조 섹션용 더미데이터.
  */
 export const disasterDatasetMeta = {
-  datasetName: "제주AX재난관리 플랫폼 더미데이터",
+  datasetName: "제주 재난 대응 플랫폼 더미데이터",
   isDummy: true,
   generatedAt: "2026-09-07T17:00:00+09:00",
 }

@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { scenarioTime } from "../data/scenarioClock"
 import { Card } from "../components/ui/Card"
 import { StatTiles } from "../components/ui/StatTiles"
 import { RiskBadge } from "../components/ui/RiskBadge"
@@ -33,7 +34,7 @@ const API_STATUS_LEVEL: Record<(typeof apiLinks)[number]["status"], "safe" | "ca
 }
 
 export function MonitoringPage() {
-  const [lastSynced, setLastSynced] = useState(monitoringLastSyncedAt)
+  const [lastSynced, setLastSynced] = useState(() => scenarioTime("mockMonitoring", monitoringLastSyncedAt))
   const [refreshing, setRefreshing] = useState(false)
 
   const handleRefresh = () => {

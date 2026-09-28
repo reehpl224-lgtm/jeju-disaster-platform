@@ -33,7 +33,7 @@ export function LoginPage() {
       <div className="w-full max-w-lg rounded-3xl border border-white/20 bg-base p-8 shadow-xl lg:p-16">
         <div className="mb-1 flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-base">🚨</span>
-          <h1 className="text-lg font-bold text-white">재난관리 플랫폼</h1>
+          <h1 className="text-lg font-bold text-white">제주 재난 대응 플랫폼</h1>
         </div>
         <p className="mb-6 text-sm font-medium text-white/50">로그인</p>
 
