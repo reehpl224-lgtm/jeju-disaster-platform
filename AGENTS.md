@@ -543,6 +543,10 @@ warning/caution으로 낮게 표시돼 있었던 것(`mockDashboard.ts`의 `risk
 
 ## 5. 알려진 미해결 이슈 (다음에 손댈 후보)
 
+- **`coastEventDetail.sensorCrossCheck`(`src/data/mockCoast.ts`, "조류 센서 CS-04"·"수온 부이 BU-11")는
+  GIS 지도에 마커가 없음** — 2026-09-28 전 도메인 마커 점검에서 발견. 데이터에 주소·좌표 필드 자체가
+  없어(이름·상태값만 존재) 좌표를 임의로 지어내지 않고 그대로 뒀습니다. **2026-09-28 사용자 확인:
+  위치 확인 불필요, 그대로 둘 것** — 실제 설치 위치가 나중에 확인되기 전까지는 마커 추가하지 마세요.
 - **`/dashboard`의 `GisTimelinePanel`/`GisSidePanel`/`GisIconRail`이 `JejuTileMap`(Leaflet) 뒤에
   가려져 화면에 안 보임**(2026-09-09, 동네예보 탭 추가 작업 중 발견 — SVG→Leaflet 전환 이후
   회귀로 추정, 전환 자체와는 별개 이슈이니 원인 조사 필요). DOM에는 정상 렌더링되고 있어
