@@ -250,8 +250,9 @@ h1, h2, h3, p { margin: 0; }
   width: var(--panel-w);
   height: 100%;
   min-height: 0;
-  padding: 1.5rem;
-  display: flex; flex-direction: column; gap: 1rem;
+  /* 클론 원본은 1.5rem(24px)이지만 이 앱에서는 콘텐츠 대비 여백이 과하게 느껴져 줄임 */
+  padding: 1rem;
+  display: flex; flex-direction: column; gap: .75rem;
   overflow: hidden;
   background: var(--background);
   border: 1px solid var(--foreground-faint);
@@ -1302,7 +1303,19 @@ h1, h2, h3, p { margin: 0; }
 
 /* 탭 전환(data-tabs) — 선택 안 된 패널은 숨김 */
 [data-tabpanel][hidden] { display: none !important; }
-.panel__scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: 4px; }
+.panel__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--foreground-faint) transparent;
+}
+/* 기본 브라우저 스크롤바가 너무 두꺼워 보여서 얇은 형태로 대체(Chrome/Edge 계열) */
+.panel__scroll::-webkit-scrollbar { width: 6px; }
+.panel__scroll::-webkit-scrollbar-track { background: transparent; }
+.panel__scroll::-webkit-scrollbar-thumb { background: var(--foreground-faint); border-radius: 9999px; }
+.panel__scroll::-webkit-scrollbar-thumb:hover { background: var(--foreground-subtle); }
 /* 패널 폭이 좁아 탭이 다 안 들어가면 줄바꿈 대신 한 줄을 유지하고 좌우로 스와이프(스크롤) */
 .panel .tabs {
   flex-wrap: nowrap;
