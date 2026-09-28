@@ -48,7 +48,7 @@ export function AquaMonitoringPage() {
       </div>
 
       <Card
-        title="실시간 해양관측 — 국립해양조사원(KHOA) API"
+        title="해양관측 실측 — 국립해양조사원(KHOA) · 확인 시점 스냅샷"
         subtitle="data.go.kr 공공데이터 실연동 — 정적 프로토타입이라 2026-09-09 확인 시점 스냅샷으로 고정 표시"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">

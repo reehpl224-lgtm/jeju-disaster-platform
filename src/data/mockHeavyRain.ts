@@ -156,6 +156,7 @@ export const heavyRainTopStations: RainfallRankEntry[] = [
 /** 경보 발송 — 한천 침수경보(ws-1, 14:30 발령) 기준 */
 export const heavyRainAlertDispatch: HeavyRainAlertDispatch = {
   stage: "침수경보 발령",
+  level: "alert",
   title: "제주시 한천 침수경보",
   target: "한천 인근 주민 320명",
   targetDetail: "저지대 상가·주택 포함 추가 140명",

@@ -54,6 +54,7 @@ export const typhoonForecastTrack: TyphoonForecastPoint[] = [
 
 export const typhoonAlertDispatch: TyphoonAlertDispatch = {
   stage: "태풍경보 대비 안내",
+  level: "alert",
   title: "제24호 크로반 대비 안내",
   target: "제주 전역 주민",
   targetDetail: "해안가·저지대 우선 안내",

@@ -23,6 +23,7 @@ export const heatTrend: HeatTrendPoint[] = [
 
 export const heatAlertDispatch: HeatAlertDispatch = {
   stage: "폭염주의보 안내",
+  level: "warning",
   title: "제주 전역 폭염주의보 안내",
   target: "제주 전역 주민",
   targetDetail: "무더위쉼터 이용 안내 포함",

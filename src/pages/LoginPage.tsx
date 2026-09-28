@@ -1,9 +1,13 @@
 import { type FormEvent, useState } from "react"
-import { Navigate, useNavigate } from "react-router-dom"
+import { Navigate, useLocation, useNavigate } from "react-router-dom"
 import { getCurrentUser, login } from "../data/mockAuth"
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  // RequireAuth가 넘긴 원래 요청 경로 — 앱 내부 경로("/..."로 시작, "//" 제외)만 허용
+  const requested = (location.state as { from?: unknown } | null)?.from
+  const returnTo = typeof requested === "string" && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/dashboard"
   const existing = getCurrentUser()
   const [orgId, setOrgId] = useState("")
   const [password, setPassword] = useState("")
@@ -11,7 +15,7 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
 
   if (existing) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to={returnTo} replace />
   }
 
   function handleSubmit(e: FormEvent) {
@@ -21,7 +25,7 @@ export function LoginPage() {
       return
     }
     const user = login(orgId.trim())
-    navigate(user.role === "restricted" ? "/403" : "/dashboard", { replace: true })
+    navigate(user.role === "restricted" ? "/403" : returnTo, { replace: true })
   }
 
   return (

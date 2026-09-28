@@ -944,7 +944,7 @@ export function riverConfig(): DomainConfig {
       <Box
         title={dr.target}
         lines={[`도달 예상 ${dr.eta}`, dr.impact, `요청 ${dr.requestedAt} · ${dr.requester}`]}
-        right={<Risk level="alert" label={dr.stage.replace("⚠ ", "")} />}
+        right={<Risk level={dr.level} label={dr.stage.replace("⚠ ", "")} />}
       />
       <Group title="위험 분석" dummy>
         <Checks items={dr.analysis} />
@@ -1212,6 +1212,9 @@ export function aquaConfig(): DomainConfig {
       <Group title="감사 기록" dummy>
         <Tl entries={ad.audit} />
       </Group>
+      {/* e-SOP 대응·실시간 모니터링은 메뉴 없이 "경보 발송" 아래로 묶임(aquaNav.ts의 also) — 여기서 연다 */}
+      <DetailLink to="/aqua/response">e-SOP 대응 상세 화면</DetailLink>
+      <DetailLink to="/aqua/monitoring">실시간 모니터링 상세 화면</DetailLink>
     </>
   )
   const rsp = AQ.aquaResponseState

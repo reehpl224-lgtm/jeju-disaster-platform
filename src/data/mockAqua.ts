@@ -97,7 +97,7 @@ export const aquaDataSources: AquaDataSource[] = [
   {
     id: "s1",
     name: "해양관측부이 (국립해양조사원 KHOA API)",
-    detail: "중문·제주남부·제주해협 3개소 — 실시간 수온·염분",
+    detail: "중문·제주남부·제주해협 3개소 — 수온·염분 (확인 시점 스냅샷)",
     updatedAt: "09:00",
     cycle: "1시간",
     status: "normal",
@@ -117,7 +117,7 @@ export const aquaDataIssues: AquaDataIssue[] = [
 export const aquaActionLog: AquaActionLogEntry[] = [
   { id: "a1", time: "08:52", title: "한경 용수 인근 염분 관심 구간 진입 감지", owner: "시스템 자동 판정", action: "AI 자동 관심 단계 판정 · 담당자 확인 대기", status: "진행 중" },
   { id: "a2", time: "08:40", title: "NEMO 산출물 갱신 지연 감지", owner: "시스템 자동 경고", action: "수치모델 수집 파이프라인 점검 요청", status: "진행 중" },
-  { id: "a3", time: "09:00", title: "해양관측부이 KHOA API 연동 확인", owner: "관리자", action: "실시간 수신 정상 확인 (중문·제주남부·제주해협)", status: "완료" },
+  { id: "a3", time: "09:00", title: "해양관측부이 KHOA API 연동 확인", owner: "관리자", action: "API 수신 정상 확인 (중문·제주남부·제주해협) — 화면은 확인 시점 스냅샷", status: "완료" },
 ]
 
 /**

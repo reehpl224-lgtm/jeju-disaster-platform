@@ -1,3 +1,4 @@
+import type { RiskLevel } from "./domain"
 /**
  * 태풍 정보 — 레거시시스템 현황 조사 면담(2026-09-07) 근거: "태풍 관련 정보는 자체 실측 장비는
  * 없음: 전량 기상청 정보 수신." 호우(침수센서·우량계 등 자체 관측망)와 달리, 태풍은 자체 시스템이
@@ -36,6 +37,8 @@ export interface DispatchChannelResult {
 
 export interface TyphoonAlertDispatch {
   stage: string
+  /** 발령 단계의 위험등급 — 화면 배지 색은 이 값을 따른다(하드코딩 금지) */
+  level: RiskLevel
   title: string
   target: string
   targetDetail: string

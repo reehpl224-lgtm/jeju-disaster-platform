@@ -37,7 +37,8 @@ const ROUTE_LABEL: Record<string, string> = Object.fromEntries(
 // 서비스 카드 id와 도메인 경로("/" + id)가 일치 — 도메인 메뉴 옆에 현재 최고 위험 등급 점을 붙인다
 const domainRisk = new Map(serviceStatusCards.map((card) => [`/${card.id}`, getDominantRiskLevel(card.counts)]))
 
-const RISK_TOTALS = (["danger", "alert", "warning"] as const).map((level) => ({
+// 서비스 카드와 같은 4단계(관심 포함) — 예전엔 관심이 빠져 저염분 관심 3건이 상단 요약에 안 잡혔음
+const RISK_TOTALS = (["danger", "alert", "warning", "caution"] as const).map((level) => ({
   level,
   count: serviceStatusCards.reduce((sum, card) => sum + (card.counts[level] ?? 0), 0),
 }))

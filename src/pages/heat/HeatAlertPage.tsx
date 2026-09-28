@@ -21,7 +21,7 @@ export function HeatAlertPage() {
       </div>
 
       <Card title="발송 대상 및 단계" dummy>
-        <RiskBadge level="warning" label={d.stage} solid />
+        <RiskBadge level={d.level} label={d.stage} solid />
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
           <Field label="발송 대상" value={`${d.target} (${d.targetDetail})`} />
           <Field label="발송 시각" value={d.sentAt} />

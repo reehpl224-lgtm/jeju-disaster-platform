@@ -8,7 +8,10 @@ export const AQUA_NAV = [
   { to: "/aqua/data", label: "데이터 수집" },
   { to: "/aqua/prediction", label: "AI 예측" },
   { to: "/aqua/farms", label: "영향 양식장" },
-  { to: "/aqua/alerts", label: "경보 발송" },
+  // e-SOP 대응·실시간 모니터링은 메뉴에서 뺐지만(아래 주석) "대응 여정" 카드 등으로 여전히 열리므로,
+  // 열렸을 때 사이드바·경로 표시가 비지 않도록 경보 이후 단계인 "경보 발송" 아래로 묶는다(2026-09-28).
+  // e-SOP 대응 메뉴를 복원하면 also에서 두 경로를 빼고 아래 줄을 살리면 된다.
+  { to: "/aqua/alerts", label: "경보 발송", also: ["/aqua/response", "/aqua/monitoring"] },
   // 2026-09-28 사용자 요청으로 메뉴에서 주석 처리 — 화면·라우트(/aqua/response)는 그대로 두었으니
   // 복원할 땐 이 줄만 다시 살리면 됨(navTabs가 AQUA_NAV 기준으로 두 메뉴를 함께 만든다).
   // { to: "/aqua/response", label: "e-SOP 대응", also: ["/aqua/monitoring"] },

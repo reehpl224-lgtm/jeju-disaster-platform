@@ -58,6 +58,8 @@ export interface DispatchChannelResult {
 
 export interface HeavyRainAlertDispatch {
   stage: string
+  /** 발령 단계의 위험등급 — 화면 배지 색은 이 값을 따른다(하드코딩 금지) */
+  level: RiskLevel
   title: string
   target: string
   targetDetail: string
