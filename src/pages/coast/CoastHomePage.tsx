@@ -251,9 +251,9 @@ export function CoastHomePage() {
 
       <Card
         title="실시간 파고 관측 — 기상청 API허브"
-        subtitle="apihub.kma.go.kr 실연동(sea_obs.php) — 매 조회마다 라이브"
+        subtitle="apihub.kma.go.kr 실연동(sea_obs.php) — 함덕·협재 인근 지점만 · 매 조회마다 라이브"
       >
-        <MarineObservationPanel />
+        <MarineObservationPanel stationNames={["협재", "김녕"]} />
       </Card>
 
       <Card title="실시간 풍랑·해일 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)">

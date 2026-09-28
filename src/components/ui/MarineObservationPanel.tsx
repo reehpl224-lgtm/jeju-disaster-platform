@@ -2,8 +2,12 @@ import { useEffect, useState } from "react"
 import { fetchMarineStations } from "../../data/marineApi"
 import type { MarineStation } from "../../types/marineApi"
 
-/** 기상청 API허브 해양관측(sea_obs.php) 실시간 파고·수온 패널 — /coast(연안)용. */
-export function MarineObservationPanel() {
+/**
+ * 기상청 API허브 해양관측(sea_obs.php) 실시간 파고·수온 패널.
+ * stationNames를 주면 제주 인근 8개 지점 중 해당 지점명만 필터링해서 보여준다(예: 연안 실증
+ * 대상지 함덕·협재 인근만). 생략하면 기존처럼 제주 인근 지점 전체를 보여준다(아쿠아·태풍 화면용).
+ */
+export function MarineObservationPanel({ stationNames }: { stationNames?: string[] } = {}) {
   const [stations, setStations] = useState<MarineStation[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -33,14 +37,17 @@ export function MarineObservationPanel() {
     )
   }
 
-  if (!stations || stations.length === 0) {
+  const all = stations ?? []
+  const shown = stationNames ? all.filter((s) => stationNames.includes(s.stnKo)) : all
+
+  if (shown.length === 0) {
     return <p className="py-4 text-center text-xs text-white/40">제주 인근 관측 지점 데이터가 없습니다.</p>
   }
 
   return (
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {stations.map((s) => (
+        {shown.map((s) => (
           <div key={s.stnId} className="rounded-lg border border-border-subtle p-3">
             <p className="text-sm font-semibold text-white/80">{s.stnKo}</p>
             <p className="mt-0.5 text-[11px] text-white/35">지점 {s.stnId}</p>
@@ -53,8 +60,10 @@ export function MarineObservationPanel() {
         ))}
       </div>
       <p className="text-[10px] text-white/25">
-        기상청 API허브(apihub.kma.go.kr) 실연동 — 해양기상부이·파고부이(sea_obs.php). "협재"만 연안 3대
-        실증 대상지와 정확히 일치하고, 나머지는 인근 참고 지점입니다.
+        기상청 API허브(apihub.kma.go.kr) 실연동 — 해양기상부이·파고부이(sea_obs.php).{" "}
+        {stationNames
+          ? '"협재"만 연안 1차년도 실증 대상지와 정확히 일치하고, 나머지는 함덕 인근 참고 지점(관측망 없음)입니다.'
+          : '"협재"만 연안 3대 실증 대상지와 정확히 일치하고, 나머지는 인근 참고 지점입니다.'}
       </p>
     </div>
   )

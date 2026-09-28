@@ -257,6 +257,11 @@ const LIVE_MARINE = (
     <MarineObservationPanel />
   </LiveBlock>
 )
+const LIVE_MARINE_COAST = (
+  <LiveBlock title="실시간 해양관측" note="기상청 API허브 sea_obs — 함덕·협재 인근 지점만">
+    <MarineObservationPanel stationNames={["협재", "김녕"]} />
+  </LiveBlock>
+)
 
 // ================================================================== 호우
 export function heavyRainConfig(): DomainConfig {
@@ -1346,7 +1351,7 @@ export function coastConfig(): DomainConfig {
           </ul>
         ),
       },
-      { key: "live", label: "실시간 연동", content: <Live>{LIVE_MARINE}{liveWarnings(["V", "O", "N"], "실시간 풍랑·해일 특보")}{LIVE_FORECAST}</Live> },
+      { key: "live", label: "실시간 연동", content: <Live>{LIVE_MARINE_COAST}{liveWarnings(["V", "O", "N"], "실시간 풍랑·해일 특보")}{LIVE_FORECAST}</Live> },
     ],
   }
 }
