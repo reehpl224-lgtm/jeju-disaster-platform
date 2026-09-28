@@ -13,6 +13,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("")
   const [otp, setOtp] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
 
   if (existing) {
     return <Navigate to={returnTo} replace />
@@ -70,6 +71,7 @@ export function LoginPage() {
               />
               <button
                 type="button"
+                onClick={() => setNotice("데모 환경이라 OTP는 실제로 발송되지 않습니다 — OTP 칸은 비워 두고 로그인하면 됩니다.")}
                 className="shrink-0 rounded-lg border border-accent px-3 text-xs font-bold text-accent transition hover:bg-accent-soft"
               >
                 OTP 발신
@@ -78,6 +80,11 @@ export function LoginPage() {
           </label>
 
           {error && <p className="text-xs font-medium text-risk-danger">{error}</p>}
+          {notice && (
+            <p role="status" className="rounded-lg border border-border-subtle bg-inset px-3 py-2 text-xs text-white/60">
+              {notice}
+            </p>
+          )}
 
           <button
             type="submit"
@@ -88,6 +95,7 @@ export function LoginPage() {
 
           <button
             type="button"
+            onClick={() => setNotice("비밀번호 초기화는 운영 환경에서 관리자(아래 비상연락망)를 통해 진행합니다 — 데모에선 아무 비밀번호로 로그인할 수 있습니다.")}
             className="rounded-full border border-border-subtle py-2.5 text-sm font-semibold text-white/60 transition hover:bg-inset"
           >
             비밀번호 초기화

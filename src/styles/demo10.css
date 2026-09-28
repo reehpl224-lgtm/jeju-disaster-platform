@@ -380,6 +380,8 @@ h1, h2, h3, p { margin: 0; }
   transition: color .2s, border-color .2s;
 }
 .tabs button[aria-selected="true"] { color: var(--primary); border-bottom-color: var(--primary); }
+/* 선택 상태 탭처럼 보이는 정적 라벨(탭이 하나뿐일 때) */
+.tabs .tabs__static { padding: .5rem .25rem; font-weight: 700; color: var(--primary); border-bottom: 2px solid var(--primary); margin-bottom: -1px; }
 
 /* ---------- 테이블 ---------- */
 .table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -1585,4 +1587,70 @@ h1, h2, h3, p { margin: 0; }
   .jvmap svg { overflow: hidden; user-select: none; }
   .jvmap__reset { position: absolute; right: 12px; bottom: 10px; z-index: 2; padding: 4px 10px; font-size: 11px; border-radius: 9999px; background: var(--background); border: 1px solid var(--foreground-faint); color: var(--foreground); }
   .jvmap__reset:hover { border-color: var(--primary); color: var(--primary); }
+}
+
+/* ==================== 휴대폰(767px 이하) — 2026-09-28 ====================
+   관제 화면은 데스크톱(최소 1024px) 기준이라 폰에선 축소 표시되고 보드 좌측 패널이 지도를 거의 가렸다.
+   데스크톱 레이아웃은 건드리지 않고, 폰에서만 "지도 → 좌측 패널 → 우측 패널 → 서비스 카드"로 세로로 쌓고
+   페이지 전체를 스크롤한다. @layer 밖에 둬서 위의 레이어 규칙보다 우선 적용된다. */
+@media (max-width: 767px) {
+  /* 셸 — 고정 높이·최소 폭을 풀어 페이지가 스크롤되게 */
+  .app { min-width: 0; height: auto; min-height: 100dvh; }
+
+  /* 헤더 — 1줄: 로고·이름 + 알림·메뉴, 2줄: 대시보드 탭(가로 스크롤), 3줄: 경보 요약(가로 스크롤) */
+  .header { position: relative; height: auto; flex-wrap: wrap; row-gap: 4px; padding: 8px 0 6px; }
+  .header__brand { flex: 1 1 100%; flex-wrap: wrap; height: auto; padding-right: 96px; row-gap: 6px; }
+  .header__logo { height: 28px; }
+  .header__title { font-size: 15px; }
+  .header__clock { display: none; }
+  .header__nav { flex: 1 1 100%; overflow-x: auto; padding: 0 .25rem; scrollbar-width: none; }
+  .header__nav ul { flex-wrap: nowrap; }
+  .header__nav a, .header__nav span { white-space: nowrap; padding: .2rem .75rem; }
+  .header__spacer {
+    flex: 1 1 100%; height: auto; margin: 0; border-left: 0; border-radius: 0;
+    padding: 2px .5rem !important; overflow-x: auto; white-space: nowrap; scrollbar-width: none;
+  }
+  .header__user { position: absolute; top: 6px; right: 0; height: auto; }
+  .header__user > p { display: none; }
+
+  /* 보드(GIS·도메인) — 겹쳐 띄우던 오버레이를 세로 흐름으로 */
+  .stage, .stage__main { flex: 0 0 auto; }
+  .stage__main { position: static; }
+  .stage__main > .map { display: none; }
+  .overlay { position: static; display: flex; flex-direction: column; gap: 10px; padding: 10px 8px; pointer-events: auto; }
+  .overlay > .center { order: -1; height: 56vh; min-height: 320px; }
+
+  /* 좌·우 패널 — 전체 폭, 세로 탭 레일은 패널 위 가로 스크롤 탭으로 */
+  .dock, .dock--right, .dock--reserve { width: 100%; height: auto; flex-direction: column-reverse; align-items: stretch; }
+  .dock .panel { width: 100%; height: auto; max-height: 70vh; border-radius: 0 0 1rem 1rem; }
+  .dock > .panel:only-child { border-radius: 1rem; }
+  .rail { width: 100%; max-height: none; flex-direction: row; overflow-x: auto; overflow-y: hidden; padding-top: 0; }
+  .rail button, .rail--dense button {
+    border: 1px solid var(--foreground-faint) !important; border-bottom: 0 !important;
+    border-radius: .5rem .5rem 0 0 !important; white-space: nowrap; padding: .4rem .75rem; font-size: 13px;
+  }
+  .rail button[aria-selected="true"] { border-color: var(--primary) !important; }
+  .rail button span { writing-mode: horizontal-tb; }
+  .panel-pill { width: 100%; }
+
+  /* 종합 상황 — 지도 위에 겹치던 지역 카드를 지도 아래로 */
+  .overlay > .center:not(.center--gis) { height: auto; }
+  .regions--wide { display: flex; flex-direction: column; gap: 10px; }
+  .regions--wide > .korea__map { position: static; height: 50vh; min-height: 300px; margin: 0; }
+  .regions--wide > .korea__map .select { position: static; width: 100%; }
+  .regions--wide > .region-col { position: static; width: 100%; max-height: none; padding-top: 0; }
+
+  /* 하단 서비스 카드 — 가로 스크롤 */
+  .strip > ul { overflow-x: auto; scrollbar-width: none; }
+  .strip > ul > li { flex: 0 0 150px; }
+
+  /* 도메인 상세 화면 — 사이드바 메뉴를 위쪽 가로 스크롤 줄로 */
+  .shell { flex-direction: column; gap: 12px; padding: 10px 8px; }
+  .sidebar { width: 100%; }
+  .sidebar__search { padding: .75rem 1rem .25rem; }
+  .tree { display: flex; overflow-x: auto; overflow-y: hidden; }
+  .tree > li > a { white-space: nowrap; border-bottom: 0; padding: .5rem .875rem; }
+  .content { overflow: visible; padding-bottom: 2rem; min-width: 0; }
+  /* 폭이 넓은 표는 페이지 전체를 밀지 않고 표를 감싼 카드 안에서 가로 스크롤 */
+  .content :where(section, div):has(> table) { overflow-x: auto; }
 }

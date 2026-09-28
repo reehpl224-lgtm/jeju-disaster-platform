@@ -67,7 +67,7 @@ const REGIONS = ["제주시", "서귀포시"] as const
 type TabKey = "summary" | "gis" | "cctv"
 
 export function DashboardPage() {
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const raw = params.get("tab")
   const tab: TabKey = raw === "gis" || raw === "cctv" ? raw : "summary"
 
@@ -95,7 +95,7 @@ export function DashboardPage() {
       if (lifted && !showLifted) return false
       if (!lifted && !showIssued) return false
       if (timelineType !== "all" && incident.type !== timelineType) return false
-      if (q && !incident.title.includes(q) && !incident.location.includes(q)) return false
+      if (q && !incident.title.includes(q) && !incident.location.includes(q) && !incident.region.includes(q)) return false
       return true
     })
   }, [timelineType, timelineQuery, showIssued, showLifted])
@@ -135,6 +135,12 @@ export function DashboardPage() {
   const [mapTopRef, mapTopHeight] = useElementHeight<HTMLDivElement>()
   const [stripOpen, setStripOpen] = useState(true)
   const [leftOpen, setLeftOpen] = useState(true)
+  // 요약 수치를 눌렀을 때 좌측 패널(접혀 있으면 펼침)의 해당 탭을 연다 — query를 주면 타임라인 검색어로 걸러 보여줌
+  const openLeftTab = (key: string, query?: string) => {
+    if (query !== undefined) setTimelineQuery(query)
+    setTimelineTab(key)
+    setLeftOpen(true)
+  }
   const [openRegions, setOpenRegions] = useState<string[]>([])
   const [summaryDockTab, setSummaryDockTab] = useState("broadcast")
   const [gisDockTab, setGisDockTab] = useState("timeline")
@@ -375,7 +381,7 @@ export function DashboardPage() {
           className="input"
           value={timelineQuery}
           onChange={(e) => setTimelineQuery(e.target.value)}
-          placeholder="검색 (제목·위치)"
+          placeholder="검색 (제목·위치·지역)"
         />
       </div>
       <p className="date">{timelineDateRange}</p>
@@ -520,11 +526,15 @@ export function DashboardPage() {
             </button>
             {open && (
               <div className="region-card__stats region-card__stats--2">
-                <button type="button">
+                <button type="button" title="담당자 보기" onClick={() => setSummaryDockTab("contact")}>
                   <span className="k">근무(명)</span>
                   <span className="v">{region.members}</span>
                 </button>
-                <button type="button">
+                <button
+                  type="button"
+                  title={`${region.label} 피해접수만 타임라인에서 보기`}
+                  onClick={() => openLeftTab("timeline", region.label)}
+                >
                   <span className="k">피해접수(건)</span>
                   <span className="v warning">{region.incidents.length}</span>
                 </button>
@@ -592,19 +602,20 @@ export function DashboardPage() {
                       <span title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">*</span> 제주도 · 현재 날씨
                     </p>
                     <div className="region-card__stats">
-                      <button type="button">
+                      {/* 날씨 수치를 누르면 좌측 패널의 동네예보(시간별 예보)를 연다 */}
+                      <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">기온</span>
                         <span className="v">{currentWeather.temperatureC}℃</span>
                       </button>
-                      <button type="button">
+                      <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">강수(mm)</span>
                         <span className="v warning">{currentWeather.rainfallMm}</span>
                       </button>
-                      <button type="button">
+                      <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">풍속(m/s)</span>
                         <span className="v">{currentWeather.windSpeedMs}</span>
                       </button>
-                      <button type="button">
+                      <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">습도(%)</span>
                         <span className="v">{currentWeather.humidityPercent}</span>
                       </button>
@@ -639,19 +650,24 @@ export function DashboardPage() {
                       <span title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">*</span> 총 합계 · 제주도 전체
                     </p>
                     <div className="region-card__stats">
-                      <button type="button">
+                      {/* 각 수치를 누르면 그 수치의 근거가 되는 패널·화면을 연다 */}
+                      <button type="button" title="담당자 보기" onClick={() => setSummaryDockTab("contact")}>
                         <span className="k">근무(명) · 출동 {dispatchedTeams}팀</span>
                         <span className="v">{totalDutyMembers}</span>
                       </button>
-                      <button type="button">
+                      <button type="button" title="GIS 상황에서 위험 위치 보기" onClick={() => setParams({ tab: "gis" })}>
                         <span className="k">위험자산(건)</span>
                         <span className="v danger">{totalActiveRisk}</span>
                       </button>
-                      <button type="button">
+                      <button
+                        type="button"
+                        title="타임라인 보기"
+                        onClick={() => openLeftTab("timeline", "")}
+                      >
                         <span className="k">피해접수(건)</span>
                         <span className="v warning">{disasterIncidents.length}</span>
                       </button>
-                      <button type="button">
+                      <button type="button" title="상황전파 보기" onClick={() => setSummaryDockTab("broadcast")}>
                         <span className="k">상황전파 연결</span>
                         <span className="v safe">
                           {connectedAgencies}/{agencyStatuses.length}
@@ -760,10 +776,9 @@ function CctvView() {
             />
           </div>
         </div>
+        {/* 탭이 하나뿐인 제목 줄 — 누를 동작이 없어 버튼이 아닌 정적 라벨로 둔다 */}
         <div className="tabs">
-          <button type="button" aria-selected="true">
-            분야
-          </button>
+          <span className="tabs__static">분야</span>
         </div>
         <ul className="tree">
           {CCTV_DOMAIN_FILTERS.map((f) => {

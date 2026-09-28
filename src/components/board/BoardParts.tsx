@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { useId, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { useDragScroll } from "../../hooks/useDragScroll"
 import type { RiskLevel } from "../../types/domain"
@@ -49,9 +49,10 @@ export function SideTabsDock({
 }) {
   const active = tabs.find((t) => t.key === activeKey) ?? tabs[0]
   const panelSide = rail === "right" ? "left" : "right"
+  const panelId = `${useId()}-panel`
   return (
     <aside className={`dock ${panelSide === "left" ? "dock--left" : "dock--right"}`}>
-      <section className={`panel panel--${panelSide}`}>
+      <section className={`panel panel--${panelSide}`} id={panelId} role="tabpanel" aria-label={active?.label}>
         <div className="panel__head">
           <h2 className="panel__title">
             {active?.dummy && (
@@ -68,14 +69,17 @@ export function SideTabsDock({
       </section>
       <div className={`rail rail--${rail}${dense ? " rail--dense" : ""}`} role="tablist" aria-orientation="vertical">
         {tabs.map((tab) => (
+          // 세로쓰기(writing-mode) 글자는 보조기기가 이름을 못 읽는 경우가 있어 aria-label로 이름을 명시한다
           <button
             key={tab.key}
             type="button"
             role="tab"
+            aria-label={tab.label}
+            aria-controls={panelId}
             aria-selected={tab.key === active?.key}
             onClick={() => onSelect(tab.key)}
           >
-            <span>{tab.label}</span>
+            <span aria-hidden>{tab.label}</span>
           </button>
         ))}
       </div>
