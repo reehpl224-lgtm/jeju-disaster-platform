@@ -9,6 +9,8 @@ import { TyphoonNameListPanel } from "../../components/ui/TyphoonNameListPanel"
 import { TyphoonNowPanel } from "../../components/ui/TyphoonNowPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 const TYPHOON_MARKERS = riskMarkers.filter((m) => m.domain === "typhoon")
 
@@ -40,6 +42,10 @@ export function TyphoonHomePage() {
           <RiskBadge level="warning" />
           <RiskBadge level="safe" />
         </div>
+      </Card>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.typhoon} />
       </Card>
 
       <Card title={latest.name} subtitle={`발표 ${latest.issuedAt}`} dummy>

@@ -10,6 +10,8 @@ import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { heatLevelInfo, heatRouteTips, heatShelters } from "../../data/mockHeat"
 import { riskMarkers } from "../../data/mockDashboard"
 import type { HeatShelter } from "../../types/heat"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 const HEAT_MARKERS = riskMarkers.filter((m) => m.domain === "heat")
 // 폭염은 무더위쉼터(자산현황) 외 센서·담당자·전파 데이터가 없어 레일에 asset만 노출
@@ -81,6 +83,10 @@ export function HeatHomePage() {
           <RiskBadge level="caution" />
           <RiskBadge level="safe" />
         </div>
+      </Card>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.heat} />
       </Card>
 
       <Card title="현재 폭염 위기단계" subtitle={`${heatLevelInfo.criteria} · 갱신 ${heatLevelInfo.updatedAt}`} dummy>
