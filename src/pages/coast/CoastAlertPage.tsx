@@ -19,6 +19,7 @@ export function CoastAlertPage() {
 
       <Card title="승인 대기 이벤트" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
+          {pending.length === 0 && <li className="py-3 text-sm text-white/40">승인 대기 이벤트 없음 — 평시 감시 중</li>}
           {pending.map((event) => (
             <li key={event.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
               <div className="flex items-center gap-2">

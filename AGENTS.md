@@ -652,6 +652,15 @@ nav[1..]]로 구성. 메뉴 라벨·순서를 바꿀 땐 **`xxxNav.ts`만 고치
 종료 보고이고, 서비스 고유 메뉴(영향 양식장·현장 통제·출동 요청·현장 공조 등)는 서비스마다 달라도
 됩니다(사용자 확인).
 
+같은 날 이어서 **메뉴 기능도 맞춤**(사용자 선택: 연결 동작 + 내용 통일, 버튼 동작은 상세 화면에만).
+① 보드의 모든 "상세 화면 →"(`PanelParts`의 `DetailLink`)은 이름 붙은 창 `DETAIL_WINDOW`
+(`jeju-ax-detail`)에서 열려 보드 창은 그대로 남고 상세 창 하나만 재사용됩니다 — 창 재사용이 깨지므로
+여기에 `rel="noopener"`를 붙이지 마세요. 상세 창의 사이드바는 그 창 안에서만 이동합니다(새 창 없음).
+② 보드 탭 요약은 **해당 상세 화면의 구역 구성을 그대로 따라야** 합니다 — 상세 화면에 구역을 추가하면
+`domainConfigs.tsx`의 같은 경로 탭에도 같은 데이터로 요약을 넣으세요. 두 화면이 같은 목록을 보여줄
+땐 변수 하나로 만들어 여러 탭에서 재사용합니다(`stationList`·`sensorList`·`reportHistory`·
+`khoaReview`·`coastKhoaReview`).
+
 ## 5. 알려진 미해결 이슈 (다음에 손댈 후보)
 
 - **`coastEventDetail.sensorCrossCheck`(`src/data/mockCoast.ts`, "조류 센서 CS-04"·"수온 부이 BU-11")는

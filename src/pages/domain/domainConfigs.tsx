@@ -18,6 +18,16 @@ import * as AQ from "../../data/mockAqua"
 import * as CO from "../../data/mockCoast"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { dataSourcesByService, type ServiceDataSources } from "../../data/mockDataSourceCategories"
+import {
+  aquaPlannedData,
+  coastAlertChannels,
+  coastInstallReview,
+  coastSmsRelay,
+  coastVerification,
+  riverFieldAlertGoal,
+  type PlanItem,
+} from "../../data/mockMeetingItems"
+import { COAST_COMBINE_RULES } from "../../data/coastAlertThresholds"
 import { AQUA_NAV } from "../aqua/aquaNav"
 import { COAST_NAV } from "../coast/coastNav"
 import { HEAT_NAV } from "../heat/heatNav"
@@ -99,6 +109,39 @@ function DataSources({ s }: { s: ServiceDataSources }) {
         </Group>
       ))}
     </>
+  )
+}
+
+/** 착수보고회 회의록 기반 계획·검토 항목(PlanItemsCard와 같은 데이터) — 실측값이 아니라 진행 상태만 */
+function Plans({ items }: { items: PlanItem[] }) {
+  return (
+    <ul className="plist">
+      {items.map((p) => (
+        <li key={p.id}>
+          <div className="row-between">
+            <span className="t">{p.title}</span>
+            <St text={p.status} lv={p.level} />
+          </div>
+          <p className="s">{p.detail}</p>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** 위험단계 기준표(TP-P22_002) — 상세 화면의 상태 구간 표와 같은 데이터 */
+function StageCriteria({ rows }: { rows: { level: RiskLevel; label: string; cells: string[] }[] }) {
+  return (
+    <ul className="plist">
+      {rows.map((r) => (
+        <li key={r.label}>
+          <div className="row-between">
+            <Risk level={r.level} label={r.label} />
+          </div>
+          <p className="s">{r.cells.join(" · ")}</p>
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -322,6 +365,22 @@ const LIVE_MARINE_COAST = (
 // ================================================================== 호우
 export function heavyRainConfig(): DomainConfig {
   const f = HR.heavyRainAiForecast
+  // 대시보드·상세 분석·데이터 수집 상세 화면이 모두 보여주는 관측소 목록 — 세 탭에서 같이 쓴다
+  const stationList = (
+    <ul className="plist">
+      {HR.weatherStations.map((s) => (
+        <li className="row-between" key={s.id}>
+          <div>
+            <p className="t">{s.name}</p>
+            <p className="s">
+              {s.type} · {s.updatedAt}
+            </p>
+          </div>
+          <Risk level={s.status} label={s.value} />
+        </li>
+      ))}
+    </ul>
+  )
   const home = (
     <>
       <Box title={`예보 ${f.forecastMm}mm/h 대비 실측 초과`} lines={[`감지 ${f.detectedAt}`]} right={<Risk level="warning" label="AI 조기경고" />} />
@@ -340,19 +399,7 @@ export function heavyRainConfig(): DomainConfig {
       </p>
       <Note tone="caution">{f.confirmNote}</Note>
       <Group title="관측소 현황" dummy>
-        <ul className="plist">
-          {HR.weatherStations.map((s) => (
-            <li className="row-between" key={s.id}>
-              <div>
-                <p className="t">{s.name}</p>
-                <p className="s">
-                  {s.type} · {s.updatedAt}
-                </p>
-              </div>
-              <Risk level={s.status} label={s.value} />
-            </li>
-          ))}
-        </ul>
+        {stationList}
       </Group>
       <Group title="재해문자전광판·자동음성 송출" dummy>
         <Tl entries={HR.broadcastLog.map((b) => ({ time: b.time, title: `[${b.channel}] ${b.message}` }))} />
@@ -383,6 +430,13 @@ export function heavyRainConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
+      <Group title="AI 조기경보 근거" dummy>
+        <p className="pbox">{f.aiNote}</p>
+        <Note tone="caution">{f.confirmNote}</Note>
+      </Group>
+      <Group title="관측망 근거 데이터" dummy>
+        {stationList}
+      </Group>
     </>
   )
   const ad = HR.heavyRainAlertDispatch
@@ -406,7 +460,14 @@ export function heavyRainConfig(): DomainConfig {
       </>
     ),
     tabs: navTabs(HEAVY_RAIN_NAV, home, {
-      "/heavy-rain/data": <DataSources s={dataSourcesByService.heavyRain} />,
+      "/heavy-rain/data": (
+        <>
+          <DataSources s={dataSourcesByService.heavyRain} />
+          <Group title="관측소 수집 현황" dummy>
+            {stationList}
+          </Group>
+        </>
+      ),
       "/heavy-rain/analysis": analysis,
       "/heavy-rain/alert": <Dispatch d={ad} />,
       "/heavy-rain/closure": <Closure c={HR.heavyRainClosure} />,
@@ -442,9 +503,25 @@ export function typhoonConfig(): DomainConfig {
   const rp = TY.typhoonReports
   const cur = rp[0]
   const trk = TY.typhoonForecastTrack
+  const typLevel = (status: string): RiskLevel => (status === "태풍경보" ? "alert" : status === "태풍주의보" ? "warning" : "caution")
+  // 대시보드·경로 분석 상세 화면이 모두 보여주는 기상청 발표 이력 — 두 탭에서 같이 쓴다
+  const reportHistory = (
+    <Group title="발표 이력" dummy>
+      <ul className="plist">
+        {rp.map((r) => (
+          <li className="row-between" key={r.id}>
+            <span>
+              {r.issuedAt.slice(5)} · {r.location}
+            </span>
+            <Risk level={typLevel(r.status)} label={r.status} />
+          </li>
+        ))}
+      </ul>
+    </Group>
+  )
   const home = (
     <>
-      <Box title={cur.name} lines={[cur.location, `발표 ${cur.issuedAt}`]} right={<Risk level="alert" label={cur.status} />} />
+      <Box title={cur.name} lines={[cur.location, `발표 ${cur.issuedAt}`]} right={<Risk level={typLevel(cur.status)} label={cur.status} />} />
       <Kv
         items={[
           { k: "이동 속도", v: `${cur.speedKmh}km/h` },
@@ -458,6 +535,7 @@ export function typhoonConfig(): DomainConfig {
         <br />
         <span className="s">연계: {TY.typhoonSource.relatedLegacySystem}</span>
       </p>
+      {reportHistory}
       <Group title="해양관측부이 (KHOA)">
         <Buoys />
       </Group>
@@ -489,17 +567,9 @@ export function typhoonConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
-      <Group title="발표 이력" dummy>
-        <ul className="plist">
-          {rp.map((r) => (
-            <li className="row-between" key={r.id}>
-              <span>
-                {r.issuedAt.slice(5)} · {r.location}
-              </span>
-              <Risk level={r.status === "태풍경보" ? "alert" : r.status === "태풍주의보" ? "warning" : "caution"} label={r.status} />
-            </li>
-          ))}
-        </ul>
+      {reportHistory}
+      <Group title="관련 레거시 시스템">
+        <p className="pbox">{TY.typhoonSource.relatedLegacySystem}</p>
       </Group>
     </>
   )
@@ -519,7 +589,18 @@ export function typhoonConfig(): DomainConfig {
       </>
     ),
     tabs: navTabs(TYPHOON_NAV, home, {
-      "/typhoon/data": <DataSources s={dataSourcesByService.typhoon} />,
+      "/typhoon/data": (
+        <>
+          <DataSources s={dataSourcesByService.typhoon} />
+          <Group title="관측망 현황">
+            <p className="pbox">
+              {TY.typhoonSource.note}
+              <br />
+              <span className="s">연계 레거시: {TY.typhoonSource.relatedLegacySystem}</span>
+            </p>
+          </Group>
+        </>
+      ),
       "/typhoon/analysis": analysis,
       "/typhoon/alert": <Dispatch d={TY.typhoonAlertDispatch} />,
       "/typhoon/closure": <Closure c={TY.typhoonClosure} />,
@@ -631,7 +712,18 @@ export function heatConfig(): DomainConfig {
       </>
     ),
     tabs: navTabs(HEAT_NAV, home, {
-      "/heat/data": <DataSources s={dataSourcesByService.heat} />,
+      "/heat/data": (
+        <>
+          <DataSources s={dataSourcesByService.heat} />
+          <Group title="관측망 현황">
+            <p className="pbox">
+              자체 실측 장비 없음 — 기상청 폭염특보·단기예보를 그대로 표출합니다.
+              <br />
+              <span className="s">무더위쉼터 위치·정원은 데이터 소스가 아닌 자산현황이라 별도 관리 — 대시보드 탭 참고</span>
+            </p>
+          </Group>
+        </>
+      ),
       "/heat/analysis": analysis,
       "/heat/alert": <Dispatch d={d} />,
       "/heat/closure": <Closure c={HT.heatClosure} />,
@@ -728,6 +820,22 @@ export function riverConfig(): DomainConfig {
       <RelatedCams domain="river" />
     </>
   )
+  // 상황 분석·데이터 수집 상세 화면이 같이 보여주는 수위 센서 목록
+  const sensorList = (
+    <ul className="plist">
+      {RV.riverSensorCheck.map((s) => (
+        <li key={s.id}>
+          <div className="row-between">
+            <span className="t">{s.name}</span>
+            <St text={s.status} />
+          </div>
+          <p className="s">
+            {s.value} · {s.detail}
+          </p>
+        </li>
+      ))}
+    </ul>
+  )
   const tc = RV.riverTideCorrelation
   const im = RV.riverImpact
   const dc = RV.riverDataConfidence
@@ -753,19 +861,7 @@ export function riverConfig(): DomainConfig {
         <Rows pairs={[["면적", im.area], ["인구", im.population], ["시설", im.facilities], ["대피 경로", im.evacuationRoutes]]} />
       </Group>
       <Group title="센서 교차검증" dummy>
-        <ul className="plist">
-          {RV.riverSensorCheck.map((s) => (
-            <li key={s.id}>
-              <div className="row-between">
-                <span className="t">{s.name}</span>
-                <St text={s.status} />
-              </div>
-              <p className="s">
-                {s.value} · {s.detail}
-              </p>
-            </li>
-          ))}
-        </ul>
+        {sensorList}
       </Group>
       <Group title="CCTV 확인" dummy>
         <Rows
@@ -783,6 +879,27 @@ export function riverConfig(): DomainConfig {
         />
         <p className="s" style={{ fontSize: 11 }}>
           {dc.note}
+        </p>
+      </Group>
+      <Group title="위험단계 기준 (TP-P22_002)">
+        <StageCriteria rows={RV.riverStageCriteria.map((c) => ({ level: c.level, label: c.label, cells: [`계획홍수량 ${c.flowRatio}`, c.waterState] }))} />
+      </Group>
+      <Group title="조위 참고 — KHOA 모슬포">
+        <p className="s">
+          {RV.khoaMoseulpoTide.distanceNote} · 최근 {RV.khoaMoseulpoTide.series.at(-1)?.tideLevelCm}cm (
+          {RV.khoaMoseulpoTide.series.at(-1)?.time})
+        </p>
+      </Group>
+      <Group title="레거시 연계 데이터">
+        <Rows
+          pairs={[
+            ["제주시 침수정보센서", `${RV.riverInfra.legacy.jeju}개소`],
+            ["서귀포시 침수정보센서", `${RV.riverInfra.legacy.seogwipo}개소`],
+            ["총 연계 규모", `${RV.riverInfra.legacy.total}개소`],
+          ]}
+        />
+        <p className="s" style={{ fontSize: 11 }}>
+          {RV.riverInfra.legacy.note}
         </p>
       </Group>
     </>
@@ -812,6 +929,12 @@ export function riverConfig(): DomainConfig {
       </Group>
       <Group title="전파 현황" dummy>
         <Rows pairs={RV.riverPropagation.map((p) => [p.channel, <St key={p.channel} text={p.status} lv={p.status.includes("미전달") ? "warning" : "safe"} />] as [string, ReactNode])} />
+      </Group>
+      <Group title="공동 대응 기관" dummy>
+        <Rows pairs={RV.riverJointAgencies.map((j) => [j.agency, <St key={j.id} text={j.status} />] as [string, ReactNode])} />
+      </Group>
+      <Group title="단계별 타임라인" dummy>
+        <Tl entries={RV.riverControlTimeline} />
       </Group>
     </>
   )
@@ -848,9 +971,23 @@ export function riverConfig(): DomainConfig {
       </>
     ),
     tabs: navTabs(RIVER_NAV, home, {
-      "/river/data": <DataSources s={dataSourcesByService.river} />,
+      "/river/data": (
+        <>
+          <DataSources s={dataSourcesByService.river} />
+          <Group title="실측 센서 수집 현황" dummy>
+            {sensorList}
+          </Group>
+        </>
+      ),
       "/river/analysis": analysis,
-      "/river/alert": <Dispatch d={RV.riverAlertDispatch} />,
+      "/river/alert": (
+        <>
+          <Dispatch d={RV.riverAlertDispatch} />
+          <Group title="현장 직접 경보 목표">
+            <Plans items={riverFieldAlertGoal} />
+          </Group>
+        </>
+      ),
       "/river/control": control,
       "/river/dispatch": disp,
       "/river/closure": <Closure c={RV.riverClosure} />,
@@ -893,6 +1030,13 @@ export function aquaConfig(): DomainConfig {
       ))}
     </ul>
   )
+  // 상세 대시보드·AI 예측 상세 화면이 모두 보여주는 KHOA 보강 검토 — 두 탭에서 같이 쓴다
+  const khoaReview = (
+    <Group title="KHOA 실측 기반 AI 보강 가능성 검토" dummy>
+      <Box title={AQ.aquaKhoaEnhancementReview.summary} lines={AQ.aquaKhoaEnhancementReview.usable} right={<Risk level="safe" label={AQ.aquaKhoaEnhancementReview.feasible} />} />
+      <Note tone="caution">실증사 요청 필요: {AQ.aquaKhoaEnhancementReview.vendorAsk}</Note>
+    </Group>
+  )
   const home = (
     <>
       <Kv
@@ -920,10 +1064,7 @@ export function aquaConfig(): DomainConfig {
       <Group title="감시 대상" dummy>
         <Rows pairs={[["해역", s.targetArea], ["공간 해상도", s.spatialResolution], ["AI 라벨", s.aiLabels.join(" · ")]]} />
       </Group>
-      <Group title="KHOA 실측 기반 AI 보강 가능성 검토" dummy>
-        <Box title={AQ.aquaKhoaEnhancementReview.summary} lines={AQ.aquaKhoaEnhancementReview.usable} right={<Risk level="safe" label={AQ.aquaKhoaEnhancementReview.feasible} />} />
-        <Note tone="caution">실증사 요청 필요: {AQ.aquaKhoaEnhancementReview.vendorAsk}</Note>
-      </Group>
+      {khoaReview}
       <RelatedCams domain="aqua" />
     </>
   )
@@ -999,6 +1140,7 @@ export function aquaConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
+      {khoaReview}
     </>
   )
   const ft = AQ.aquaFarmTotals
@@ -1155,10 +1297,25 @@ export function aquaConfig(): DomainConfig {
   )
   // 2026-09-28: 모든 서비스에 "데이터 수집" 메뉴가 생기면서 데이터 수집은 별도 탭으로 분리, AI 예측은 단독 탭.
   // e-SOP 대응+실시간 모니터링은 계속 한 탭(aquaNav.ts의 also) — 모니터링 상세 화면으로 가는 링크는 본문에 둔다.
+  const normalSources = AQ.aquaDataSources.filter((x) => x.status === "normal").length
   const dataTab = (
     <>
       <DataSources s={dataSourcesByService.aqua} />
+      <Group title="수집 상태" dummy>
+        <Kv
+          items={[
+            { k: "전체 소스", v: `${AQ.aquaDataSources.length}개` },
+            { k: "정상 수집", v: `${normalSources}개` },
+            { k: "지연·누락·오류", v: `${AQ.aquaDataSources.length - normalSources}개` },
+            { k: "데이터 품질 점수", v: `${s.dataQuality.percent}%` },
+          ]}
+          over={["지연·누락·오류"]}
+        />
+      </Group>
       <Group title="수집 대상별 데이터 소스">{data}</Group>
+      <Group title="연계 예정 데이터">
+        <Plans items={aquaPlannedData} />
+      </Group>
     </>
   )
   const responseTab = (
@@ -1213,6 +1370,13 @@ export function aquaConfig(): DomainConfig {
 // ================================================================== 연안 안전관리
 export function coastConfig(): DomainConfig {
   const s = CO.coastSummary
+  // 상세 대시보드·현장 모니터링 상세 화면이 모두 보여주는 KHOA 보강 검토 — 두 탭에서 같이 쓴다
+  const coastKhoaReview = (
+    <Group title="KHOA 실측 기반 AI 보강 가능성 검토" dummy>
+      <Box title={CO.coastKhoaEnhancementReview.summary} lines={CO.coastKhoaEnhancementReview.usable} right={<Risk level="warning" label={CO.coastKhoaEnhancementReview.feasible} />} />
+      <Note tone="caution">실증사 요청 필요: {CO.coastKhoaEnhancementReview.vendorAsk}</Note>
+    </Group>
+  )
   const home = (
     <>
       <Kv
@@ -1229,10 +1393,7 @@ export function coastConfig(): DomainConfig {
           <Box key={a.id} title={a.title} lines={[a.basis, a.match]} right={<Risk level={a.level} />} />
         ))}
       </Group>
-      <Group title="KHOA 실측 기반 AI 보강 가능성 검토" dummy>
-        <Box title={CO.coastKhoaEnhancementReview.summary} lines={CO.coastKhoaEnhancementReview.usable} right={<Risk level="warning" label={CO.coastKhoaEnhancementReview.feasible} />} />
-        <Note tone="caution">실증사 요청 필요: {CO.coastKhoaEnhancementReview.vendorAsk}</Note>
-      </Group>
+      {coastKhoaReview}
       <Group title="현장 경보" dummy>
         <ul className="plist">
           {CO.coastFieldAlerts.map((f) => (
@@ -1313,15 +1474,25 @@ export function coastConfig(): DomainConfig {
       <Group title="센서 교차검증" dummy>
         <Rows pairs={d.sensorCrossCheck.map((x) => [x.name, <St key={x.id} text={x.status} lv={x.status === "정상" ? "safe" : "warning"} />] as [string, ReactNode])} />
       </Group>
+      <Group title="위험도 변화 타임라인" dummy>
+        <Tl entries={d.timeline} />
+      </Group>
+      <Group title="기관 공조 상태" dummy>
+        <Rows pairs={d.agencyStatus.map((a) => [a.agency, <St key={a.id} text={a.status} />] as [string, ReactNode])} />
+      </Group>
       <Group title="현장 조치" dummy>
         <Rows pairs={[["출동", d.fieldActions.dispatch], ["통제", d.fieldActions.control], ["경보", d.fieldActions.alert]]} />
       </Group>
     </>
   )
+  // 경보 발송 상세 화면 구성: 승인 대기 이벤트 → 선택 이벤트 AI 판단 근거 → 현장 경보 채널
+  const pending = CO.coastEvents.filter((e) => e.status === "미확인")
   const alerts = (
     <>
+      <p className="pnote">승인 대기 이벤트</p>
       <ul className="plist">
-        {CO.coastEvents.map((e) => (
+        {pending.length === 0 && <li className="pempty">승인 대기 이벤트 없음 — 평시 감시 중</li>}
+        {pending.map((e) => (
           <li key={e.id}>
             <div className="row-between">
               <span className="t">
@@ -1338,11 +1509,17 @@ export function coastConfig(): DomainConfig {
           </li>
         ))}
       </ul>
-      <Group title="선택 이벤트 경과" dummy>
-        <Tl entries={d.timeline} />
+      <Group title="선택 이벤트 — AI 판단 근거" dummy>
+        <Rows
+          pairs={[
+            ["이벤트", d.id],
+            ["이안류 위험", `${d.ripCurrentRisk.value} · ${d.ripCurrentRisk.confidence}`],
+            ["영상 탐지", `${d.detection.class} · ${d.detection.confidence}`],
+          ]}
+        />
       </Group>
-      <Group title="기관 상태" dummy>
-        <Rows pairs={d.agencyStatus.map((a) => [a.agency, <St key={a.id} text={a.status} />] as [string, ReactNode])} />
+      <Group title="현장 경보 채널">
+        <Plans items={coastAlertChannels} />
       </Group>
     </>
   )
@@ -1379,6 +1556,9 @@ export function coastConfig(): DomainConfig {
         />
       </Group>
       <Note tone="caution">{dp.fallback}</Note>
+      <Group title="관계 기관 SMS 전파">
+        <Plans items={coastSmsRelay} />
+      </Group>
     </>
   )
   const monitor = (
@@ -1396,6 +1576,19 @@ export function coastConfig(): DomainConfig {
       </ul>
       <Group title="해양관측부이 (KHOA)">
         <Buoys />
+      </Group>
+      <Group title="위험단계 기준 (TP-P22_002)">
+        <StageCriteria rows={CO.coastStageCriteria.map((c) => ({ level: c.level, label: c.label, cells: [`파고 ${c.waveHeight}`, `풍속 ${c.windSpeed}`, c.tide] }))} />
+      </Group>
+      <Group title="지표 결합 규칙 (임의 설정 — 공식 기준 확정 시 수정)">
+        <Checks items={COAST_COMBINE_RULES} />
+      </Group>
+      {coastKhoaReview}
+      <Group title="성능 검증 계획">
+        <Plans items={coastVerification} />
+      </Group>
+      <Group title="설치·장비 사전 검토">
+        <Plans items={coastInstallReview} />
       </Group>
     </>
   )
@@ -1416,7 +1609,26 @@ export function coastConfig(): DomainConfig {
       </>
     ),
     tabs: navTabs(COAST_NAV, home, {
-      "/coast/data": <DataSources s={dataSourcesByService.coast} />,
+      "/coast/data": (
+        <>
+          <DataSources s={dataSourcesByService.coast} />
+          <Group title="AIoT 스마트폴 수집 현황" dummy>
+            <ul className="plist">
+              {CO.coastSafetyAssets.map((a) => (
+                <li key={a.id}>
+                  <div className="row-between">
+                    <span className="t">{a.name}</span>
+                    <St text={a.status} />
+                  </div>
+                  <p className="s">
+                    {a.location} · {a.detail}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </Group>
+        </>
+      ),
       "/coast/events": detail,
       "/coast/alerts": alerts,
       "/coast/dispatch": dispatch,

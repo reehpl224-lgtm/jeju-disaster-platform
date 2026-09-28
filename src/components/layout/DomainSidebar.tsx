@@ -54,12 +54,12 @@ export function DomainSidebar({ domain }: { domain: NonNullable<ReturnType<typeo
           const underGrouped = item.also?.some((p) => underPath(pathname, p)) ?? false
           return (
             <li key={item.to}>
-              {/* "상세 대시보드"는 GIS 보드를 보면서 동시에 열어두고 싶은 경우가 많아 새 창으로 연다(2026-09-28) */}
+              {/* 사이드바는 상세 화면 창 안에만 있으므로 모든 메뉴가 그 창 안에서 이동한다 —
+                  보드에서 상세 창을 여는 쪽(PanelParts의 DetailLink)이 창 분리를 담당(2026-09-28) */}
               <NavLink
                 to={item.to}
                 end={item.end ?? isDashboardDetail}
                 className={({ isActive }) => (isActive || underGrouped ? "active" : undefined)}
-                {...(isDashboardDetail ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               >
                 <span>{item.label}</span>
               </NavLink>

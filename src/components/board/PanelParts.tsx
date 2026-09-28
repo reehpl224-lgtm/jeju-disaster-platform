@@ -142,19 +142,17 @@ export function Note({ children, tone }: { children: ReactNode; tone?: "warning"
   )
 }
 
+/** 상세 화면 전용 창 이름 — 보드의 모든 "상세 화면 →"이 이 창 하나를 재사용한다(여러 창이 쌓이지 않게) */
+export const DETAIL_WINDOW = "jeju-ax-detail"
+
 /**
  * 앱 하위 화면(기존 상세 페이지)으로 가는 링크 — 승인·발송 등 동작은 그 화면에서 한다.
- * newTab이 true면 새 창(탭)으로 연다 — "대시보드 상세 화면"처럼 GIS 보드를 보면서 동시에
- * 열어두고 싶은 화면에 씀(2026-09-28 사용자 요청).
+ * GIS 보드는 그대로 두고 상세 화면 창(DETAIL_WINDOW)에서 연다(2026-09-28). 이름 붙은 창을 재사용하려면
+ * rel="noopener"를 붙이면 안 된다(새 창으로 분리돼 버림) — 같은 출처 앱 내부 링크라 문제없다.
  */
-export function DetailLink({ to, children, newTab }: { to: string; children: ReactNode; newTab?: boolean }) {
+export function DetailLink({ to, children }: { to: string; children: ReactNode }) {
   return (
-    <Link
-      className="plink"
-      to={to}
-      style={{ display: "block", marginTop: 14 }}
-      {...(newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-    >
+    <Link className="plink" to={to} target={DETAIL_WINDOW} style={{ display: "block", marginTop: 14 }}>
       {children} →
     </Link>
   )
