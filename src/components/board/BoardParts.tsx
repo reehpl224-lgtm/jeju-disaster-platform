@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
+import { useDragScroll } from "../../hooks/useDragScroll"
 import type { RiskLevel } from "../../types/domain"
 import { riskStyles } from "../ui/riskStyles"
 
@@ -86,10 +87,21 @@ export function HorizontalTabsDock({
   onSelect: (key: string) => void
 }) {
   const active = tabs.find((t) => t.key === activeKey) ?? tabs[0]
+  const drag = useDragScroll<HTMLDivElement>()
   return (
     <aside className="dock dock--right">
       <section className="panel panel--right" style={{ borderRadius: "1rem" }}>
-        <div className="tabs" role="tablist">
+        <div
+          className="tabs"
+          role="tablist"
+          ref={drag.ref}
+          onPointerDown={drag.onPointerDown}
+          onPointerMove={drag.onPointerMove}
+          onPointerUp={drag.onPointerUp}
+          onPointerLeave={drag.onPointerLeave}
+          onPointerCancel={drag.onPointerCancel}
+          onClickCapture={drag.onClickCapture}
+        >
           {tabs.map((tab) => (
             <button
               key={tab.key}

@@ -1313,6 +1313,9 @@ h1, h2, h3, p { margin: 0; }
 }
 .panel .tabs::-webkit-scrollbar { display: none; }
 .panel .tabs button { flex: 0 0 auto; white-space: nowrap; }
+/* 마우스로 눌러 좌우로 끄는 스와이프(useDragScroll)가 있다는 표시 */
+.panel .tabs { cursor: grab; }
+.panel .tabs:active { cursor: grabbing; }
 
 /* ---------- 패널 필터 (타임라인) ---------- */
 .pfilters { display: flex; flex-direction: column; gap: 6px; padding-bottom: 10px; border-bottom: 1px solid var(--foreground-ghost); }

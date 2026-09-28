@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react"
 import { useElementHeight } from "../hooks/useElementHeight"
+import { useDragScroll } from "../hooks/useDragScroll"
 import { Link, useSearchParams } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { DutyContactPanel } from "../components/ui/DutyContactPanel"
@@ -83,6 +84,7 @@ export function DashboardPage() {
   const [showIssued, setShowIssued] = useState(true)
   const [showLifted, setShowLifted] = useState(true)
   const [timelineTab, setTimelineTab] = useState("timeline")
+  const timelineTabsDrag = useDragScroll<HTMLDivElement>()
 
   const incidentTypes = useMemo(() => Array.from(new Set(disasterIncidents.map((i) => i.type))), [])
 
@@ -567,7 +569,7 @@ export function DashboardPage() {
                     </svg>
                   </button>
                 </div>
-                <div className="tabs" role="tablist">
+                <div className="tabs" role="tablist" ref={timelineTabsDrag.ref} onPointerDown={timelineTabsDrag.onPointerDown} onPointerMove={timelineTabsDrag.onPointerMove} onPointerUp={timelineTabsDrag.onPointerUp} onPointerLeave={timelineTabsDrag.onPointerLeave} onPointerCancel={timelineTabsDrag.onPointerCancel} onClickCapture={timelineTabsDrag.onClickCapture}>
                   {timelineTabs.map((t) => (
                     <button key={t.key} type="button" role="tab" aria-selected={timelineTab === t.key} onClick={() => setTimelineTab(t.key)}>
                       {t.label}
