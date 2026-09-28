@@ -1298,7 +1298,7 @@ h1, h2, h3, p { margin: 0; }
 .plist .mt { margin-top: 5px; }
 .pnote { font-size: 11px; font-weight: 600; color: var(--foreground-subtle); margin-bottom: 6px; }
 .pnote + .plist, .pgroup + .pgroup { margin-top: 0; }
-.pgroup + .pgroup { margin-top: 16px; }
+.pgroup + .pgroup { margin-top: 12px; }
 .pbox { border: 1px solid var(--foreground-ghost); border-radius: .5rem; padding: 10px; background: var(--background-lighter); font-size: 12px; }
 .pbox + .pbox { margin-top: 8px; }
 .pbox .t { font-weight: 600; }
@@ -1317,6 +1317,11 @@ h1, h2, h3, p { margin: 0; }
 .kv-grid .pbox small { display: block; font-size: 10px; color: var(--foreground-subtle); }
 .kv-grid .pbox b { font-size: 15px; }
 .kv-grid .pbox b.over { color: var(--risk-warning); }
+
+/* 패널 안 최상위 섹션(pbox/kv-grid/pgroup/plist/pgoal/plink 등) 사이 간격이 요소 종류마다
+   0~16px로 제각각이라 들쭉날쭉해 보였다 — 하나의 값(12px)으로 통일. 같은 그룹 안의 항목 간
+   간격(.pbox + .pbox 등, 8px)은 섹션 간격보다 좁게 유지해 계층을 구분한다. */
+.panel__scroll > * + * { margin-top: 12px; }
 .chart { margin-top: 12px; }
 .chart svg { width: 100%; height: auto; display: block; }
 .chart .legend-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; font-size: 10px; color: var(--foreground-muted); }
@@ -1472,8 +1477,8 @@ h1, h2, h3, p { margin: 0; }
 
 /* ---------- 제주 도메인 화면 (heavy-rain / typhoon / heat / river / aqua / coast) ---------- */
 .panel__scroll > [data-tabpanel] > .pgroup,
-.panel__scroll > [data-tabpanel] > .pbox + .plist { margin-top: 16px; }
-.panel__scroll .kv-grid + .pbox, .panel__scroll .plist + .pbox { margin-top: 8px; }
+.panel__scroll > [data-tabpanel] > .pbox + .plist { margin-top: 12px; }
+.panel__scroll .kv-grid + .pbox, .panel__scroll .plist + .pbox { margin-top: 12px; }
 /* 탭이 많은 도메인(양식장 8개)은 세로 탭을 촘촘하게 */
 .rail--dense { gap: .125rem; }
 .rail--dense button { padding: .25rem .125rem; font-size: 12px; line-height: 1.15; }
