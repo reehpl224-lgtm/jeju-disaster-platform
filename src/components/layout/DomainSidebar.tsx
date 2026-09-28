@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom"
+import { NavLink, useLocation } from "react-router-dom"
 import { AQUA_NAV } from "../../pages/aqua/aquaNav"
 import { COAST_NAV } from "../../pages/coast/coastNav"
 import { HEAT_NAV } from "../../pages/heat/heatNav"
@@ -10,7 +10,11 @@ interface NavItem {
   to: string
   label: string
   end?: boolean
+  /** 별도 메뉴 없이 이 항목 아래로 묶이는 하위 화면 경로 */
+  also?: string[]
 }
+
+const underPath = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`)
 
 /** 도메인 경로 접두사 → 사이드바 제목·메뉴. items[0]("홈" — 지도 상황판)은 "상세 대시보드"가 새 창으로 열리게 되면서
  *  사이드바에서 주석 처리함(2026-09-28) — 아래 DomainSidebar의 items 구성부 참고 */
@@ -29,6 +33,7 @@ export function findDomain(pathname: string) {
 
 /** 도메인 하위 화면의 좌측 사이드바 — demo-10 클론의 사이드바 + 콘텐츠 틀(.shell / .sidebar / .tree) */
 export function DomainSidebar({ domain }: { domain: NonNullable<ReturnType<typeof findDomain>> }) {
+  const { pathname } = useLocation()
   const items: NavItem[] = [
     // "홈"(GIS 보드) 메뉴 — "상세 대시보드"가 새 창으로 열리게 되면서 필요성이 낮아져 주석 처리(2026-09-28 사용자 요청)
     // domain.items[0],
@@ -46,12 +51,14 @@ export function DomainSidebar({ domain }: { domain: NonNullable<ReturnType<typeo
       <ul className="tree">
         {items.map((item) => {
           const isDashboardDetail = item.to.endsWith("/dashboard")
+          const underGrouped = item.also?.some((p) => underPath(pathname, p)) ?? false
           return (
             <li key={item.to}>
               {/* "상세 대시보드"는 GIS 보드를 보면서 동시에 열어두고 싶은 경우가 많아 새 창으로 연다(2026-09-28) */}
               <NavLink
                 to={item.to}
                 end={item.end ?? isDashboardDetail}
+                className={({ isActive }) => (isActive || underGrouped ? "active" : undefined)}
                 {...(isDashboardDetail ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               >
                 <span>{item.label}</span>
@@ -68,8 +75,9 @@ export function DomainSidebar({ domain }: { domain: NonNullable<ReturnType<typeo
 export function currentLabel(domain: NonNullable<ReturnType<typeof findDomain>>, pathname: string) {
   const all: NavItem[] = [...domain.items, { to: `${domain.prefix}/dashboard`, label: "상세 대시보드" }]
   const hit = all
-    .filter((i) => pathname === i.to || pathname.startsWith(`${i.to}/`))
-    .sort((a, b) => b.to.length - a.to.length)[0]
+    .flatMap((i) => [i.to, ...(i.also ?? [])].map((path) => ({ path, label: i.label })))
+    .filter((c) => underPath(pathname, c.path))
+    .sort((a, b) => b.path.length - a.path.length)[0]
   return hit?.label ?? ""
 }
 

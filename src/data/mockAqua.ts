@@ -60,7 +60,7 @@ export const aquaJourneys = [
   { id: "data", label: "데이터 수집", desc: "전체 5개 소스 · 정상 4 · 지연 1", href: "/aqua/data" },
   { id: "prediction", label: "AI 예측", desc: "관심 1등급 · 예측 신뢰도 87%", href: "/aqua/prediction" },
   { id: "farms", label: "영향 양식장", desc: "3개소 관심권 · 전일 대비 +1개소", href: "/aqua/farms" },
-  { id: "alerts", label: "경보 승인", desc: "관심 단계 · 대외 경보 미발령(내부 점검 중)", href: "/aqua/alerts" },
+  { id: "alerts", label: "경보 발송", desc: "관심 단계 · 대외 경보 미발령(내부 점검 중)", href: "/aqua/alerts" },
   { id: "response", label: "e-SOP 대응", desc: "1단계 관심 · 점검 항목 2건 진행 중", href: "/aqua/response" },
   { id: "monitoring", label: "실시간 모니터링", desc: "표층 수온 24.6℃ · 염분 29.4psu", href: "/aqua/monitoring" },
 ]

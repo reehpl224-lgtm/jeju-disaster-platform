@@ -17,6 +17,13 @@ import * as RV from "../../data/mockRiver"
 import * as AQ from "../../data/mockAqua"
 import * as CO from "../../data/mockCoast"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
+import { dataSourcesByService, type ServiceDataSources } from "../../data/mockDataSourceCategories"
+import { AQUA_NAV } from "../aqua/aquaNav"
+import { COAST_NAV } from "../coast/coastNav"
+import { HEAT_NAV } from "../heat/heatNav"
+import { HEAVY_RAIN_NAV } from "../heavyrain/heavyRainNav"
+import { RIVER_NAV } from "../river/riverNav"
+import { TYPHOON_NAV } from "../typhoon/typhoonNav"
 
 /**
  * 도메인 화면 6종의 클론 프레임 내용 — demo-10-clone/jeju/gen_domains.py를 앱 mock 데이터 직접 참조로 옮긴 것.
@@ -44,6 +51,55 @@ export interface DomainConfig {
   headline: ReactNode
   tabs: DomainTab[]
   right: DomainRightTab[]
+}
+
+/**
+ * 보드 좌측 탭을 도메인 메뉴 목록(xxxNav.ts)에서 만든다 — 상세 화면 사이드바(DomainSidebar)와 같은 목록을
+ * 쓰므로 두 메뉴의 라벨·순서가 다시 어긋나지 않는다(2026-09-28). 첫 탭은 "대시보드"(상세 대시보드 요약),
+ * 이어서 nav[1..]("홈" 제외) 순서 그대로. content는 경로(to)별로 넘긴다.
+ */
+function navTabs(nav: { to: string; label: string }[], home: ReactNode, content: Record<string, ReactNode>): DomainTab[] {
+  const prefix = nav[0].to
+  return [
+    { key: "home", label: "대시보드", to: `${prefix}/dashboard`, content: home },
+    ...nav.slice(1).map((item) => ({
+      key: item.to.slice(prefix.length + 1),
+      label: item.label,
+      to: item.to,
+      content: content[item.to] ?? <p className="s">상세 화면에서 확인하세요.</p>,
+    })),
+  ]
+}
+
+const SOURCE_GROUPS: { key: "available" | "legacy" | "requestable" | "missing"; title: string; lv: RiskLevel }[] = [
+  { key: "available", title: "① 현재 사용 가능", lv: "safe" },
+  { key: "legacy", title: "② 제주 레거시(미적용)", lv: "caution" },
+  { key: "requestable", title: "③ 요청 가능(실증서비스)", lv: "info" },
+  { key: "missing", title: "④ 현재 없는 데이터", lv: "offline" },
+]
+
+/** "데이터 수집" 탭 — 상세 화면(xxxDataPage)의 데이터 출처 4단계 구분을 보드 패널 형식으로 요약 */
+function DataSources({ s }: { s: ServiceDataSources }) {
+  return (
+    <>
+      <Kv items={SOURCE_GROUPS.map((g) => ({ k: g.title.slice(2), v: `${s[g.key].length}건` }))} />
+      {SOURCE_GROUPS.map((g) => (
+        <Group key={g.key} title={g.title}>
+          <ul className="plist">
+            {s[g.key].map((item) => (
+              <li key={item.id}>
+                <div className="row-between">
+                  <span className="t">{item.label}</span>
+                  <Risk level={g.lv} label={g.title.slice(0, 1)} />
+                </div>
+                {item.note && <p className="s">{item.note}</p>}
+              </li>
+            ))}
+          </ul>
+        </Group>
+      ))}
+    </>
+  )
 }
 
 // ------------------------------------------------------------------ 공통 조각
@@ -349,12 +405,12 @@ export function heavyRainConfig(): DomainConfig {
         ☔ 예보 <b>{f.forecastMm}mm/h</b> 초과 · 한천 침수센서 경보 발령
       </>
     ),
-    tabs: [
-      { key: "home", label: "대시보드", to: "/heavy-rain/dashboard", content: home },
-      { key: "analysis", label: "상세 분석", to: "/heavy-rain/analysis", content: analysis },
-      { key: "alert", label: "경보 발송", to: "/heavy-rain/alert", content: <Dispatch d={ad} /> },
-      { key: "closure", label: "종료 보고", to: "/heavy-rain/closure", content: <Closure c={HR.heavyRainClosure} /> },
-    ],
+    tabs: navTabs(HEAVY_RAIN_NAV, home, {
+      "/heavy-rain/data": <DataSources s={dataSourcesByService.heavyRain} />,
+      "/heavy-rain/analysis": analysis,
+      "/heavy-rain/alert": <Dispatch d={ad} />,
+      "/heavy-rain/closure": <Closure c={HR.heavyRainClosure} />,
+    }),
     right: [
       { key: "tl", label: "타임라인", content: <Events items={evs} /> },
       {
@@ -462,12 +518,12 @@ export function typhoonConfig(): DomainConfig {
         🌀 <b>{cur.name}</b> · {cur.status} · 제주까지 {trk[0].distanceFromJejuKm}km · 최근접 {trk[3].distanceFromJejuKm}km 예상
       </>
     ),
-    tabs: [
-      { key: "home", label: "대시보드", to: "/typhoon/dashboard", content: home },
-      { key: "analysis", label: "경로 분석", to: "/typhoon/analysis", content: analysis },
-      { key: "alert", label: "대비 발령", to: "/typhoon/alert", content: <Dispatch d={TY.typhoonAlertDispatch} /> },
-      { key: "closure", label: "종료 보고", to: "/typhoon/closure", content: <Closure c={TY.typhoonClosure} /> },
-    ],
+    tabs: navTabs(TYPHOON_NAV, home, {
+      "/typhoon/data": <DataSources s={dataSourcesByService.typhoon} />,
+      "/typhoon/analysis": analysis,
+      "/typhoon/alert": <Dispatch d={TY.typhoonAlertDispatch} />,
+      "/typhoon/closure": <Closure c={TY.typhoonClosure} />,
+    }),
     right: [
       { key: "tl", label: "기상청 발표", content: <Events items={evs} /> },
       { key: "buoy", label: "해양 관측", content: <Buoys /> },
@@ -574,12 +630,12 @@ export function heatConfig(): DomainConfig {
         🔆 <b>{li.label}</b> · 체감온도 {li.feelsLikeC}℃ ({li.updatedAt} 기준)
       </>
     ),
-    tabs: [
-      { key: "home", label: "대시보드", to: "/heat/dashboard", content: home },
-      { key: "analysis", label: "특보 현황", to: "/heat/analysis", content: analysis },
-      { key: "alert", label: "안내 발송", to: "/heat/alert", content: <Dispatch d={d} /> },
-      { key: "closure", label: "해제 보고", to: "/heat/closure", content: <Closure c={HT.heatClosure} /> },
-    ],
+    tabs: navTabs(HEAT_NAV, home, {
+      "/heat/data": <DataSources s={dataSourcesByService.heat} />,
+      "/heat/analysis": analysis,
+      "/heat/alert": <Dispatch d={d} />,
+      "/heat/closure": <Closure c={HT.heatClosure} />,
+    }),
     right: [
       { key: "tl", label: "타임라인", content: <Events items={evs} /> },
       {
@@ -605,6 +661,9 @@ export function heatConfig(): DomainConfig {
 
 // ================================================================== 하천범람
 export function riverConfig(): DomainConfig {
+  // 상단 헤드라인은 가장 위험한 지점 기준 — 예전엔 "효돈천(쇠소깍) 3단계 · 심각"이 하드코딩돼 평시 리셋 후에도 남아 있었음
+  const RANK: RiskLevel[] = ["safe", "caution", "warning", "alert", "danger"]
+  const worstRiver = [...RV.riverStatuses].sort((a, b) => RANK.indexOf(b.level) - RANK.indexOf(a.level))[0]
   const rb = RV.riverRiskBasis
   const sr = RV.riverSuddenRainAlert
   const tg = RV.riverTarget
@@ -782,17 +841,20 @@ export function riverConfig(): DomainConfig {
     mapDomain: "river",
     headline: (
       <>
-        🏞️ <b>효돈천(쇠소깍) 3단계 · 심각</b> — 수위 {rb.waterLevel.value} ({rb.waterLevel.detail})
+        🏞️ <b>
+          {worstRiver.name} {worstRiver.stage}
+        </b>{" "}
+        — 수위 {rb.waterLevel.value} ({rb.waterLevel.detail})
       </>
     ),
-    tabs: [
-      { key: "home", label: "대시보드", to: "/river/dashboard", content: home },
-      { key: "analysis", label: "상황 분석", to: "/river/analysis", content: analysis },
-      { key: "alert", label: "경보 발송", to: "/river/alert", content: <Dispatch d={RV.riverAlertDispatch} /> },
-      { key: "control", label: "현장 통제", to: "/river/control", content: control },
-      { key: "dispatch", label: "출동 요청", to: "/river/dispatch", content: disp },
-      { key: "closure", label: "종료 보고", to: "/river/closure", content: <Closure c={RV.riverClosure} /> },
-    ],
+    tabs: navTabs(RIVER_NAV, home, {
+      "/river/data": <DataSources s={dataSourcesByService.river} />,
+      "/river/analysis": analysis,
+      "/river/alert": <Dispatch d={RV.riverAlertDispatch} />,
+      "/river/control": control,
+      "/river/dispatch": disp,
+      "/river/closure": <Closure c={RV.riverClosure} />,
+    }),
     right: [
       { key: "tl", label: "타임라인", content: <Events items={evs} /> },
       {
@@ -1091,14 +1153,12 @@ export function aquaConfig(): DomainConfig {
       </Group>
     </>
   )
-  // 2026-09-28: 호우·태풍·하천범람처럼 6개 탭으로 통합 재구성 — 데이터 수집+AI 예측 → "상황 분석",
-  // e-SOP 대응+실시간 모니터링 → "e-SOP 대응". 각 원래 상세 화면은 병합된 탭 안에 순서대로 배치하고,
-  // 두 번째 상세 화면으로 가는 링크를 본문 중간에 별도로 넣어 접근성을 유지한다.
-  const analysisTab = (
+  // 2026-09-28: 모든 서비스에 "데이터 수집" 메뉴가 생기면서 데이터 수집은 별도 탭으로 분리, AI 예측은 단독 탭.
+  // e-SOP 대응+실시간 모니터링은 계속 한 탭(aquaNav.ts의 also) — 모니터링 상세 화면으로 가는 링크는 본문에 둔다.
+  const dataTab = (
     <>
-      <Group title="데이터 수집 현황">{data}</Group>
-      <DetailLink to="/aqua/data">데이터 수집 상세 화면</DetailLink>
-      <Group title="AI 예측 결과">{pred}</Group>
+      <DataSources s={dataSourcesByService.aqua} />
+      <Group title="수집 대상별 데이터 소스">{data}</Group>
     </>
   )
   const responseTab = (
@@ -1118,14 +1178,14 @@ export function aquaConfig(): DomainConfig {
         🌡️ <b>{rs.level}</b> · {rs.headline} · 신뢰도 {rs.confidence}%
       </>
     ),
-    tabs: [
-      { key: "home", label: "대시보드", to: "/aqua/dashboard", content: home },
-      { key: "analysis", label: "상황 분석", to: "/aqua/prediction", content: analysisTab },
-      { key: "farms", label: "영향 양식장", to: "/aqua/farms", content: farms },
-      { key: "alert", label: "경보 발송", to: "/aqua/alerts", content: alert },
-      { key: "response", label: "e-SOP 대응", to: "/aqua/response", content: responseTab },
-      { key: "closure", label: "종료 보고", to: "/aqua/closure", content: clos },
-    ],
+    tabs: navTabs(AQUA_NAV, home, {
+      "/aqua/data": dataTab,
+      "/aqua/prediction": pred,
+      "/aqua/farms": farms,
+      "/aqua/alerts": alert,
+      "/aqua/response": responseTab,
+      "/aqua/closure": clos,
+    }),
     right: [
       { key: "tl", label: "모니터링 이벤트", content: <Events items={evs} /> },
       {
@@ -1355,14 +1415,14 @@ export function coastConfig(): DomainConfig {
         🌊 진행 중 이벤트 <b>{s.activeEvents.count}건</b> · {s.activeEvents.detail} · 미확인 {s.unconfirmedEvents.count}건
       </>
     ),
-    tabs: [
-      { key: "home", label: "대시보드", to: "/coast/dashboard", content: home },
-      { key: "events", label: "위험 이벤트", to: "/coast/events", content: detail },
-      { key: "alerts", label: "경보 발송", to: "/coast/alerts", content: alerts },
-      { key: "dispatch", label: "현장 공조", to: "/coast/dispatch", content: dispatch },
-      { key: "monitoring", label: "현장 모니터링", to: "/coast/monitoring", content: monitor },
-      { key: "closure", label: "종료 보고", to: "/coast/closure", content: <Closure c={CO.coastClosure} /> },
-    ],
+    tabs: navTabs(COAST_NAV, home, {
+      "/coast/data": <DataSources s={dataSourcesByService.coast} />,
+      "/coast/events": detail,
+      "/coast/alerts": alerts,
+      "/coast/dispatch": dispatch,
+      "/coast/monitoring": monitor,
+      "/coast/closure": <Closure c={CO.coastClosure} />,
+    }),
     right: [
       { key: "tl", label: "이벤트", content: <Events items={evs} /> },
       {

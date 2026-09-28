@@ -146,7 +146,7 @@ export function CoastHomePage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="GIS 연안 위험 지도" subtitle="지도 기준시각 14:30" className="xl:col-span-2" dummy>
+        <Card title="GIS 연안 위험 지도" subtitle={`지도 기준시각 ${coastSummary.lastUpdated}`} className="xl:col-span-2" dummy>
           <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
             <JejuTileMap markers={coastMarkers} cctvMarkers={COAST_CCTV} className="relative h-full w-full" />
             <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
