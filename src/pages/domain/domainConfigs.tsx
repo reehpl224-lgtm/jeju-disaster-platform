@@ -641,9 +641,17 @@ export function riverConfig(): DomainConfig {
         <Box
           title={`예보 ${sr.forecastMm}mm → 실측 ${sr.observedMm}mm`}
           lines={[`감지 ${sr.detectedAt} · ${sr.trendNote}`, sr.aiNote]}
-          right={<Risk level="danger" label="초과" />}
+          right={<Risk level={sr.level} label={sr.label} />}
         />
         <Note tone="caution">{sr.confirmNote}</Note>
+      </Group>
+      <Group title="수위 추이 조기경보" dummy>
+        <Box
+          title={`6시간 전 ${RV.riverWaterLevelAiForecast.sixHourAgoM}m → 현재 ${RV.riverWaterLevelAiForecast.currentM}m`}
+          lines={[RV.riverWaterLevelAiForecast.trendNote, RV.riverWaterLevelAiForecast.aiNote]}
+          right={<Risk level="safe" label={RV.riverWaterLevelAiForecast.status} />}
+        />
+        <Note tone="caution">{RV.riverWaterLevelAiForecast.confirmNote}</Note>
       </Group>
       <Group title="승인 이력" dummy>
         <Tl entries={RV.riverApprovalHistory} />

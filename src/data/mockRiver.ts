@@ -68,9 +68,31 @@ export const riverSuddenRainAlert = {
   forecastMm: 5,
   observedMm: 4.2,
   detectedAt: "-",
+  level: "safe" as RiskLevel,
+  label: "정상",
   trendNote: "최근 특이 신호 없음 — 예보와 실측이 대체로 일치",
   aiNote: "현재 돌발 강우 패턴이 감지되지 않았습니다. 평시 모니터링을 유지합니다.",
   confirmNote: "최종 단계 상향·경보 발령 여부는 반드시 담당자 확인이 필요합니다 (오경보 리스크 고려).",
+}
+
+/**
+ * 수위 추이 기반 AI 조기경보 — "1차년도(2026년) 사용 가능 레거시 데이터 현황 및 연계 분석" 문서
+ * 근거(2026-09-28 확인): 제주시 자동 침수 경보 시스템(수위 측정 데이터·침수 경보 이력)과 하천
+ * 모니터링시스템(하천 수위 데이터)이 시스템 오픈 시점부터 DB에 계속 누적 중이라고 명시돼 있어,
+ * 이 누적 수위 이력의 상승 기울기를 감시하는 조기경보가 가능하다고 판단해 추가함. 같은 문서 3항
+ * 원칙대로 AI는 "자동 대응 발령"이 아니라 "데이터 분석 기반 조기 알람 + 담당자 최종 승인"까지만
+ * 수행 — riverSuddenRainAlert(돌발 강우 감지)와 같은 원칙이며, 신호원이 강우가 아니라 누적 수위
+ * 이력이라는 점만 다르다. sixHourM/currentM은 mockDashboard.ts의 sixHourSeries·timeSeries
+ * 돈내코수위 값과 반드시 같은 수치를 쓸 것(2026-09-22 리셋값).
+ */
+export const riverWaterLevelAiForecast = {
+  basis: "자동 침수 경보 시스템·하천 모니터링시스템 누적 수위 이력(레거시 DB)",
+  sixHourAgoM: 1.02,
+  currentM: 1.05,
+  trendNote: "6시간간 상승폭 0.03m — 뚜렷한 상승 기울기 없음",
+  status: "조기경보 없음",
+  aiNote: "누적 수위 이력의 상승 기울기를 감시해 관심 단계(계획홍수량 20% 이상) 접근 시 조기 알림만 전달합니다. 최종 판단은 담당자 몫입니다.",
+  confirmNote: "현재 상승 추세 없음 — 담당자 조치 불필요(평시).",
 }
 
 /**

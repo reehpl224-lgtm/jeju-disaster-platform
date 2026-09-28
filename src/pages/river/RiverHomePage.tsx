@@ -22,6 +22,7 @@ import {
   riverStatuses,
   riverSuddenRainAlert,
   riverTarget,
+  riverWaterLevelAiForecast,
 } from "../../data/mockRiver"
 import { riskMarkers } from "../../data/mockDashboard"
 import { cctvCameras } from "../../data/mockCctv"
@@ -181,6 +182,29 @@ export function RiverHomePage() {
         <Link to="/river/analysis" className="mt-3 inline-block text-xs font-bold text-accent">
           상황 분석에서 근거 데이터 자세히 보기 →
         </Link>
+      </Card>
+
+      <Card
+        title="AI 예측 — 수위 추이 조기경보"
+        subtitle={riverWaterLevelAiForecast.trendNote}
+        dummy
+      >
+        <div className="flex flex-wrap items-center gap-4">
+          <div>
+            <p className="text-[11px] font-medium text-white/40">6시간 전 수위</p>
+            <p className="mt-1 text-lg font-bold text-white/70">{riverWaterLevelAiForecast.sixHourAgoM}m</p>
+          </div>
+          <span className="text-xl text-white/30">→</span>
+          <div>
+            <p className="text-[11px] font-medium text-white/40">현재 수위</p>
+            <p className="mt-1 text-lg font-bold text-white/70">{riverWaterLevelAiForecast.currentM}m</p>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-risk-safe bg-risk-safe-bg px-3 py-1 text-xs font-bold text-risk-safe">
+            {riverWaterLevelAiForecast.status}
+          </span>
+        </div>
+        <p className="mt-3 text-xs text-white/50">{riverWaterLevelAiForecast.aiNote}</p>
+        <p className="mt-1 text-[11px] text-white/30">근거: {riverWaterLevelAiForecast.basis}</p>
       </Card>
 
       <Card>
