@@ -1340,9 +1340,9 @@ export function coastConfig(): DomainConfig {
       </>
     ),
     tabs: [
-      { key: "home", label: "연안 관제", to: "/coast/dashboard", content: home },
+      { key: "home", label: "대시보드", to: "/coast/dashboard", content: home },
       { key: "events", label: "위험 이벤트", to: "/coast/events", content: detail },
-      { key: "alerts", label: "경보 승인", to: "/coast/alerts", content: alerts },
+      { key: "alerts", label: "경보 발송", to: "/coast/alerts", content: alerts },
       { key: "dispatch", label: "현장 공조", to: "/coast/dispatch", content: dispatch },
       { key: "monitoring", label: "현장 모니터링", to: "/coast/monitoring", content: monitor },
       { key: "closure", label: "종료 보고", to: "/coast/closure", content: <Closure c={CO.coastClosure} /> },
