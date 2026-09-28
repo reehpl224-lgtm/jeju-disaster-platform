@@ -6,8 +6,6 @@ import { StageTracker } from "../../components/aqua/StageTracker"
 import { ChecklistRow } from "../../components/aqua/ChecklistRow"
 import { aquaAgencyRows, aquaChecklist, aquaResponseState, aquaStages } from "../../data/mockAqua"
 import type { AquaChecklistItem } from "../../types/aqua"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function AquaResponsePage() {
   const [checklist, setChecklist] = useState<AquaChecklistItem[]>(aquaChecklist)
@@ -34,10 +32,6 @@ export function AquaResponsePage() {
           실시간 모니터링으로 이동 →
         </Link>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.aqua} />
-      </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="현재 재난 상황" dummy>

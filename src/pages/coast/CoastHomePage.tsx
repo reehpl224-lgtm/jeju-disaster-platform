@@ -23,8 +23,6 @@ import { cctvCameras } from "../../data/mockCctv"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 import { COAST_TYPE_LABEL } from "../../types/coast"
 
 const COAST_CCTV = cctvCameras.filter((c) => c.domain === "coast")
@@ -172,10 +170,6 @@ export function CoastHomePage() {
           </div>
         </Card>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.coast} />
-      </Card>
 
       <Card title="AI 예측 — 판단 근거" subtitle="이안류·해수욕장 위험 AI 모델이 산출한 근거 요약" dummy>
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">

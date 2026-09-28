@@ -7,8 +7,6 @@ import {
   aquaClosureTimeline,
   aquaRetraining,
 } from "../../data/mockAqua"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function AquaClosurePage() {
   return (
@@ -25,10 +23,6 @@ export function AquaClosurePage() {
           AX 컨트롤타워 홈으로 →
         </Link>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.aqua} />
-      </Card>
 
       <Card title="사건 요약" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">

@@ -3,8 +3,6 @@ import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { heavyRainAiForecast, heavyRainTopStations, heavyRainTrend, weatherStations } from "../../data/mockHeavyRain"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function HeavyRainAnalysisPage() {
   return (
@@ -13,10 +11,6 @@ export function HeavyRainAnalysisPage() {
         <h1 className="text-xl font-bold text-white">상세 분석 — 제주시 한천 침수경보</h1>
         <p className="mt-1 text-sm text-white/50">강우 추이 및 관측망 근거 데이터</p>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.heavyRain} />
-      </Card>
 
       <Card title="강우 추이 (시간당·누적)" subtitle={`감지 시각 ${heavyRainAiForecast.detectedAt} 기준`} dummy>
         <div className="h-56 w-full">

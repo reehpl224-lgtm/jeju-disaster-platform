@@ -8,8 +8,6 @@ import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { broadcastLog, heavyRainAiForecast, legacySystems, weatherStations } from "../../data/mockHeavyRain"
 import { riskMarkers } from "../../data/mockDashboard"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 const HEAVY_RAIN_MARKERS = riskMarkers.filter((m) => m.domain === "heavyRain")
 // 호우는 담당자 연락처(DutyContact)·물리 자산현황 데이터가 아직 없어 두 항목은 레일에서 제외
@@ -100,10 +98,6 @@ export function HeavyRainHomePage() {
           <RiskBadge level="caution" />
           <RiskBadge level="safe" />
         </div>
-      </Card>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.heavyRain} />
       </Card>
 
       <Card title="실시간 강풍·호우 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)">

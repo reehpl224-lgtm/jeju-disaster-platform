@@ -4,8 +4,6 @@ import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { coastAlertChannels } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { coastEventDetail, coastEvents } from "../../data/mockCoast"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function CoastAlertPage() {
   const [approved, setApproved] = useState<string | null>(null)
@@ -18,10 +16,6 @@ export function CoastAlertPage() {
         <h1 className="text-xl font-bold text-white">경보 승인</h1>
         <p className="mt-1 text-sm text-white/50">e-SOP 경보 승인 대기 중인 위험 이벤트 검토</p>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.coast} />
-      </Card>
 
       <Card title="승인 대기 이벤트" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
