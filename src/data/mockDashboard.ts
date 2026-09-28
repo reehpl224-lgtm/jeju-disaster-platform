@@ -41,6 +41,9 @@ export const riskMarkers: RiskMarker[] = [
   // coastSummary(mockCoast.ts) 기준 정상 — 2026-09-22 평시 리셋
   { id: "hamdeok", name: "함덕 해수욕장", x: 222, y: 92, level: "safe", domain: "coast", lat: 33.543, lng: 126.670 },
   { id: "hyeopjae", name: "협재 해수욕장", x: 54, y: 140, level: "safe", domain: "coast", lat: 33.394, lng: 126.239 },
+  // coastSafetyAssets(mockCoast.ts) ca1·ca2 함덕 AIoT 스마트폴과 반드시 같은 등급("정상"→safe)을 쓸 것 —
+  // 협재 스마트폴(hyeopjae-smartpole)은 이미 있었는데 함덕 쪽만 지도에 없었음(2026-09-28 확인)
+  { id: "hamdeok-smartpole", name: "함덕 AIoT 스마트폴", x: 224, y: 96, level: "safe", domain: "coast", lat: 33.545, lng: 126.672 },
   // aquaFarms/aquaRiskState(mockAqua.ts) 저염분수 관심 케이스(2026-09-22, 한경 용수 인근)와 일치시킬 것.
   // classifySalinity(marineAlertThresholds.ts) 기준: 30.5→정상, 29.4·29.7→관심(caution)
   { id: "hangyeong-geumdeung", name: "한경 금등", x: 40, y: 125, level: "safe", domain: "aqua", temperature: "24.0°C", salinity: "30.5 psu", lat: 33.322, lng: 126.175 },
@@ -59,6 +62,13 @@ export const riskMarkers: RiskMarker[] = [
   { id: "typhoon-kroban", name: "제24호 크로반", x: 300, y: 265, level: "alert", domain: "typhoon", lat: 34.05, lng: 125.95 },
   // heatLevelInfo(mockHeat.ts) "폭염주의보"(warning)와 반드시 같은 등급을 쓸 것 — heatRouteTips의 "더운 길" 지점
   { id: "sinjeju-hotroute", name: "신제주 로터리(더운 길)", x: 115, y: 100, level: "warning", domain: "heat", lat: 33.489, lng: 126.481 },
+  // heatShelters(mockHeat.ts) 5개소 — 위험 지표가 아니라 시설 위치 안내라 safe(정상)로 표시.
+  // 주소가 동/읍/면 단위까지만 있어 좌표는 해당 행정동 중심의 근사값(2026-09-28 지도에 미표시였던 것 추가)
+  { id: "shelter-hs1", name: "이도1동 경로당", x: 118, y: 96, level: "safe", domain: "heat", lat: 33.5117, lng: 126.5321 },
+  { id: "shelter-hs2", name: "삼도2동 마을회관", x: 112, y: 94, level: "safe", domain: "heat", lat: 33.5137, lng: 126.5177 },
+  { id: "shelter-hs3", name: "한경면 복지회관", x: 38, y: 122, level: "safe", domain: "heat", lat: 33.339, lng: 126.176 },
+  { id: "shelter-hs4", name: "대정읍 경로당", x: 63, y: 238, level: "safe", domain: "heat", lat: 33.226, lng: 126.255 },
+  { id: "shelter-hs5", name: "표선면 마을회관", x: 260, y: 230, level: "safe", domain: "heat", lat: 33.326, lng: 126.834 },
   // 정상(safe) 지점도 지도에 노출 — dashboardSensors(위 참고)에 이미 있는 "정상" 상태 센서 2건을 그대로 재사용
   // (기존 인근 마커와 겹치지 않도록 좌표만 살짝 offset)
   { id: "hyodong-radar", name: "효돈천 AIoT 계측망 #1 (상류)", x: 182, y: 190, level: "safe", domain: "heavyRain", lat: 33.283, lng: 126.580 },
