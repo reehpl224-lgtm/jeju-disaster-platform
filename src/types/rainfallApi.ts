@@ -10,4 +10,8 @@ export interface RainfallStation {
   rain12hMm: number | null
   rainDayMm: number | null
   humidityPercent: number | null
+  /** 10분 평균 풍속(m/s) — nph-aws2_min의 WS10 필드. 순간값(1분, WS1)보다 덜 튀어 대표값으로 채택 */
+  windSpeedMs: number | null
+  /** 10분 평균 풍향(deg, 0~360) — WD10 필드 */
+  windDirDeg: number | null
 }

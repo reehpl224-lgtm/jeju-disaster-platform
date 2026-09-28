@@ -54,6 +54,11 @@ export function RainfallObservationPanel() {
             <p className="mt-1 text-xs text-white/40">
               {s.tempC !== null ? `기온 ${s.tempC}℃` : "기온 -"} · {s.humidityPercent !== null ? `습도 ${s.humidityPercent}%` : "습도 -"}
             </p>
+            <p className="mt-1 text-xs text-white/40">
+              {s.windSpeedMs !== null ? `풍속 ${s.windSpeedMs}m/s` : "풍속 -"}
+              {s.windDirDeg !== null && ` · 풍향 ${s.windDirDeg}°`}
+              <span className="text-white/25"> (10분 평균)</span>
+            </p>
             <p className="mt-1 text-[11px] text-white/35">관측 {formatTm(s.tm)}</p>
           </div>
         ))}

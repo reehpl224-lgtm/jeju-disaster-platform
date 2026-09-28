@@ -6,6 +6,11 @@
  * 효돈천(돈내코·쇠소깍)과 정확히 같은 이름의 AWS 지점은 없음 — 2026-09-09에
  * www.kma.go.kr/cgi-bin/aws/nph-aws_txt_min(지점 목록, 인증키 불필요)로 직접 확인한
  * 가장 가까운 저지대 지점만 참고용으로 씀. 지어낸 지점번호 아님.
+ *
+ * 2026-09-28: 프록시(vercel-proxy/kma-weather-proxy/api/rainfall.ts)가 원래부터 받아오던
+ * 원본 응답에 WD10/WS10(10분 평균 풍향·풍속) 필드가 이미 있었는데 파싱을 안 하고 버리고
+ * 있던 걸 발견해 windSpeedMs/windDirDeg로 추가 노출함 — 새 API 신청이나 지점 조회 없이
+ * 기존에 받아오던 값만 더 꺼내 쓴 것.
  */
 import type { RainfallStation } from "../types/rainfallApi"
 
@@ -49,6 +54,8 @@ export async function fetchRiverReferenceRainfall(): Promise<RainfallStation[]> 
       rain12hMm: toNum(s?.RN12H),
       rainDayMm: toNum(s?.RNDAY),
       humidityPercent: toNum(s?.HM),
+      windSpeedMs: toNum(s?.WS10),
+      windDirDeg: toNum(s?.WD10),
     }
   })
 }
