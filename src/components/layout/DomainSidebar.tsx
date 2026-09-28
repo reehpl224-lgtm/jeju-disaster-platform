@@ -12,7 +12,8 @@ interface NavItem {
   end?: boolean
 }
 
-/** 도메인 경로 접두사 → 사이드바 제목·메뉴. 첫 항목("대시보드"/"홈")은 지도 상황판, 그 아래에 기존 상세 대시보드를 둔다 */
+/** 도메인 경로 접두사 → 사이드바 제목·메뉴. items[0]("홈" — 지도 상황판)은 "상세 대시보드"가 새 창으로 열리게 되면서
+ *  사이드바에서 주석 처리함(2026-09-28) — 아래 DomainSidebar의 items 구성부 참고 */
 const DOMAINS: { prefix: string; title: string; icon: string; items: NavItem[] }[] = [
   { prefix: "/heavy-rain", title: "호우", icon: "☔", items: HEAVY_RAIN_NAV },
   { prefix: "/typhoon", title: "태풍", icon: "🌀", items: TYPHOON_NAV },
@@ -29,7 +30,8 @@ export function findDomain(pathname: string) {
 /** 도메인 하위 화면의 좌측 사이드바 — demo-10 클론의 사이드바 + 콘텐츠 틀(.shell / .sidebar / .tree) */
 export function DomainSidebar({ domain }: { domain: NonNullable<ReturnType<typeof findDomain>> }) {
   const items: NavItem[] = [
-    domain.items[0],
+    // "홈"(GIS 보드) 메뉴 — "상세 대시보드"가 새 창으로 열리게 되면서 필요성이 낮아져 주석 처리(2026-09-28 사용자 요청)
+    // domain.items[0],
     { to: `${domain.prefix}/dashboard`, label: "상세 대시보드" },
     ...domain.items.slice(1),
   ]
