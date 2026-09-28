@@ -1,6 +1,8 @@
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { coastEventDetail } from "../../data/mockCoast"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function CoastEventDetailPage() {
   const d = coastEventDetail
@@ -13,6 +15,10 @@ export function CoastEventDetailPage() {
         </div>
         <RiskBadge level={d.level} label={d.status} solid />
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.coast} />
+      </Card>
 
       <Card title="이벤트 기본 정보" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">

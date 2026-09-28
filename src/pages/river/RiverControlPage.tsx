@@ -2,6 +2,8 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { riverControlFailures, riverControlRows, riverControlTimeline, riverJointAgencies, riverPropagation } from "../../data/mockRiver"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function RiverControlPage() {
   return (
@@ -10,6 +12,10 @@ export function RiverControlPage() {
         <h1 className="text-xl font-bold text-white">현장 통제 관리</h1>
         <p className="mt-1 text-sm text-white/50">하천별 차단기·출동·통제 조치 현황</p>
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.river} />
+      </Card>
 
       <Card title="효돈천 구간별 통제 현황" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

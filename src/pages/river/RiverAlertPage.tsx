@@ -4,6 +4,8 @@ import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { riverFieldAlertGoal } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { riverAlertDispatch } from "../../data/mockRiver"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function RiverAlertPage() {
   const d = riverAlertDispatch
@@ -14,6 +16,10 @@ export function RiverAlertPage() {
         <h1 className="text-xl font-bold text-white">경보 발송 현황</h1>
         <p className="mt-1 text-sm text-white/50">{d.message}</p>
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.river} />
+      </Card>
 
       <Card title="발송 대상 및 위험 단계" dummy>
         <RiskBadge level={riverAlertDispatch.level} label={d.stage} solid />
