@@ -569,6 +569,18 @@ warning/caution으로 낮게 표시돼 있었던 것(`mockDashboard.ts`의 `risk
   "이력 없음" 같은 명시적 안내 문구로 대체하세요 — 그냥 `.map()`만 믿고 방치하면 이런 하드코딩이
   숨어 있는지 확인이 안 됩니다.
 
+**2026-09-28 — `/aqua` 도메인 보드(`DomainBoardPage`) 좌측 탭을 호우·태풍·하천범람과 같은 6탭
+구조로 재구성.** 기존 8탭(홈/데이터 수집/AI 예측/영향 양식장/경보 승인/e-SOP 대응/실시간 모니터링/
+종료 보고)을 `domainConfigs.tsx`의 `aquaConfig()`에서 6탭(대시보드/상황 분석/영향 양식장/경보
+발송/e-SOP 대응/종료 보고)으로 합쳤습니다. "데이터 수집"+"AI 예측" → "상황 분석", "e-SOP 대응"+
+"실시간 모니터링" → "e-SOP 대응"으로 병합했고, 각 병합 탭 안에는 원래 두 화면의 내용을 순서대로
+배치한 뒤 `DetailLink`로 두 번째 상세 화면(예: `/aqua/data`, `/aqua/monitoring`)에 갈 수 있는 링크를
+본문 중간에 남겨뒀습니다 — 탭당 상세 링크(`to`)는 하나뿐이라 병합 시 이렇게 하지 않으면 한쪽 상세
+화면 접근 경로가 사라집니다. **`/aqua/data`·`/aqua/prediction`·`/aqua/monitoring` 독립 라우트와
+페이지 파일은 그대로 남아 있습니다** — 지운 건 `DomainBoardPage`의 좌측 탭 개수뿐입니다. 다른
+도메인에서 비슷하게 탭을 합칠 때도 이 패턴(콘텐츠는 순서대로 이어붙이고, 부족한 상세 링크는
+`DetailLink`로 본문 안에 보충)을 따르세요.
+
 ## 5. 알려진 미해결 이슈 (다음에 손댈 후보)
 
 - **`coastEventDetail.sensorCrossCheck`(`src/data/mockCoast.ts`, "조류 센서 CS-04"·"수온 부이 BU-11")는
@@ -622,6 +634,45 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # tsc -b && vite build — 커밋 전 항상 실행해서 타입 에러 확인
 ```
+
+## 6-1. UI/UX 디자인 가이드라인 (2026-09-28)
+
+사용자가 전달한 범용 UI/UX 가이드라인을 이 프로젝트의 실제 디자인 시스템(demo-10.muhanit.kr 클론,
+`src/styles/demo10.css`)에 맞게 옮긴 것. **색상·프레임워크 항목은 클론 원본 값이 우선이며, 아래처럼
+프로젝트 고유 토큰으로 치환해서 적용한다** — 범용 가이드의 색상 코드(`#0F172A`, `#3B82F6` 등)나
+shadcn/ui를 그대로 들여오지 않는다.
+
+### 디자인 시스템 (이 프로젝트의 실제 값)
+- **프레임워크**: React + Tailwind CSS v4 + 커스텀 CSS(`demo10.css`/`subpage.css`). shadcn/ui는 쓰지 않음 —
+  클론 원본의 손으로 짠 컴포넌트 어휘(`.panel`, `.pbox`, `.pgroup`, `.region-card`, `.risk`, `.chip` 등)를
+  그대로 따른다.
+- **테마**: 다크 모드 전용(라이트 모드 없음). 배경 `--background #1d1d1d`, 헤더/패널 음영
+  `--background-darker #111`, 카드·인풋 `--background-lighter #303233`, 정보 블록
+  `--background-colored #435668`.
+- **강조색**: `--primary #8ec21f`(연두, hover `#769e20`), 대비용 블루 `--quaternary #0054a3`. 범용
+  가이드의 "Interstellar Blue(#3B82F6)"는 쓰지 않는다 — 이미 확립된 `--primary`가 그 역할.
+- **위험등급 색**: `--risk-danger/alert/warning/caution/safe/info/offline` (§3 참고) — 신규 UI에서 상태
+  표시가 필요하면 항상 이 팔레트를 쓰고 임의 색을 새로 만들지 않는다.
+- **타이포그래피**: `--font-sans`(Pretendard 우선, 시스템 폰트 폴백) — 한글 지원 이미 반영됨. Inter는
+  별도로 로드하지 않는다(웹폰트 추가 없이 시스템 폰트로 충분).
+
+### 코드 품질 규칙 (그대로 채택)
+1. **AI Slop 방지**: 무채색 평면 레이아웃 금지. 테두리(`border-color: var(--foreground-faint)`), 미묘한
+   그림자(`--shadow-panel`), 의도적인 여백 위계를 유지한다. 새 화면을 만들 때 기존 `.panel`/`.pbox`/`Card`
+   중 어울리는 것을 재사용하고, 새 카드 스타일을 즉흥적으로 만들지 않는다.
+2. **접근성(WCAG 2.1 AA)**: 모든 상호작용 요소에 포커스 상태와 `aria-label`(아이콘 전용 버튼)이 있어야
+   한다. `outline: none`으로 지우기만 하고 대체 표시가 약하면 안 됨 — `.select`/`.input`/`.page-content`
+   폼 요소는 `:focus-visible`에서 `border-color` 변경 + `box-shadow` 링을 함께 준다(2026-09-28에
+   `demo10.css`/`subpage.css`에 추가). 아이콘만 있는 버튼(지도 줌, 알림 종, 햄버거 메뉴 등)은 반드시
+   `aria-label`을 채운다.
+3. **반응형**: 이 앱은 원래 관제 데스크 대시보드로 설계돼 데스크톱 우선이다. 모바일 대응이 필요한
+   화면은 Tailwind 브레이크포인트(`sm:`/`md:`/`lg:`)로 점진 확장하되, `.panel`/`.overlay`처럼 고정폭
+   그리드에 의존하는 종합·GIS 상황판은 데스크톱 전용으로 남겨도 된다(레이아웃 성격상 모바일 축소가
+   의미 없음) — 무리하게 모든 화면을 모바일 대응시키려 하지 말 것.
+4. **마이크로 인터랙션**: hover 전환(`transition: background-color .2s` 등)은 이미 대부분의 인터랙티브
+   요소에 적용돼 있다(`demo10.css` 전역 검색: `transition`). 새 인터랙티브 요소를 추가할 때도 최소
+   hover/active 전환을 넣는다. 로딩 스켈레톤은 아직 없음 — 실시간 API 연동 패널(기상청 단기예보 등)에
+   로딩 상태를 새로 만들 때 고려.
 
 ## 7. 디렉터리 구조
 

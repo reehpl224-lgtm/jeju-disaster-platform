@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Risk } from "../../components/board/BoardParts"
-import { Box, Checks, Group, Kv, MiniChart, Note, Rows, St, SOURCE_LABEL, Steps, Tl } from "../../components/board/PanelParts"
+import { Box, Checks, DetailLink, Group, Kv, MiniChart, Note, Rows, St, SOURCE_LABEL, Steps, Tl } from "../../components/board/PanelParts"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
 import { RainfallObservationPanel } from "../../components/ui/RainfallObservationPanel"
 import { TyphoonNameListPanel } from "../../components/ui/TyphoonNameListPanel"
@@ -1079,6 +1079,23 @@ export function aquaConfig(): DomainConfig {
       </Group>
     </>
   )
+  // 2026-09-28: 호우·태풍·하천범람처럼 6개 탭으로 통합 재구성 — 데이터 수집+AI 예측 → "상황 분석",
+  // e-SOP 대응+실시간 모니터링 → "e-SOP 대응". 각 원래 상세 화면은 병합된 탭 안에 순서대로 배치하고,
+  // 두 번째 상세 화면으로 가는 링크를 본문 중간에 별도로 넣어 접근성을 유지한다.
+  const analysisTab = (
+    <>
+      <Group title="데이터 수집 현황">{data}</Group>
+      <DetailLink to="/aqua/data">데이터 수집 상세 화면</DetailLink>
+      <Group title="AI 예측 결과">{pred}</Group>
+    </>
+  )
+  const responseTab = (
+    <>
+      {response}
+      <Group title="실시간 모니터링">{monitor}</Group>
+      <DetailLink to="/aqua/monitoring">실시간 모니터링 상세 화면</DetailLink>
+    </>
+  )
   const evs = AQ.aquaMonitoringEvents.map((e) => ({ icon: "●", time: e.time, lines: [e.title] }))
   return {
     id: "aqua",
@@ -1090,13 +1107,11 @@ export function aquaConfig(): DomainConfig {
       </>
     ),
     tabs: [
-      { key: "home", label: "홈", to: "/aqua/dashboard", content: home },
-      { key: "data", label: "데이터 수집", to: "/aqua/data", content: data },
-      { key: "prediction", label: "AI 예측", to: "/aqua/prediction", content: pred },
+      { key: "home", label: "대시보드", to: "/aqua/dashboard", content: home },
+      { key: "analysis", label: "상황 분석", to: "/aqua/prediction", content: analysisTab },
       { key: "farms", label: "영향 양식장", to: "/aqua/farms", content: farms },
-      { key: "alerts", label: "경보 승인", to: "/aqua/alerts", content: alert },
-      { key: "response", label: "e-SOP 대응", to: "/aqua/response", content: response },
-      { key: "monitoring", label: "실시간 모니터링", to: "/aqua/monitoring", content: monitor },
+      { key: "alert", label: "경보 발송", to: "/aqua/alerts", content: alert },
+      { key: "response", label: "e-SOP 대응", to: "/aqua/response", content: responseTab },
       { key: "closure", label: "종료 보고", to: "/aqua/closure", content: clos },
     ],
     right: [
