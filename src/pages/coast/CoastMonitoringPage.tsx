@@ -8,8 +8,6 @@ import { MarineObservationPanel } from "../../components/ui/MarineObservationPan
 import { coastKhoaEnhancementReview, coastMonitoringDomains, coastStageCriteria } from "../../data/mockCoast"
 import { COAST_COMBINE_RULES, classifyCoastRisk } from "../../data/coastAlertThresholds"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 // 결합 규칙 적용 예시 — KHOA 부이 실측 스냅샷(조위 정보 없음 → 평시 가정, AI 이벤트 없음)
 const BUOY_EXAMPLES = khoaBuoyMarineConditions.map((b) => ({ ...b, result: classifyCoastRisk({ waveM: b.waveHeightM, windMs: b.windSpeedMs }) }))
@@ -37,10 +35,6 @@ export function CoastMonitoringPage() {
           </Link>
         </div>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.coast} />
-      </Card>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {coastMonitoringDomains.map((domain) => (

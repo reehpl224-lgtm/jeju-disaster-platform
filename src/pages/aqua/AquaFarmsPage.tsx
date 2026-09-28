@@ -3,8 +3,6 @@ import { Card } from "../../components/ui/Card"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaFarmTotals, aquaFarms } from "../../data/mockAqua"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function AquaFarmsPage() {
   return (
@@ -13,10 +11,6 @@ export function AquaFarmsPage() {
         <h1 className="text-xl font-bold text-white">영향 양식장 현황</h1>
         <p className="mt-1 text-sm text-white/50">저염분수·고수온 위험권 내 양식장 영향 상태</p>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.aqua} />
-      </Card>
 
       <StatTiles
         items={[

@@ -2,8 +2,6 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { riverDispatchRequest } from "../../data/mockRiver"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function RiverDispatchPage() {
   const d = riverDispatchRequest
@@ -29,10 +27,6 @@ export function RiverDispatchPage() {
           </Link>
         </div>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.river} />
-      </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="출동 요청 개요" dummy>

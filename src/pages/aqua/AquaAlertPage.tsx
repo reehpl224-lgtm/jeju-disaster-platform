@@ -4,8 +4,6 @@ import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { aquaAlertTargets } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaAlertDraft } from "../../data/mockAqua"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function AquaAlertPage() {
   const [result, setResult] = useState<"idle" | "success" | "failure">("idle")
@@ -16,10 +14,6 @@ export function AquaAlertPage() {
         <h1 className="text-xl font-bold text-white">경보 생성 · 검토</h1>
         <p className="mt-1 text-sm text-white/50">저염분수·고수온 경보 초안 검토 및 승인 전송</p>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.aqua} />
-      </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="경보 기본 정보" className="xl:col-span-2" dummy>

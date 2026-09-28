@@ -17,8 +17,6 @@ import {
   riverStageCriteria,
   riverTideCorrelation,
 } from "../../data/mockRiver"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function RiverAnalysisPage() {
   return (
@@ -27,10 +25,6 @@ export function RiverAnalysisPage() {
         <h1 className="text-xl font-bold text-white">상황 분석 — 효돈천(돈내코·쇠소깍)</h1>
         <p className="mt-1 text-sm text-white/50">위험 근거 데이터 및 센서 교차 검증</p>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.river} />
-      </Card>
 
       <Card title="돌발 강우 AI 조기경고" subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`} dummy>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

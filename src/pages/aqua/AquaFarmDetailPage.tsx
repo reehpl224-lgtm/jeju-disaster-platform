@@ -5,8 +5,6 @@ import { aquaFarms, aquaSummary } from "../../data/mockAqua"
 import { classifySalinity, classifyTemperature, marineStageToRiskLevel } from "../../data/marineAlertThresholds"
 import type { AquaFarm } from "../../types/aqua"
 import type { RiskLevel } from "../../types/domain"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 /** e-SOP 5단계 번호체계(aquaStages와 동일: 관심1·주의2·경계3·심각4·해제5) 기준 표기 */
 const STAGE_LABEL: Record<RiskLevel, string> = {
@@ -74,10 +72,6 @@ export function AquaFarmDetailPage() {
         <h1 className="mt-1 text-xl font-bold text-white">{farm.name}</h1>
         <p className="mt-1 text-sm text-white/50">양식장 상세 정보</p>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.aqua} />
-      </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="기본 정보" dummy>

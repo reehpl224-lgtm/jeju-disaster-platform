@@ -19,26 +19,31 @@ const AquaResponsePage = lazy(() => import("./pages/aqua/AquaResponsePage").then
 const AquaMonitoringPage = lazy(() => import("./pages/aqua/AquaMonitoringPage").then((m) => ({ default: m.AquaMonitoringPage })))
 const AquaClosurePage = lazy(() => import("./pages/aqua/AquaClosurePage").then((m) => ({ default: m.AquaClosurePage })))
 const CoastHomePage = lazy(() => import("./pages/coast/CoastHomePage").then((m) => ({ default: m.CoastHomePage })))
+const CoastDataPage = lazy(() => import("./pages/coast/CoastDataPage").then((m) => ({ default: m.CoastDataPage })))
 const CoastEventDetailPage = lazy(() => import("./pages/coast/CoastEventDetailPage").then((m) => ({ default: m.CoastEventDetailPage })))
 const CoastAlertPage = lazy(() => import("./pages/coast/CoastAlertPage").then((m) => ({ default: m.CoastAlertPage })))
 const CoastDispatchPage = lazy(() => import("./pages/coast/CoastDispatchPage").then((m) => ({ default: m.CoastDispatchPage })))
 const CoastMonitoringPage = lazy(() => import("./pages/coast/CoastMonitoringPage").then((m) => ({ default: m.CoastMonitoringPage })))
 const CoastClosurePage = lazy(() => import("./pages/coast/CoastClosurePage").then((m) => ({ default: m.CoastClosurePage })))
 const RiverHomePage = lazy(() => import("./pages/river/RiverHomePage").then((m) => ({ default: m.RiverHomePage })))
+const RiverDataPage = lazy(() => import("./pages/river/RiverDataPage").then((m) => ({ default: m.RiverDataPage })))
 const RiverAnalysisPage = lazy(() => import("./pages/river/RiverAnalysisPage").then((m) => ({ default: m.RiverAnalysisPage })))
 const RiverAlertPage = lazy(() => import("./pages/river/RiverAlertPage").then((m) => ({ default: m.RiverAlertPage })))
 const RiverControlPage = lazy(() => import("./pages/river/RiverControlPage").then((m) => ({ default: m.RiverControlPage })))
 const RiverDispatchPage = lazy(() => import("./pages/river/RiverDispatchPage").then((m) => ({ default: m.RiverDispatchPage })))
 const RiverClosurePage = lazy(() => import("./pages/river/RiverClosurePage").then((m) => ({ default: m.RiverClosurePage })))
 const HeavyRainHomePage = lazy(() => import("./pages/heavyrain/HeavyRainHomePage").then((m) => ({ default: m.HeavyRainHomePage })))
+const HeavyRainDataPage = lazy(() => import("./pages/heavyrain/HeavyRainDataPage").then((m) => ({ default: m.HeavyRainDataPage })))
 const HeavyRainAnalysisPage = lazy(() => import("./pages/heavyrain/HeavyRainAnalysisPage").then((m) => ({ default: m.HeavyRainAnalysisPage })))
 const HeavyRainAlertPage = lazy(() => import("./pages/heavyrain/HeavyRainAlertPage").then((m) => ({ default: m.HeavyRainAlertPage })))
 const HeavyRainClosurePage = lazy(() => import("./pages/heavyrain/HeavyRainClosurePage").then((m) => ({ default: m.HeavyRainClosurePage })))
 const TyphoonHomePage = lazy(() => import("./pages/typhoon/TyphoonHomePage").then((m) => ({ default: m.TyphoonHomePage })))
+const TyphoonDataPage = lazy(() => import("./pages/typhoon/TyphoonDataPage").then((m) => ({ default: m.TyphoonDataPage })))
 const TyphoonAnalysisPage = lazy(() => import("./pages/typhoon/TyphoonAnalysisPage").then((m) => ({ default: m.TyphoonAnalysisPage })))
 const TyphoonAlertPage = lazy(() => import("./pages/typhoon/TyphoonAlertPage").then((m) => ({ default: m.TyphoonAlertPage })))
 const TyphoonClosurePage = lazy(() => import("./pages/typhoon/TyphoonClosurePage").then((m) => ({ default: m.TyphoonClosurePage })))
 const HeatHomePage = lazy(() => import("./pages/heat/HeatHomePage").then((m) => ({ default: m.HeatHomePage })))
+const HeatDataPage = lazy(() => import("./pages/heat/HeatDataPage").then((m) => ({ default: m.HeatDataPage })))
 const HeatAnalysisPage = lazy(() => import("./pages/heat/HeatAnalysisPage").then((m) => ({ default: m.HeatAnalysisPage })))
 const HeatAlertPage = lazy(() => import("./pages/heat/HeatAlertPage").then((m) => ({ default: m.HeatAlertPage })))
 const HeatClosurePage = lazy(() => import("./pages/heat/HeatClosurePage").then((m) => ({ default: m.HeatClosurePage })))
@@ -79,6 +84,7 @@ export default function App() {
 
           <Route path="/coast" element={<DomainBoardPage domain="coast" />} />
           <Route path="/coast/dashboard" element={<CoastHomePage />} />
+          <Route path="/coast/data" element={<CoastDataPage />} />
           <Route path="/coast/events" element={<CoastEventDetailPage />} />
           <Route path="/coast/alerts" element={<CoastAlertPage />} />
           <Route path="/coast/dispatch" element={<CoastDispatchPage />} />
@@ -87,6 +93,7 @@ export default function App() {
 
           <Route path="/river" element={<DomainBoardPage domain="river" />} />
           <Route path="/river/dashboard" element={<RiverHomePage />} />
+          <Route path="/river/data" element={<RiverDataPage />} />
           <Route path="/river/analysis" element={<RiverAnalysisPage />} />
           <Route path="/river/alert" element={<RiverAlertPage />} />
           <Route path="/river/control" element={<RiverControlPage />} />
@@ -95,18 +102,21 @@ export default function App() {
 
           <Route path="/heavy-rain" element={<DomainBoardPage domain="heavy-rain" />} />
           <Route path="/heavy-rain/dashboard" element={<HeavyRainHomePage />} />
+          <Route path="/heavy-rain/data" element={<HeavyRainDataPage />} />
           <Route path="/heavy-rain/analysis" element={<HeavyRainAnalysisPage />} />
           <Route path="/heavy-rain/alert" element={<HeavyRainAlertPage />} />
           <Route path="/heavy-rain/closure" element={<HeavyRainClosurePage />} />
 
           <Route path="/typhoon" element={<DomainBoardPage domain="typhoon" />} />
           <Route path="/typhoon/dashboard" element={<TyphoonHomePage />} />
+          <Route path="/typhoon/data" element={<TyphoonDataPage />} />
           <Route path="/typhoon/analysis" element={<TyphoonAnalysisPage />} />
           <Route path="/typhoon/alert" element={<TyphoonAlertPage />} />
           <Route path="/typhoon/closure" element={<TyphoonClosurePage />} />
 
           <Route path="/heat" element={<DomainBoardPage domain="heat" />} />
           <Route path="/heat/dashboard" element={<HeatHomePage />} />
+          <Route path="/heat/data" element={<HeatDataPage />} />
           <Route path="/heat/analysis" element={<HeatAnalysisPage />} />
           <Route path="/heat/alert" element={<HeatAlertPage />} />
           <Route path="/heat/closure" element={<HeatClosurePage />} />

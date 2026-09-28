@@ -3,8 +3,6 @@ import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { heatLevelInfo, heatTrend } from "../../data/mockHeat"
-import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
-import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function HeatAnalysisPage() {
   return (
@@ -13,10 +11,6 @@ export function HeatAnalysisPage() {
         <h1 className="text-xl font-bold text-white">특보 현황</h1>
         <p className="mt-1 text-sm text-white/50">{heatLevelInfo.criteria}</p>
       </div>
-
-      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
-        <DataSourceCategoryPanel sources={dataSourcesByService.heat} />
-      </Card>
 
       <Card title="현재 특보 단계" subtitle={`갱신 ${heatLevelInfo.updatedAt}`} dummy>
         <div className="flex items-center gap-4">
