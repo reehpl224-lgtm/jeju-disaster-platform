@@ -5,6 +5,8 @@ import { aquaSensorOps } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaAgencyRows, aquaMonitoringEvents, aquaMonitoringState, khoaLiveObservations } from "../../data/mockAqua"
 import { classifyMarineRiskLevel } from "../../data/marineAlertThresholds"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function AquaMonitoringPage() {
   const cards = Object.values(aquaMonitoringState)
@@ -34,6 +36,10 @@ export function AquaMonitoringPage() {
           </Link>
         </div>
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.aqua} />
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (

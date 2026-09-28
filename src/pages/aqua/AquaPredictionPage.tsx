@@ -2,6 +2,8 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaFarms, aquaModelConfidence, aquaQualityMetrics, aquaRiskState } from "../../data/mockAqua"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function AquaPredictionPage() {
   return (
@@ -10,6 +12,10 @@ export function AquaPredictionPage() {
         <h1 className="text-xl font-bold text-white">AI 예측 결과 대시보드</h1>
         <p className="mt-1 text-sm text-white/50">다중모델 융합 기반 저염분수·고수온 확산 경로 및 위험 판단</p>
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.aqua} />
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="현재 위험 판단 상태" subtitle={`갱신 ${aquaRiskState.updatedAt}`} dummy>

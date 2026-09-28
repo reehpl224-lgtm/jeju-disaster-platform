@@ -5,6 +5,8 @@ import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { coastSmsRelay } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { coastDispatch } from "../../data/mockCoast"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function CoastDispatchPage() {
   const d = coastDispatch
@@ -15,6 +17,10 @@ export function CoastDispatchPage() {
         <h1 className="text-xl font-bold text-white">현장 공조 — 해경 출동 요청</h1>
         <p className="mt-1 text-sm text-white/50">{d.summary.title}</p>
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.coast} />
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="위험 사건 요약" className="xl:col-span-2" dummy>

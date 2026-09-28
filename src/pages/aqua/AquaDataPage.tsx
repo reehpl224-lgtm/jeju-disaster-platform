@@ -4,6 +4,8 @@ import { aquaPlannedData } from "../../data/mockMeetingItems"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaActionLog, aquaDataIssues, aquaDataSources, aquaSummary } from "../../data/mockAqua"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 const STATUS_LEVEL = {
   normal: "safe",
@@ -29,6 +31,10 @@ export function AquaDataPage() {
         <h1 className="text-xl font-bold text-white">데이터 수집 현황</h1>
         <p className="mt-1 text-sm text-white/50">저염분수·고수온 예측에 활용되는 이기종 데이터 소스 수집 상태</p>
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.aqua} />
+      </Card>
 
       <StatTiles
         items={[

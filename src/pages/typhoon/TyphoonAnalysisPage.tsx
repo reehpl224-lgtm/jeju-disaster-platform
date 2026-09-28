@@ -1,5 +1,7 @@
 import { Card } from "../../components/ui/Card"
 import { typhoonForecastTrack, typhoonReports, typhoonSource } from "../../data/mockTyphoon"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function TyphoonAnalysisPage() {
   const latest = typhoonReports[0]
@@ -9,6 +11,10 @@ export function TyphoonAnalysisPage() {
         <h1 className="text-xl font-bold text-white">경로 분석 — {latest.name}</h1>
         <p className="mt-1 text-sm text-white/50">{typhoonSource.note}</p>
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.typhoon} />
+      </Card>
 
       <Card title="제주 접근 예상 경로" subtitle="기상청 예보 기준 — 자체 산출 아님" dummy>
         <table className="w-full text-left text-sm">

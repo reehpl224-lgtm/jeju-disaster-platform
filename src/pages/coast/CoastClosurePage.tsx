@@ -2,6 +2,8 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { coastClosure } from "../../data/mockCoast"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 export function CoastClosurePage() {
   const c = coastClosure
@@ -16,6 +18,10 @@ export function CoastClosurePage() {
           연안 관제 대시보드로 →
         </Link>
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.coast} />
+      </Card>
 
       <Card title="사건 상태" dummy>
         <RiskBadge level="safe" label={c.status} solid />
