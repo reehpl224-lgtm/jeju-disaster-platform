@@ -672,7 +672,16 @@ h1, h2, h3, p { margin: 0; }
 .sidebar .tabs { gap: 0; border-bottom-color: var(--foreground-faint); }
 .sidebar .tabs button { flex: 1 1 0; text-align: center; padding: .75rem .25rem; border-bottom-width: 3px; margin-bottom: -1px; }
 
-.tree { overflow: auto; flex-grow: 1; }
+.tree {
+  overflow: auto;
+  flex-grow: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--foreground-faint) transparent;
+}
+.tree::-webkit-scrollbar { width: 6px; }
+.tree::-webkit-scrollbar-track { background: transparent; }
+.tree::-webkit-scrollbar-thumb { background: var(--foreground-faint); border-radius: 9999px; }
+.tree::-webkit-scrollbar-thumb:hover { background: var(--foreground-subtle); }
 .tree > li > button {
   width: 100%;
   display: flex; align-items: center; justify-content: space-between;
@@ -687,7 +696,19 @@ h1, h2, h3, p { margin: 0; }
 .tree > li > button > span:first-child { display: flex; gap: .375rem; align-items: baseline; }
 .tree .count { color: var(--foreground-subtle); }
 
-.content { flex: 1 1 auto; min-width: 0; overflow: auto; padding: 0 0 3rem; }
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: auto;
+  padding: 0 0 3rem;
+  /* 대시보드 패널(.panel__scroll)과 같은 얇은 스크롤바로 통일 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--foreground-faint) transparent;
+}
+.content::-webkit-scrollbar { width: 6px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: var(--foreground-faint); border-radius: 9999px; }
+.content::-webkit-scrollbar-thumb:hover { background: var(--foreground-subtle); }
 .content__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
 
 .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }

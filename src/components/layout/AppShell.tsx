@@ -24,7 +24,7 @@ export function AppShell({ user }: { user: MockUser }) {
       ) : domain ? (
         <div className="shell">
           <DomainSidebar domain={domain} />
-          <main className="content page-content" style={{ paddingRight: 4 }}>
+          <main className="content page-content" style={{ paddingRight: 10 }}>
             <Crumbs items={["홈", domain.title, currentLabel(domain, pathname)]} />
             <Outlet />
           </main>
