@@ -2,6 +2,7 @@ import { Outlet, useLocation } from "react-router-dom"
 import { Crumbs, currentLabel, DomainSidebar, findDomain } from "./DomainSidebar"
 import { Header } from "./Header"
 import type { MockUser } from "../../data/mockAuth"
+import { DataModeProvider } from "../../context/DataModeContext"
 
 const BOARD_PATHS = ["/dashboard", "/heavy-rain", "/typhoon", "/heat", "/river", "/aqua", "/coast"]
 
@@ -17,23 +18,25 @@ export function AppShell({ user }: { user: MockUser }) {
   const domain = isBoard ? undefined : findDomain(pathname)
 
   return (
-    <div className="app">
-      <Header user={user} />
-      {isBoard ? (
-        <Outlet />
-      ) : domain ? (
-        <div className="shell">
-          <DomainSidebar domain={domain} />
-          <main className="content page-content" style={{ paddingRight: 10 }}>
-            <Crumbs items={["홈", domain.title, currentLabel(domain, pathname)]} />
+    <DataModeProvider>
+      <div className="app">
+        <Header user={user} />
+        {isBoard ? (
+          <Outlet />
+        ) : domain ? (
+          <div className="shell">
+            <DomainSidebar domain={domain} />
+            <main className="content page-content" style={{ paddingRight: 10 }}>
+              <Crumbs items={["홈", domain.title, currentLabel(domain, pathname)]} />
+              <Outlet />
+            </main>
+          </div>
+        ) : (
+          <main className="page-content min-h-0 flex-1 overflow-y-auto p-4 md:p-6">
             <Outlet />
           </main>
-        </div>
-      ) : (
-        <main className="page-content min-h-0 flex-1 overflow-y-auto p-4 md:p-6">
-          <Outlet />
-        </main>
-      )}
-    </div>
+        )}
+      </div>
+    </DataModeProvider>
   )
 }

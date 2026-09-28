@@ -6,6 +6,8 @@ import { disasterAlerts } from "../../data/mockIncidents"
 import { overallStatus } from "../../data/mockMonitoring"
 import { RiskBadge } from "../ui/RiskBadge"
 import { getDominantRiskLevel, riskStyles } from "../ui/riskStyles"
+import { DataModeToggle } from "../ui/DataModeToggle"
+import { useModeValue } from "../../context/DataModeContext"
 
 export const DASHBOARD_TABS = [
   { key: "summary", label: "종합 상황" },
@@ -68,6 +70,8 @@ export function Header({ user }: { user: MockUser }) {
   const sectionLabel = Object.entries(ROUTE_LABEL).find(([path]) => location.pathname.startsWith(path))?.[1]
   const systemNormal = overallStatus.status === "정상"
   const userLabel = `${user.org.replace("제주특별자치도 ", "")} ${user.name} 님`
+  // "데이터 있음/없음" 토글 연결 예시 — 빈 화면 모드에서는 알림이 없는 것처럼 표시된다.
+  const alerts = useModeValue(disasterAlerts, [])
 
   useEffect(() => {
     setOpenMenu(null)
@@ -148,6 +152,7 @@ export function Header({ user }: { user: MockUser }) {
       </div>
 
       <div className="header__user">
+        <DataModeToggle />
         <p>{userLabel}</p>
         <div style={{ position: "relative" }}>
           <button
@@ -160,7 +165,7 @@ export function Header({ user }: { user: MockUser }) {
             style={{ position: "relative" }}
           >
             <span aria-hidden>🔔</span>
-            {disasterAlerts.length > 0 && (
+            {alerts.length > 0 && (
               <span
                 style={{
                   position: "absolute",
@@ -178,7 +183,7 @@ export function Header({ user }: { user: MockUser }) {
                   justifyContent: "center",
                 }}
               >
-                {disasterAlerts.length}
+                {alerts.length}
               </span>
             )}
           </button>
@@ -187,13 +192,13 @@ export function Header({ user }: { user: MockUser }) {
               <p style={{ padding: "4px 12px 8px", fontSize: 12, color: "var(--foreground-subtle)", fontWeight: 700 }}>
                 발효중 특보 · 알림
               </p>
-              {disasterAlerts.length === 0 ? (
+              {alerts.length === 0 ? (
                 <p style={{ padding: 16, textAlign: "center", color: "var(--foreground-subtle)", fontSize: 12 }}>
                   새 알림이 없습니다.
                 </p>
               ) : (
                 <ul>
-                  {disasterAlerts.map((alert) => {
+                  {alerts.map((alert) => {
                     const body = (
                       <span style={{ display: "block", width: "100%" }}>
                         <span style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
