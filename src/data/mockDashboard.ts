@@ -51,6 +51,9 @@ export const riskMarkers: RiskMarker[] = [
   // weatherStations(mockHeavyRain.ts) ws-3·ws-4 우량계와 반드시 같은 등급·실측값을 쓸 것 — 2026-09-28 지도에 미표시였던 것 추가
   { id: "jeju-raingauge-3", name: "제주시 우량계 #3", x: 155, y: 65, level: "warning", domain: "heavyRain", value: "62mm/h", lat: 33.512, lng: 126.542 },
   { id: "seogwipo-raingauge-2", name: "서귀포 우량계 #2", x: 165, y: 205, level: "caution", domain: "heavyRain", value: "48mm/h", lat: 33.254, lng: 126.560 },
+  // weatherStations(mockHeavyRain.ts) ws-5(한라산 적설계)·ws-6(성산 풍속풍향계)와 반드시 같은 등급·실측값을 쓸 것 — 2026-09-28 지도에 미표시였던 것 추가
+  { id: "hallasan-snowgauge", name: "한라산 적설계", x: 165, y: 150, level: "safe", domain: "heavyRain", value: "0cm", lat: 33.3617, lng: 126.5292 },
+  { id: "seongsan-anemometer", name: "성산 풍속풍향계", x: 300, y: 155, level: "caution", domain: "heavyRain", value: "12.5m/s · 남동풍", lat: 33.390, lng: 126.885 },
   // typhoonReports(mockTyphoon.ts) 최신 발표(ty-1) "태풍경보"와 반드시 같은 등급을 쓸 것.
   // 실제 좌표는 "북서 방향 접근"(mockDashboard.ts aiInsights 문구) 기준 제주 북서쪽 해상에 상징적으로 배치 — 정밀 관측값 아님
   { id: "typhoon-kroban", name: "제24호 크로반", x: 300, y: 265, level: "alert", domain: "typhoon", lat: 34.05, lng: 125.95 },
