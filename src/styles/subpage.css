@@ -29,7 +29,11 @@
 }
 .page-content input:not([type="checkbox"]):not([type="radio"]),
 .page-content select { min-height: 40px; }
-.page-content input:focus, .page-content select:focus, .page-content textarea:focus { border-color: var(--primary); }
+/* 접근성: 위 outline:none만으로는 포커스 표시가 약해서(WCAG 2.4.7) border-color 변화에 링을 더한다 */
+.page-content input:focus, .page-content select:focus, .page-content textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 35%, transparent);
+}
 
 /* 우측 경로(breadcrumb) 줄 */
 .crumbs { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 8px; font-size: 12px; color: var(--foreground-subtle); }

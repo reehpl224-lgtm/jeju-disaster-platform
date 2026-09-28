@@ -326,7 +326,12 @@ h1, h2, h3, p { margin: 0; }
   padding-right: 2.25rem;
 }
 .input::placeholder { color: var(--foreground-subtle); }
-.select:focus, .input:focus { outline: none; border-color: var(--primary); }
+/* 접근성: outline만 지우고 border-color 변화 하나로 끝내면 포커스 표시가 약함(WCAG 2.4.7) — 링을 더한다 */
+.select:focus, .input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 35%, transparent);
+}
 
 .row { display: flex; gap: .5rem; }
 .row > * { flex: 1 1 0; min-width: 0; }
