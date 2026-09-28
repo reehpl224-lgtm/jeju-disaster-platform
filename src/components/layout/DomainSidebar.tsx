@@ -42,13 +42,21 @@ export function DomainSidebar({ domain }: { domain: NonNullable<ReturnType<typeo
         <p className="label">화면 메뉴</p>
       </div>
       <ul className="tree">
-        {items.map((item) => (
-          <li key={item.to}>
-            <NavLink to={item.to} end={item.end ?? item.to.endsWith("/dashboard")}>
-              <span>{item.label}</span>
-            </NavLink>
-          </li>
-        ))}
+        {items.map((item) => {
+          const isDashboardDetail = item.to.endsWith("/dashboard")
+          return (
+            <li key={item.to}>
+              {/* "상세 대시보드"는 GIS 보드를 보면서 동시에 열어두고 싶은 경우가 많아 새 창으로 연다(2026-09-28) */}
+              <NavLink
+                to={item.to}
+                end={item.end ?? isDashboardDetail}
+                {...(isDashboardDetail ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              >
+                <span>{item.label}</span>
+              </NavLink>
+            </li>
+          )
+        })}
       </ul>
     </aside>
   )
