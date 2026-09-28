@@ -858,6 +858,10 @@ export function aquaConfig(): DomainConfig {
       <Group title="감시 대상" dummy>
         <Rows pairs={[["해역", s.targetArea], ["공간 해상도", s.spatialResolution], ["AI 라벨", s.aiLabels.join(" · ")]]} />
       </Group>
+      <Group title="KHOA 실측 기반 AI 보강 가능성 검토" dummy>
+        <Box title={AQ.aquaKhoaEnhancementReview.summary} lines={AQ.aquaKhoaEnhancementReview.usable} right={<Risk level="safe" label={AQ.aquaKhoaEnhancementReview.feasible} />} />
+        <Note tone="caution">실증사 요청 필요: {AQ.aquaKhoaEnhancementReview.vendorAsk}</Note>
+      </Group>
       <RelatedCams domain="aqua" />
     </>
   )
@@ -1164,6 +1168,10 @@ export function coastConfig(): DomainConfig {
         {CO.coastAiInsights.map((a) => (
           <Box key={a.id} title={a.title} lines={[a.basis, a.match]} right={<Risk level={a.level} />} />
         ))}
+      </Group>
+      <Group title="KHOA 실측 기반 AI 보강 가능성 검토" dummy>
+        <Box title={CO.coastKhoaEnhancementReview.summary} lines={CO.coastKhoaEnhancementReview.usable} right={<Risk level="warning" label={CO.coastKhoaEnhancementReview.feasible} />} />
+        <Note tone="caution">실증사 요청 필요: {CO.coastKhoaEnhancementReview.vendorAsk}</Note>
       </Group>
       <Group title="현장 경보" dummy>
         <ul className="plist">

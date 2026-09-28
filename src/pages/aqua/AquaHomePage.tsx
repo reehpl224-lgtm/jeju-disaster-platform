@@ -17,6 +17,7 @@ import {
   aquaDataSources,
   aquaFarms,
   aquaJourneys,
+  aquaKhoaEnhancementReview,
   aquaSummary,
   khoaLiveObservations,
 } from "../../data/mockAqua"
@@ -252,6 +253,34 @@ export function AquaHomePage() {
             </div>
           ))}
         </div>
+      </Card>
+
+      <Card title="KHOA 실측 기반 AI 보강 가능성 검토" subtitle={aquaKhoaEnhancementReview.feasible} dummy>
+        <p className="text-sm text-white/80">{aquaKhoaEnhancementReview.summary}</p>
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold text-risk-safe">바로 활용 가능</p>
+            <ul className="mt-1.5 flex flex-col gap-1.5 text-xs text-white/60">
+              {aquaKhoaEnhancementReview.usable.map((u) => (
+                <li key={u}>· {u}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-risk-warning">한계</p>
+            <ul className="mt-1.5 flex flex-col gap-1.5 text-xs text-white/60">
+              {aquaKhoaEnhancementReview.limited.map((l) => (
+                <li key={l}>· {l}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <p className="mt-3 rounded-lg border border-accent/30 bg-accent-soft px-3 py-2 text-xs text-accent">
+          실증사 요청 필요: {aquaKhoaEnhancementReview.vendorAsk}
+        </p>
+        <Link to="/aqua/prediction" className="mt-3 inline-block text-xs font-bold text-accent">
+          AI 예측 결과 대시보드에서 자세히 보기 →
+        </Link>
       </Card>
 
       <Card
