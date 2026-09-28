@@ -10,6 +10,8 @@ import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { RainfallObservationPanel } from "../../components/ui/RainfallObservationPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 import {
   riverApprovalHistory,
   riverControlRows,
@@ -158,6 +160,10 @@ export function RiverHomePage() {
           </div>
         </Card>
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.river} />
+      </Card>
 
       <Card
         title="AI 예측 — 돌발 강우 조기경고"

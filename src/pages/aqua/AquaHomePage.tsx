@@ -23,6 +23,8 @@ import {
 import { riskMarkers } from "../../data/mockDashboard"
 import { cctvCameras } from "../../data/mockCctv"
 import { classifyMarineRiskLevel } from "../../data/marineAlertThresholds"
+import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
+import { dataSourcesByService } from "../../data/mockDataSourceCategories"
 
 const AQUA_MARKERS = riskMarkers.filter((m) => m.domain === "aqua")
 const AQUA_CCTV = cctvCameras.filter((c) => c.domain === "aqua")
@@ -172,6 +174,10 @@ export function AquaHomePage() {
           </div>
         </Card>
       </div>
+
+      <Card title="데이터 출처 현황" subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        <DataSourceCategoryPanel sources={dataSourcesByService.aqua} />
+      </Card>
 
       <Card>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
