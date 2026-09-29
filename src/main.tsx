@@ -10,7 +10,7 @@ import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename={import.meta.env.PROD ? '/jeju-disaster-platform' : '/'}>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || '/'}>
       <App />
     </BrowserRouter>
   </StrictMode>,

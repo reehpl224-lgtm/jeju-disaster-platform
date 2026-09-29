@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "build:local": "tsc -b && vite build --mode localhost --outDir dist-local",
+    "preview": "vite preview",
+    "preview:local": "vite preview --outDir dist-local"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
