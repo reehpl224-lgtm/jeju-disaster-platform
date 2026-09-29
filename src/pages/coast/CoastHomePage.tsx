@@ -1,12 +1,15 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { KHOA_BUOY_SNAPSHOT } from "../../components/ui/dataSource"
+import { LIVE } from "../../components/ui/dataSource"
 import { LeaderDetailBrief } from "../domain/LeaderBrief"
 import { coastBrief } from "../domain/leaderBriefs"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
-import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
+import { GisIconRail } from "../../components/ui/GisIconRail"
+import type { GisRailKey } from "../../components/ui/gisRailItems"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
@@ -234,6 +237,7 @@ export function CoastHomePage() {
 
       <Card
         title="실측 파고·기상 참고 — 국립해양조사원(KHOA) 해양관측부이"
+        source={KHOA_BUOY_SNAPSHOT}
         subtitle="함덕·협재 AIoT 스마트폴과는 다른 국가 관측망 지점 — 인근 해역 파고·풍속 참고용"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -285,15 +289,16 @@ export function CoastHomePage() {
       <Card
         title="실시간 파고 관측 — 기상청 API허브"
         subtitle="apihub.kma.go.kr 실연동(sea_obs.php) — 함덕·협재 인근 지점만 · 매 조회마다 라이브"
+        source={LIVE}
       >
         <MarineObservationPanel stationNames={["협재", "김녕"]} />
       </Card>
 
-      <Card title="실시간 풍랑·해일 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)">
+      <Card title="실시간 풍랑·해일 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)" source={LIVE}>
         <WarningsPanel wrnCodes={["V", "O", "N"]} />
       </Card>
 
-      <Card title="기상청 단기예보" subtitle="풍속·하늘상태 참고 — 실시간 연동">
+      <Card title="기상청 단기예보" subtitle="풍속·하늘상태 참고 — 실시간 연동" source={LIVE}>
         <VilageForecastPanel />
       </Card>
 

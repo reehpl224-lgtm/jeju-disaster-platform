@@ -217,6 +217,8 @@ h1, h2, h3, p { margin: 0; }
 }
 .menu li a { display: flex; align-items: center; gap: .625rem; padding: .5rem .75rem; border-radius: .375rem; }
 .menu li a:hover { background: var(--foreground-ghost); }
+.menu .menu__action { display: flex; width: 100%; align-items: center; gap: .625rem; padding: .5rem .75rem; border-radius: .375rem; text-align: left; }
+.menu .menu__action:hover { background: var(--foreground-ghost); }
 .menu hr { border: 0; border-top: 1px solid var(--foreground-ghost); margin: .375rem .25rem; }
 .menu[hidden] { display: none; }
 
@@ -1654,3 +1656,41 @@ h1, h2, h3, p { margin: 0; }
   /* 폭이 넓은 표는 페이지 전체를 밀지 않고 표를 감싼 카드 안에서 가로 스크롤 */
   .content :where(section, div):has(> table) { overflow-x: auto; }
 }
+
+/* 접근성 — 건너뛰기 링크(키보드 사용자가 헤더 메뉴를 지나 본문으로 바로 이동) + 본문 포커스 링 제거(프로그램 포커스용) */
+.skip-link { position: absolute; left: 8px; top: -48px; z-index: 100; padding: .5rem .75rem; border-radius: .5rem; background: var(--primary); color: #111; font-weight: 700; font-size: 13px; }
+.skip-link:focus { top: 8px; }
+#main-content:focus { outline: none; }
+[role="tab"]:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+/* 업무 흐름 진행 띠(감지→확인→판단→경보→대응→종료) */
+.flow { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.flow__step { display: inline-flex; flex-direction: column; min-width: 56px; padding: 4px 8px; border: 1px solid var(--foreground-faint); border-radius: 8px; font-size: 11px; font-weight: 700; color: var(--foreground-subtle); }
+.flow__step small { font-size: 10px; font-weight: 500; color: var(--foreground-muted); }
+.flow__step--done { color: var(--risk-safe); border-color: var(--risk-safe); }
+.flow__step--current { color: var(--primary); border-color: var(--primary); background: var(--foreground-ghost); }
+.flow__step--skip { color: var(--foreground-subtle); border-style: dashed; }
+.flow__idle { margin: 6px 0 0; font-size: 11px; color: var(--foreground-subtle); }
+
+/* 데이터 종류 태그(시나리오 더미·실시간·스냅샷) + 헤더 "데모 데이터" 메뉴 */
+.src-tag { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 9999px; border: 1px solid currentColor; font-size: 10px; font-weight: 700; line-height: 1.5; vertical-align: middle; white-space: nowrap; }
+.src-tag--live { color: var(--risk-safe); }
+.src-tag--snapshot { color: var(--risk-info); }
+.src-tag--dummy { color: var(--foreground-muted); margin-left: 0; }
+.demo-chip { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; border: 1px solid var(--foreground-faint); border-radius: 9999px; font-size: 11px; font-weight: 700; color: var(--foreground-muted); white-space: nowrap; }
+.demo-chip:hover, .demo-chip[data-open] { border-color: var(--primary); color: var(--primary); }
+.demo-menu { top: 44px; right: 0; width: 340px; max-height: 80vh; overflow-y: auto; padding: 12px; }
+.demo-menu__h { margin: 8px 0 4px; font-size: 12px; font-weight: 700; color: var(--foreground-subtle); }
+.demo-menu__h:first-child { margin-top: 0; }
+.demo-menu__p { margin: 0 0 6px; font-size: 11px; line-height: 1.5; color: var(--foreground-muted); }
+.demo-legend { display: flex; flex-direction: column; gap: 4px; margin: 0 0 4px; padding: 0; list-style: none; font-size: 11px; color: var(--foreground-muted); }
+.demo-scn { display: flex; flex-direction: column; gap: 6px; margin: 0 0 6px; padding: 0; list-style: none; }
+.demo-scn button { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 8px 10px; border: 1px solid var(--foreground-faint); border-radius: 8px; text-align: left; font-size: 11px; color: var(--foreground-muted); }
+.demo-scn button b { font-size: 12px; color: var(--foreground); }
+.demo-scn button em { font-style: normal; color: var(--foreground-subtle); }
+.demo-scn button:hover { background: var(--foreground-ghost); }
+.demo-scn button[aria-checked="true"] { border-color: var(--primary); background: var(--foreground-ghost); }
+.demo-reset { width: 100%; padding: 8px; border: 1px solid var(--primary); border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--primary); }
+.demo-reset:hover { background: var(--foreground-ghost); }
+@media (max-width: 1279px) { .demo-chip__text { display: none; } .demo-chip { padding: 0 8px; } }
+@media (max-width: 767px) { .demo-menu { position: fixed; top: 64px; left: 8px; right: 8px; width: auto; } }

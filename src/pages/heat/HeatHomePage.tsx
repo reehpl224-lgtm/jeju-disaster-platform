@@ -1,11 +1,13 @@
 import { useMemo, useState, type ReactNode } from "react"
 import { Card } from "../../components/ui/Card"
+import { LIVE } from "../../components/ui/dataSource"
 import { LeaderDetailBrief } from "../domain/LeaderBrief"
 import { heatBrief } from "../domain/leaderBriefs"
 import { Pill } from "../../components/ui/Pill"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
-import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../../components/ui/GisIconRail"
+import { GisIconRail } from "../../components/ui/GisIconRail"
+import { GIS_RAIL_ITEMS, type GisRailKey } from "../../components/ui/gisRailItems"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
@@ -94,11 +96,11 @@ export function HeatHomePage() {
         </div>
       </Card>
 
-      <Card title="실시간 폭염·열대야 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)">
+      <Card title="실시간 폭염·열대야 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)" source={LIVE}>
         <WarningsPanel wrnCodes={["H", "K"]} />
       </Card>
 
-      <Card title="기상청 단기예보" subtitle="기온 추이 참고 — 폭염특보 공식 발령은 기상청 발표 기준">
+      <Card title="기상청 단기예보" subtitle="기온 추이 참고 — 폭염특보 공식 발령은 기상청 발표 기준" source={LIVE}>
         <VilageForecastPanel />
       </Card>
 

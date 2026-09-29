@@ -1,5 +1,6 @@
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../../components/ui/Card"
+import { LIVE } from "../../components/ui/dataSource"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { heavyRainAiForecast, heavyRainTopStations, heavyRainTrend, weatherStations } from "../../data/mockHeavyRain"
@@ -58,7 +59,7 @@ export function HeavyRainAnalysisPage() {
         </div>
       </Card>
 
-      <Card title="기상청 단기예보" subtitle="강수확률·시간당 강수 참고 — 침수경보 자체는 AI 조기경보 근거 기준">
+      <Card title="기상청 단기예보" subtitle="강수확률·시간당 강수 참고 — 침수경보 자체는 AI 조기경보 근거 기준" source={LIVE}>
         <VilageForecastPanel />
       </Card>
 

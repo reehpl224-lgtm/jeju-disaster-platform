@@ -10,28 +10,26 @@ import type { VilageForecastRegion, VilageForecastResponse, VilageForecastSlot }
 export function VilageForecastPanel({ variant = "card" }: { variant?: "card" | "dock" }) {
   const [region, setRegion] = useState<VilageForecastRegion>("jeju")
   const [reloadKey, setReloadKey] = useState(0)
-  const [data, setData] = useState<VilageForecastResponse | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  // 요청 결과는 "어떤 요청(key)의 결과인지"와 함께 저장한다 — 로딩 여부는 렌더 중에 계산해서 effect 안에서 setState 하지 않는다
+  const requestKey = `${region}:${reloadKey}`
+  const [result, setResult] = useState<{ key: string; data: VilageForecastResponse | null; error: string | null } | null>(null)
+  const loading = result?.key !== requestKey
+  const data = result?.data ?? null
+  const error = loading ? null : result.error
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
-    setError(null)
     fetchVilageForecast(region)
       .then((res) => {
-        if (!cancelled) setData(res)
+        if (!cancelled) setResult({ key: requestKey, data: res, error: null })
       })
       .catch((err: Error) => {
-        if (!cancelled) setError(err.message)
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setResult((prev) => ({ key: requestKey, data: prev?.data ?? null, error: err.message }))
       })
     return () => {
       cancelled = true
     }
-  }, [region, reloadKey])
+  }, [region, requestKey])
 
   const first = data?.slots[0]
   const baseLabel = first

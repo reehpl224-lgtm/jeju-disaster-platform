@@ -1,5 +1,6 @@
 import type { RiverControlRow, RiverStatus, RiverTidePoint, TimelineEntry } from "../types/river"
 import type { RiskLevel } from "../types/domain"
+import type { FlowProgress } from "../types/flow"
 
 export const riverTarget = {
   area: "서귀포시 효돈천 (돈내코·쇠소깍)",
@@ -107,17 +108,17 @@ export const riverTideCorrelation = {
   boundaryLevelM: 3.0,
   nextHighTide: "15:10 예상 (조위 +1.35m)",
   series: [
-    { time: "06:00", waterLevelM: 0.95, tideLevelM: 0.1, predicted: false },
-    { time: "06:30", waterLevelM: 0.98, tideLevelM: 0.35, predicted: false },
-    { time: "07:00", waterLevelM: 1.0, tideLevelM: 0.62, predicted: false },
-    { time: "07:30", waterLevelM: 1.02, tideLevelM: 0.85, predicted: false },
-    { time: "08:00", waterLevelM: 1.03, tideLevelM: 1.05, predicted: false },
-    { time: "08:30", waterLevelM: 1.05, tideLevelM: 1.2, predicted: false },
-    { time: "09:00", waterLevelM: 1.06, tideLevelM: 1.32, predicted: true },
-    { time: "09:30", waterLevelM: 1.05, tideLevelM: 1.28, predicted: true },
-    { time: "10:00", waterLevelM: 1.02, tideLevelM: 1.0, predicted: true },
-    { time: "10:30", waterLevelM: 1.0, tideLevelM: 0.6, predicted: true },
-    { time: "11:00", waterLevelM: 0.98, tideLevelM: 0.25, predicted: true },
+    { time: "06:00", waterLevelM: 0.88, tideLevelM: 0.1, predicted: false },
+    { time: "06:30", waterLevelM: 0.91, tideLevelM: 0.35, predicted: false },
+    { time: "07:00", waterLevelM: 0.93, tideLevelM: 0.62, predicted: false },
+    { time: "07:30", waterLevelM: 0.95, tideLevelM: 0.85, predicted: false },
+    { time: "08:00", waterLevelM: 0.96, tideLevelM: 1.05, predicted: false },
+    { time: "08:30", waterLevelM: 0.98, tideLevelM: 1.2, predicted: false },
+    { time: "09:00", waterLevelM: 0.99, tideLevelM: 1.32, predicted: true },
+    { time: "09:30", waterLevelM: 0.98, tideLevelM: 1.28, predicted: true },
+    { time: "10:00", waterLevelM: 0.95, tideLevelM: 1.0, predicted: true },
+    { time: "10:30", waterLevelM: 0.93, tideLevelM: 0.6, predicted: true },
+    { time: "11:00", waterLevelM: 0.91, tideLevelM: 0.25, predicted: true },
   ] as RiverTidePoint[],
 }
 
@@ -160,8 +161,8 @@ export const riverCctv = [
 ]
 
 export const riverSensorCheck = [
-  { id: "s1", name: "수위 센서 #HD-01 (돈내코)", status: "정상" as const, value: "1.02 m", detail: "레이더 수위 비교 ±0.02 m" },
-  { id: "s2", name: "수위 센서 #HD-02 (쇠소깍)", status: "정상" as const, value: "1.05 m", detail: "최종 수신 09:00 (실시간)" },
+  { id: "s1", name: "수위 센서 #HD-01 (돈내코)", status: "정상" as const, value: "1.05 m", detail: "레이더 수위 비교 ±0.02 m" },
+  { id: "s2", name: "수위 센서 #HD-02 (쇠소깍)", status: "정상" as const, value: "0.98 m", detail: "최종 수신 09:00 (실시간)" },
 ]
 
 export const riverDataConfidence = {
@@ -280,3 +281,6 @@ export const riverClosure = {
     lesson: "쇠소깍 차단기 통신 두절 재발 방지 위해 LTE 음영구역 보강 필요",
   },
 }
+
+/** 업무 흐름 진행(감지→확인→판단→경보→대응→종료) — 평시라 아직 시작된 단계 없음. 시나리오는 scenarios.ts가 덮어쓴다 */
+export const riverFlowProgress: FlowProgress = {}

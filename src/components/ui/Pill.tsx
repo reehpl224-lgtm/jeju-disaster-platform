@@ -7,7 +7,7 @@ const SIZE_CLASS: Record<PillSize, string> = {
   md: "px-3 py-1.5",
 }
 
-export function pillClass(active: boolean, size: PillSize = "md"): string {
+function pillClass(active: boolean, size: PillSize = "md"): string {
   return `rounded-full border ${SIZE_CLASS[size]} text-xs font-bold transition ${
     active ? "border-accent text-accent" : "border-white/20 text-white/70 hover:border-accent"
   }`

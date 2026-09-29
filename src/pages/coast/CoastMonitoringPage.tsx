@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { LIVE } from "../../components/ui/dataSource"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { coastVerification, coastInstallReview } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
@@ -70,13 +71,14 @@ export function CoastMonitoringPage() {
         </Card>
       </div>
 
-      <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 현장 위험 판단 자체는 AI 탐지·실측 기준">
+      <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 현장 위험 판단 자체는 AI 탐지·실측 기준" source={LIVE}>
         <VilageForecastPanel />
       </Card>
 
       <Card
         title="실시간 해양관측 — 기상청 API허브"
         subtitle="apihub.kma.go.kr 실연동(sea_obs.php) — 아래 표의 '서귀포 해수온 부이 결측'을 보완하는 인근 실측 참고치"
+        source={LIVE}
       >
         <MarineObservationPanel />
       </Card>

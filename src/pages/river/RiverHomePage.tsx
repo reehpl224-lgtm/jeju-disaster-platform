@@ -1,11 +1,13 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { LIVE } from "../../components/ui/dataSource"
 import { LeaderDetailBrief } from "../domain/LeaderBrief"
 import { riverBrief } from "../domain/leaderBriefs"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
-import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
+import { GisIconRail } from "../../components/ui/GisIconRail"
+import type { GisRailKey } from "../../components/ui/gisRailItems"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
@@ -239,15 +241,15 @@ export function RiverHomePage() {
         </div>
       </Card>
 
-      <Card title="실시간 우량 관측 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(AWS 매분자료)">
+      <Card title="실시간 우량 관측 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(AWS 매분자료)" source={LIVE}>
         <RainfallObservationPanel />
       </Card>
 
-      <Card title="기상청 단기예보" subtitle="강수확률·강수형태 참고 — 돌발 강우 조기경보와 함께 확인">
+      <Card title="기상청 단기예보" subtitle="강수확률·강수형태 참고 — 돌발 강우 조기경보와 함께 확인" source={LIVE}>
         <VilageForecastPanel />
       </Card>
 
-      <Card title="실시간 호우특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php) — 하천 범람의 주 원인인 호우·강풍 특보">
+      <Card title="실시간 호우특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php) — 하천 범람의 주 원인인 호우·강풍 특보" source={LIVE}>
         <WarningsPanel wrnCodes={["R", "W"]} />
       </Card>
 

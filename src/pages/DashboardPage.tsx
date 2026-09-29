@@ -1,8 +1,9 @@
 import { useMemo, useState, type ReactNode } from "react"
 import { useElementHeight } from "../hooks/useElementHeight"
-import { useDragScroll } from "../hooks/useDragScroll"
 import { Link, useSearchParams } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { ComingSoonPanel } from "../components/board/ComingSoon"
+import { DragScrollTabs } from "../components/board/DragScrollTabs"
 import { DutyContactPanel } from "../components/ui/DutyContactPanel"
 import { JejuTileMap } from "../components/ui/JejuTileMap"
 import { JejuVectorMap } from "../components/ui/JejuVectorMap"
@@ -84,7 +85,6 @@ export function DashboardPage() {
   const [showIssued, setShowIssued] = useState(true)
   const [showLifted, setShowLifted] = useState(true)
   const [timelineTab, setTimelineTab] = useState("timeline")
-  const timelineTabsDrag = useDragScroll<HTMLDivElement>()
 
   const incidentTypes = useMemo(() => Array.from(new Set(disasterIncidents.map((i) => i.type))), [])
 
@@ -288,8 +288,8 @@ export function DashboardPage() {
         ))}
       </>
     ),
-    messenger: <p className="pempty">2단계 상세 구현 예정 — 준비 중입니다.</p>,
-    news: <p className="pempty">2단계 상세 구현 예정 — 준비 중입니다.</p>,
+    messenger: <ComingSoonPanel kind="messenger" />,
+    news: <ComingSoonPanel kind="news" />,
     ai: (
       <>
         <p className="pnote">예측 신뢰도: 고신뢰 ({predictionConfidence.percent}%)</p>
@@ -554,7 +554,7 @@ export function DashboardPage() {
 
     const [jeju, seogwipo] = regionStats
     return (
-      <div className="stage">
+      <main className="stage" id="main-content" tabIndex={-1}>
         <div className="stage__main">
           <div className="korea" />
           <div className="overlay">
@@ -581,13 +581,13 @@ export function DashboardPage() {
                     </svg>
                   </button>
                 </div>
-                <div className="tabs" role="tablist" ref={timelineTabsDrag.ref} onPointerDown={timelineTabsDrag.onPointerDown} onPointerMove={timelineTabsDrag.onPointerMove} onPointerUp={timelineTabsDrag.onPointerUp} onPointerLeave={timelineTabsDrag.onPointerLeave} onPointerCancel={timelineTabsDrag.onPointerCancel} onClickCapture={timelineTabsDrag.onClickCapture}>
+                <DragScrollTabs label="타임라인 탭">
                   {timelineTabs.map((t) => (
                     <button key={t.key} type="button" role="tab" aria-selected={timelineTab === t.key} onClick={() => setTimelineTab(t.key)}>
                       {t.label}
                     </button>
                   ))}
-                </div>
+                </DragScrollTabs>
                 {(timelineTab === "timeline" || timelineTab === "advisory") && timelineFilters}
                 <div className="panel__scroll">{(timelineTabs.find((t) => t.key === timelineTab) ?? timelineTabs[0]).content}</div>
               </section>
@@ -694,14 +694,14 @@ export function DashboardPage() {
         </div>
         {stripOpen && <ServiceStrip cards={serviceStatusCards} />}
         <MessengerFab onClick={() => setSummaryDockTab("messenger")} />
-      </div>
+      </main>
     )
   }
 
   // ============================ GIS 상황 ============================
   if (tab === "gis") {
     return (
-      <div className="stage">
+      <main className="stage" id="main-content" tabIndex={-1}>
         <div className="stage__main">
           <div className="map map--dark" />
           <div className="overlay">
@@ -739,7 +739,7 @@ export function DashboardPage() {
         </div>
         {stripOpen && <ServiceStrip cards={serviceStatusCards} />}
         <MessengerFab onClick={() => setGisDockTab("messenger")} />
-      </div>
+      </main>
     )
   }
 
@@ -796,7 +796,7 @@ function CctvView() {
         </ul>
       </aside>
 
-      <main className="content">
+      <main className="content" id="main-content" tabIndex={-1}>
         <div className="content__head">
           <div>
             <h2 className="content__title">CCTV 통합 조회</h2>

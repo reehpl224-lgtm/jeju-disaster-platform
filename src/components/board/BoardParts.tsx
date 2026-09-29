@@ -1,6 +1,7 @@
 import { useId, type ReactNode } from "react"
 import { Link } from "react-router-dom"
-import { useDragScroll } from "../../hooks/useDragScroll"
+import { DragScrollTabs } from "./DragScrollTabs"
+import { onTabListKeyDown } from "./tabKeys"
 import type { RiskLevel } from "../../types/domain"
 import { riskStyles } from "../ui/riskStyles"
 
@@ -67,7 +68,7 @@ export function SideTabsDock({
         {topContent}
         <div className="panel__scroll">{active?.content}</div>
       </section>
-      <div className={`rail rail--${rail}${dense ? " rail--dense" : ""}`} role="tablist" aria-orientation="vertical">
+      <div className={`rail rail--${rail}${dense ? " rail--dense" : ""}`} role="tablist" aria-orientation="vertical" aria-label="패널 탭" onKeyDown={(e) => onTabListKeyDown(e, "vertical")}>
         {tabs.map((tab) => (
           // 세로쓰기(writing-mode) 글자는 보조기기가 이름을 못 읽는 경우가 있어 aria-label로 이름을 명시한다
           <button
@@ -100,26 +101,18 @@ export function HorizontalTabsDock({
   onSelect: (key: string) => void
 }) {
   const active = tabs.find((t) => t.key === activeKey) ?? tabs[0]
-  const drag = useDragScroll<HTMLDivElement>()
+  const baseId = useId()
   return (
     <aside className="dock dock--right">
       <section className="panel panel--right" style={{ borderRadius: "1rem" }}>
-        <div
-          className="tabs"
-          role="tablist"
-          ref={drag.ref}
-          onPointerDown={drag.onPointerDown}
-          onPointerMove={drag.onPointerMove}
-          onPointerUp={drag.onPointerUp}
-          onPointerLeave={drag.onPointerLeave}
-          onPointerCancel={drag.onPointerCancel}
-          onClickCapture={drag.onClickCapture}
-        >
+        <DragScrollTabs label="패널 탭">
           {tabs.map((tab) => (
             <button
               key={tab.key}
+              id={`${baseId}-tab-${tab.key}`}
               type="button"
               role="tab"
+              aria-controls={`${baseId}-panel`}
               aria-selected={tab.key === active?.key}
               onClick={() => onSelect(tab.key)}
             >
@@ -131,9 +124,11 @@ export function HorizontalTabsDock({
               {tab.label}
             </button>
           ))}
-        </div>
+        </DragScrollTabs>
         {filters}
-        <div className="panel__scroll">{active?.content}</div>
+        <div className="panel__scroll" id={`${baseId}-panel`} role="tabpanel" aria-labelledby={`${baseId}-tab-${active?.key}`}>
+          {active?.content}
+        </div>
       </section>
     </aside>
   )

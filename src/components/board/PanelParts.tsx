@@ -3,6 +3,8 @@ import { Link } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import type { RiskLevel } from "../../types/domain"
 import { Risk } from "./BoardParts"
+import { SourceTag } from "../ui/SourceTag"
+import type { DataSource } from "../ui/dataSource"
 
 /** 패널 안에서 쓰는 작은 조각들 — demo-10 클론 gen_domains.py의 group/rows/kv/box/tl/checks/steps에 대응 */
 
@@ -18,7 +20,6 @@ const STATUS_LV: Record<string, RiskLevel> = {
   미완료: "warning", 미확인: "warning", delayed: "warning", "부분 (1개 이상)": "warning",
   실패: "danger", 오류: "danger", "오류 발생": "danger", 이상: "danger", 미연결: "danger", missing: "danger",
 }
-export const SOURCE_LABEL: Record<string, string> = { normal: "정상", delayed: "지연", missing: "누락" }
 
 /** 상태 문구 배지 */
 export function St({ text, lv }: { text: string; lv?: RiskLevel }) {
@@ -26,7 +27,7 @@ export function St({ text, lv }: { text: string; lv?: RiskLevel }) {
 }
 
 /** dummy: 실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터 — 제목 앞에 "*" 표시 */
-export function Group({ title, children, dummy }: { title: string; children: ReactNode; dummy?: boolean }) {
+export function Group({ title, children, dummy, source }: { title: string; children: ReactNode; dummy?: boolean; source?: DataSource }) {
   return (
     <div className="pgroup">
       <p className="pnote">
@@ -36,6 +37,7 @@ export function Group({ title, children, dummy }: { title: string; children: Rea
           </span>
         )}
         {title}
+        {source && <SourceTag source={source} />}
       </p>
       {children}
     </div>

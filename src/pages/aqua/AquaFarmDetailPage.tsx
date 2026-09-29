@@ -5,6 +5,10 @@ import { aquaFarms, aquaSummary } from "../../data/mockAqua"
 import { classifySalinity, classifyTemperature, marineStageToRiskLevel } from "../../data/marineAlertThresholds"
 import type { AquaFarm } from "../../types/aqua"
 import type { RiskLevel } from "../../types/domain"
+import { JejuTileMap } from "../../components/ui/JejuTileMap"
+import { riskMarkers } from "../../data/mockDashboard"
+
+const AQUA_MARKERS = riskMarkers.filter((m) => m.domain === "aqua")
 
 /** e-SOP 5단계 번호체계(aquaStages와 동일: 관심1·주의2·경계3·심각4·해제5) 기준 표기 */
 const STAGE_LABEL: Record<RiskLevel, string> = {
@@ -102,9 +106,10 @@ export function AquaFarmDetailPage() {
       </div>
 
       <Card title="위치 및 영향 범위" dummy>
-        <div className="flex h-56 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
-          양식장 GIS 지도 — 위험 반경 및 저염분수 유입 경로 오버레이 (2단계 상세 구현 예정)
+        <div className="h-72 w-full overflow-hidden rounded-lg">
+          <JejuTileMap markers={AQUA_MARKERS} className="relative h-full w-full" />
         </div>
+        <p className="mt-2 text-[11px] text-white/35">확정 관측지점(한경 금등·한경 용수·대정 일과)과 KHOA 실측 지점 — 위험 반경·유입 경로 오버레이는 2단계 구현 예정</p>
       </Card>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">

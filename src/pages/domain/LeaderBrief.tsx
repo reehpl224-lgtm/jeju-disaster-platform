@@ -6,6 +6,25 @@ import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import type { LeaderBrief } from "./leaderBriefs"
 
+const FLOW_MARK = { done: "✓", current: "●", todo: "○", skip: "–" } as const
+
+/** 감지→확인→판단→경보→대응→종료 진행 띠 — 3대 실증서비스 전용 */
+function FlowStrip({ flow }: { flow: NonNullable<LeaderBrief["flow"]> }) {
+  return (
+    <div>
+      <ol className="flow" aria-label="업무 흐름 진행">
+        {flow.steps.map((s) => (
+          <li key={s.step} className={`flow__step flow__step--${s.state}`} aria-current={s.state === "current" ? "step" : undefined}>
+            <span aria-hidden>{FLOW_MARK[s.state]}</span> {s.step}
+            {s.note && <small>{s.note}</small>}
+          </li>
+        ))}
+      </ol>
+      {!flow.active && <p className="flow__idle">평시 — 진행 중인 사건이 없어 시작된 단계가 없습니다.</p>}
+    </div>
+  )
+}
+
 /**
  * 팀장 브리핑 렌더러 두 개 — 데이터는 leaderBriefs.ts 한 곳. 보드 패널(demo10 스타일)과 상세 대시보드(Tailwind 카드)가
  * 같은 순서·같은 제목으로 보여줘서 두 화면의 내용이 어긋나지 않는다.
@@ -17,6 +36,7 @@ export function LeaderBoardBrief({ brief: b, children }: { brief: LeaderBrief; c
   return (
     <>
       <Box title={b.title} lines={b.lines} right={<Risk level={b.level} label={b.badge} />} />
+      {b.flow && <FlowStrip flow={b.flow} />}
       <Kv items={b.kpis} over={b.kpis.filter((k) => k.over).map((k) => k.k)} />
       <Group title={`팀장 결재·지시${b.tasks.length > 0 ? ` (${b.tasks.length})` : ""}`} dummy>
         {b.tasks.length === 0 ? (
@@ -73,6 +93,12 @@ export function LeaderDetailBrief({ brief: b }: { brief: LeaderBrief }) {
         </div>
         <RiskBadge level={b.level} label={b.badge} />
       </div>
+
+      {b.flow && (
+        <div className="mt-4">
+          <FlowStrip flow={b.flow} />
+        </div>
+      )}
 
       <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         {b.kpis.map((k) => (

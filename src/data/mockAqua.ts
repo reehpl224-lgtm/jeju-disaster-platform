@@ -11,6 +11,7 @@ import type {
   AquaTimelineEntry,
 } from "../types/aqua"
 import type { RiskLevel } from "../types/domain"
+import type { FlowProgress } from "../types/flow"
 
 /**
  * 2026-09-22 리셋 — 사용자 요청으로 더미 "진행 중 사건" 데이터를 초기화하고, 파트별 케이스
@@ -336,4 +337,16 @@ export const aquaRetraining = {
   target: "예측·실측 편차 데이터 3건",
   status: "검토 완료 · 반영 대기",
   updatedAt: "2026-09-15 11:30",
+}
+
+/**
+ * 업무 흐름 진행(감지→확인→판단→경보→대응→종료) — 한경 용수 관심 케이스. 관심 단계는 대외 경보를 내지 않아(TP-P22_002
+ * 행동요령이 내부 점검·예찰) 경보는 "보류". aquaMonitoringEvents·aquaChecklist·aquaAlertDraft의 시각과 같아야 한다.
+ */
+export const aquaFlowProgress: FlowProgress = {
+  감지: "08:52",
+  확인: "09:05",
+  판단: "09:15",
+  경보: "보류",
+  대응: "진행 중",
 }

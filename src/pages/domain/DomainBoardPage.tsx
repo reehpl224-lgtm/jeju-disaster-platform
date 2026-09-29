@@ -3,6 +3,7 @@ import { useElementHeight } from "../../hooks/useElementHeight"
 import { Navigate, useSearchParams } from "react-router-dom"
 import { DetailLink } from "../../components/board/PanelParts"
 import { HorizontalTabsDock, MessengerFab, Risk, ServiceStrip, SideTabsDock, StripToggle, type DockTab } from "../../components/board/BoardParts"
+import { MessengerNotice } from "../../components/board/ComingSoon"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { cctvCameras } from "../../data/mockCctv"
 import { riskMarkers, serviceStatusCards } from "../../data/mockDashboard"
@@ -17,6 +18,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
   const config = useMemo(() => (build ? build() : null), [build])
   const [params, setParams] = useSearchParams()
   const [rightTab, setRightTab] = useState("tl")
+  const [messengerOpen, setMessengerOpen] = useState(false)
   const [mapTopRef, mapTopHeight] = useElementHeight<HTMLDivElement>()
   const [stripOpen, setStripOpen] = useState(true)
 
@@ -39,7 +41,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
   const rightTabs: DockTab[] = config.right.map((t) => ({ key: t.key, label: t.label, content: t.content }))
 
   return (
-    <div className="stage">
+    <main className="stage" id="main-content" tabIndex={-1}>
       <div className="stage__main">
         <div className="map map--dark" />
         <div className="overlay">
@@ -86,7 +88,8 @@ export function DomainBoardPage({ domain }: { domain: string }) {
         <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
       </div>
       {stripOpen && <ServiceStrip cards={serviceStatusCards} currentId={config.id} />}
-      <MessengerFab onClick={() => setRightTab(config.right[0].key)} />
-    </div>
+      <MessengerFab onClick={() => setMessengerOpen((v) => !v)} />
+      {messengerOpen && <MessengerNotice onClose={() => setMessengerOpen(false)} />}
+    </main>
   )
 }

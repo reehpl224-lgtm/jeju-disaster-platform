@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
-import { GIS_RAIL_ITEMS, type GisRailKey } from "./GisIconRail"
+import { ComingSoonPanel } from "../board/ComingSoon"
+import { GIS_RAIL_ITEMS, type GisRailKey } from "./gisRailItems"
 
 interface GisSidePanelProps {
   activeKey: GisRailKey
@@ -19,9 +20,12 @@ export function GisSidePanel({ activeKey, onClose, content }: GisSidePanelProps)
         </button>
       </div>
 
-      {content[activeKey] ?? (
-        <p className="py-6 text-center text-xs text-white/30">2단계 상세 구현 예정 — 준비 중입니다.</p>
-      )}
+      {content[activeKey] ??
+        (activeKey === "messenger" || activeKey === "news" ? (
+          <ComingSoonPanel kind={activeKey} />
+        ) : (
+          <p className="py-6 text-center text-xs text-white/30">표시할 데이터가 없습니다.</p>
+        ))}
     </div>
   )
 }

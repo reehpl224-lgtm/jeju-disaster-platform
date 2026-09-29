@@ -6,13 +6,14 @@ import { disasterAlerts } from "../../data/mockIncidents"
 import { overallStatus } from "../../data/mockMonitoring"
 import { RiskBadge } from "../ui/RiskBadge"
 import { getDominantRiskLevel, riskStyles } from "../ui/riskStyles"
+import { DemoDataMenu } from "./DemoDataMenu"
 
-export const DASHBOARD_TABS = [
+const DASHBOARD_TABS = [
   { key: "summary", label: "종합 상황" },
   { key: "gis", label: "GIS 상황" },
   { key: "cctv", label: "CCTV" },
 ] as const
-export type DashboardTabKey = (typeof DASHBOARD_TABS)[number]["key"]
+type DashboardTabKey = (typeof DASHBOARD_TABS)[number]["key"]
 
 // 서비스 도메인 메뉴 — 순서는 통합 대시보드 하단 서비스 카드(mockDashboard.serviceStatusCards)와 동일
 const SERVICE_NAV = [
@@ -60,7 +61,7 @@ export function Header({ user }: { user: MockUser }) {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const clock = useClock()
-  const [openMenu, setOpenMenu] = useState<"menu" | "notif" | null>(null)
+  const [openMenu, setOpenMenu] = useState<"menu" | "notif" | "demo" | null>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
 
   const onDashboard = location.pathname === "/dashboard"
@@ -69,9 +70,13 @@ export function Header({ user }: { user: MockUser }) {
   const systemNormal = overallStatus.status === "정상"
   const userLabel = `${user.org.replace("제주특별자치도 ", "")} ${user.name} 님`
 
-  useEffect(() => {
+  // 화면이 바뀌면 열려 있던 메뉴를 닫는다 — effect 안에서 setState 하지 않고 렌더 중에 이전 경로와 비교한다
+  const routeKey = `${location.pathname}${location.search}`
+  const [seenRoute, setSeenRoute] = useState(routeKey)
+  if (seenRoute !== routeKey) {
+    setSeenRoute(routeKey)
     setOpenMenu(null)
-  }, [location.pathname, location.search])
+  }
 
   useEffect(() => {
     function onDown(e: MouseEvent) {
@@ -148,6 +153,7 @@ export function Header({ user }: { user: MockUser }) {
       </div>
 
       <div className="header__user">
+        <DemoDataMenu open={openMenu === "demo"} onToggle={() => setOpenMenu((v) => (v === "demo" ? null : "demo"))} />
         <p>{userLabel}</p>
         <div style={{ position: "relative" }}>
           <button
@@ -210,12 +216,11 @@ export function Header({ user }: { user: MockUser }) {
                     )
                     return (
                       <li key={alert.id}>
+                        {/* 이동할 화면이 없는 특보는 링크처럼 보이지 않게 그냥 내용만 보여준다(예전엔 href="#" 빈 링크) */}
                         {alert.href ? (
                           <Link to={alert.href}>{body}</Link>
                         ) : (
-                          <a href="#" onClick={(e) => e.preventDefault()}>
-                            {body}
-                          </a>
+                          <div style={{ display: "flex", padding: ".5rem .75rem" }}>{body}</div>
                         )}
                       </li>
                     )
@@ -278,15 +283,9 @@ export function Header({ user }: { user: MockUser }) {
             <hr />
           </li>
           <li>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault()
-                handleLogout()
-              }}
-            >
+            <button type="button" className="menu__action" onClick={handleLogout}>
               로그아웃
-            </a>
+            </button>
           </li>
         </ul>
       )}

@@ -2,7 +2,8 @@ import { useState } from "react"
 import { Card } from "../components/ui/Card"
 import { RiskBadge } from "../components/ui/RiskBadge"
 import { Pill } from "../components/ui/Pill"
-import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../components/ui/GisIconRail"
+import { GisIconRail } from "../components/ui/GisIconRail"
+import { GIS_RAIL_ITEMS, type GisRailKey } from "../components/ui/gisRailItems"
 import type { RiskLevel } from "../types/domain"
 
 const RISK_LEVELS: RiskLevel[] = ["danger", "alert", "warning", "caution", "safe", "info", "offline"]

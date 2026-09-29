@@ -111,7 +111,7 @@ export const legacySystems: LegacySystemStatus[] = [
 
 export const weatherStations: WeatherStationReading[] = [
   { id: "ws-1", name: "제주시 한천 침수센서", type: "침수센서", value: "경보 발령", status: "alert", updatedAt: "14:30" },
-  { id: "ws-2", name: "서귀포 효돈천 침수센서", type: "침수센서", value: "주의 단계", status: "warning", updatedAt: "14:32" },
+  { id: "ws-2", name: "서귀포 하천변 침수센서", type: "침수센서", value: "주의 단계", status: "warning", updatedAt: "14:32" },
   { id: "ws-3", name: "제주시 우량계 #3", type: "우량계", value: "62mm/h", status: "warning", updatedAt: "14:29" },
   { id: "ws-4", name: "서귀포 우량계 #2", type: "우량계", value: "48mm/h", status: "caution", updatedAt: "14:31" },
   { id: "ws-5", name: "한라산 적설계", type: "적설계", value: "0cm", status: "safe", updatedAt: "14:00" },
@@ -206,7 +206,7 @@ export const heavyRainClosure: HeavyRainClosure = {
 }
 
 export const broadcastLog: BroadcastLogEntry[] = [
-  { id: "bl-1", channel: "재해문자전광판", message: "효돈천 하천범람 심각 단계 — 접근 자제", time: "14:32" },
+  { id: "bl-1", channel: "재해문자전광판", message: "한천 하류 침수경보 — 저지대 접근 자제", time: "14:32" },
   { id: "bl-2", channel: "자동음성통보", message: "한천 인근 주민 대상 대피 안내 방송", time: "14:10" },
   { id: "bl-3", channel: "재해문자전광판", message: "제주 전역 호우 예비특보 발효", time: "13:00" },
 ]

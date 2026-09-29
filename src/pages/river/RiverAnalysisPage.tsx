@@ -1,5 +1,7 @@
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../../components/ui/Card"
+import { KHOA_TIDE_SNAPSHOT } from "../../components/ui/dataSource"
+import { LIVE } from "../../components/ui/dataSource"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { riverPipeline, riverHydrology, riverPredictionOutput } from "../../data/mockMeetingItems"
 import { StatTiles } from "../../components/ui/StatTiles"
@@ -113,6 +115,7 @@ export function RiverAnalysisPage() {
 
       <Card
         title="실측 조위 참고 — 국립해양조사원(KHOA) 모슬포 조위관측소"
+        source={KHOA_TIDE_SNAPSHOT}
         subtitle={`${khoaMoseulpoTide.location} · ${khoaMoseulpoTide.distanceNote}`}
       >
         <div className="h-40 w-full">
@@ -133,7 +136,7 @@ export function RiverAnalysisPage() {
         </p>
       </Card>
 
-      <Card title="기상청 단기예보" subtitle="강수확률·시간당 강수 참고 — 범람 위험 판단 자체는 위 AI 조기경고·수위 근거 기준">
+      <Card title="기상청 단기예보" subtitle="강수확률·시간당 강수 참고 — 범람 위험 판단 자체는 위 AI 조기경고·수위 근거 기준" source={LIVE}>
         <VilageForecastPanel />
       </Card>
 

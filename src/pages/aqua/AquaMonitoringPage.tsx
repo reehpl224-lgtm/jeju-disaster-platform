@@ -1,10 +1,15 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { KHOA_OBS_SNAPSHOT } from "../../components/ui/dataSource"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { aquaSensorOps } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaAgencyRows, aquaMonitoringEvents, aquaMonitoringState, khoaLiveObservations } from "../../data/mockAqua"
 import { classifyMarineRiskLevel } from "../../data/marineAlertThresholds"
+import { JejuTileMap } from "../../components/ui/JejuTileMap"
+import { riskMarkers } from "../../data/mockDashboard"
+
+const MONITOR_MARKERS = riskMarkers.filter((m) => m.domain === "aqua" || m.domain === "river" || m.domain === "coast")
 
 export function AquaMonitoringPage() {
   const cards = Object.values(aquaMonitoringState)
@@ -49,6 +54,7 @@ export function AquaMonitoringPage() {
 
       <Card
         title="해양관측 실측 — 국립해양조사원(KHOA) · 확인 시점 스냅샷"
+        source={KHOA_OBS_SNAPSHOT}
         subtitle="data.go.kr 공공데이터 실연동 — 정적 프로토타입이라 2026-09-09 확인 시점 스냅샷으로 고정 표시"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -76,9 +82,10 @@ export function AquaMonitoringPage() {
       </Card>
 
       <Card title="GIS 위험 위치 및 영향 범위 지도" dummy>
-        <div className="flex h-64 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
-          하천 범람 경계 · 연안 위험구역 · 양식장 영향권 · 출동 대기 위치 표시 (2단계 상세 구현 예정)
+        <div className="h-72 w-full overflow-hidden rounded-lg">
+          <JejuTileMap markers={MONITOR_MARKERS} className="relative h-full w-full" />
         </div>
+        <p className="mt-2 text-[11px] text-white/35">하천·연안·양식장 관측지점의 현재 등급 — 위험 경계·영향권 오버레이는 2단계 구현 예정</p>
       </Card>
 
       <Card title="기관별 대응 상태" dummy>

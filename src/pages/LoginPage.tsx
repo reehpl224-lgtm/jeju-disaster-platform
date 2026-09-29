@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from "react"
 import { Navigate, useLocation, useNavigate } from "react-router-dom"
-import { getCurrentUser, login } from "../data/mockAuth"
+import { DEMO_ACCOUNTS, getCurrentUser, login } from "../data/mockAuth"
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -12,7 +12,6 @@ export function LoginPage() {
   const [orgId, setOrgId] = useState("")
   const [password, setPassword] = useState("")
   const [otp, setOtp] = useState("")
-  const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
   if (existing) {
@@ -21,11 +20,8 @@ export function LoginPage() {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (!orgId.trim() || !password.trim()) {
-      setError("사원번호와 비밀번호를 입력해 주세요.")
-      return
-    }
-    const user = login(orgId.trim())
+    // 프로토타입 — 아무 값이나(비워도) 로그인된다. 실제 인증 없음.
+    const user = login(orgId)
     navigate(user.role === "restricted" ? "/403" : returnTo, { replace: true })
   }
 
@@ -45,7 +41,8 @@ export function LoginPage() {
               value={orgId}
               onChange={(e) => setOrgId(e.target.value)}
               className="rounded-lg border border-border-subtle bg-inset px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-accent"
-              placeholder="사원번호를 입력하세요 (예: jeju-ax)"
+              placeholder="사원번호 (아무 값이나 입력)"
+              autoComplete="username"
             />
           </label>
 
@@ -56,7 +53,8 @@ export function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="rounded-lg border border-border-subtle bg-inset px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-accent"
-              placeholder="비밀번호를 입력하세요"
+              placeholder="비밀번호 (아무 값이나 입력)"
+              autoComplete="current-password"
             />
           </label>
 
@@ -67,7 +65,8 @@ export function LoginPage() {
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 className="min-w-0 flex-1 rounded-lg border border-border-subtle bg-inset px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/25 focus:border-accent"
-                placeholder="OTP를 입력하세요 (데모: 생략 가능)"
+                placeholder="OTP (아무 값이나 입력 · 비워도 됨)"
+                inputMode="numeric"
               />
               <button
                 type="button"
@@ -79,7 +78,6 @@ export function LoginPage() {
             </div>
           </label>
 
-          {error && <p className="text-xs font-medium text-risk-danger">{error}</p>}
           {notice && (
             <p role="status" className="rounded-lg border border-border-subtle bg-inset px-3 py-2 text-xs text-white/60">
               {notice}
@@ -112,9 +110,23 @@ export function LoginPage() {
         </div>
 
         <div className="mt-4 rounded-lg bg-inset p-3 text-[11px] leading-relaxed text-white/40">
-          데모 계정 — 사원번호 <code className="rounded bg-black/30 px-1 py-0.5 text-accent">jeju-ax</code>: 담당자
-          로그인 · 사원번호 <code className="rounded bg-black/30 px-1 py-0.5 text-accent">guest</code>: 권한 없는
-          계정 체험. 비밀번호·OTP는 임의 값 또는 공란으로 진행하세요.
+          <p className="mb-1.5 font-semibold text-white/50">프로토타입 로그인 — 아무 값이나 입력해도 로그인됩니다(실제 인증 아님)</p>
+          <ul className="flex flex-col gap-1">
+            {DEMO_ACCOUNTS.map((a) => (
+              <li key={a.orgId} className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setOrgId(a.orgId)}
+                  className="rounded bg-black/30 px-1 py-0.5 font-mono text-accent hover:bg-black/50"
+                  aria-label={`사원번호 ${a.orgId} 입력`}
+                >
+                  {a.orgId}
+                </button>
+                <span>{a.role === "operator" ? `${a.name} 팀장 — 전체 화면 사용` : `${a.name} — 권한 없음 화면(403) 체험`}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1.5">사원번호·비밀번호·OTP는 검증하지 않으며 비워도 됩니다. 사원번호 guest만 권한 없음 화면을 체험하고, 그 밖의 값은 팀장 계정으로 들어갑니다.</p>
         </div>
       </div>
     </div>

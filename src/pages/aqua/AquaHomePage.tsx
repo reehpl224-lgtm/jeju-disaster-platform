@@ -1,12 +1,15 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { KHOA_OBS_SNAPSHOT } from "../../components/ui/dataSource"
+import { LIVE } from "../../components/ui/dataSource"
 import { LeaderDetailBrief } from "../domain/LeaderBrief"
 import { aquaBrief } from "../domain/leaderBriefs"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
+import { GisIconRail } from "../../components/ui/GisIconRail"
+import type { GisRailKey } from "../../components/ui/gisRailItems"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { GisTimelinePanel, type GisTimelineTab } from "../../components/ui/GisTimelinePanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
@@ -227,6 +230,7 @@ export function AquaHomePage() {
 
       <Card
         title="해양관측 실측 — 국립해양조사원(KHOA) · 확인 시점 스냅샷"
+        source={KHOA_OBS_SNAPSHOT}
         subtitle="data.go.kr 공공데이터 실연동 — 정적 프로토타입이라 2026-09-09 확인 시점 스냅샷으로 고정 표시"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -284,11 +288,12 @@ export function AquaHomePage() {
       <Card
         title="실시간 해양관측 — 기상청 API허브"
         subtitle="apihub.kma.go.kr 실연동(sea_obs.php) — 모슬포·협재 등 인근 지점 수온·풍속 (염분은 미제공, 위 KHOA 부이 참고)"
+        source={LIVE}
       >
         <MarineObservationPanel />
       </Card>
 
-      <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 저염분수·고수온 경보 자체는 AI 하이브리드 예측 기준">
+      <Card title="기상청 단기예보" subtitle="풍속·강수 참고 — 저염분수·고수온 경보 자체는 AI 하이브리드 예측 기준" source={LIVE}>
         <VilageForecastPanel />
       </Card>
 

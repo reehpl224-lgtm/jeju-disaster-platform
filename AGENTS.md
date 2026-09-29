@@ -16,7 +16,7 @@
 상태에서, 기획자가 화면을 눈으로 보면서 "무엇이 필요한지"를 미리 점검하기 위한 용도입니다.
 
 - 모든 데이터는 **더미데이터**입니다. `src/data/mock*.ts` 안의 값은 실제 관측값이 아닙니다.
-- 실제 백엔드 API·인증 서버·GIS 서버 연동이 없습니다. 인증은 `sessionStorage` 기반 목업입니다.
+- 실제 백엔드 API·인증 서버·GIS 서버 연동이 없습니다. 인증은 `localStorage` 기반 목업입니다(`src/data/mockAuth.ts` — **아무 값이나(비워도) 로그인됨** — `guest`만 권한 없음 체험 계정, 그 밖의 값은 팀장(`jeju-ax`) 계정. 비밀번호·OTP는 검증하지 않음. 안내 문구는 `DEMO_ACCOUNTS`에서 만들어 실제 동작과 어긋나지 않게 함).
 - **정확도 경쟁이나 실시간 연동이 목표가 아니라 "업무 흐름 검증"이 목표**입니다. 화면에 예쁜 숫자를
   넣는 것보다, 담당자가 위험 근거를 이해하고 판단할 수 있는 구조가 더 중요합니다.
 - 새 기능을 추가할 때 **과설계하지 마세요.** 지금 필요한 화면 범위를 넘어서는 인증 체계, 실제 API
@@ -709,6 +709,33 @@ nav[1..]]로 구성. 메뉴 라벨·순서를 바꿀 땐 **`xxxNav.ts`만 고치
   추가하면 `SERVICES` 배열에 브리핑 함수를 넣으세요.
 - 시나리오 문서가 짚은 미구현 갭 중 대행 결재자, 방재메신저 지시 하달은 아직 없습니다.
 
+**2026-09-29 — 1차년도 실증용 보완(시나리오 선택·데이터 구분·업무 흐름·접근성).**
+- **로그인**: 프로토타입이라 사원번호·비밀번호·OTP에 아무 값이나(비워도) 넣으면 로그인된다(`guest`만 권한 없음 체험) — 실제 인증은
+  1차년도 범위 밖. 로그인 화면 안내가 이 동작 그대로를 말한다(안내와 동작을 어긋나게 바꾸지 말 것).
+- **시나리오 선택·초기화(`src/data/scenarios.ts`)**: 헤더 "데모 데이터" 메뉴(`DemoDataMenu`)에서 고르면 localStorage에 저장하고
+  새로고침한다. 앱 시작 때 mock 값을 **한 번 덮어써서**(`main.tsx`에서 scenarioClock보다 먼저 import) 화면 코드는 시나리오를 몰라도 된다.
+  현재 3종: `default`(기존 시연 상태 — 초기화) / `river`(효돈천 돌발 강우 **주의 1단계**, 팀장 승인·경보 발송 후 출동 요청 승인 대기) /
+  `coast`(협재 이안류 감지 **주의**, 대외 경보·해경 출동 요청 승인 대기 — 등급은 `classifyCoastRisk()`로 계산). 새 시나리오는
+  `SCENARIOS`에 항목을 넣고 `applyXxx()`를 쓴다. **함께 맞춰야 하는 곳**: 서비스 카드 집계·지도 마커·`dashboardSensors`·`timeSeries`·
+  `sixHourSeries`·`recentActions`(mockDashboard) — 빠뜨리면 아래 일치 검사가 알려 준다. 시각은 "지금=09:15" 기준으로 쓴다.
+- **업무 흐름(`src/types/flow.ts`)**: 3대 실증서비스(하천·저염분·연안)는 mock에 `xxxFlowProgress`(감지→확인→판단→경보→대응→종료)를
+  들고 있고(값: 완료 시각 / "진행 중"·"승인 대기" / "보류"), 팀장 브리핑과 상세 대시보드에 진행 띠(`.flow`)로 나온다. 평시면 비어 있다.
+  **팀장 승인이 남았는지는 이 값에서 읽는다**(하천: 판단이 시각이면 승인 끝 → "다음 단계 상향 여부"만 확인).
+- **데이터 구분 표식**: 제목 앞 `*` = 시나리오 더미(기존 규칙), 제목 옆 태그 = `실시간`(API 매 조회) / `스냅샷 · 기준 시각`(실측이지만 자동 갱신
+  없음 — KHOA). `Card`·`Group`의 `source` prop + `SourceTag`, 기준 시각은 `components/ui/dataSource.ts`가 데이터에서 가져온다(스냅샷은 시나리오 시계로
+  옮기지 않는다). 새 API 패널·KHOA 스냅샷을 화면에 넣을 땐 `source`를 붙이세요. 시나리오의 수치(예: 협재 파고 1.9m)는 더미이고 KHOA 부이 실측과 다르다 —
+  그래서 두 종류를 태그로 구분한다.
+- **일치 검사(`src/data/consistency.ts`)**: 개발 서버 콘솔 또는 `window.__jejuConsistency()`. 서비스 카드 집계↔원본, 지도 마커↔원본, 하천 수위(시계열·센서·
+  근거·조위 차트), 연안 건수, 양식장 집계, 브리핑 링크·승인 항목을 검사한다. **mock 값이나 시나리오를 고친 뒤 3개 시나리오 모두에서 "어긋남 없음"인지 확인.**
+- **방재메신저·안전뉴스**는 2단계 구현 예정이라 동작하지 않는다. 빈 "준비 중" 문구 대신 `ComingSoonPanel`이 예정 기능과 **지금 쓰는 대체 수단**(담당자 연락처)을
+  보여주고, 도메인 보드의 메신저 버튼은 `MessengerNotice`를 연다(예전엔 관련 없는 탭이 열렸음). 헤더의 `href="#"` 빈 링크도 없앴다.
+- **접근성**: 탭 목록 키보드 조작(`tabKeys.ts` — ←/→·↑/↓·Home/End), 탭↔패널 `aria-controls`/`role=tabpanel`, 본문 `<main id="main-content">`와
+  "본문으로 건너뛰기" 링크(`.skip-link`). 가로 탭 바는 `DragScrollTabs`(훅을 안에 가둬 `react/refs` 경고 제거) — 새 탭 바에도 쓰세요.
+- **lint 정리**: `only-export-components` 경고는 컴포넌트 파일에서 상수·함수를 밖으로 뺐다(`gisRailItems.ts`, `panelStatus.ts`, `domainSidebarUtils.ts`,
+  `domainParts.tsx`). `src/` 기준 경고 0건. `npm run lint`에 남는 경고는 전부 사용자 폴더 `Improve Jeju Disaster Platform UI_UX/`(추적 안 되는 참고 자료)에서 나온다.
+- 기본 데이터의 교차 불일치도 바로잡았다: 호우 전광판 문구가 "효돈천 하천범람 심각"이라 했으나 하천은 평시였음, 하천 센서값·조위 차트가 대시보드 수위와 달랐음,
+  호우 관측소 이름의 "효돈천" 표기(하천 서비스와 충돌) → "서귀포 하천변 침수센서".
+
 ## 5. 알려진 미해결 이슈 (다음에 손댈 후보)
 
 - **`coastEventDetail.sensorCrossCheck`(`src/data/mockCoast.ts`, "조류 센서 CS-04"·"수온 부이 BU-11")는
@@ -735,8 +762,8 @@ nav[1..]]로 구성. 메뉴 라벨·순서를 바꿀 땐 **`xxxNav.ts`만 고치
   확인하세요(위 `WeatherTimeline`과 동일한 판단 필요).
 - MVP 기획 가이드(Manus AI 작성, 2026-09-07) 대조 결과 아직 구현 안 된 항목들 — 급하지 않지만 서비스가
   15개로 늘어나기 전에 검토 예정:
-  - 시나리오 선택·재생 UI (지금은 고정 더미데이터만 있음)
-  - 화면 상단 `시뮬레이션 데이터` 배지 + 전역 최종갱신시각 표시 — **미착수 확인(2026-09-08)**: 이
+  - 시나리오 **재생**(시간 흐름에 따라 단계가 자동 진행) — 선택·초기화는 2026-09-29 구현(`scenarios.ts`), 자동 재생은 아직 없음
+  - (2026-09-29 헤더 "데모 데이터" 칩+메뉴로 반영 — 아래는 그 이전 기록) 화면 상단 `시뮬레이션 데이터` 배지 + 전역 최종갱신시각 표시 — **미착수 확인(2026-09-08)**: 이
     문서에는 한때 "2026-09-07 부분 적용"이라고 적혀 있었지만, 실제 코드에는 해당 배지가 어디에도
     없습니다(`mockIncidents.ts`의 `disasterDatasetMeta`/`disasterDashboardSummary`가 이 용도로
     만들어졌지만 어느 화면에서도 import되지 않는 미사용 상태). 문서만 앞서 있었던 것으로 보이니, 실제로
@@ -753,7 +780,7 @@ nav[1..]]로 구성. 메뉴 라벨·순서를 바꿀 땐 **`xxxNav.ts`만 고치
 - react-router-dom v7 (클라이언트 라우팅), recharts (시계열 차트)
 - react-leaflet v5 + leaflet (`JejuTileMap.tsx`, 2026-09-09 추가) — OpenStreetMap/Esri 무료 타일,
   API 키 불필요
-- 인증은 `sessionStorage` 기반 목업 (`src/data/mockAuth.ts`, `src/routes/RequireAuth.tsx`)
+- 인증은 `localStorage` 기반 목업 (`src/data/mockAuth.ts`, `src/routes/RequireAuth.tsx`) — 상세 화면을 새 창으로 열어도 로그인이 이어지게 하려는 것
 - 배포: GitHub Pages (`.github/workflows/deploy-pages.yml`, `master` 푸시 시 자동 빌드+배포). 프로덕션
   빌드만 `base`/`basename`이 `/jeju-disaster-platform/`로 바뀌므로 로컬 개발엔 영향 없음.
 
@@ -761,6 +788,8 @@ nav[1..]]로 구성. 메뉴 라벨·순서를 바꿀 땐 **`xxxNav.ts`만 고치
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # tsc -b && vite build — 커밋 전 항상 실행해서 타입 에러 확인
+npm run lint     # oxlint — src/ 경고 0건 유지
+npm run build:local && npm run preview:local   # 배포용과 달리 루트(/) 기준 — 로컬에서 빌드 결과 확인(http://localhost:4173)
 ```
 
 ## 6-1. UI/UX 디자인 가이드라인 (2026-09-28)

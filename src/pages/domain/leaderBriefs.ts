@@ -8,6 +8,7 @@ import * as HT from "../../data/mockHeat"
 import * as RV from "../../data/mockRiver"
 import * as AQ from "../../data/mockAqua"
 import * as CO from "../../data/mockCoast"
+import { FLOW_STEPS, type FlowProgress } from "../../types/flow"
 
 /**
  * 서비스별 "팀장 브리핑" — 제주 재난안전과 팀장(확인→승인→지시→결재를 하는 사람) 관점의 대시보드 요약.
@@ -30,6 +31,12 @@ export interface BriefTask {
   to: string
 }
 
+export interface FlowStepView {
+  step: string
+  state: "done" | "current" | "todo" | "skip"
+  note: string
+}
+
 export interface LeaderBrief {
   title: string
   lines: string[]
@@ -42,6 +49,25 @@ export interface LeaderBrief {
   evidence: { k: string; v: string }[]
   outlook: string[]
   response: { k: string; v: string }[]
+  /** 3대 실증서비스만 — 감지→확인→판단→경보→대응→종료 진행 */
+  flow?: { active: boolean; steps: FlowStepView[] }
+}
+
+/** 서비스 mock의 FlowProgress를 화면용 단계 목록으로 — 시각이면 완료, "보류"면 건너뜀, 그 밖의 문구는 지금 이 단계 */
+export function flowView(p: FlowProgress): { active: boolean; steps: FlowStepView[] } {
+  const steps: FlowStepView[] = FLOW_STEPS.map((step) => {
+    const v = p[step]
+    if (!v) return { step, state: "todo", note: "" }
+    if (v === "보류") return { step, state: "skip", note: "보류" }
+    return /^\d{1,2}:\d{2}/.test(v) ? { step, state: "done", note: v } : { step, state: "current", note: v }
+  })
+  const active = steps.some((s) => s.state !== "todo")
+  // 진행 중인 단계를 따로 적지 않았다면, 마지막 완료 단계 다음을 "다음 단계"로 표시한다
+  if (active && !steps.some((s) => s.state === "current")) {
+    const next = steps.find((s, i) => s.state === "todo" && steps.slice(0, i).some((x) => x.state === "done"))
+    if (next) next.state = "current"
+  }
+  return { active, steps }
 }
 
 const RANK: RiskLevel[] = ["safe", "caution", "warning", "alert", "danger"]
@@ -250,6 +276,8 @@ export function riverBrief(): LeaderBrief {
   const tc = RV.riverTideCorrelation
   const calm = worst.level === "safe"
   const gateBad = RV.riverControlRows.some((r) => r.gate !== "정상 작동")
+  const judge = RV.riverFlowProgress.판단
+  const judgePending = !!judge && !/^\d{1,2}:\d{2}/.test(judge) && judge !== "보류"
   return {
     title: `${worst.name} ${worst.stage}`,
     lines: [...st.map((s) => `${s.name} — 범람 도달 ${s.eta} · 갱신 ${s.updatedAt}`), `${RV.riverSopStage.current} — ${RV.riverSopStage.next}`],
@@ -262,11 +290,14 @@ export function riverBrief(): LeaderBrief {
       { k: "토양 포화도", v: rb.saturation.value, d: rb.saturation.detail },
     ],
     tasks: [
+      // 판단 단계가 "승인 대기" 같은 문구면 팀장 승인이 아직 안 난 것 — 이미 승인한 뒤(시각 기록)라면 다음 단계 상향 여부만 지켜본다
       ...(calm
         ? []
-        : [{ role: "승인" as const, title: `${worst.name} 단계 상향·경보 발령`, detail: RV.riverSopStage.next, status: worst.stage, level: worst.level, to: "/river/alert" }]),
+        : judgePending
+          ? [{ role: "승인" as const, title: `${worst.name} 단계 상향·경보 발령`, detail: RV.riverSopStage.next, status: worst.stage, level: worst.level, to: "/river/alert" }]
+          : [{ role: "확인" as const, title: `${worst.name} 다음 단계 상향 여부`, detail: RV.riverSopStage.next, status: worst.stage, level: worst.level, to: "/river/analysis" }]),
       ...(sr.level !== "safe"
-        ? [{ role: "확인" as const, title: "돌발 강우 감지 — 단계 상향 판단", detail: sr.confirmNote, status: sr.label, level: sr.level, to: "/river/analysis" }]
+        ? [{ role: "확인" as const, title: judgePending ? "돌발 강우 감지 — 단계 상향 판단" : "돌발 강우 추이 확인", detail: sr.confirmNote, status: sr.label, level: sr.level, to: "/river/analysis" }]
         : []),
       ...dispatchTask(d, "/river/alert"),
       ...(RV.riverControlFailures.length > 0 || gateBad
@@ -290,6 +321,7 @@ export function riverBrief(): LeaderBrief {
       { k: "전파 현황", v: RV.riverPropagation.map((p) => `${p.channel} ${p.status}`).join(" · ") },
       { k: "최근 승인 이력", v: RV.riverApprovalHistory[RV.riverApprovalHistory.length - 1]?.title ?? "-" },
     ],
+    flow: flowView(RV.riverFlowProgress),
   }
 }
 
@@ -357,6 +389,7 @@ export function aquaBrief(): LeaderBrief {
       { k: "조치 체크리스트", v: `완료 ${AQ.aquaChecklist.length - undone.length}/${AQ.aquaChecklist.length}건` },
       { k: "기관 현황", v: AQ.aquaAgencyRows.map((a) => `${a.agency.replace(/^제주(특별자치도|시|시 )?/, "").trim()} ${a.execute}`).join(" · ") },
     ],
+    flow: flowView(AQ.aquaFlowProgress),
   }
 }
 
@@ -385,7 +418,17 @@ export function coastBrief(): LeaderBrief {
       ...pending.map((e) => ({ role: "승인" as const, title: `${e.type} · ${e.location}`, detail: `${e.time} · ${e.source} — 대외 경보 발령 승인`, status: "승인 대기", level: e.level, to: "/coast/alerts" })),
       ...(dp.request.status.startsWith("요청 없음")
         ? []
-        : [{ role: "지시" as const, title: "해경·소방 출동 요청", detail: `${dp.request.agency} · ${dp.request.eta}`, status: dp.request.status, level: dp.summary.level as RiskLevel, to: "/coast/dispatch" }]),
+        : [
+            {
+              // 출동 요청이 초안이라 팀장 승인을 기다리는 중이면 "승인", 이미 나간 요청을 챙기는 것이면 "지시"
+              role: (dp.request.status.includes("승인 대기") ? "승인" : "지시") as BriefRole,
+              title: "해경·소방 출동 요청",
+              detail: `${dp.request.agency} · 도착 예상 ${dp.request.eta}`,
+              status: dp.request.status,
+              level: dp.summary.level as RiskLevel,
+              to: "/coast/dispatch",
+            },
+          ]),
       ...(s.equipment.error > 0
         ? [{ role: "확인" as const, title: "스마트폴 장비 오류 조치", detail: s.equipment.detail, status: `오류 ${s.equipment.error}기`, level: "warning" as RiskLevel, to: "/coast/monitoring" }]
         : []),
@@ -404,5 +447,6 @@ export function coastBrief(): LeaderBrief {
       { k: "AIoT 스마트폴", v: `정상 ${CO.coastSafetyAssets.filter((a) => a.status === "정상").length}/${CO.coastSafetyAssets.length}기` },
       { k: "현장 경보", v: `${CO.coastFieldAlerts.length}건` },
     ],
+    flow: flowView(CO.coastFlowProgress),
   }
 }

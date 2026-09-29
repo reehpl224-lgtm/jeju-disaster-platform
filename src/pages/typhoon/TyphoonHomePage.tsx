@@ -1,4 +1,5 @@
 import { Card } from "../../components/ui/Card"
+import { KHOA_BUOY_SNAPSHOT } from "../../components/ui/dataSource"
 import { LeaderDetailBrief } from "../domain/LeaderBrief"
 import { typhoonBrief } from "../domain/leaderBriefs"
 import { RiskBadge } from "../../components/ui/RiskBadge"
@@ -70,6 +71,7 @@ export function TyphoonHomePage() {
 
       <Card
         title="실측 해상 관측 참고 — 국립해양조사원(KHOA) 해양관측부이"
+        source={KHOA_BUOY_SNAPSHOT}
         subtitle="자체 관측장비 없음(기상청 발표 전량 수신)을 보완하는 실측 참고치 — 특보 판단은 기상청 공식 발표 기준을 따름"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

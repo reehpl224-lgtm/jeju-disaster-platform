@@ -1,4 +1,5 @@
 import type { CoastAgencyStatus, CoastEvent, CoastFieldAlert, TimelineEntry } from "../types/coast"
+import type { FlowProgress } from "../types/flow"
 
 /**
  * 연안 위험단계 상태 구간 — "TP-P22_002_플랫폼 데이터 리스트.xlsx" 연안 안전관리시스템 시트 "상태 구간 설정" 그대로(2026-09-22 사용자 확정).
@@ -189,3 +190,6 @@ export const coastClosure = {
     lesson: "CAM-11 센서 지연 2분 — 유지보수 요청 등록됨",
   },
 }
+
+/** 업무 흐름 진행(감지→확인→판단→경보→대응→종료) — 평시라 아직 시작된 단계 없음. 시나리오는 scenarios.ts가 덮어쓴다 */
+export const coastFlowProgress: FlowProgress = {}

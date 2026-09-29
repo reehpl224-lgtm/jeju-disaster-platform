@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom"
-import { Crumbs, currentLabel, DomainSidebar, findDomain } from "./DomainSidebar"
+import { Crumbs, DomainSidebar } from "./DomainSidebar"
+import { currentLabel, findDomain } from "./domainSidebarUtils"
 import { Header } from "./Header"
 import type { MockUser } from "../../data/mockAuth"
 
@@ -18,19 +19,22 @@ export function AppShell({ user }: { user: MockUser }) {
 
   return (
     <div className="app">
+      <a className="skip-link" href="#main-content">
+        본문으로 건너뛰기
+      </a>
       <Header user={user} />
       {isBoard ? (
         <Outlet />
       ) : domain ? (
         <div className="shell">
           <DomainSidebar domain={domain} />
-          <main className="content page-content" style={{ paddingRight: 10 }}>
+          <main className="content page-content" id="main-content" tabIndex={-1} style={{ paddingRight: 10 }}>
             <Crumbs items={["홈", domain.title, currentLabel(domain, pathname)]} />
             <Outlet />
           </main>
         </div>
       ) : (
-        <main className="page-content min-h-0 flex-1 overflow-y-auto p-4 md:p-6">
+        <main id="main-content" tabIndex={-1} className="page-content min-h-0 flex-1 overflow-y-auto p-4 md:p-6">
           <Outlet />
         </main>
       )}
