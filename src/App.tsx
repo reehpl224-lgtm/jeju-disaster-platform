@@ -47,6 +47,7 @@ const HeatDataPage = lazy(() => import("./pages/heat/HeatDataPage").then((m) => 
 const HeatAnalysisPage = lazy(() => import("./pages/heat/HeatAnalysisPage").then((m) => ({ default: m.HeatAnalysisPage })))
 const HeatAlertPage = lazy(() => import("./pages/heat/HeatAlertPage").then((m) => ({ default: m.HeatAlertPage })))
 const HeatClosurePage = lazy(() => import("./pages/heat/HeatClosurePage").then((m) => ({ default: m.HeatClosurePage })))
+const ApprovalsPage = lazy(() => import("./pages/approvals/ApprovalsPage").then((m) => ({ default: m.ApprovalsPage })))
 const PropagationHomePage = lazy(() => import("./pages/propagation/PropagationHomePage").then((m) => ({ default: m.PropagationHomePage })))
 const PilotStatusPage = lazy(() => import("./pages/pilot/PilotStatusPage").then((m) => ({ default: m.PilotStatusPage })))
 const DataSystemPage = lazy(() => import("./pages/datasystem/DataSystemPage").then((m) => ({ default: m.DataSystemPage })))
@@ -121,6 +122,7 @@ export default function App() {
           <Route path="/heat/alert" element={<HeatAlertPage />} />
           <Route path="/heat/closure" element={<HeatClosurePage />} />
 
+          <Route path="/approvals" element={<ApprovalsPage />} />
           <Route path="/propagation" element={<PropagationHomePage />} />
           <Route path="/data-systems" element={<DataSystemPage />} />
           <Route path="/pilot-status" element={<PilotStatusPage />} />
