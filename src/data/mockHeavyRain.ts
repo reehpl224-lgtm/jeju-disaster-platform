@@ -210,3 +210,65 @@ export const broadcastLog: BroadcastLogEntry[] = [
   { id: "bl-2", channel: "자동음성통보", message: "한천 인근 주민 대상 대피 안내 방송", time: "14:10" },
   { id: "bl-3", channel: "재해문자전광판", message: "제주 전역 호우 예비특보 발효", time: "13:00" },
 ]
+
+/**
+ * "빈 화면" 모드용 — 하천범람·연안 안전관리와 반대로, 이 파일은 3대 실증서비스 리셋(2026-09-22) 대상이
+ * 아니라 "현재값" 자체가 이미 제주시 한천 침수경보 발령 중인 사건(14:30)이다. 저염분 고수온과 같은
+ * 방향으로 짝이 되는 평시(정상) 스냅샷을 새로 추가한다 — DataModeContext의 mode="empty"일 때만
+ * leaderBriefs.ts·HeavyRain 상세 화면에서 이 값을 쓴다. 레거시 연계 현황(legacySystems)은 사건과
+ * 무관한 인프라 상태라 두 모드 동일하게 유지한다.
+ */
+export const weatherStationsEmpty: WeatherStationReading[] = [
+  { id: "ws-1", name: "제주시 한천 침수센서", type: "침수센서", value: "정상", status: "safe", updatedAt: "09:00" },
+  { id: "ws-2", name: "서귀포 효돈천 침수센서", type: "침수센서", value: "정상", status: "safe", updatedAt: "09:00" },
+  { id: "ws-3", name: "제주시 우량계 #3", type: "우량계", value: "2mm/h", status: "safe", updatedAt: "09:00" },
+  { id: "ws-4", name: "서귀포 우량계 #2", type: "우량계", value: "1mm/h", status: "safe", updatedAt: "09:00" },
+  { id: "ws-5", name: "한라산 적설계", type: "적설계", value: "0cm", status: "safe", updatedAt: "09:00" },
+  { id: "ws-6", name: "성산 풍속풍향계", type: "풍속풍향계", value: "3.2m/s · 남서풍", status: "safe", updatedAt: "09:00" },
+]
+
+export const heavyRainAiForecastEmpty = {
+  forecastMm: 40,
+  detectedAt: "-",
+  stations: [
+    { id: "f-1", name: "제주시 우량계 #3", observedMm: 2 },
+    { id: "f-2", name: "서귀포 우량계 #2", observedMm: 1 },
+  ],
+  aiNote: "현재 실측 강우가 예보 범위 내로 안정적입니다. 평시 모니터링을 유지합니다.",
+  confirmNote: "자동침수경보 발령 여부는 반드시 담당자 확인이 필요합니다 (오경보 리스크 고려).",
+}
+
+export const heavyRainTrendEmpty: HeavyRainTrendPoint[] = [
+  { time: "08:30", rainfallMm: 1, cumulativeMm: 1 },
+  { time: "08:45", rainfallMm: 2, cumulativeMm: 3 },
+  { time: "09:00", rainfallMm: 1, cumulativeMm: 4 },
+  { time: "09:15", rainfallMm: 2, cumulativeMm: 6 },
+  { time: "09:30", rainfallMm: 1, cumulativeMm: 7 },
+]
+
+export const heavyRainTopStationsEmpty: RainfallRankEntry[] = [
+  { rank: 1, stationName: "제주시 한천", region: "제주시", cumulativeMm: 8 },
+  { rank: 2, stationName: "제주시 우량계 #3", region: "제주시", cumulativeMm: 6 },
+  { rank: 3, stationName: "서귀포 우량계 #2", region: "서귀포시", cumulativeMm: 5 },
+  { rank: 4, stationName: "애월읍 관측소", region: "제주시", cumulativeMm: 3 },
+  { rank: 5, stationName: "성산읍 관측소", region: "서귀포시", cumulativeMm: 2 },
+]
+
+export const heavyRainAlertDispatchEmpty: HeavyRainAlertDispatch = {
+  stage: "0단계 · 정상 (발령 없음)",
+  level: "safe",
+  title: "현재 발령된 경보 없음",
+  target: "해당 없음",
+  targetDetail: "평시 — 발송 대상 없음",
+  sentAt: "-",
+  approver: "-",
+  message: "정상 단계 — 현재 발령된 경보가 없습니다.",
+  channels: [
+    { id: "hc-1", name: "문자(CBS/SMS)", sent: 0, success: 0, fail: 0, rate: "-", lastSent: "-" },
+    { id: "hc-2", name: "모바일 앱 푸시", sent: 0, success: 0, fail: 0, rate: "-", lastSent: "-" },
+    { id: "hc-3", name: "재해문자전광판", sent: 0, success: 0, fail: 0, rate: "-", lastSent: "-", unit: "개소" },
+  ],
+  totalFail: 0,
+}
+
+export const broadcastLogEmpty: BroadcastLogEntry[] = []

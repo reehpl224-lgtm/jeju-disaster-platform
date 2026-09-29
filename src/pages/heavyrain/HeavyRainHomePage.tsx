@@ -8,8 +8,17 @@ import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../../components/u
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
-import { broadcastLog, heavyRainAiForecast, legacySystems, weatherStations } from "../../data/mockHeavyRain"
+import {
+  broadcastLog,
+  broadcastLogEmpty,
+  heavyRainAiForecast,
+  heavyRainAiForecastEmpty,
+  legacySystems,
+  weatherStations,
+  weatherStationsEmpty,
+} from "../../data/mockHeavyRain"
 import { riskMarkers } from "../../data/mockDashboard"
+import { useDataMode, useModeValue } from "../../context/DataModeContext"
 
 const HEAVY_RAIN_MARKERS = riskMarkers.filter((m) => m.domain === "heavyRain")
 // 호우는 담당자 연락처(DutyContact)·물리 자산현황 데이터가 아직 없어 두 항목은 레일에서 제외
@@ -28,47 +37,53 @@ const STATION_TYPE_LABEL: Record<(typeof weatherStations)[number]["type"], strin
   풍속풍향계: "💨",
 }
 
-const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
-  sensor: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {weatherStations.map((station) => (
-        <li key={station.id} className="flex items-center justify-between gap-2 py-2 text-xs">
-          <p className="font-medium text-white/80">{station.name}</p>
-          <RiskBadge level={station.status} label={station.value} />
-        </li>
-      ))}
-    </ul>
-  ),
-  response: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {legacySystems.map((system) => (
-        <li key={system.id} className="py-2 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-medium text-white/80">{system.name}</p>
-            <RiskBadge level={LINK_STATUS_LEVEL[system.linkStatus]} label={system.linkStatus} />
-          </div>
-          <p className="mt-0.5 text-white/35">{system.operator}</p>
-        </li>
-      ))}
-    </ul>
-  ),
-  broadcast: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {broadcastLog.map((entry) => (
-        <li key={entry.id} className="py-2 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-medium text-white/80">{entry.message}</p>
-            <span className="shrink-0 text-white/35">{entry.time}</span>
-          </div>
-          <p className="text-white/35">{entry.channel}</p>
-        </li>
-      ))}
-    </ul>
-  ),
-}
-
 export function HeavyRainHomePage() {
   const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
+  const { isEmpty } = useDataMode()
+  const stations = useModeValue(weatherStationsEmpty, weatherStations)
+  const forecast = useModeValue(heavyRainAiForecastEmpty, heavyRainAiForecast)
+  const log = useModeValue(broadcastLogEmpty, broadcastLog)
+  const over = Math.max(...forecast.stations.map((s) => s.observedMm)) > forecast.forecastMm
+
+  const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
+    sensor: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {stations.map((station) => (
+          <li key={station.id} className="flex items-center justify-between gap-2 py-2 text-xs">
+            <p className="font-medium text-white/80">{station.name}</p>
+            <RiskBadge level={station.status} label={station.value} />
+          </li>
+        ))}
+      </ul>
+    ),
+    response: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {legacySystems.map((system) => (
+          <li key={system.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-white/80">{system.name}</p>
+              <RiskBadge level={LINK_STATUS_LEVEL[system.linkStatus]} label={system.linkStatus} />
+            </div>
+            <p className="mt-0.5 text-white/35">{system.operator}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+    broadcast: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {log.length === 0 && <li className="py-3 text-xs text-white/40">발송 이력 없음 — 평시 감시 중</li>}
+        {log.map((entry) => (
+          <li key={entry.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-white/80">{entry.message}</p>
+              <span className="shrink-0 text-white/35">{entry.time}</span>
+            </div>
+            <p className="text-white/35">{entry.channel}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -80,7 +95,7 @@ export function HeavyRainHomePage() {
         </p>
       </div>
 
-      <LeaderDetailBrief brief={heavyRainBrief()} />
+      <LeaderDetailBrief brief={heavyRainBrief(isEmpty)} />
 
       <Card title="위험 위치 및 관측망 — 호우 GIS" subtitle="침수경보·우량계 관측 지점" dummy>
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
@@ -114,29 +129,29 @@ export function HeavyRainHomePage() {
 
       <Card
         title="AI 침수 위험 조기경보"
-        subtitle={`감지 시각 ${heavyRainAiForecast.detectedAt} · 우량계 실측 추이 기반`}
+        subtitle={`감지 시각 ${forecast.detectedAt} · 우량계 실측 추이 기반`}
         dummy
       >
         <div className="flex flex-wrap items-center gap-4">
-          {heavyRainAiForecast.stations.map((s) => (
+          {forecast.stations.map((s) => (
             <div key={s.id} className="flex items-center gap-2">
               <p className="text-[11px] font-medium text-white/40">{s.name}</p>
-              <p className="text-base font-bold text-risk-warning">{s.observedMm}mm/h</p>
+              <p className={`text-base font-bold ${over ? "text-risk-warning" : "text-white/70"}`}>{s.observedMm}mm/h</p>
             </div>
           ))}
           <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
-            AI 조기경고 · 예보 {heavyRainAiForecast.forecastMm}mm/h 대비 초과
+            {over ? `AI 조기경고 · 예보 ${forecast.forecastMm}mm/h 대비 초과` : `예보 ${forecast.forecastMm}mm/h 범위 내 · 평시`}
           </span>
         </div>
-        <p className="mt-3 text-xs text-white/50">{heavyRainAiForecast.aiNote}</p>
+        <p className="mt-3 text-xs text-white/50">{forecast.aiNote}</p>
         <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
-          {heavyRainAiForecast.confirmNote}
+          {forecast.confirmNote}
         </div>
       </Card>
 
       <Card title="관측망 현황" subtitle="침수센서·우량계·적설계·풍속풍향계" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {weatherStations.map((station) => (
+          {stations.map((station) => (
             <div key={station.id} className="rounded-lg border border-border-subtle p-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-white/80">
@@ -156,7 +171,8 @@ export function HeavyRainHomePage() {
 
       <Card title="자동통보 발송 이력" subtitle="재해문자전광판 · 자동음성통보" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
-          {broadcastLog.map((entry) => (
+          {log.length === 0 && <li className="py-3 text-sm text-white/40">발송 이력 없음 — 평시 감시 중</li>}
+          {log.map((entry) => (
             <li key={entry.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
               <div>
                 <p className="font-medium text-white/80">{entry.message}</p>

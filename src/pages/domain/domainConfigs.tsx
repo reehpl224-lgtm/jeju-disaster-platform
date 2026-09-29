@@ -365,12 +365,17 @@ const LIVE_MARINE_COAST = (
 )
 
 // ================================================================== 호우
-export function heavyRainConfig(_isEmpty?: boolean): DomainConfig {
-  const f = HR.heavyRainAiForecast
+export function heavyRainConfig(isEmpty = false): DomainConfig {
+  const f = isEmpty ? HR.heavyRainAiForecastEmpty : HR.heavyRainAiForecast
+  const stations = isEmpty ? HR.weatherStationsEmpty : HR.weatherStations
+  const log = isEmpty ? HR.broadcastLogEmpty : HR.broadcastLog
+  const over = Math.max(...f.stations.map((s) => s.observedMm)) > f.forecastMm
+  // 상세 탭(상세 분석·경보발송)은 아직 데이터 모드 미연동 — HeavyRain 상세 페이지
+  // (HeavyRainHomePage 등)에서 먼저 연동했고, 이 보드 뷰의 나머지 탭은 다음 단계에서 이어서 연동한다.
   // 대시보드·상세 분석·데이터 수집 상세 화면이 모두 보여주는 관측소 목록 — 세 탭에서 같이 쓴다
   const stationList = (
     <ul className="plist">
-      {HR.weatherStations.map((s) => (
+      {stations.map((s) => (
         <li className="row-between" key={s.id}>
           <div>
             <p className="t">{s.name}</p>
@@ -384,12 +389,12 @@ export function heavyRainConfig(_isEmpty?: boolean): DomainConfig {
     </ul>
   )
   const home = (
-    <LeaderBoardBrief brief={heavyRainBrief()}>
+    <LeaderBoardBrief brief={heavyRainBrief(isEmpty)}>
       <Group title="관측소 현황" dummy>
         {stationList}
       </Group>
       <Group title="재해문자전광판·자동음성 송출" dummy>
-        <Tl entries={HR.broadcastLog.map((b) => ({ time: b.time, title: `[${b.channel}] ${b.message}` }))} />
+        <Tl entries={log.map((b) => ({ time: b.time, title: `[${b.channel}] ${b.message}` }))} />
       </Group>
     </LeaderBoardBrief>
   )
@@ -441,9 +446,13 @@ export function heavyRainConfig(_isEmpty?: boolean): DomainConfig {
     id: "heavy-rain",
     title: "호우",
     mapDomain: "heavyRain",
-    headline: (
+    headline: over ? (
       <>
         ☔ 예보 <b>{f.forecastMm}mm/h</b> 초과 · 한천 침수센서 경보 발령
+      </>
+    ) : (
+      <>
+        ☔ 실측 강우 예보(<b>{f.forecastMm}mm/h</b>) 범위 내 · 평시 감시 중
       </>
     ),
     tabs: navTabs(HEAVY_RAIN_NAV, home, {

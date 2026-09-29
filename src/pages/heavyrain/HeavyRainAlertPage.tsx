@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { heavyRainAlertDispatch } from "../../data/mockHeavyRain"
+import { heavyRainAlertDispatch, heavyRainAlertDispatchEmpty } from "../../data/mockHeavyRain"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function HeavyRainAlertPage() {
-  const d = heavyRainAlertDispatch
+  const d = useModeValue(heavyRainAlertDispatchEmpty, heavyRainAlertDispatch)
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -46,7 +47,9 @@ export function HeavyRainAlertPage() {
       </div>
 
       <Card title="수신 실패 현황" subtitle={`전체 실패: ${d.totalFail}건`} dummy>
-        <p className="text-xs text-white/40">통신사 지연 등 일시적 실패로, 재전송 후 대부분 수신 확인됨.</p>
+        <p className="text-xs text-white/40">
+          {d.totalFail > 0 ? "통신사 지연 등 일시적 실패로, 재전송 후 대부분 수신 확인됨." : "발령된 경보가 없어 수신 실패 이력도 없습니다 — 평시 감시 중."}
+        </p>
       </Card>
     </div>
   )

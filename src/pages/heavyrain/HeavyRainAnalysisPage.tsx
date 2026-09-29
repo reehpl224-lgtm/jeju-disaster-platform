@@ -2,9 +2,24 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
-import { heavyRainAiForecast, heavyRainTopStations, heavyRainTrend, weatherStations } from "../../data/mockHeavyRain"
+import {
+  heavyRainAiForecast,
+  heavyRainAiForecastEmpty,
+  heavyRainTopStations,
+  heavyRainTopStationsEmpty,
+  heavyRainTrend,
+  heavyRainTrendEmpty,
+  weatherStations,
+  weatherStationsEmpty,
+} from "../../data/mockHeavyRain"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function HeavyRainAnalysisPage() {
+  const forecast = useModeValue(heavyRainAiForecastEmpty, heavyRainAiForecast)
+  const topStations = useModeValue(heavyRainTopStationsEmpty, heavyRainTopStations)
+  const trend = useModeValue(heavyRainTrendEmpty, heavyRainTrend)
+  const stations = useModeValue(weatherStationsEmpty, weatherStations)
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -12,10 +27,10 @@ export function HeavyRainAnalysisPage() {
         <p className="mt-1 text-sm text-white/50">강우 추이 및 관측망 근거 데이터</p>
       </div>
 
-      <Card title="강우 추이 (시간당·누적)" subtitle={`감지 시각 ${heavyRainAiForecast.detectedAt} 기준`} dummy>
+      <Card title="강우 추이 (시간당·누적)" subtitle={`감지 시각 ${forecast.detectedAt} 기준`} dummy>
         <div className="h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={heavyRainTrend} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
+            <LineChart data={trend} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
               <XAxis dataKey="time" tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
               <YAxis tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
@@ -39,7 +54,7 @@ export function HeavyRainAnalysisPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
-            {heavyRainTopStations.map((s) => (
+            {topStations.map((s) => (
               <tr key={s.rank}>
                 <td className="py-2 font-mono text-white/50">{s.rank}</td>
                 <td className="py-2 font-medium text-white/80">{s.stationName}</td>
@@ -52,9 +67,9 @@ export function HeavyRainAnalysisPage() {
       </Card>
 
       <Card title="AI 조기경보 근거" dummy>
-        <p className="text-sm text-white/70">{heavyRainAiForecast.aiNote}</p>
+        <p className="text-sm text-white/70">{forecast.aiNote}</p>
         <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
-          {heavyRainAiForecast.confirmNote}
+          {forecast.confirmNote}
         </div>
       </Card>
 
@@ -64,7 +79,7 @@ export function HeavyRainAnalysisPage() {
 
       <Card title="관측망 근거 데이터" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {weatherStations.map((station) => (
+          {stations.map((station) => (
             <div key={station.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-3">
               <div>
                 <p className="text-sm font-medium text-white/80">{station.name}</p>

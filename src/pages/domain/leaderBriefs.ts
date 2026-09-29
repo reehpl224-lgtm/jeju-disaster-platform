@@ -82,16 +82,18 @@ function dispatchTask(
 }
 
 // ------------------------------------------------------------------ 호우
-export function heavyRainBrief(_isEmpty?: boolean): LeaderBrief {
-  const f = HR.heavyRainAiForecast
-  const ad = HR.heavyRainAlertDispatch
-  const stations = HR.weatherStations
+export function heavyRainBrief(isEmpty = false): LeaderBrief {
+  const f = isEmpty ? HR.heavyRainAiForecastEmpty : HR.heavyRainAiForecast
+  const ad = isEmpty ? HR.heavyRainAlertDispatchEmpty : HR.heavyRainAlertDispatch
+  const stations = isEmpty ? HR.weatherStationsEmpty : HR.weatherStations
+  const topStations = isEmpty ? HR.heavyRainTopStationsEmpty : HR.heavyRainTopStations
+  const log = isEmpty ? HR.broadcastLogEmpty : HR.broadcastLog
   const maxObs = Math.max(...f.stations.map((s) => s.observedMm))
   const over = maxObs > f.forecastMm
   const hot = stations.filter((s) => RANK.indexOf(s.status) >= RANK.indexOf("warning"))
-  const top = HR.heavyRainTopStations[0]
-  const latestBroadcast = HR.broadcastLog[0]
-  const linked = HR.legacySystems.filter((s) => s.linkStatus === "연계 진행중").length
+  const top = topStations[0]
+  const latestBroadcast = log[0]
+  const linked = HR.legacySystems.filter((s) => s.linkStatus === "연계 진행중").length // 레거시 연계는 사건과 무관 — 두 모드 동일
   return {
     title: over ? `예보 ${f.forecastMm}mm/h 대비 실측 초과` : `실측 강우가 예보(${f.forecastMm}mm/h) 범위 내`,
     lines: [`감지 ${f.detectedAt} · 경보·주의 관측소 ${hot.length}/${stations.length}`, ...(ad.sentAt !== "-" ? [`${ad.title} ${ad.sentAt} 발령`] : [])],
@@ -101,7 +103,7 @@ export function heavyRainBrief(_isEmpty?: boolean): LeaderBrief {
       { k: "최대 실측 강우", v: `${maxObs}mm/h`, d: `예보 ${f.forecastMm}mm/h`, over },
       { k: "경보·주의 관측소", v: `${hot.length}/${stations.length}`, over: hot.length > 0 },
       { k: "누적 강우 1위", v: `${top.cumulativeMm}mm`, d: top.stationName },
-      { k: "자동통보", v: `${HR.broadcastLog.length}건`, d: latestBroadcast ? `최근 ${latestBroadcast.time}` : undefined },
+      { k: "자동통보", v: `${log.length}건`, d: latestBroadcast ? `최근 ${latestBroadcast.time}` : undefined },
     ],
     tasks: [
       ...(over
@@ -127,7 +129,12 @@ export function heavyRainBrief(_isEmpty?: boolean): LeaderBrief {
     idle: "결재·지시 대기 없음 — 평시 감시 중",
     evidence: [
       { k: "우량계 실측", v: f.stations.map((s) => `${s.name} ${s.observedMm}mm/h`).join(" · ") },
-      { k: "예보 대비", v: `+${maxObs - f.forecastMm}mm/h (${Math.round(((maxObs - f.forecastMm) / f.forecastMm) * 100)}% 초과)` },
+      {
+        k: "예보 대비",
+        v: over
+          ? `+${maxObs - f.forecastMm}mm/h (${Math.round(((maxObs - f.forecastMm) / f.forecastMm) * 100)}% 초과)`
+          : `정상 범위 (여유 ${f.forecastMm - maxObs}mm/h)`,
+      },
       { k: "침수센서", v: stations.filter((s) => s.type === "침수센서").map((s) => `${s.name.replace(/ 침수센서/, "")} ${s.value}`).join(" · ") },
     ],
     outlook: [f.aiNote],
