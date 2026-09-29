@@ -31,3 +31,7 @@ dist-ssr
 *.sln
 *.sw?
 dist-local
+
+# 엑셀 편집 중 생성되는 임시 잠금 파일과 로컬 검사 산출물
+public/~$*.xlsx
+public/*.xlsx.inspect.ndjson

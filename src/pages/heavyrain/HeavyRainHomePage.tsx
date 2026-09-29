@@ -4,6 +4,7 @@ import { LIVE } from "../../components/ui/dataSource"
 import { LeaderDetailBrief } from "../domain/LeaderBrief"
 import { heavyRainBrief } from "../domain/leaderBriefs"
 import { RiskBadge } from "../../components/ui/RiskBadge"
+import { CollectionStatusBadge } from "../../components/ui/CollectionStatusBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { GisIconRail } from "../../components/ui/GisIconRail"
 import { GIS_RAIL_ITEMS, type GisRailKey } from "../../components/ui/gisRailItems"
@@ -30,43 +31,48 @@ const STATION_TYPE_LABEL: Record<(typeof weatherStations)[number]["type"], strin
   풍속풍향계: "💨",
 }
 
-const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
-  sensor: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {weatherStations.map((station) => (
-        <li key={station.id} className="flex items-center justify-between gap-2 py-2 text-xs">
-          <p className="font-medium text-white/80">{station.name}</p>
-          <RiskBadge level={station.status} label={station.value} />
-        </li>
-      ))}
-    </ul>
-  ),
-  response: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {legacySystems.map((system) => (
-        <li key={system.id} className="py-2 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-medium text-white/80">{system.name}</p>
-            <RiskBadge level={LINK_STATUS_LEVEL[system.linkStatus]} label={system.linkStatus} />
-          </div>
-          <p className="mt-0.5 text-white/35">{system.operator}</p>
-        </li>
-      ))}
-    </ul>
-  ),
-  broadcast: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {broadcastLog.map((entry) => (
-        <li key={entry.id} className="py-2 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-medium text-white/80">{entry.message}</p>
-            <span className="shrink-0 text-white/35">{entry.time}</span>
-          </div>
-          <p className="text-white/35">{entry.channel}</p>
-        </li>
-      ))}
-    </ul>
-  ),
+function railContent(): Partial<Record<GisRailKey, ReactNode>> {
+  return {
+    sensor: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {weatherStations.map((station) => (
+          <li key={station.id} className="flex items-center justify-between gap-2 py-2 text-xs">
+            <div className="flex flex-col items-start gap-1">
+              <p className="font-medium text-white/80">{station.name}</p>
+              <CollectionStatusBadge status={station.collectionStatus} />
+            </div>
+            <RiskBadge level={station.status} label={station.value} />
+          </li>
+        ))}
+      </ul>
+    ),
+    response: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {legacySystems.map((system) => (
+          <li key={system.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-white/80">{system.name}</p>
+              <RiskBadge level={LINK_STATUS_LEVEL[system.linkStatus]} label={system.linkStatus} />
+            </div>
+            <p className="mt-0.5 text-white/35">{system.operator}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+    broadcast: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {broadcastLog.map((entry) => (
+          <li key={entry.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-white/80">{entry.message}</p>
+              <span className="shrink-0 text-white/35">{entry.time}</span>
+            </div>
+            <p className="text-white/35">{entry.channel}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+  }
 }
 
 export function HeavyRainHomePage() {
@@ -93,7 +99,7 @@ export function HeavyRainHomePage() {
             items={HEAVY_RAIN_RAIL_ITEMS}
           />
           {activeRailKey && (
-            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
+            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={railContent()} />
           )}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
@@ -147,7 +153,11 @@ export function HeavyRainHomePage() {
                   </span>
                   {station.name}
                 </p>
-                <RiskBadge level={station.status} />
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <span className="text-[11px] text-white/50">위험등급</span>
+                  <RiskBadge level={station.status} />
+                  <CollectionStatusBadge status={station.collectionStatus} />
+                </div>
               </div>
               <p className="mt-2 text-lg font-bold text-white">{station.value}</p>
               <p className="mt-0.5 text-[11px] text-white/35">최종 수신 {station.updatedAt}</p>

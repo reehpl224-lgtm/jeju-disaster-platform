@@ -53,30 +53,32 @@ export function checkConsistency(): ConsistencyIssue[] {
   cardVsLevels("연안", "coast", CO.coastEvents.map((e) => e.level))
   cardVsLevels("호우", "heavy-rain", HR.weatherStations.map((s) => s.status))
   cardVsLevels("저염분", "aqua", AQ.aquaFarms.map((f) => f.level))
-  const tyLevel: RiskLevel = TY.typhoonReports[0].status === "태풍경보" ? "alert" : TY.typhoonReports[0].status === "태풍주의보" ? "warning" : "caution"
+  const ty0 = TY.typhoonReports[0]
+  const tyLevel: RiskLevel = !ty0 ? "safe" : ty0.status === "태풍경보" ? "alert" : ty0.status === "태풍주의보" ? "warning" : "caution"
   cardVsLevels("태풍", "typhoon", [tyLevel])
   cardVsLevels("폭염", "heat", [HT.heatLevelInfo.level])
 
-  // 2. 지도 마커 ↔ 원본
+  // 2. 지도 마커 ↔ 원본 (확정 대상지 마커: 하천 2곳·연안 협재. 시나리오가 다른 마커를 추가하면 여기에 검사를 더한다)
   for (const s of RV.riverStatuses) eq("하천", `마커 ${s.id} 등급`, marker(s.id)?.level, s.level)
   eq("연안", "협재 마커 등급", marker("hyeopjae")?.level, worst(CO.coastEvents.map((e) => e.level)))
-  eq("호우", "한천 마커 = ws-1", marker("hancheon")?.level, HR.weatherStations.find((s) => s.id === "ws-1")?.status)
-  eq("태풍", "태풍 마커", marker("typhoon-kroban")?.level, tyLevel)
-  eq("폭염", "폭염 마커", marker("sinjeju-hotroute")?.level, HT.heatLevelInfo.level)
+  const yongsu = AQ.aquaFarms.length > 0 ? worst(AQ.aquaFarms.map((f) => f.level)) : "safe"
+  eq("저염분", "한경 용수 마커는 양식장 최고 등급을 넘지 않음", RANK.indexOf(marker("hangyeong-yongsu")?.level ?? "safe") <= RANK.indexOf(yongsu), true)
 
-  // 3. 하천 수위 — 대시보드 시계열·센서·상세 근거·조위 차트가 같은 값
-  const six = DB.sixHourSeries[DB.sixHourSeries.length - 1]
-  const firstPredicted = RV.riverTideCorrelation.series.findIndex((p) => p.predicted)
-  eq("하천", "돈내코 수위: 시계열 = 6시간 그래프", DB.timeSeries[0].value, six.돈내코수위)
-  eq("하천", "돈내코 수위: 시계열 = 위험 판단 근거", DB.timeSeries[0].value, num(RV.riverRiskBasis.waterLevel.value))
-  eq("하천", "돈내코 수위: 시계열 = 수위 조기경보", DB.timeSeries[0].value, RV.riverWaterLevelAiForecast.currentM)
-  eq("하천", "돈내코 수위: 시계열 = 지도 센서 목록", DB.timeSeries[0].value, num(DB.dashboardSensors.find((s) => s.id === "sn1")?.value ?? ""))
-  eq("하천", "돈내코 수위: 시계열 = 센서 교차검증", DB.timeSeries[0].value, num(RV.riverSensorCheck[0].value))
-  eq("하천", "쇠소깍 수위: 시계열 = 6시간 그래프", DB.timeSeries[1].value, six.쇠소깍수위)
-  eq("하천", "쇠소깍 수위: 시계열 = 센서 교차검증", DB.timeSeries[1].value, num(RV.riverSensorCheck[1].value))
-  eq("하천", "쇠소깍 수위: 시계열 = 지도 센서 목록", DB.timeSeries[1].value, num(DB.dashboardSensors.find((s) => s.id === "sn2")?.value ?? ""))
-  // 조위 차트는 관측(마지막 predicted=false) 값이 현재 수위여야 한다
-  eq("하천", "쇠소깍 수위: 시계열 = 조위 차트의 마지막 관측값", DB.timeSeries[1].value, RV.riverTideCorrelation.series[firstPredicted - 1]?.waterLevelM)
+  // 3. 하천 수위 — 대시보드 시계열·센서·상세 근거·조위 차트가 같은 값 (시계열이 있을 때만)
+  if (DB.timeSeries.length >= 2 && DB.sixHourSeries.length > 0) {
+    const six = DB.sixHourSeries[DB.sixHourSeries.length - 1]
+    const firstPredicted = RV.riverTideCorrelation.series.findIndex((p) => p.predicted)
+    eq("하천", "돈내코 수위: 시계열 = 6시간 그래프", DB.timeSeries[0].value, six.돈내코수위)
+    eq("하천", "돈내코 수위: 시계열 = 위험 판단 근거", DB.timeSeries[0].value, num(RV.riverRiskBasis.waterLevel.value))
+    eq("하천", "돈내코 수위: 시계열 = 수위 조기경보", DB.timeSeries[0].value, RV.riverWaterLevelAiForecast.currentM)
+    eq("하천", "돈내코 수위: 시계열 = 지도 센서 목록", DB.timeSeries[0].value, num(DB.dashboardSensors.find((s) => s.id === "sn1")?.value ?? ""))
+    eq("하천", "돈내코 수위: 시계열 = 센서 교차검증", DB.timeSeries[0].value, num(RV.riverSensorCheck[0].value))
+    eq("하천", "쇠소깍 수위: 시계열 = 6시간 그래프", DB.timeSeries[1].value, six.쇠소깍수위)
+    eq("하천", "쇠소깍 수위: 시계열 = 센서 교차검증", DB.timeSeries[1].value, num(RV.riverSensorCheck[1].value))
+    eq("하천", "쇠소깍 수위: 시계열 = 지도 센서 목록", DB.timeSeries[1].value, num(DB.dashboardSensors.find((s) => s.id === "sn2")?.value ?? ""))
+    // 조위 차트는 관측(마지막 predicted=false) 값이 현재 수위여야 한다
+    eq("하천", "쇠소깍 수위: 시계열 = 조위 차트의 마지막 관측값", DB.timeSeries[1].value, RV.riverTideCorrelation.series[firstPredicted - 1]?.waterLevelM)
+  }
   eq("하천", "단계 문구 ↔ 등급", RV.riverStatuses.every((s) => (s.level === "safe") === s.stage.includes("정상")), true)
   eq("하천", "경보 발령 여부 ↔ 발송 시각", RV.riverAlertDispatch.level !== "safe", RV.riverAlertDispatch.sentAt !== "-")
   eq("하천", "흐름 진행 ↔ 상태(평시면 비어 있어야)", Object.keys(RV.riverFlowProgress).length > 0, RV.riverStatuses.some((s) => s.level !== "safe"))

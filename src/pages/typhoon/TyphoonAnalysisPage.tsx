@@ -3,10 +3,12 @@ import { typhoonForecastTrack, typhoonReports, typhoonSource } from "../../data/
 
 export function TyphoonAnalysisPage() {
   const latest = typhoonReports[0]
+  // 제주에 가장 가까워지는 시점(최근접)을 강조한다
+  const nearestIdx = typhoonForecastTrack.reduce((best, p, i, arr) => (p.distanceFromJejuKm < arr[best].distanceFromJejuKm ? i : best), 0)
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-bold text-white">경로 분석 — {latest.name}</h1>
+        <h1 className="text-xl font-bold text-white">경로 분석{latest ? ` — ${latest.name}` : ""}</h1>
         <p className="mt-1 text-sm text-white/50">{typhoonSource.note}</p>
       </div>
 
@@ -24,13 +26,14 @@ export function TyphoonAnalysisPage() {
             {typhoonForecastTrack.map((point, i) => (
               <tr key={point.time}>
                 <td className="py-2 font-medium text-white/80">{point.time}</td>
-                <td className={`py-2 ${i === 3 ? "font-bold text-risk-alert" : "text-white/60"}`}>{point.distanceFromJejuKm}km</td>
+                <td className={`py-2 ${i === nearestIdx ? "font-bold text-risk-alert" : "text-white/60"}`}>{point.distanceFromJejuKm}km</td>
                 <td className="py-2 text-white/60">{point.maxWindMs}m/s</td>
                 <td className="py-2 text-white/40">{point.note}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        {typhoonForecastTrack.length === 0 && <p className="mt-2 text-xs text-white/40">발표 중인 태풍이 없어 표시할 예상 경로가 없습니다.</p>}
       </Card>
 
       <Card title="관측 이력" subtitle="기상청 발표 시각 역순 — 과거 위치·세력 변화" dummy>
@@ -56,6 +59,7 @@ export function TyphoonAnalysisPage() {
             ))}
           </tbody>
         </table>
+        {typhoonReports.length === 0 && <p className="mt-2 text-xs text-white/40">기상청이 발표한 태풍 이력이 없습니다.</p>}
         <p className="mt-2 text-[11px] text-white/35">세력 약화 추이(기압 상승·풍속 감소)는 실제 벤더 데모(demo-10.muhanit.kr)에서 확인한 발표 패턴을 참고했습니다.</p>
       </Card>
 

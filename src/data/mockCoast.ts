@@ -20,7 +20,7 @@ export const coastStageCriteria: { level: "safe" | "caution" | "warning" | "aler
  * 보여준다. 실제 API 연동 데이터(khoaBuoyMarineConditions 등)는 그대로 두고 건드리지 않음.
  */
 export const coastSummary = {
-  lastUpdated: "09:15",
+  lastUpdated: "-",
   targetArea: "함덕·협재 해수욕장 (1차년도 실증지)",
   infra: "AIoT 스마트폴 신설 (지능형 CCTV + 기상센서 + 경보스피커)",
   permitNote: "공유수면 점용허가 등 인허가 절차 필요 (스마트폴 신설 구간)",
@@ -30,16 +30,11 @@ export const coastSummary = {
   // coastEvents에서 status === "미확인"인 실제 건수와 반드시 같은 수치를 쓸 것 — CoastAlertPage의 승인 대기 목록과 동일해야 함
   unconfirmedEvents: { count: 0, detail: "확인 대기 없음" },
   coordination: { count: 0, detail: "출동 공조 없음" },
-  equipment: { normal: 4, error: 0, detail: "전 기기 정상" },
+  equipment: { normal: 0, error: 0, detail: "등록된 기기 없음" },
 }
 
-/** GIS 쉘 자산현황 패널용 — AIoT 스마트폴 대표 4기(coastSummary.equipment 오류 0건과 일치) */
-export const coastSafetyAssets: { id: string; name: string; location: string; status: "정상" | "오류"; detail: string }[] = [
-  { id: "ca1", name: "함덕 AIoT 스마트폴 #1", location: "함덕해수욕장", status: "정상", detail: "CCTV·기상센서·경보스피커 정상" },
-  { id: "ca2", name: "함덕 AIoT 스마트폴 #2", location: "함덕해수욕장", status: "정상", detail: "CCTV·기상센서·경보스피커 정상" },
-  { id: "ca3", name: "협재 AIoT 스마트폴 #1", location: "협재해수욕장", status: "정상", detail: "CCTV·기상센서·경보스피커 정상" },
-  { id: "ca4", name: "협재 AIoT 스마트폴 #2", location: "협재해수욕장", status: "정상", detail: "CCTV·기상센서·경보스피커 정상" },
-]
+/** GIS 쉘 자산현황 패널용 — AIoT 스마트폴 목록(2026-09-29 초기화로 비움). 시나리오가 기기와 상태를 채운다 */
+export const coastSafetyAssets: { id: string; name: string; location: string; status: "정상" | "오류"; detail: string }[] = []
 
 export const coastAiInsights: { id: string; level: "safe" | "caution" | "warning" | "alert" | "danger"; title: string; basis: string; match: string }[] = []
 
@@ -74,17 +69,12 @@ export const coastEventDetail = {
   relatedRiver: "인근 하천 없음",
   nearbyFarms: "인근 해상 양식시설 없음",
   waveZone: "-",
-  rainSummary: { value: "10분 누적 강우 0 mm", detail: "정상 범위", updatedAt: "09:10" },
-  waveSummary: { value: "유의 파고 0.6 m", detail: "정상 범위", updatedAt: "09:10" },
-  ripCurrentRisk: { value: "AI 모델 위험 지수 0.05 / 1.0", detail: "이상 패턴 없음", confidence: "신뢰도 96%" },
-  detection: { class: "탐지 클래스: 없음", confidence: "정상 모니터링 중" },
-  sensorCrossCheck: [
-    { id: "sc1", name: "조류 센서 CS-04", status: "정상" },
-    { id: "sc2", name: "수온 부이 BU-11", status: "정상" },
-  ],
-  timeline: [
-    { id: "t1", time: "09:10", title: "○ 정상 모니터링 — 이상 없음" },
-  ] as TimelineEntry[],
+  rainSummary: { value: "-", detail: "관측값 없음", updatedAt: "-" },
+  waveSummary: { value: "-", detail: "관측값 없음", updatedAt: "-" },
+  ripCurrentRisk: { value: "-", detail: "이상 패턴 없음", confidence: "-" },
+  detection: { class: "탐지 없음", confidence: "-" },
+  sensorCrossCheck: [] as { id: string; name: string; status: string }[],
+  timeline: [] as TimelineEntry[],
   agencyStatus: [
     { id: "ag1", agency: "제주해양경찰서", status: "평시 대기" },
     { id: "ag2", agency: "제주시 재난안전과", status: "평시 대기" },
@@ -110,7 +100,7 @@ export const coastDispatch = {
   aiReason: "현재 위험 신호가 감지되지 않았습니다 — 평시 모니터링 유지 중",
   radius: "-",
   nearbyVisitors: "-",
-  weather: "남서풍 4m/s · 시정 양호",
+  weather: "-",
   request: {
     status: "요청 없음 (평시)",
     agency: "-",
@@ -124,9 +114,7 @@ export const coastDispatch = {
   fallback: "위험 신호 감지 시 자동으로 출동 요청 초안이 생성됩니다.",
 }
 
-export const coastMonitoringDomains = [
-  { id: "coast", label: "연안", status: "정상", detail: "CCTV 이벤트 0건 · 경보 장비 정상", level: "safe" as const },
-]
+export const coastMonitoringDomains: { id: string; label: string; status: string; detail: string; level: "safe" | "caution" | "warning" | "alert" | "danger" }[] = []
 
 /**
  * KHOA 실측 기반 AI 보강 가능성 검토(2026-09-28) — classifyCoastRisk()(coastAlertThresholds.ts)의
@@ -150,46 +138,23 @@ export const coastKhoaEnhancementReview = {
   vendorAsk: "올포랜드에 (1) 함덕·협재 현지 조위·파고 실측 지점 신설 여부, (2) 파랑 주기 기반 이안류 위험도 가중 로직 적용 여부를 문의할 필요가 있음",
 }
 
-/**
- * 종료 보고서(/coast/closure) — 지난 사례 예시. 오늘(2026-09-22) 진행 중인 사건이 아니라,
- * "종료 보고서가 어떤 형태인지" 보여주기 위한 참고용으로 남겨둔 과거 사례.
- */
+/** 종료 보고서(/coast/closure) — 종료된 사건 없음(양식만 남김, 2026-09-29 초기화) */
 export const coastClosure = {
-  caseId: "COA-2026-0904",
-  title: "연안 위험 탐지 및 현장 경보 (지난 사례)",
-  status: "종료 완료",
-  confirmedBy: "관제 담당자 김제주 · 2026-09-04 17:42",
-  type: "익수 위험 · 위험구역 진입",
-  location: "제주시 함덕해수욕장 북단 방파제",
-  duration: "1시간 23분",
-  durationDetail: "최초 감지 16:19 → 종료 승인 17:42",
-  agencies: "해경 출동 완료 · 소방 지원 완료",
-  agencyDetail: "총 출동 기관 2개소 · 현장 인원 8명",
-  aiSummary: [
-    { id: "as1", label: "익수 위험 탐지 신뢰도", value: "98.4% (고신뢰)" },
-    { id: "as2", label: "방파제 진입 탐지 신뢰도", value: "96.1% (고신뢰)" },
-    { id: "as3", label: "이안류 위험 지수", value: "0.82 → 0.21 (해제 수준)" },
-  ],
-  observed: [
-    { id: "ob1", label: "파고 (관측)", value: "최고 2.4m → 현재 0.9m (정상 이하)" },
-    { id: "ob2", label: "풍속", value: "최고 14.2m/s → 현재 6.1m/s" },
-    { id: "ob3", label: "이안류 위험 구간", value: "3개 구간 → 0개 구간 해소" },
-  ],
-  closureConditions: [
-    "위험 구역 내 잔류 인원 없음 확인",
-    "이안류·파고 위험 지수 해제 수준 도달",
-    "현장 통제선 해제 및 차단기 복구 완료",
-    "해경 현장 철수 및 귀환 확인",
-    "감지 센서 정상 운용 복구",
-  ],
-  report: {
-    department: "제주특별자치도 재난안전대책본부 연안 관제팀",
-    sop: "e-SOP C-4 연안 위험 종료 절차 v2.3",
-    casualties: "없음",
-    property: "없음 (추정)",
-    lesson: "CAM-11 센서 지연 2분 — 유지보수 요청 등록됨",
-  },
+  caseId: "-",
+  title: "종료된 사건 없음",
+  status: "-",
+  confirmedBy: "-",
+  type: "-",
+  location: "-",
+  duration: "-",
+  durationDetail: "-",
+  agencies: "-",
+  agencyDetail: "-",
+  aiSummary: [] as { id: string; label: string; value: string }[],
+  observed: [] as { id: string; label: string; value: string }[],
+  closureConditions: [] as string[],
+  report: { department: "-", sop: "-", casualties: "-", property: "-", lesson: "-" },
 }
 
-/** 업무 흐름 진행(감지→확인→판단→경보→대응→종료) — 평시라 아직 시작된 단계 없음. 시나리오는 scenarios.ts가 덮어쓴다 */
+/** 업무 흐름 진행(감지→확인→판단→경보→대응→종료) — 평시라 시작된 단계 없음. 시나리오가 채운다 */
 export const coastFlowProgress: FlowProgress = {}

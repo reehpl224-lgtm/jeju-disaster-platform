@@ -24,7 +24,8 @@ export interface HeatRouteTip {
 export interface HeatLevelInfo {
   level: RiskLevel
   label: string
-  feelsLikeC: number
+  /** 체감온도(℃) — null이면 관측값 없음 */
+  feelsLikeC: number | null
   criteria: string
   updatedAt: string
 }

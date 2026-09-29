@@ -108,21 +108,22 @@ export function heavyRainBrief(): LeaderBrief {
   const f = HR.heavyRainAiForecast
   const ad = HR.heavyRainAlertDispatch
   const stations = HR.weatherStations
-  const maxObs = Math.max(...f.stations.map((s) => s.observedMm))
-  const over = maxObs > f.forecastMm
+  const hasObs = f.stations.length > 0
+  const maxObs = hasObs ? Math.max(...f.stations.map((s) => s.observedMm)) : 0
+  const over = hasObs && f.forecastMm > 0 && maxObs > f.forecastMm
   const hot = stations.filter((s) => RANK.indexOf(s.status) >= RANK.indexOf("warning"))
   const top = HR.heavyRainTopStations[0]
   const latestBroadcast = HR.broadcastLog[0]
   const linked = HR.legacySystems.filter((s) => s.linkStatus === "연계 진행중").length
   return {
-    title: over ? `예보 ${f.forecastMm}mm/h 대비 실측 초과` : `실측 강우가 예보(${f.forecastMm}mm/h) 범위 내`,
-    lines: [`감지 ${f.detectedAt} · 경보·주의 관측소 ${hot.length}/${stations.length}`, ...(ad.sentAt !== "-" ? [`${ad.title} ${ad.sentAt} 발령`] : [])],
+    title: over ? `예보 ${f.forecastMm}mm/h 대비 실측 초과` : hasObs ? `실측 강우가 예보(${f.forecastMm}mm/h) 범위 내` : "감지된 돌발 강우 없음",
+    lines: [hasObs ? `감지 ${f.detectedAt} · 경보·주의 관측소 ${hot.length}/${stations.length}` : "관측소 데이터 없음 — 평시 감시 중", ...(ad.sentAt !== "-" ? [`${ad.title} ${ad.sentAt} 발령`] : [])],
     level: worstOf(stations.map((s) => s.status)),
-    badge: over ? "AI 조기경고" : "예보 범위 내",
+    badge: over ? "AI 조기경고" : hasObs ? "예보 범위 내" : "평시",
     kpis: [
-      { k: "최대 실측 강우", v: `${maxObs}mm/h`, d: `예보 ${f.forecastMm}mm/h`, over },
+      { k: "최대 실측 강우", v: hasObs ? `${maxObs}mm/h` : "-", d: f.forecastMm > 0 ? `예보 ${f.forecastMm}mm/h` : undefined, over },
       { k: "경보·주의 관측소", v: `${hot.length}/${stations.length}`, over: hot.length > 0 },
-      { k: "누적 강우 1위", v: `${top.cumulativeMm}mm`, d: top.stationName },
+      { k: "누적 강우 1위", v: top ? `${top.cumulativeMm}mm` : "-", d: top?.stationName },
       { k: "자동통보", v: `${HR.broadcastLog.length}건`, d: latestBroadcast ? `최근 ${latestBroadcast.time}` : undefined },
     ],
     tasks: [
@@ -130,7 +131,7 @@ export function heavyRainBrief(): LeaderBrief {
         ? [{ role: "확인" as const, title: "자동침수경보 발령 여부 판단", detail: f.confirmNote, status: "확인 필요", level: "warning" as RiskLevel, to: "/heavy-rain/analysis" }]
         : []),
       ...dispatchTask(ad, "/heavy-rain/alert"),
-      ...(hot.length > 0
+      ...(hot.length > 0 && top
         ? [
             {
               role: "지시" as const,
@@ -147,15 +148,17 @@ export function heavyRainBrief(): LeaderBrief {
         : []),
     ],
     idle: "결재·지시 대기 없음 — 평시 감시 중",
-    evidence: [
-      { k: "우량계 실측", v: f.stations.map((s) => `${s.name} ${s.observedMm}mm/h`).join(" · ") },
-      { k: "예보 대비", v: `+${maxObs - f.forecastMm}mm/h (${Math.round(((maxObs - f.forecastMm) / f.forecastMm) * 100)}% 초과)` },
-      { k: "침수센서", v: stations.filter((s) => s.type === "침수센서").map((s) => `${s.name.replace(/ 침수센서/, "")} ${s.value}`).join(" · ") },
-    ],
+    evidence: hasObs
+      ? [
+          { k: "우량계 실측", v: f.stations.map((s) => `${s.name} ${s.observedMm}mm/h`).join(" · ") },
+          ...(f.forecastMm > 0 ? [{ k: "예보 대비", v: `${maxObs - f.forecastMm >= 0 ? "+" : ""}${maxObs - f.forecastMm}mm/h (${Math.round(((maxObs - f.forecastMm) / f.forecastMm) * 100)}%)` }] : []),
+          { k: "침수센서", v: stations.filter((s) => s.type === "침수센서").map((s) => `${s.name.replace(/ 침수센서/, "")} ${s.value}`).join(" · ") || "-" },
+        ]
+      : [{ k: "우량계 실측", v: "관측 데이터 없음" }],
     outlook: [f.aiNote],
     response: [
       contactRow("general"),
-      { k: "경보 발송 결과", v: channelLine(ad) },
+      { k: "경보 발송 결과", v: ad.sentAt !== "-" ? channelLine(ad) : "발송 없음" },
       { k: "레거시 연계", v: `연계 진행중 ${linked}/${HR.legacySystems.length}개 시스템` },
     ],
   }
@@ -166,17 +169,36 @@ export function typhoonBrief(): LeaderBrief {
   const cur = TY.typhoonReports[0]
   const trk = TY.typhoonForecastTrack
   const d = TY.typhoonAlertDispatch
-  const nearest = trk.reduce((a, b) => (b.distanceFromJejuKm < a.distanceFromJejuKm ? b : a))
-  const level: RiskLevel = cur.status === "태풍경보" ? "alert" : cur.status === "태풍주의보" ? "warning" : "caution"
   const buoy = khoaBuoyMarineConditions[0]
+  if (!cur) {
+    return {
+      title: "발표 중인 태풍 없음",
+      lines: ["기상청 발표 태풍 정보가 없습니다 — 평시 감시 중", TY.typhoonSource.note],
+      level: "safe",
+      badge: "평시",
+      kpis: [
+        { k: "제주까지", v: "-" },
+        { k: "최근접 예상", v: "-" },
+        { k: "최대 풍속", v: "-" },
+        { k: "중심 기압", v: "-" },
+      ],
+      tasks: dispatchTask(d, "/typhoon/alert"),
+      idle: "결재·지시 대기 없음 — 발표 중인 태풍 없음",
+      evidence: [{ k: "관측 체계", v: TY.typhoonSource.note }],
+      outlook: ["예상 경로 없음 — 기상청이 태풍을 발표하면 제주 접근 경로가 표시됩니다."],
+      response: [contactRow("general"), { k: "대비 안내 발송", v: d.sentAt !== "-" ? channelLine(d) : "발송 없음" }],
+    }
+  }
+  const nearest = trk.length > 0 ? trk.reduce((a, b) => (b.distanceFromJejuKm < a.distanceFromJejuKm ? b : a)) : undefined
+  const level: RiskLevel = cur.status === "태풍경보" ? "alert" : cur.status === "태풍주의보" ? "warning" : "caution"
   return {
     title: `${cur.name} · ${cur.status}`,
     lines: [cur.location, `기상청 발표 ${cur.issuedAt}`],
     level,
     badge: cur.status,
     kpis: [
-      { k: "제주까지", v: `${trk[0].distanceFromJejuKm}km`, d: `이동 ${cur.speedKmh}km/h` },
-      { k: "최근접 예상", v: `${nearest.distanceFromJejuKm}km`, d: nearest.time.slice(5), over: true },
+      { k: "제주까지", v: trk[0] ? `${trk[0].distanceFromJejuKm}km` : "-", d: `이동 ${cur.speedKmh}km/h` },
+      { k: "최근접 예상", v: nearest ? `${nearest.distanceFromJejuKm}km` : "-", d: nearest?.time.slice(5), over: !!nearest },
       { k: "최대 풍속", v: `${cur.maxWindMs}m/s` },
       { k: "중심 기압", v: `${cur.pressureHpa}hPa` },
     ],
@@ -185,13 +207,12 @@ export function typhoonBrief(): LeaderBrief {
       {
         role: "지시",
         title: "대응반 소집·시설물 고정 등 대비태세 점검",
-        detail: `최근접 ${nearest.distanceFromJejuKm}km (${nearest.time.slice(5)}) · 담당 ${contactOf("general")?.name ?? "-"}`,
+        detail: `${nearest ? `최근접 ${nearest.distanceFromJejuKm}km (${nearest.time.slice(5)}) · ` : ""}담당 ${contactOf("general")?.name ?? "-"}`,
         status: "지시 권고",
         level: "caution",
         to: "/typhoon/analysis",
       },
       { role: "확인", title: "민방위경보시스템 연계 확인", detail: TY.typhoonSource.relatedLegacySystem, status: "병행 조치 확인", level: "info", to: "/typhoon/alert" },
-      { role: "확인", title: "기상청 자료 수신 상태", detail: TY.typhoonClosure.report.lesson, status: "수신 점검", level: "caution", to: "/typhoon/closure" },
     ],
     idle: "결재·지시 대기 없음",
     evidence: [
@@ -199,10 +220,10 @@ export function typhoonBrief(): LeaderBrief {
       { k: "이동·세력", v: `${cur.speedKmh}km/h · ${cur.pressureHpa}hPa · ${cur.maxWindMs}m/s` },
       { k: "관측 체계", v: TY.typhoonSource.note },
     ],
-    outlook: trk.map((p) => `${p.time.slice(5)} · 제주까지 ${p.distanceFromJejuKm}km · ${p.maxWindMs}m/s — ${p.note}`),
+    outlook: trk.length > 0 ? trk.map((p) => `${p.time.slice(5)} · 제주까지 ${p.distanceFromJejuKm}km · ${p.maxWindMs}m/s — ${p.note}`) : ["예상 경로 없음"],
     response: [
       contactRow("general"),
-      { k: "대비 안내 발송", v: channelLine(d) },
+      { k: "대비 안내 발송", v: d.sentAt !== "-" ? channelLine(d) : "발송 없음" },
       ...(buoy ? [{ k: `해양관측 ${buoy.stationName}`, v: `파고 ${buoy.waveHeightM}m · 풍속 ${buoy.windSpeedMs}m/s` }] : []),
     ],
   }
@@ -217,50 +238,64 @@ export function heatBrief(): LeaderBrief {
   const d = HT.heatAlertDispatch
   const shelters = HT.heatShelters
   const capacity = shelters.reduce((sum, s) => sum + s.capacity, 0)
+  const feels = li.feelsLikeC
   let days = 0
   for (let i = HT.heatTrend.length - 1; i >= 0 && HT.heatTrend[i].feelsLikeC >= HEAT_WATCH_C; i--) days++
-  const gap = +(HEAT_WARNING_C - li.feelsLikeC).toFixed(1)
+  const gap = feels === null ? null : +(HEAT_WARNING_C - feels).toFixed(1)
   const first = HT.heatTrend[0]
   const last = HT.heatTrend[HT.heatTrend.length - 1]
   return {
     title: li.label,
-    lines: [`체감온도 ${li.feelsLikeC}℃ · ${li.updatedAt} 기준`, li.criteria],
+    lines: [feels === null ? "체감온도 관측값 없음" : `체감온도 ${feels}℃ · ${li.updatedAt} 기준`, li.criteria],
     level: li.level,
     badge: li.label,
     kpis: [
-      { k: "체감온도", v: `${li.feelsLikeC}℃`, over: li.feelsLikeC >= HEAT_WATCH_C },
-      { k: "주의보 기준 지속", v: `${days}일`, d: `체감 ${HEAT_WATCH_C}℃ 이상 연속` },
-      { k: "경보(35℃)까지", v: gap > 0 ? `${gap}℃` : "도달", d: gap > 0 ? "남은 격차" : undefined, over: gap <= 0 },
-      { k: "무더위쉼터", v: `${shelters.length}개소`, d: `수용 ${capacity}명` },
+      { k: "체감온도", v: feels === null ? "-" : `${feels}℃`, over: feels !== null && feels >= HEAT_WATCH_C },
+      { k: "주의보 기준 지속", v: feels === null ? "-" : `${days}일`, d: `체감 ${HEAT_WATCH_C}℃ 이상 연속` },
+      { k: "경보(35℃)까지", v: gap === null ? "-" : gap > 0 ? `${gap}℃` : "도달", d: gap !== null && gap > 0 ? "남은 격차" : undefined, over: gap !== null && gap <= 0 },
+      { k: "무더위쉼터", v: `${shelters.length}개소`, d: shelters.length > 0 ? `수용 ${capacity}명` : undefined },
     ],
     tasks: [
       ...dispatchTask(d, "/heat/alert"),
-      {
-        role: "확인",
-        title: `폭염경보(${HEAT_WARNING_C}℃) 격상 판단`,
-        detail: `체감 ${li.feelsLikeC}℃ · ${days}일 지속 — ${gap > 0 ? `경보 기준까지 ${gap}℃` : "경보 기준 도달"}`,
-        status: gap > 0 ? "추이 관찰" : "격상 검토 필요",
-        level: gap > 0 ? "caution" : "alert",
-        to: "/heat/analysis",
-      },
-      {
-        role: "지시",
-        title: "무더위쉼터 운영·그늘길 안내 점검",
-        detail: `쉼터 ${shelters.length}개소 · 그늘길 ${HT.heatRouteTips.filter((r) => r.kind === "cool").length}곳 · 담당 ${contactOf("general")?.name ?? "-"}`,
-        status: "지시 권고",
-        level: "caution",
-        to: "/heat/alert",
-      },
-      { role: "결재", title: "해제 조건 확인", detail: HT.heatClosure.closureConditions[0], status: "해제 전 확인", level: "info", to: "/heat/closure" },
+      ...(feels === null
+        ? []
+        : [
+            {
+              role: "확인" as const,
+              title: `폭염경보(${HEAT_WARNING_C}℃) 격상 판단`,
+              detail: `체감 ${feels}℃ · ${days}일 지속 — ${gap !== null && gap > 0 ? `경보 기준까지 ${gap}℃` : "경보 기준 도달"}`,
+              status: gap !== null && gap > 0 ? "추이 관찰" : "격상 검토 필요",
+              level: (gap !== null && gap > 0 ? "caution" : "alert") as RiskLevel,
+              to: "/heat/analysis",
+            },
+          ]),
+      ...(shelters.length > 0
+        ? [
+            {
+              role: "지시" as const,
+              title: "무더위쉼터 운영·그늘길 안내 점검",
+              detail: `쉼터 ${shelters.length}개소 · 그늘길 ${HT.heatRouteTips.filter((r) => r.kind === "cool").length}곳 · 담당 ${contactOf("general")?.name ?? "-"}`,
+              status: "지시 권고",
+              level: "caution" as RiskLevel,
+              to: "/heat/alert",
+            },
+          ]
+        : []),
+      ...(HT.heatClosure.closureConditions.length > 0
+        ? [{ role: "결재" as const, title: "해제 조건 확인", detail: HT.heatClosure.closureConditions[0], status: "해제 전 확인", level: "info" as RiskLevel, to: "/heat/closure" }]
+        : []),
     ],
     idle: "결재·지시 대기 없음",
-    evidence: [
-      { k: "체감온도 추이", v: `${first.date} ${first.feelsLikeC}℃ → ${last.date} ${last.feelsLikeC}℃` },
-      { k: "최근 최고기온", v: `${last.date} ${last.maxTempC}℃` },
-      { k: "판단 기준", v: li.criteria },
-    ],
-    outlook: [`체감 ${HEAT_WARNING_C}℃ 이상 지속 시 폭염경보로 격상 — 현재 ${gap > 0 ? `${gap}℃ 부족` : "기준 도달"}`],
-    response: [contactRow("general"), { k: "안내 발송 결과", v: channelLine(d) }, { k: "쉼터 운영", v: `${shelters.length}개소 · 수용 ${capacity}명` }],
+    evidence:
+      first && last
+        ? [
+            { k: "체감온도 추이", v: `${first.date} ${first.feelsLikeC}℃ → ${last.date} ${last.feelsLikeC}℃` },
+            { k: "최근 최고기온", v: `${last.date} ${last.maxTempC}℃` },
+            { k: "판단 기준", v: li.criteria },
+          ]
+        : [{ k: "판단 기준", v: li.criteria }],
+    outlook: [`체감 ${HEAT_WARNING_C}℃ 이상 지속 시 폭염경보로 격상 — ${gap === null ? "관측값 없음" : gap > 0 ? `현재 ${gap}℃ 부족` : "기준 도달"}`],
+    response: [contactRow("general"), { k: "안내 발송 결과", v: d.sentAt !== "-" ? channelLine(d) : "발송 없음" }, { k: "쉼터 운영", v: shelters.length > 0 ? `${shelters.length}개소 · 수용 ${capacity}명` : "등록된 쉼터 없음" }],
   }
 }
 
@@ -309,7 +344,7 @@ export function riverBrief(): LeaderBrief {
     ],
     idle: `결재·지시 대기 없음 — ${RV.riverSopStage.next}`,
     evidence: [
-      { k: "수위", v: `6시간 전 ${wl.sixHourAgoM}m → 현재 ${wl.currentM}m · ${wl.status}` },
+      { k: "수위", v: wl.currentM === null ? "관측값 없음" : `6시간 전 ${wl.sixHourAgoM ?? "-"}m → 현재 ${wl.currentM}m · ${wl.status}` },
       { k: "돌발 강우", v: `예보 ${sr.forecastMm}mm → 실측 ${sr.observedMm}mm · ${sr.label}` },
       { k: "토양 포화도", v: `${rb.saturation.value} (${rb.saturation.grade})` },
       { k: "데이터 신뢰도", v: RV.riverDataConfidence.overall },

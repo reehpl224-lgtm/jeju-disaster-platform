@@ -113,6 +113,7 @@ export function DashboardPage() {
 
   const timelineDateRange = useMemo(() => {
     const dates = [...disasterIncidents.map((i) => i.reportedAt), ...disasterAlerts.map((a) => a.issuedAt)].map((s) => s.slice(0, 10))
+    if (dates.length === 0) return "기간 없음"
     return `${dates.reduce((a, b) => (a < b ? a : b))} ~ ${dates.reduce((a, b) => (a > b ? a : b))}`
   }, [])
 
@@ -456,11 +457,14 @@ export function DashboardPage() {
     { key: "live-warnings", label: "실시간 특보", content: <WarningsPanel /> },
   ]
 
+  // 관측값이 없으면(observedAt "-") 0으로 보이지 않게 "-"로 표시한다
+  const hasWeather = currentWeather.observedAt !== "-"
+  const wx = (value: number, unit = "") => (hasWeather ? `${value}${unit}` : "-")
   const weatherLine = (
     <p className="weather-line">
-      기온 <b>{currentWeather.temperatureC}℃</b> · 강수 <b>{currentWeather.rainfallMm}mm</b> · 풍속{" "}
-      <b>{currentWeather.windSpeedMs}m/s</b> · 습도 <b>{currentWeather.humidityPercent}%</b> · 갱신{" "}
-      {formatHM(currentWeather.observedAt)} / 5분 주기
+      기온 <b>{wx(currentWeather.temperatureC, "℃")}</b> · 강수 <b>{wx(currentWeather.rainfallMm, "mm")}</b> · 풍속{" "}
+      <b>{wx(currentWeather.windSpeedMs, "m/s")}</b> · 습도 <b>{wx(currentWeather.humidityPercent, "%")}</b>
+      {hasWeather ? ` · 갱신 ${formatHM(currentWeather.observedAt)} / 5분 주기` : " · 관측값 없음"}
     </p>
   )
 
@@ -605,19 +609,19 @@ export function DashboardPage() {
                       {/* 날씨 수치를 누르면 좌측 패널의 동네예보(시간별 예보)를 연다 */}
                       <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">기온</span>
-                        <span className="v">{currentWeather.temperatureC}℃</span>
+                        <span className="v">{wx(currentWeather.temperatureC, "℃")}</span>
                       </button>
                       <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">강수(mm)</span>
-                        <span className="v warning">{currentWeather.rainfallMm}</span>
+                        <span className="v warning">{wx(currentWeather.rainfallMm)}</span>
                       </button>
                       <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">풍속(m/s)</span>
-                        <span className="v">{currentWeather.windSpeedMs}</span>
+                        <span className="v">{wx(currentWeather.windSpeedMs)}</span>
                       </button>
                       <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">습도(%)</span>
-                        <span className="v">{currentWeather.humidityPercent}</span>
+                        <span className="v">{wx(currentWeather.humidityPercent)}</span>
                       </button>
                     </div>
                   </div>

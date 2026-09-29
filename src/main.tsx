@@ -1,4 +1,7 @@
-// 반드시 이 순서로 가장 먼저 — ① 선택한 시나리오 값을 덮어쓰고 ② 그 값의 시각을 실제 현재 시각으로 옮긴다(다른 모듈이 값을 가져가기 전에)
+// ES 모듈 import는 본문보다 먼저 실행된다. scenarioClock이 먼저 초기화된 뒤 아래 업로드 값이 적용되므로
+// 엑셀의 관측시각은 시나리오 시계로 이동하지 않고 입력한 절대 시각을 그대로 유지한다.
+import { applyStoredDummyWorkbook } from './data/dummyWorkbook'
+applyStoredDummyWorkbook()
 import './data/scenarios'
 import './data/scenarioClock'
 import { StrictMode } from 'react'

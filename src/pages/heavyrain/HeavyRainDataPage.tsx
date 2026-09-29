@@ -38,7 +38,10 @@ export function HeavyRainDataPage() {
                   {station.type} · 최근 수신 {station.updatedAt}
                 </p>
               </div>
-              <RiskBadge level={station.status} label={station.value} />
+              <div className="text-right">
+                <RiskBadge level={station.collectionStatus === "정상" ? "safe" : station.collectionStatus === "지연" ? "caution" : "offline"} label={station.collectionStatus ?? "정상"} />
+                <p className="mt-1 text-xs text-white/60">{station.value}</p>
+              </div>
             </li>
           ))}
         </ul>

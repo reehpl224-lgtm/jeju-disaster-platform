@@ -109,104 +109,59 @@ export const legacySystems: LegacySystemStatus[] = [
   },
 ]
 
-export const weatherStations: WeatherStationReading[] = [
-  { id: "ws-1", name: "제주시 한천 침수센서", type: "침수센서", value: "경보 발령", status: "alert", updatedAt: "14:30" },
-  { id: "ws-2", name: "서귀포 하천변 침수센서", type: "침수센서", value: "주의 단계", status: "warning", updatedAt: "14:32" },
-  { id: "ws-3", name: "제주시 우량계 #3", type: "우량계", value: "62mm/h", status: "warning", updatedAt: "14:29" },
-  { id: "ws-4", name: "서귀포 우량계 #2", type: "우량계", value: "48mm/h", status: "caution", updatedAt: "14:31" },
-  { id: "ws-5", name: "한라산 적설계", type: "적설계", value: "0cm", status: "safe", updatedAt: "14:00" },
-  { id: "ws-6", name: "성산 풍속풍향계", type: "풍속풍향계", value: "12.5m/s · 남동풍", status: "caution", updatedAt: "14:28" },
-]
-
 /**
- * AI 침수 위험 조기경보 — /river/analysis의 riverSuddenRainAlert와 동일한 원리를 호우
- * 관측망 전체로 일반화했다. 호우 통합 자체는 레거시 연계(규칙 기반)이지만, 우량계 실측 추이를
- * 기상청 예보와 비교해 자동침수경보 임계치 도달을 조기에 캐치하는 부분은 AI 예측이 유효하다.
- * 최종 발령 판단은 항상 담당자 몫 — river 쪽과 동일한 원칙을 유지한다.
+ * 2026-09-29 초기화 — 관측소 값·조기경고·발송 이력·종료 보고 등 시나리오 더미를 비웠다(사용자 요청: 실시간 API 제외 전부 초기화,
+ * 시나리오는 새로 만들 예정). 구조(타입)는 그대로라 시나리오를 새로 넣으면 화면이 채워진다. 위 legacySystems는 실제 조사 결과라 유지.
  */
+export const weatherStations: WeatherStationReading[] = []
+
+/** AI 침수 위험 조기경보 — 우량계 실측이 예보를 넘는 신호가 없는 상태. 신호가 생기면 stations에 지점별 실측(mm/h)을 넣는다 */
 export const heavyRainAiForecast = {
-  forecastMm: 40,
-  detectedAt: "14:29",
-  stations: [
-    { id: "f-1", name: "제주시 우량계 #3", observedMm: 62 },
-    { id: "f-2", name: "서귀포 우량계 #2", observedMm: 48 },
-  ],
-  aiNote: "제주시·서귀포 우량계 모두 예보(40mm/h) 대비 실측 강우가 지속 초과하고 있습니다. 현재 추이가 유지되면 자동침수경보 임계치 도달까지 약 12분 예상됩니다.",
+  forecastMm: 0,
+  detectedAt: "-",
+  stations: [] as { id: string; name: string; observedMm: number }[],
+  aiNote: "현재 감지된 돌발 강우 신호가 없습니다. 평시 모니터링을 유지합니다.",
   confirmNote: "자동침수경보 발령 여부는 반드시 담당자 확인이 필요합니다 (오경보 리스크 고려).",
 }
 
-/** 상세 분석용 강우 추이 — 제주시 한천 침수경보(ws-1) 사건 기준, 14:30 관측 시점까지 실측 */
-export const heavyRainTrend: HeavyRainTrendPoint[] = [
-  { time: "13:30", rainfallMm: 28, cumulativeMm: 28 },
-  { time: "13:45", rainfallMm: 34, cumulativeMm: 62 },
-  { time: "14:00", rainfallMm: 41, cumulativeMm: 103 },
-  { time: "14:15", rainfallMm: 55, cumulativeMm: 158 },
-  { time: "14:30", rainfallMm: 62, cumulativeMm: 220 },
-]
+export const heavyRainTrend: HeavyRainTrendPoint[] = []
 
-/** 당일 누적 강수량 순위 — 실제 벤더 데모의 "TOP50" 랭킹을 MVP는 TOP5로 축약 */
-export const heavyRainTopStations: RainfallRankEntry[] = [
-  { rank: 1, stationName: "제주시 한천", region: "제주시", cumulativeMm: 220 },
-  { rank: 2, stationName: "제주시 우량계 #3", region: "제주시", cumulativeMm: 186 },
-  { rank: 3, stationName: "서귀포 우량계 #2", region: "서귀포시", cumulativeMm: 142 },
-  { rank: 4, stationName: "애월읍 관측소", region: "제주시", cumulativeMm: 98 },
-  { rank: 5, stationName: "성산읍 관측소", region: "서귀포시", cumulativeMm: 76 },
-]
+export const heavyRainTopStations: RainfallRankEntry[] = []
 
-/** 경보 발송 — 한천 침수경보(ws-1, 14:30 발령) 기준 */
+/** 경보 발송 — 발령된 경보 없음(발송 시각 "-") */
 export const heavyRainAlertDispatch: HeavyRainAlertDispatch = {
-  stage: "침수경보 발령",
-  level: "alert",
-  title: "제주시 한천 침수경보",
-  target: "한천 인근 주민 320명",
-  targetDetail: "저지대 상가·주택 포함 추가 140명",
-  sentAt: "14:30:12",
-  approver: "이도현 주무관",
-  message: "침수경보 — 제주시 한천 하류 저지대 접근 자제",
+  stage: "발령 없음",
+  level: "safe",
+  title: "현재 발령된 경보 없음",
+  target: "해당 없음",
+  targetDetail: "평시 — 발송 대상 없음",
+  sentAt: "-",
+  approver: "-",
+  message: "현재 발령된 경보가 없습니다.",
   channels: [
-    { id: "hc-1", name: "문자(CBS/SMS)", sent: 3420, success: 3391, fail: 29, rate: "99.2%", lastSent: "14:30:14" },
-    { id: "hc-2", name: "모바일 앱 푸시", sent: 1980, success: 1975, fail: 5, rate: "99.7%", lastSent: "14:30:16" },
-    { id: "hc-3", name: "재해문자전광판", sent: 6, success: 6, fail: 0, rate: "100%", lastSent: "14:30:20", unit: "개소" },
+    { id: "hc-1", name: "문자(CBS/SMS)", sent: 0, success: 0, fail: 0, rate: "-", lastSent: "-" },
+    { id: "hc-2", name: "모바일 앱 푸시", sent: 0, success: 0, fail: 0, rate: "-", lastSent: "-" },
+    { id: "hc-3", name: "재해문자전광판", sent: 0, success: 0, fail: 0, rate: "-", lastSent: "-", unit: "개소" },
   ],
-  totalFail: 34,
+  totalFail: 0,
 }
 
-/** 종료 보고 — 참고용 과거 사례 (서귀포 효돈천 인근 우량계 경보, 2026-09-07 종료) */
+/** 종료 보고 — 종료된 사건 없음(양식만 남김) */
 export const heavyRainClosure: HeavyRainClosure = {
-  caseId: "HR-2026-0907",
-  title: "서귀포 우량계 #2 집중호우 경보",
-  status: "종료 완료",
-  confirmedBy: "재난대응1팀 이도현 · 2026-09-07 18:40",
-  type: "집중호우 · 침수 주의",
-  location: "서귀포시 효돈천 인근",
-  duration: "1시간 52분",
-  durationDetail: "최초 감지 16:48 → 종료 승인 18:40",
-  agencies: "소방 예찰 완료 · 도청 상황실 모니터링",
-  agencyDetail: "총 대응 기관 2개소",
-  aiSummary: [
-    { id: "hr-as1", label: "AI 조기경고 발령", value: "실측 초과 감지 후 6분 만에 담당자 확인" },
-    { id: "hr-as2", label: "강우 정점 이후 감소", value: "62mm/h → 18mm/h (2시간 내)" },
-  ],
-  observed: [
-    { id: "hr-ob1", label: "최고 강우강도", value: "62mm/h (16:52)" },
-    { id: "hr-ob2", label: "누적 강우량", value: "138mm (2시간)" },
-  ],
-  closureConditions: [
-    "강우강도 기준(40mm/h) 이하로 30분 이상 유지",
-    "침수 우려 지점 현장 예찰 이상 없음 확인",
-    "우량계·침수센서 정상 운용 복구",
-  ],
-  report: {
-    department: "제주특별자치도 자연재난과",
-    sop: "e-SOP H-1 호우 경보 종료 절차 v1.2",
-    casualties: "없음",
-    property: "없음 (추정)",
-    lesson: "서귀포 지역 우량계 1대 추가 설치 검토 필요(관측 공백 구간 존재)",
-  },
+  caseId: "-",
+  title: "종료된 사건 없음",
+  status: "-",
+  confirmedBy: "-",
+  type: "-",
+  location: "-",
+  duration: "-",
+  durationDetail: "-",
+  agencies: "-",
+  agencyDetail: "-",
+  aiSummary: [],
+  observed: [],
+  closureConditions: [],
+  report: { department: "-", sop: "-", casualties: "-", property: "-", lesson: "-" },
 }
 
-export const broadcastLog: BroadcastLogEntry[] = [
-  { id: "bl-1", channel: "재해문자전광판", message: "한천 하류 침수경보 — 저지대 접근 자제", time: "14:32" },
-  { id: "bl-2", channel: "자동음성통보", message: "한천 인근 주민 대상 대피 안내 방송", time: "14:10" },
-  { id: "bl-3", channel: "재해문자전광판", message: "제주 전역 호우 예비특보 발효", time: "13:00" },
-]
+export const broadcastLog: BroadcastLogEntry[] = []

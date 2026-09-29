@@ -714,10 +714,18 @@ nav[1..]]로 구성. 메뉴 라벨·순서를 바꿀 땐 **`xxxNav.ts`만 고치
   1차년도 범위 밖. 로그인 화면 안내가 이 동작 그대로를 말한다(안내와 동작을 어긋나게 바꾸지 말 것).
 - **시나리오 선택·초기화(`src/data/scenarios.ts`)**: 헤더 "데모 데이터" 메뉴(`DemoDataMenu`)에서 고르면 localStorage에 저장하고
   새로고침한다. 앱 시작 때 mock 값을 **한 번 덮어써서**(`main.tsx`에서 scenarioClock보다 먼저 import) 화면 코드는 시나리오를 몰라도 된다.
-  현재 3종: `default`(기존 시연 상태 — 초기화) / `river`(효돈천 돌발 강우 **주의 1단계**, 팀장 승인·경보 발송 후 출동 요청 승인 대기) /
-  `coast`(협재 이안류 감지 **주의**, 대외 경보·해경 출동 요청 승인 대기 — 등급은 `classifyCoastRisk()`로 계산). 새 시나리오는
-  `SCENARIOS`에 항목을 넣고 `applyXxx()`를 쓴다. **함께 맞춰야 하는 곳**: 서비스 카드 집계·지도 마커·`dashboardSensors`·`timeSeries`·
-  `sixHourSeries`·`recentActions`(mockDashboard) — 빠뜨리면 아래 일치 검사가 알려 준다. 시각은 "지금=09:15" 기준으로 쓴다.
+  **2026-09-29 현재 등록된 시나리오는 "기본(빈 상태)" 하나뿐이다** — 아래 "전체 초기화"로 기존 시나리오(하천 효돈천 주의·연안 협재 이안류)를 지웠다.
+  새 시나리오는 `SCENARIOS`에 항목을 넣고 `applyXxx()`를 써서 `replaceAll`/`patch`/`patchById`(scenarios.ts가 export)로 덮어쓴다(파일 머리 주석에 절차).
+  **함께 맞춰야 하는 곳**: 서비스 카드 집계·지도 마커·`dashboardSensors`·`timeSeries`·`sixHourSeries`·`recentActions`(mockDashboard)와 각 서비스의
+  `xxxFlowProgress` — 빠뜨리면 아래 일치 검사가 알려 준다. 시각은 "지금=09:15" 기준으로 쓴다.
+- **전체 초기화(2026-09-29, 사용자 요청: 실시간 API를 제외한 스냅샷·더미 전부 초기화, 시나리오는 새로 만들 예정)**: `mockAqua`·`mockRiver`·`mockCoast`·
+  `mockHeavyRain`·`mockTyphoon`·`mockHeat`·`mockDashboard`·`mockIncidents`·`mockReports`·`mockMonitoring`·`mockPropagation`·`mockCctv`(대표 카메라)·
+  KHOA 스냅샷(`khoaBuoyMarineConditions`·`khoaLiveObservations`·`khoaMoseulpoTide.series`)을 비웠다. 남긴 것: 위험단계 기준표·임계값·확정 대상지·레거시 조사
+  결과(`legacySystems`)·데이터 소스 분류(`mockDataSourceCategories`)·착수보고회 항목·구현 현황(`mockPilotStatus`)·담당자·KHOA AI 보강 검토 문구·서비스 카드/지도의
+  확정 대상지 마커(등급 safe)·**실시간 API 패널**. 빈 상태의 표현: 목록은 `[]`, 단일 객체는 `"-"`/0/`safe`(예: `heatLevelInfo.feelsLikeC`는 `null`=관측값 없음,
+  `typhoonReports`가 비면 "발표 중인 태풍 없음"). 화면·브리핑·일치 검사는 빈 값에서도 동작하게 고쳤다 — **새 화면을 만들 때 `[0]`·`reduce`(초기값 없이)·
+  `Math.max(...[])`처럼 빈 배열에서 터지는 코드를 쓰지 말 것.** 이전 더미 값은 git 이력(커밋 `5b1223f` 이전)에 남아 있다. 모든 서비스가 평시라
+  `/approvals`도 "대기 없음"으로 나온다. (코덱스의 엑셀 더미 적용 `applyStoredDummyWorkbook()`은 이 빈 기준선 위에 일부 배열을 채운다.)
 - **업무 흐름(`src/types/flow.ts`)**: 3대 실증서비스(하천·저염분·연안)는 mock에 `xxxFlowProgress`(감지→확인→판단→경보→대응→종료)를
   들고 있고(값: 완료 시각 / "진행 중"·"승인 대기" / "보류"), 팀장 브리핑과 상세 대시보드에 진행 띠(`.flow`)로 나온다. 평시면 비어 있다.
   **팀장 승인이 남았는지는 이 값에서 읽는다**(하천: 판단이 시각이면 승인 끝 → "다음 단계 상향 여부"만 확인).

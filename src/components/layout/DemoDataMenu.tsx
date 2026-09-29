@@ -43,18 +43,26 @@ export function DemoDataMenu({ open, onToggle }: { open: boolean; onToggle: () =
             </li>
           </ul>
           <p className="demo-menu__h">시나리오</p>
-          <ul className="demo-scn" role="radiogroup" aria-label="시나리오 선택">
-            {SCENARIOS.map((s) => (
-              <li key={s.id}>
-                <button type="button" role="radio" aria-checked={s.id === active.id} onClick={() => s.id !== active.id && setScenario(s.id)}>
-                  <b>{s.label}</b>
-                  <span>{s.summary}</span>
-                  <em>{s.flow}</em>
-                </button>
-              </li>
-            ))}
-          </ul>
-          <p className="demo-menu__p">선택하면 화면을 새로 불러와 처음부터 적용합니다.</p>
+          {SCENARIOS.length <= 1 ? (
+            <p className="demo-menu__p">
+              등록된 시나리오가 없습니다. 지금은 모든 서비스가 평시인 빈 상태이며, 시나리오를 새로 만들면 여기에 선택지로 나타납니다.
+            </p>
+          ) : (
+            <>
+              <ul className="demo-scn" role="radiogroup" aria-label="시나리오 선택">
+                {SCENARIOS.map((s) => (
+                  <li key={s.id}>
+                    <button type="button" role="radio" aria-checked={s.id === active.id} onClick={() => s.id !== active.id && setScenario(s.id)}>
+                      <b>{s.label}</b>
+                      <span>{s.summary}</span>
+                      <em>{s.flow}</em>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <p className="demo-menu__p">선택하면 화면을 새로 불러와 처음부터 적용합니다.</p>
+            </>
+          )}
           {!isDefault && (
             <button type="button" className="demo-reset" onClick={() => setScenario("default")}>
               초기화 — 기본 시나리오로 되돌리기

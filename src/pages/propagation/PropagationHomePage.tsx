@@ -38,9 +38,13 @@ export function PropagationHomePage() {
               )}
             </div>
           ))}
-          <span className="ml-2 rounded-full border border-risk-warning/40 bg-risk-warning-bg px-3 py-1 text-xs font-bold text-risk-warning">
-            총 소요 {minutesBetween(sequentialPropagation[0].time, sequentialPropagation[sequentialPropagation.length - 1].time)}분
-          </span>
+          {sequentialPropagation.length > 1 ? (
+            <span className="ml-2 rounded-full border border-risk-warning/40 bg-risk-warning-bg px-3 py-1 text-xs font-bold text-risk-warning">
+              총 소요 {minutesBetween(sequentialPropagation[0].time, sequentialPropagation[sequentialPropagation.length - 1].time)}분
+            </span>
+          ) : (
+            <span className="text-xs text-white/40">전파 기록이 없습니다 — 사건이 발생하면 단계별 도달 시각이 표시됩니다.</span>
+          )}
         </div>
         <div className="mt-4 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
           목표: {simultaneousPropagationGoal.note} — {simultaneousPropagationGoal.status}

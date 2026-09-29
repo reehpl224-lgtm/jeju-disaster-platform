@@ -51,6 +51,7 @@ const ApprovalsPage = lazy(() => import("./pages/approvals/ApprovalsPage").then(
 const PropagationHomePage = lazy(() => import("./pages/propagation/PropagationHomePage").then((m) => ({ default: m.PropagationHomePage })))
 const PilotStatusPage = lazy(() => import("./pages/pilot/PilotStatusPage").then((m) => ({ default: m.PilotStatusPage })))
 const DataSystemPage = lazy(() => import("./pages/datasystem/DataSystemPage").then((m) => ({ default: m.DataSystemPage })))
+const DummyDataPage = lazy(() => import("./pages/dummydata/DummyDataPage").then((m) => ({ default: m.DummyDataPage })))
 
 const DomainBoardPage = lazy(() => import("./pages/domain/DomainBoardPage").then((m) => ({ default: m.DomainBoardPage })))
 
@@ -125,6 +126,7 @@ export default function App() {
           <Route path="/approvals" element={<ApprovalsPage />} />
           <Route path="/propagation" element={<PropagationHomePage />} />
           <Route path="/data-systems" element={<DataSystemPage />} />
+          <Route path="/dummy-data" element={<DummyDataPage />} />
           <Route path="/pilot-status" element={<PilotStatusPage />} />
 
           <Route path="/reports" element={<ReportsListPage />} />

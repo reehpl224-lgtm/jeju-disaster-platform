@@ -16,7 +16,7 @@ export function HeatAnalysisPage() {
       <Card title="현재 특보 단계" subtitle={`갱신 ${heatLevelInfo.updatedAt}`} dummy>
         <div className="flex items-center gap-4">
           <RiskBadge level={heatLevelInfo.level} label={heatLevelInfo.label} solid />
-          <p className="text-lg font-bold text-white">체감온도 {heatLevelInfo.feelsLikeC}℃</p>
+          <p className="text-lg font-bold text-white">체감온도 {heatLevelInfo.feelsLikeC === null ? "-" : `${heatLevelInfo.feelsLikeC}℃`}</p>
         </div>
       </Card>
 

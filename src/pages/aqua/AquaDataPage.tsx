@@ -39,7 +39,7 @@ export function AquaDataPage() {
       <StatTiles
         items={[
           { label: "전체 소스", value: aquaDataSources.length, sub: "등록된 수집 대상" },
-          { label: "정상 수집", value: normalCount, sub: "최근 5분 이내 갱신", tone: "safe" },
+          { label: "정상 수집", value: normalCount, sub: "정상 상태 소스", tone: "safe" },
           { label: "지연·누락·오류", value: issueCount, sub: "확인 필요", tone: "warning" },
           { label: "데이터 품질 점수", value: `${aquaSummary.dataQuality.percent}%`, sub: "전체 소스 평균" },
         ]}
@@ -52,7 +52,7 @@ export function AquaDataPage() {
               <div>
                 <p className="text-sm font-semibold text-white/85">{source.name}</p>
                 <p className="text-xs text-white/40">
-                  갱신: 2026-09-04 {source.updatedAt} · 주기: {source.cycle}
+                  갱신: {source.updatedAt} · 주기: {source.cycle}
                 </p>
               </div>
               <div className="text-right">

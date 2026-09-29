@@ -13,8 +13,11 @@ export function SourceTag({ source }: { source: DataSource }) {
     )
   }
   return (
-    <span className="src-tag src-tag--snapshot" title={`실제 관측값이지만 자동 갱신되지 않는 스냅샷입니다 — ${source.asOf} 기준`}>
-      스냅샷 · {source.asOf} 기준
+    <span
+      className="src-tag src-tag--snapshot"
+      title={source.asOf ? `실제 관측값이지만 자동 갱신되지 않는 스냅샷입니다 — ${source.asOf} 기준` : "스냅샷 데이터가 비어 있습니다"}
+    >
+      {source.asOf ? `스냅샷 · ${source.asOf} 기준` : "스냅샷 · 데이터 없음"}
     </span>
   )
 }

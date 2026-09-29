@@ -40,10 +40,16 @@ export function RiverAnalysisPage() {
               <p className="text-[11px] font-medium text-white/40">실측</p>
               <p className="mt-1 text-lg font-bold text-risk-warning">{riverSuddenRainAlert.observedMm}mm</p>
             </div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
-              AI 조기경고 · 예보 대비 +
-              {Math.round(((riverSuddenRainAlert.observedMm - riverSuddenRainAlert.forecastMm) / riverSuddenRainAlert.forecastMm) * 100)}%
-            </span>
+            {riverSuddenRainAlert.level !== "safe" && riverSuddenRainAlert.forecastMm > 0 ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
+                AI 조기경고 · 예보 대비 +
+                {Math.round(((riverSuddenRainAlert.observedMm - riverSuddenRainAlert.forecastMm) / riverSuddenRainAlert.forecastMm) * 100)}%
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle px-3 py-1 text-xs font-bold text-white/50">
+                {riverSuddenRainAlert.label} · 감지 없음
+              </span>
+            )}
           </div>
         </div>
         <p className="mt-3 text-xs text-white/50">{riverSuddenRainAlert.aiNote}</p>
@@ -130,9 +136,14 @@ export function RiverAnalysisPage() {
           </ResponsiveContainer>
         </div>
         <p className="mt-2 text-[11px] text-white/35">
-          data.go.kr 공공API 실연동 — {khoaMoseulpoTide.observedAt} 기준 실측값(정적 스냅샷). 현재{" "}
-          {khoaMoseulpoTide.series.at(-1)?.tideLevelCm}cm ·{" "}
-          {khoaMoseulpoTide.series[0].tideLevelCm > (khoaMoseulpoTide.series.at(-1)?.tideLevelCm ?? 0) ? "간조 진행 중(하강)" : "만조 진행 중(상승)"}
+          {khoaMoseulpoTide.series.length === 0 ? (
+            "조위 스냅샷이 비어 있습니다(2026-09-29 초기화) — 실시간 API만 유지됩니다."
+          ) : (
+            <>
+              data.go.kr 공공API 실연동 — {khoaMoseulpoTide.observedAt} 기준 실측값(정적 스냅샷). 현재 {khoaMoseulpoTide.series.at(-1)?.tideLevelCm}cm ·{" "}
+              {khoaMoseulpoTide.series[0].tideLevelCm > (khoaMoseulpoTide.series.at(-1)?.tideLevelCm ?? 0) ? "간조 진행 중(하강)" : "만조 진행 중(상승)"}
+            </>
+          )}
         </p>
       </Card>
 

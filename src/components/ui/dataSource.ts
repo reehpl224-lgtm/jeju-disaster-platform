@@ -8,7 +8,7 @@ export type DataSource = { kind: "live" } | { kind: "snapshot"; asOf: string }
 export const LIVE: DataSource = { kind: "live" }
 
 /** "2026-09-09 15:00" → "2026.09.09 15:00" — 스냅샷 기준 시각은 실제 관측 시각이라 시나리오 시계로 옮기지 않는다 */
-const asOf = (observedAt: string): DataSource => ({ kind: "snapshot", asOf: observedAt.slice(0, 16).replace(/-/g, ".") })
+const asOf = (observedAt: string | undefined): DataSource => ({ kind: "snapshot", asOf: observedAt ? observedAt.slice(0, 16).replace(/-/g, ".") : "" })
 
 /** 가장 오래된 관측 시각을 기준으로 삼는다(여러 지점이 섞여 있을 때 "이 시각 이후 값"으로 읽히지 않게) */
 const oldest = (times: string[]) => [...times].sort()[0]

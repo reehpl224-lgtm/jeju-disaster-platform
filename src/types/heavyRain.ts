@@ -20,6 +20,8 @@ export interface WeatherStationReading {
   name: string
   type: "침수센서" | "우량계" | "적설계" | "풍속풍향계"
   value: string
+  /** 센서 통신·수집 상태. 재난 위험등급(status)과 별개다. */
+  collectionStatus?: "정상" | "지연" | "오류" | "누락"
   status: RiskLevel
   updatedAt: string
 }

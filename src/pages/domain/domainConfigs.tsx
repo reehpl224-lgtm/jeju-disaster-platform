@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { Risk } from "../../components/board/BoardParts"
+import { CollectionStatusBadge } from "../../components/ui/CollectionStatusBadge"
 import { Box, Checks, DetailLink, Group, Kv, MiniChart, Note, Rows, St, Steps, Tl } from "../../components/board/PanelParts"
 import { SOURCE_LABEL } from "../../components/board/panelStatus"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
@@ -117,7 +118,10 @@ export function heavyRainConfig(): DomainConfig {
               {s.type} · {s.updatedAt}
             </p>
           </div>
-          <Risk level={s.status} label={s.value} />
+          <div className="flex flex-col items-end gap-1">
+            <Risk level={s.status} label={s.value} />
+            <CollectionStatusBadge status={s.collectionStatus} />
+          </div>
         </li>
       ))}
     </ul>
@@ -295,10 +299,14 @@ export function typhoonConfig(): DomainConfig {
     id: "typhoon",
     title: "태풍",
     mapDomain: "typhoon",
-    headline: (
+    headline: cur ? (
       <>
-        🌀 <b>{cur.name}</b> · {cur.status} · 제주까지 {trk[0].distanceFromJejuKm}km · 최근접 {trk[3].distanceFromJejuKm}km 예상
+        🌀 <b>{cur.name}</b> · {cur.status}
+        {trk[0] && <> · 제주까지 {trk[0].distanceFromJejuKm}km</>}
+        {trk.length > 0 && <> · 최근접 {Math.min(...trk.map((p) => p.distanceFromJejuKm))}km 예상</>}
       </>
+    ) : (
+      <>🌀 발표 중인 태풍 없음</>
     ),
     tabs: navTabs(TYPHOON_NAV, home, {
       "/typhoon/data": (
@@ -381,7 +389,7 @@ export function heatConfig(): DomainConfig {
       <Kv
         items={[
           { k: "현재 특보", v: li.label },
-          { k: "체감온도", v: `${li.feelsLikeC}℃` },
+          { k: "체감온도", v: li.feelsLikeC === null ? "-" : `${li.feelsLikeC}℃` },
         ]}
         over={["체감온도"]}
       />
@@ -401,7 +409,7 @@ export function heatConfig(): DomainConfig {
   const d = HT.heatAlertDispatch
   const evs = [
     { icon: "🔔", time: d.sentAt, lines: [d.title, d.message], badge: <Risk level="safe" label="발송" solid /> },
-    { icon: "🔆", time: `${li.updatedAt} 기준`, lines: [`${li.label} 유지 — 체감 ${li.feelsLikeC}℃`], level: "warning" as RiskLevel },
+    { icon: "🔆", time: `${li.updatedAt} 기준`, lines: [li.feelsLikeC === null ? `${li.label} — 관측값 없음` : `${li.label} 유지 — 체감 ${li.feelsLikeC}℃`], level: li.level },
     ...[...HT.heatTrend].reverse().map((t) => ({
       icon: "🌡",
       time: t.date,
@@ -415,7 +423,7 @@ export function heatConfig(): DomainConfig {
     mapDomain: "heat",
     headline: (
       <>
-        🔆 <b>{li.label}</b> · 체감온도 {li.feelsLikeC}℃ ({li.updatedAt} 기준)
+        🔆 <b>{li.label}</b>{li.feelsLikeC !== null && <> · 체감온도 {li.feelsLikeC}℃ ({li.updatedAt} 기준)</>}
       </>
     ),
     tabs: navTabs(HEAT_NAV, home, {

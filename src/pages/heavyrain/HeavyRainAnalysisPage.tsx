@@ -2,6 +2,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import { Card } from "../../components/ui/Card"
 import { LIVE } from "../../components/ui/dataSource"
 import { RiskBadge } from "../../components/ui/RiskBadge"
+import { CollectionStatusBadge } from "../../components/ui/CollectionStatusBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { heavyRainAiForecast, heavyRainTopStations, heavyRainTrend, weatherStations } from "../../data/mockHeavyRain"
 
@@ -73,7 +74,11 @@ export function HeavyRainAnalysisPage() {
                   {station.value} · 최종 수신 {station.updatedAt}
                 </p>
               </div>
-              <RiskBadge level={station.status} />
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                <span className="text-[11px] text-white/50">위험등급</span>
+                <RiskBadge level={station.status} />
+                <CollectionStatusBadge status={station.collectionStatus} />
+              </div>
             </div>
           ))}
         </div>

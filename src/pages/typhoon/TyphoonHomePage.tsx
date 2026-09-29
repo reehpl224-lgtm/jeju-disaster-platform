@@ -47,27 +47,34 @@ export function TyphoonHomePage() {
         </div>
       </Card>
 
-      <Card title={latest.name} subtitle={`발표 ${latest.issuedAt}`} dummy>
-        <div className="flex flex-wrap items-center gap-3">
-          <RiskBadge level={STATUS_LEVEL[latest.status]} label={latest.status} solid />
-          <p className="text-sm text-white/70">{latest.location}</p>
-        </div>
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          <div className="rounded-lg border border-border-subtle p-3 text-center">
-            <p className="text-[11px] text-white/40">이동 속도</p>
-            <p className="mt-1 text-lg font-bold text-white">{latest.speedKmh}km/h</p>
+      {latest ? (
+        <Card title={latest.name} subtitle={`발표 ${latest.issuedAt}`} dummy>
+          <div className="flex flex-wrap items-center gap-3">
+            <RiskBadge level={STATUS_LEVEL[latest.status]} label={latest.status} solid />
+            <p className="text-sm text-white/70">{latest.location}</p>
           </div>
-          <div className="rounded-lg border border-border-subtle p-3 text-center">
-            <p className="text-[11px] text-white/40">중심기압</p>
-            <p className="mt-1 text-lg font-bold text-white">{latest.pressureHpa}hPa</p>
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="rounded-lg border border-border-subtle p-3 text-center">
+              <p className="text-[11px] text-white/40">이동 속도</p>
+              <p className="mt-1 text-lg font-bold text-white">{latest.speedKmh}km/h</p>
+            </div>
+            <div className="rounded-lg border border-border-subtle p-3 text-center">
+              <p className="text-[11px] text-white/40">중심기압</p>
+              <p className="mt-1 text-lg font-bold text-white">{latest.pressureHpa}hPa</p>
+            </div>
+            <div className="rounded-lg border border-border-subtle p-3 text-center">
+              <p className="text-[11px] text-white/40">최대풍속</p>
+              <p className="mt-1 text-lg font-bold text-white">{latest.maxWindMs}m/s</p>
+            </div>
           </div>
-          <div className="rounded-lg border border-border-subtle p-3 text-center">
-            <p className="text-[11px] text-white/40">최대풍속</p>
-            <p className="mt-1 text-lg font-bold text-white">{latest.maxWindMs}m/s</p>
-          </div>
-        </div>
-        <p className="mt-3 text-[11px] text-white/35">관련 레거시 시스템: {typhoonSource.relatedLegacySystem}</p>
-      </Card>
+          <p className="mt-3 text-[11px] text-white/35">관련 레거시 시스템: {typhoonSource.relatedLegacySystem}</p>
+        </Card>
+      ) : (
+        <Card title="발표 중인 태풍 없음">
+          <p className="text-sm text-white/60">기상청이 발표한 태풍 정보가 없습니다 — 평시 감시 중입니다.</p>
+          <p className="mt-2 text-[11px] text-white/35">관련 레거시 시스템: {typhoonSource.relatedLegacySystem}</p>
+        </Card>
+      )}
 
       <Card
         title="실측 해상 관측 참고 — 국립해양조사원(KHOA) 해양관측부이"

@@ -92,7 +92,7 @@ export function HeatHomePage() {
       <Card title="현재 폭염 위기단계" subtitle={`${heatLevelInfo.criteria} · 갱신 ${heatLevelInfo.updatedAt}`} dummy>
         <div className="flex items-center gap-4">
           <RiskBadge level={heatLevelInfo.level} label={heatLevelInfo.label} solid />
-          <p className="text-lg font-bold text-white">체감온도 {heatLevelInfo.feelsLikeC}℃</p>
+          <p className="text-lg font-bold text-white">체감온도 {heatLevelInfo.feelsLikeC === null ? "-" : `${heatLevelInfo.feelsLikeC}℃`}</p>
         </div>
       </Card>
 
