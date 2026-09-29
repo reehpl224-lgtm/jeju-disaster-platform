@@ -1,9 +1,10 @@
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { coastEventDetail } from "../../data/mockCoast"
+import { coastEventDetail, coastEventDetailIncident } from "../../data/mockCoast"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function CoastEventDetailPage() {
-  const d = coastEventDetail
+  const d = useModeValue(coastEventDetailIncident, coastEventDetail)
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3">

@@ -150,6 +150,80 @@ export const coastKhoaEnhancementReview = {
 }
 
 /**
+ * "데이터 있음" 모드용 — 「제주 재난안전과 팀장 사용자 시나리오」(2026-09-23) 시나리오 B 근거.
+ * 위 평시(빈 화면) 값들과 짝을 이루는 "협재해수욕장 이안류 위험 지수 상승 감지(14:40), 관심 단계
+ * 확인 대기 중" 스냅샷 — DataModeContext의 mode="data"일 때만 leaderBriefs.ts·Coast 상세 화면에서
+ * 이 값을 쓴다. 아직 팀장의 대외 경보 승인 전 시점이라 출동 요청(coastDispatch)·기관 공조
+ * (coastAgencyStatuses)는 의도적으로 평시값을 그대로 유지(§AGENTS.md "관련 없는 상태는 0/해당없음으로
+ * 명시적으로 끄세요" 원칙).
+ */
+export const coastEventsIncident: CoastEvent[] = [
+  { id: "EVT-2026-0930-01", level: "caution", type: "이안류 감지", source: "AI CCTV (협재-2)", location: "협재해수욕장 방파제 인근", time: "14:40", status: "미확인" },
+]
+
+export const coastSummaryIncident = {
+  lastUpdated: "14:40",
+  targetArea: "함덕·협재 해수욕장 (1차년도 실증지)",
+  infra: "AIoT 스마트폴 신설 (지능형 CCTV + 기상센서 + 경보스피커)",
+  permitNote: "공유수면 점용허가 등 인허가 절차 필요 (스마트폴 신설 구간)",
+  aiLabels: ["Person_In_Water", "Danger_Zone_Person", "Rip_Current", "Overtopping"],
+  activeEvents: { count: 1, detail: "협재 이안류 위험 감지 1건" },
+  unconfirmedEvents: { count: 1, detail: "확인 대기 1건" },
+  coordination: { count: 0, detail: "출동 공조 없음 (관심 단계)" },
+  equipment: { normal: 4, error: 0, detail: "전 기기 정상" },
+}
+
+export const coastAiInsightsIncident: { id: string; level: "safe" | "caution" | "warning" | "alert" | "danger"; title: string; basis: string; match: string }[] = [
+  { id: "ai1", level: "caution", title: "협재 이안류 위험 지수 상승 감지", basis: "AI CCTV 영상 탐지 + 유의파고 추이 교차 분석", match: "위험지수 0.42 → 0.68 (최근 10분간 상승)" },
+]
+
+export const coastFieldAlertsIncident: CoastFieldAlert[] = [
+  { id: "fa1", location: "협재해수욕장 방파제", level: "caution", time: "14:40", detail: "현장 전광판 주의 문구 자동 송출 — 이안류 주의" },
+]
+
+export const coastEventDetailIncident = {
+  id: "EVT-2026-0930-01",
+  level: "caution" as const,
+  status: "관심 — 확인 대기 중",
+  type: "이안류 감지",
+  detectedAt: "14:40",
+  grade: "관심",
+  source: "AI CCTV (협재-2) · AIoT 스마트폴",
+  zone: "협재해수욕장 방파제 인근",
+  reviewer: "-",
+  reviewStatus: "확인 대기",
+  location: "협재해수욕장 방파제 서쪽 50m",
+  radius: "약 80m",
+  nearbyCoast: "협재해수욕장",
+  ripCurrentZone: "방파제 서쪽 구간 이안류 위험 상승",
+  relatedRiver: "인근 하천 없음",
+  nearbyFarms: "인근 해상 양식시설 없음",
+  waveZone: "방파제 서쪽 구간",
+  rainSummary: { value: "10분 누적 강우 0 mm", detail: "정상 범위", updatedAt: "14:40" },
+  waveSummary: { value: "유의 파고 1.3 m", detail: "관심 구간(1.0~1.5m)", updatedAt: "14:40" },
+  ripCurrentRisk: { value: "AI 모델 위험 지수 0.68 / 1.0", detail: "최근 10분간 0.42→0.68 상승", confidence: "신뢰도 91%" },
+  detection: { class: "탐지 클래스: Rip_Current", confidence: "신뢰도 91%" },
+  sensorCrossCheck: [
+    { id: "sc1", name: "조류 센서 CS-04", status: "정상" },
+    { id: "sc2", name: "수온 부이 BU-11", status: "정상" },
+  ],
+  timeline: [
+    { id: "t1", time: "14:40", title: "● AI CCTV 이안류 위험 지수 상승 감지 — 관심 단계 진입" },
+  ] as TimelineEntry[],
+  agencyStatus: [
+    { id: "ag1", agency: "제주해양경찰서", status: "상황 파악 중" },
+    { id: "ag2", agency: "제주시 재난안전과", status: "평시 대기" },
+    { id: "ag3", agency: "서귀포시 상황실", status: "평시 대기" },
+    { id: "ag4", agency: "119 해상구조대", status: "평시 대기" },
+  ],
+  fieldActions: {
+    dispatch: "해당 없음 (관심 단계 — 출동 불필요)",
+    control: "현장 전광판 주의 문구 송출",
+    alert: "대외 경보 미발령 — 팀장 승인 대기 중",
+  },
+}
+
+/**
  * 종료 보고서(/coast/closure) — 지난 사례 예시. 오늘(2026-09-22) 진행 중인 사건이 아니라,
  * "종료 보고서가 어떤 형태인지" 보여주기 위한 참고용으로 남겨둔 과거 사례.
  */

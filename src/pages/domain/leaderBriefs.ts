@@ -370,14 +370,16 @@ export function aquaBrief(_isEmpty?: boolean): LeaderBrief {
 }
 
 // ------------------------------------------------------------------ 연안 안전관리
-export function coastBrief(_isEmpty?: boolean): LeaderBrief {
-  const s = CO.coastSummary
-  const events = CO.coastEvents
+export function coastBrief(isEmpty = false): LeaderBrief {
+  const s = isEmpty ? CO.coastSummary : CO.coastSummaryIncident
+  const events = isEmpty ? CO.coastEvents : CO.coastEventsIncident
   const pending = events.filter((e) => e.status === "미확인")
-  const dp = CO.coastDispatch
+  const dp = CO.coastDispatch // 아직 관심 단계라 출동요청 전 — 두 모드 동일
   const level = worstOf(events.map((e) => e.level))
   const lead = events[0]
-  const d = CO.coastEventDetail
+  const d = isEmpty ? CO.coastEventDetail : CO.coastEventDetailIncident
+  const aiInsights = isEmpty ? CO.coastAiInsights : CO.coastAiInsightsIncident
+  const fieldAlerts = isEmpty ? CO.coastFieldAlerts : CO.coastFieldAlertsIncident
   const buoy = khoaBuoyMarineConditions[0]
   return {
     title: lead ? `${lead.type} — ${lead.location}` : s.activeEvents.detail,
@@ -404,14 +406,14 @@ export function coastBrief(_isEmpty?: boolean): LeaderBrief {
       { k: "이안류 위험", v: d.ripCurrentRisk.value },
       { k: "영상 탐지", v: d.detection.class },
       ...(buoy ? [{ k: `해양관측 ${buoy.stationName}`, v: `파고 ${buoy.waveHeightM}m · 풍속 ${buoy.windSpeedMs}m/s` }] : []),
-      { k: "AI 판단", v: CO.coastAiInsights.length > 0 ? CO.coastAiInsights.map((a) => a.title).join(" · ") : "위험 신호 없음" },
+      { k: "AI 판단", v: aiInsights.length > 0 ? aiInsights.map((a) => a.title).join(" · ") : "위험 신호 없음" },
     ],
     outlook: [dp.aiReason, dp.fallback],
     response: [
       contactRow("coast"),
       { k: "기관 공조", v: CO.coastAgencyStatuses.map((a) => `${a.agency} ${a.status}`).join(" · ") },
       { k: "AIoT 스마트폴", v: `정상 ${CO.coastSafetyAssets.filter((a) => a.status === "정상").length}/${CO.coastSafetyAssets.length}기` },
-      { k: "현장 경보", v: `${CO.coastFieldAlerts.length}건` },
+      { k: "현장 경보", v: `${fieldAlerts.length}건` },
     ],
   }
 }

@@ -14,12 +14,17 @@ import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import {
   coastAgencyStatuses,
   coastAiInsights,
+  coastAiInsightsIncident,
   coastEventDetail,
+  coastEventDetailIncident,
   coastEvents,
+  coastEventsIncident,
   coastFieldAlerts,
+  coastFieldAlertsIncident,
   coastKhoaEnhancementReview,
   coastSafetyAssets,
   coastSummary,
+  coastSummaryIncident,
 } from "../../data/mockCoast"
 import { riskMarkers } from "../../data/mockDashboard"
 import { cctvCameras } from "../../data/mockCctv"
@@ -27,130 +32,138 @@ import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { COAST_TYPE_LABEL } from "../../types/coast"
+import { useDataMode, useModeValue } from "../../context/DataModeContext"
 
 const COAST_CCTV = cctvCameras.filter((c) => c.domain === "coast")
 
-const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
-  sensor: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {coastEventDetail.sensorCrossCheck.map((sensor) => (
-        <li key={sensor.id} className="flex items-center justify-between gap-2 py-2 text-xs">
-          <p className="text-white/80">{sensor.name}</p>
-          <span className={sensor.status === "정상" ? "text-risk-safe" : "text-risk-warning"}>{sensor.status}</span>
-        </li>
-      ))}
-    </ul>
-  ),
-  broadcast: (
-    <ul className="flex flex-col gap-2">
-      {coastFieldAlerts.map((alert) => (
-        <li key={alert.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <RiskBadge level={alert.level} label={alert.location} />
-            <span className="text-white/35">{alert.time}</span>
-          </div>
-          <p className="mt-1 text-white/50">{alert.detail}</p>
-        </li>
-      ))}
-    </ul>
-  ),
-  response: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {coastAgencyStatuses.map((agency) => (
-        <li key={agency.id} className="py-2 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-medium text-white/80">{agency.agency}</p>
-            <RiskBadge level={agency.level} label={agency.status} />
-          </div>
-          <p className="mt-0.5 text-white/35">{agency.detail}</p>
-        </li>
-      ))}
-    </ul>
-  ),
-  asset: (
-    <ul className="flex flex-col gap-2">
-      {coastSafetyAssets.map((asset) => (
-        <li key={asset.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-medium text-white/80">{asset.name}</p>
-            <span className={asset.status === "정상" ? "text-risk-safe" : "text-risk-danger"}>{asset.status}</span>
-          </div>
-          <p className="mt-1 text-white/35">
-            {asset.location} · {asset.detail}
-          </p>
-        </li>
-      ))}
-    </ul>
-  ),
-  timeline: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {coastEvents.map((event) => (
-        <li key={event.id} className="py-2 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-semibold text-white/60">{event.time}</span>
-            <RiskBadge level={event.level} />
-          </div>
-          <p className="mt-0.5 text-white/80">{event.type}</p>
-          <p className="text-white/35">{event.location}</p>
-        </li>
-      ))}
-    </ul>
-  ),
-  contact: <DutyContactPanel domain="coast" />,
-}
+export function CoastHomePage() {
+  const coastMarkers = riskMarkers.filter((m) => m.domain === "coast")
+  const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
+  const { isEmpty } = useDataMode()
 
-const TIMELINE_TABS: GisTimelineTab[] = [
-  {
-    key: "timeline",
-    label: "타임라인",
-    content: (
+  const summary = useModeValue(coastSummaryIncident, coastSummary)
+  const events = useModeValue(coastEventsIncident, coastEvents)
+  const eventDetail = useModeValue(coastEventDetailIncident, coastEventDetail)
+  const aiInsights = useModeValue(coastAiInsightsIncident, coastAiInsights)
+  const fieldAlerts = useModeValue(coastFieldAlertsIncident, coastFieldAlerts)
+
+  const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
+    sensor: (
       <ul className="flex flex-col divide-y divide-border-subtle">
-        {coastEvents.map((event) => (
-          <li key={event.id} className="py-2 text-xs">
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-semibold text-white/60">{event.time}</span>
-              <RiskBadge level={event.level} label={event.status} />
-            </div>
-            <p className="mt-0.5 text-white/80">{event.type}</p>
+        {eventDetail.sensorCrossCheck.map((sensor) => (
+          <li key={sensor.id} className="flex items-center justify-between gap-2 py-2 text-xs">
+            <p className="text-white/80">{sensor.name}</p>
+            <span className={sensor.status === "정상" ? "text-risk-safe" : "text-risk-warning"}>{sensor.status}</span>
           </li>
         ))}
       </ul>
     ),
-  },
-  {
-    key: "field",
-    label: "현장 경보",
-    content: (
+    broadcast: (
       <ul className="flex flex-col gap-2">
-        {coastFieldAlerts.map((alert) => (
+        {fieldAlerts.map((alert) => (
           <li key={alert.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
             <div className="flex items-center justify-between gap-2">
               <RiskBadge level={alert.level} label={alert.location} />
               <span className="text-white/35">{alert.time}</span>
             </div>
-            <p className="mt-1.5 text-white/50">{alert.detail}</p>
+            <p className="mt-1 text-white/50">{alert.detail}</p>
           </li>
         ))}
       </ul>
     ),
-  },
-]
+    response: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {coastAgencyStatuses.map((agency) => (
+          <li key={agency.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-white/80">{agency.agency}</p>
+              <RiskBadge level={agency.level} label={agency.status} />
+            </div>
+            <p className="mt-0.5 text-white/35">{agency.detail}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+    asset: (
+      <ul className="flex flex-col gap-2">
+        {coastSafetyAssets.map((asset) => (
+          <li key={asset.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-white/80">{asset.name}</p>
+              <span className={asset.status === "정상" ? "text-risk-safe" : "text-risk-danger"}>{asset.status}</span>
+            </div>
+            <p className="mt-1 text-white/35">
+              {asset.location} · {asset.detail}
+            </p>
+          </li>
+        ))}
+      </ul>
+    ),
+    timeline: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {events.map((event) => (
+          <li key={event.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-semibold text-white/60">{event.time}</span>
+              <RiskBadge level={event.level} />
+            </div>
+            <p className="mt-0.5 text-white/80">{event.type}</p>
+            <p className="text-white/35">{event.location}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+    contact: <DutyContactPanel domain="coast" />,
+  }
 
-export function CoastHomePage() {
-  const coastMarkers = riskMarkers.filter((m) => m.domain === "coast")
-  const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
+  const TIMELINE_TABS: GisTimelineTab[] = [
+    {
+      key: "timeline",
+      label: "타임라인",
+      content: (
+        <ul className="flex flex-col divide-y divide-border-subtle">
+          {events.map((event) => (
+            <li key={event.id} className="py-2 text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold text-white/60">{event.time}</span>
+                <RiskBadge level={event.level} label={event.status} />
+              </div>
+              <p className="mt-0.5 text-white/80">{event.type}</p>
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+    {
+      key: "field",
+      label: "현장 경보",
+      content: (
+        <ul className="flex flex-col gap-2">
+          {fieldAlerts.map((alert) => (
+            <li key={alert.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+              <div className="flex items-center justify-between gap-2">
+                <RiskBadge level={alert.level} label={alert.location} />
+                <span className="text-white/35">{alert.time}</span>
+              </div>
+              <p className="mt-1.5 text-white/50">{alert.detail}</p>
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+  ]
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-bold text-white">연안 관제 대시보드</h1>
-        <p className="mt-1 text-sm text-white/50">마지막 갱신: {coastSummary.lastUpdated}</p>
+        <p className="mt-1 text-sm text-white/50">마지막 갱신: {summary.lastUpdated}</p>
       </div>
 
-      <LeaderDetailBrief brief={coastBrief()} />
+      <LeaderDetailBrief brief={coastBrief(isEmpty)} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="GIS 연안 위험 지도" subtitle={`지도 기준시각 ${coastSummary.lastUpdated}`} className="xl:col-span-2" dummy>
+        <Card title="GIS 연안 위험 지도" subtitle={`지도 기준시각 ${summary.lastUpdated}`} className="xl:col-span-2" dummy>
           <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
             <JejuTileMap markers={coastMarkers} cctvMarkers={COAST_CCTV} className="relative h-full w-full" />
             <GisIconRail activeKey={activeRailKey} onSelect={(key) => setActiveRailKey((prev) => (prev === key ? null : key))} />
@@ -178,7 +191,7 @@ export function CoastHomePage() {
 
       <Card title="AI 예측 — 판단 근거" subtitle="이안류·해수욕장 위험 AI 모델이 산출한 근거 요약" dummy>
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {coastAiInsights.map((insight) => (
+          {aiInsights.map((insight) => (
             <li key={insight.id} className="rounded-lg border border-border-subtle bg-inset p-3">
               <RiskBadge level={insight.level} solid />
               <p className="mt-2 text-sm font-semibold text-white/85">{insight.title}</p>
@@ -196,16 +209,16 @@ export function CoastHomePage() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
           <div>
             <p className="text-xs text-white/35">실증 대상지</p>
-            <p className="mt-0.5 font-medium text-white/80">{coastSummary.targetArea}</p>
+            <p className="mt-0.5 font-medium text-white/80">{summary.targetArea}</p>
           </div>
           <div className="sm:col-span-2">
             <p className="text-xs text-white/35">신설 인프라</p>
-            <p className="mt-0.5 font-medium text-white/80">{coastSummary.infra}</p>
+            <p className="mt-0.5 font-medium text-white/80">{summary.infra}</p>
           </div>
           <div>
             <p className="text-xs text-white/35">AI 탐지 라벨</p>
             <div className="mt-1 flex flex-wrap gap-1.5">
-              {coastSummary.aiLabels.map((label) => (
+              {summary.aiLabels.map((label) => (
                 <code key={label} className="rounded bg-inset px-1.5 py-0.5 text-[11px] text-accent">
                   {label}
                 </code>
@@ -214,19 +227,19 @@ export function CoastHomePage() {
           </div>
         </div>
         <p className="mt-3 rounded-lg border border-risk-caution/30 bg-risk-caution-bg px-3 py-2 text-xs text-risk-caution">
-          ⚠ {coastSummary.permitNote}
+          ⚠ {summary.permitNote}
         </p>
       </Card>
 
       <StatTiles
         items={[
-          { label: "활성 위험 이벤트", value: coastSummary.activeEvents.count, sub: coastSummary.activeEvents.detail, tone: "danger" },
-          { label: "미확인 이벤트", value: coastSummary.unconfirmedEvents.count, sub: coastSummary.unconfirmedEvents.detail, tone: "warning" },
-          { label: "공조 진행", value: coastSummary.coordination.count, sub: coastSummary.coordination.detail, tone: "info" },
+          { label: "활성 위험 이벤트", value: summary.activeEvents.count, sub: summary.activeEvents.detail, tone: "danger" },
+          { label: "미확인 이벤트", value: summary.unconfirmedEvents.count, sub: summary.unconfirmedEvents.detail, tone: "warning" },
+          { label: "공조 진행", value: summary.coordination.count, sub: summary.coordination.detail, tone: "info" },
           {
             label: "장비 연결 상태",
-            value: `정상 ${coastSummary.equipment.normal} / 오류 ${coastSummary.equipment.error}`,
-            sub: coastSummary.equipment.detail,
+            value: `정상 ${summary.equipment.normal} / 오류 ${summary.equipment.error}`,
+            sub: summary.equipment.detail,
             tone: "safe",
           },
         ]}
@@ -299,7 +312,7 @@ export function CoastHomePage() {
 
       <Card title="위험 이벤트 목록" dummy action={<Link to="/coast/events" className="text-xs font-semibold text-white/50 hover:text-accent">전체 보기 →</Link>}>
         <ul className="flex flex-col divide-y divide-border-subtle">
-          {coastEvents.map((event) => (
+          {events.map((event) => (
             <li key={event.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
               <div className="flex items-center gap-2">
                 <RiskBadge level={event.level} solid />
@@ -327,7 +340,7 @@ export function CoastHomePage() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="현장 경보 발령 현황" dummy>
           <ul className="flex flex-col gap-2.5">
-            {coastFieldAlerts.map((alert) => (
+            {fieldAlerts.map((alert) => (
               <li key={alert.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-3">
                 <div className="flex items-center gap-2">
                   <RiskBadge level={alert.level} />

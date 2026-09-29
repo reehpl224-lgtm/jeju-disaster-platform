@@ -1290,8 +1290,12 @@ export function aquaConfig(_isEmpty?: boolean): DomainConfig {
 }
 
 // ================================================================== 연안 안전관리
-export function coastConfig(_isEmpty?: boolean): DomainConfig {
-  const s = CO.coastSummary
+export function coastConfig(isEmpty = false): DomainConfig {
+  const s = isEmpty ? CO.coastSummary : CO.coastSummaryIncident
+  const aiInsights = isEmpty ? CO.coastAiInsights : CO.coastAiInsightsIncident
+  const fieldAlerts = isEmpty ? CO.coastFieldAlerts : CO.coastFieldAlertsIncident
+  // 상세 탭(이벤트 상세·현장 모니터링)은 아직 데이터 모드 미연동 — Coast 상세 페이지
+  // (CoastEventDetailPage 등)에서 먼저 연동했고, 이 보드 뷰의 나머지 탭은 다음 단계에서 이어서 연동한다.
   // 상세 대시보드·현장 모니터링 상세 화면이 모두 보여주는 KHOA 보강 검토 — 두 탭에서 같이 쓴다
   const coastKhoaReview = (
     <Group title="KHOA 실측 기반 AI 보강 가능성 검토" dummy>
@@ -1300,16 +1304,16 @@ export function coastConfig(_isEmpty?: boolean): DomainConfig {
     </Group>
   )
   const home = (
-    <LeaderBoardBrief brief={coastBrief()}>
+    <LeaderBoardBrief brief={coastBrief(isEmpty)}>
       <Group title="AI 판단" dummy>
-        {CO.coastAiInsights.map((a) => (
+        {aiInsights.map((a) => (
           <Box key={a.id} title={a.title} lines={[a.basis, a.match]} right={<Risk level={a.level} />} />
         ))}
       </Group>
       {coastKhoaReview}
       <Group title="현장 경보" dummy>
         <ul className="plist">
-          {CO.coastFieldAlerts.map((f) => (
+          {fieldAlerts.map((f) => (
             <li key={f.id}>
               <div className="row-between">
                 <span className="t">{f.location}</span>

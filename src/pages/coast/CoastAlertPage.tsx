@@ -3,12 +3,15 @@ import { Card } from "../../components/ui/Card"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { coastAlertChannels } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { coastEventDetail, coastEvents } from "../../data/mockCoast"
+import { coastEventDetail, coastEventDetailIncident, coastEvents, coastEventsIncident } from "../../data/mockCoast"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function CoastAlertPage() {
   const [approved, setApproved] = useState<string | null>(null)
   const [rejected, setRejected] = useState<string | null>(null)
-  const pending = coastEvents.filter((e) => e.status === "미확인")
+  const events = useModeValue(coastEventsIncident, coastEvents)
+  const eventDetail = useModeValue(coastEventDetailIncident, coastEventDetail)
+  const pending = events.filter((e) => e.status === "미확인")
 
   return (
     <div className="flex flex-col gap-6">
@@ -58,17 +61,17 @@ export function CoastAlertPage() {
         </ul>
       </Card>
 
-      <Card title="선택 이벤트 — AI 판단 근거" subtitle={coastEventDetail.id} dummy>
+      <Card title="선택 이벤트 — AI 판단 근거" subtitle={eventDetail.id} dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="rounded-lg border border-border-subtle p-3">
             <p className="text-sm font-semibold text-white/80">이안류 위험도</p>
-            <p className="mt-1 text-xs text-white/40">{coastEventDetail.ripCurrentRisk.value}</p>
-            <p className="text-xs text-white/40">{coastEventDetail.ripCurrentRisk.confidence}</p>
+            <p className="mt-1 text-xs text-white/40">{eventDetail.ripCurrentRisk.value}</p>
+            <p className="text-xs text-white/40">{eventDetail.ripCurrentRisk.confidence}</p>
           </div>
           <div className="rounded-lg border border-border-subtle p-3">
             <p className="text-sm font-semibold text-white/80">현장 영상 탐지</p>
-            <p className="mt-1 text-xs text-white/40">{coastEventDetail.detection.class}</p>
-            <p className="text-xs text-white/40">{coastEventDetail.detection.confidence}</p>
+            <p className="mt-1 text-xs text-white/40">{eventDetail.detection.class}</p>
+            <p className="text-xs text-white/40">{eventDetail.detection.confidence}</p>
           </div>
         </div>
       </Card>
