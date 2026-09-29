@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { LeaderDetailBrief } from "../domain/LeaderBrief"
+import { aquaBrief } from "../domain/leaderBriefs"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { RiskBadge } from "../../components/ui/RiskBadge"
@@ -147,6 +149,8 @@ export function AquaHomePage() {
         <h1 className="text-xl font-bold text-white">양식장 대응 — 저염분수·고수온</h1>
         <p className="mt-1 text-sm text-white/50">AI 하이브리드 예측 기반 저염분수·고수온 경보 및 양식장 e-SOP 대응</p>
       </div>
+
+      <LeaderDetailBrief brief={aquaBrief()} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="위험 위치 및 영향 범위 — 저염분·고수온 GIS" subtitle="한경·대정 해안 관측지점(한경 금등·용수, 대정 일과) — 양식장 내부가 아닌 해안에 설치" className="xl:col-span-2" dummy>

@@ -1,5 +1,7 @@
 import { useState, type ReactNode } from "react"
 import { Card } from "../../components/ui/Card"
+import { LeaderDetailBrief } from "../domain/LeaderBrief"
+import { heavyRainBrief } from "../domain/leaderBriefs"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../../components/ui/GisIconRail"
@@ -77,6 +79,8 @@ export function HeavyRainHomePage() {
           (태풍은 <span className="text-white/70">별도 시스템</span>에서 관리)
         </p>
       </div>
+
+      <LeaderDetailBrief brief={heavyRainBrief()} />
 
       <Card title="위험 위치 및 관측망 — 호우 GIS" subtitle="침수경보·우량계 관측 지점" dummy>
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">

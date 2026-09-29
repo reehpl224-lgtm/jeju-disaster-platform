@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { LeaderDetailBrief } from "../domain/LeaderBrief"
+import { riverBrief } from "../domain/leaderBriefs"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { GisIconRail, type GisRailKey } from "../../components/ui/GisIconRail"
@@ -132,6 +134,8 @@ export function RiverHomePage() {
         <h1 className="text-xl font-bold text-white">하천 범람 — 대시보드</h1>
         <p className="mt-1 text-sm text-white/50">강우레이더·수위센서 기반 하천 범람 예측 및 경보</p>
       </div>
+
+      <LeaderDetailBrief brief={riverBrief()} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="위험 위치 및 영향 범위 — 하천 GIS" subtitle="효돈천(돈내코·쇠소깍) 관측 지점" className="xl:col-span-2" dummy>

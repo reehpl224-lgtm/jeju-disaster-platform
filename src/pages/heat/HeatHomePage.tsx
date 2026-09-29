@@ -1,5 +1,7 @@
 import { useMemo, useState, type ReactNode } from "react"
 import { Card } from "../../components/ui/Card"
+import { LeaderDetailBrief } from "../domain/LeaderBrief"
+import { heatBrief } from "../domain/leaderBriefs"
 import { Pill } from "../../components/ui/Pill"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
@@ -60,6 +62,8 @@ export function HeatHomePage() {
         <h1 className="text-xl font-bold text-white">폭염 대응</h1>
         <p className="mt-1 text-sm text-white/50">열섬지도 기반 시원한 길·더운 길 안내, 무더위쉼터 위치 안내</p>
       </div>
+
+      <LeaderDetailBrief brief={heatBrief()} />
 
       <Card title="위험 위치 및 열섬 지점 — 폭염 GIS" subtitle="더운 길·무더위쉼터 관측 지점" dummy>
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">

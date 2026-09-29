@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { LeaderDetailBrief } from "../domain/LeaderBrief"
+import { coastBrief } from "../domain/leaderBriefs"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
@@ -144,6 +146,8 @@ export function CoastHomePage() {
         <h1 className="text-xl font-bold text-white">연안 관제 대시보드</h1>
         <p className="mt-1 text-sm text-white/50">마지막 갱신: {coastSummary.lastUpdated}</p>
       </div>
+
+      <LeaderDetailBrief brief={coastBrief()} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="GIS 연안 위험 지도" subtitle={`지도 기준시각 ${coastSummary.lastUpdated}`} className="xl:col-span-2" dummy>

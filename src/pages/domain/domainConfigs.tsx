@@ -28,6 +28,8 @@ import {
   type PlanItem,
 } from "../../data/mockMeetingItems"
 import { COAST_COMBINE_RULES } from "../../data/coastAlertThresholds"
+import { LeaderBoardBrief } from "./LeaderBrief"
+import { aquaBrief, coastBrief, heatBrief, heavyRainBrief, riverBrief, typhoonBrief } from "./leaderBriefs"
 import { AQUA_NAV } from "../aqua/aquaNav"
 import { COAST_NAV } from "../coast/coastNav"
 import { HEAT_NAV } from "../heat/heatNav"
@@ -382,29 +384,14 @@ export function heavyRainConfig(): DomainConfig {
     </ul>
   )
   const home = (
-    <>
-      <Box title={`예보 ${f.forecastMm}mm/h 대비 실측 초과`} lines={[`감지 ${f.detectedAt}`]} right={<Risk level="warning" label="AI 조기경고" />} />
-      <ul className="plist">
-        {f.stations.map((s) => (
-          <li className="row-between" key={s.id}>
-            <span>{s.name}</span>
-            <span className="t" style={{ color: "var(--risk-warning)" }}>
-              실측 {s.observedMm}mm/h
-            </span>
-          </li>
-        ))}
-      </ul>
-      <p className="pbox" style={{ marginTop: 8 }}>
-        {f.aiNote}
-      </p>
-      <Note tone="caution">{f.confirmNote}</Note>
+    <LeaderBoardBrief brief={heavyRainBrief()}>
       <Group title="관측소 현황" dummy>
         {stationList}
       </Group>
       <Group title="재해문자전광판·자동음성 송출" dummy>
         <Tl entries={HR.broadcastLog.map((b) => ({ time: b.time, title: `[${b.channel}] ${b.message}` }))} />
       </Group>
-    </>
+    </LeaderBoardBrief>
   )
   const analysis = (
     <>
@@ -520,26 +507,12 @@ export function typhoonConfig(): DomainConfig {
     </Group>
   )
   const home = (
-    <>
-      <Box title={cur.name} lines={[cur.location, `발표 ${cur.issuedAt}`]} right={<Risk level={typLevel(cur.status)} label={cur.status} />} />
-      <Kv
-        items={[
-          { k: "이동 속도", v: `${cur.speedKmh}km/h` },
-          { k: "중심 기압", v: `${cur.pressureHpa}hPa` },
-          { k: "최대 풍속", v: `${cur.maxWindMs}m/s` },
-          { k: "제주까지", v: `${trk[0].distanceFromJejuKm}km` },
-        ]}
-      />
-      <p className="pbox" style={{ marginTop: 8 }}>
-        {TY.typhoonSource.note}
-        <br />
-        <span className="s">연계: {TY.typhoonSource.relatedLegacySystem}</span>
-      </p>
+    <LeaderBoardBrief brief={typhoonBrief()}>
       {reportHistory}
       <Group title="해양관측부이 (KHOA)">
         <Buoys />
       </Group>
-    </>
+    </LeaderBoardBrief>
   )
   const analysis = (
     <>
@@ -633,12 +606,7 @@ export function typhoonConfig(): DomainConfig {
 export function heatConfig(): DomainConfig {
   const li = HT.heatLevelInfo
   const home = (
-    <>
-      <Box
-        title={li.label}
-        lines={[`체감온도 ${li.feelsLikeC}℃ · ${li.updatedAt} 기준`, li.criteria]}
-        right={<Risk level={li.level} label={li.label} />}
-      />
+    <LeaderBoardBrief brief={heatBrief()}>
       <Group title="무더위쉼터" dummy>
         <ul className="plist">
           {HT.heatShelters.map((s) => (
@@ -667,7 +635,7 @@ export function heatConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
-    </>
+    </LeaderBoardBrief>
   )
   const analysis = (
     <>
@@ -757,53 +725,9 @@ export function riverConfig(): DomainConfig {
   const RANK: RiskLevel[] = ["safe", "caution", "warning", "alert", "danger"]
   const worstRiver = [...RV.riverStatuses].sort((a, b) => RANK.indexOf(b.level) - RANK.indexOf(a.level))[0]
   const rb = RV.riverRiskBasis
-  const sr = RV.riverSuddenRainAlert
   const tg = RV.riverTarget
   const home = (
-    <>
-      <ul className="plist">
-        {RV.riverStatuses.map((s) => (
-          <li key={s.id}>
-            <div className="row-between">
-              <span className="t">{s.name}</span>
-              <Risk level={s.level} label={s.stage} />
-            </div>
-            <p className="s">
-              범람 도달 {s.eta} · 갱신 {s.updatedAt}
-            </p>
-          </li>
-        ))}
-      </ul>
-      <Note>
-        {RV.riverSopStage.current} — {RV.riverSopStage.next}
-      </Note>
-      <Group title="위험 판단 근거" dummy>
-        <Kv
-          items={[
-            { k: "강우량", v: rb.rainfall.value, d: `${rb.rainfall.detail} ${rb.rainfall.trend}` },
-            { k: "수위", v: rb.waterLevel.value, d: `${rb.waterLevel.detail} ${rb.waterLevel.trend}` },
-            { k: "레이더", v: rb.radar.value, d: `${rb.radar.detail} · ${rb.radar.confidence}` },
-            { k: "토양 포화도", v: rb.saturation.value, d: rb.saturation.detail },
-          ]}
-          over={["강우량", "수위"]}
-        />
-      </Group>
-      <Group title="돌발 강우 감지" dummy>
-        <Box
-          title={`예보 ${sr.forecastMm}mm → 실측 ${sr.observedMm}mm`}
-          lines={[`감지 ${sr.detectedAt} · ${sr.trendNote}`, sr.aiNote]}
-          right={<Risk level={sr.level} label={sr.label} />}
-        />
-        <Note tone="caution">{sr.confirmNote}</Note>
-      </Group>
-      <Group title="수위 추이 조기경보" dummy>
-        <Box
-          title={`6시간 전 ${RV.riverWaterLevelAiForecast.sixHourAgoM}m → 현재 ${RV.riverWaterLevelAiForecast.currentM}m`}
-          lines={[RV.riverWaterLevelAiForecast.trendNote, RV.riverWaterLevelAiForecast.aiNote]}
-          right={<Risk level="safe" label={RV.riverWaterLevelAiForecast.status} />}
-        />
-        <Note tone="caution">{RV.riverWaterLevelAiForecast.confirmNote}</Note>
-      </Group>
+    <LeaderBoardBrief brief={riverBrief()}>
       <Group title="승인 이력" dummy>
         <Tl entries={RV.riverApprovalHistory} />
       </Group>
@@ -818,7 +742,7 @@ export function riverConfig(): DomainConfig {
         />
       </Group>
       <RelatedCams domain="river" />
-    </>
+    </LeaderBoardBrief>
   )
   // 상황 분석·데이터 수집 상세 화면이 같이 보여주는 수위 센서 목록
   const sensorList = (
@@ -1038,16 +962,7 @@ export function aquaConfig(): DomainConfig {
     </Group>
   )
   const home = (
-    <>
-      <Kv
-        items={[
-          { k: "활성 위험", v: `${s.activeRisk.count}건`, d: s.activeRisk.detail },
-          { k: "승인 대기", v: `${s.pendingApproval.count}건`, d: s.pendingApproval.detail },
-          { k: "영향 양식장", v: `${s.affectedFarms.count}개소`, d: s.affectedFarms.detail },
-          { k: "데이터 품질", v: `${s.dataQuality.percent}%`, d: s.dataQuality.detail },
-        ]}
-        over={["활성 위험"]}
-      />
+    <LeaderBoardBrief brief={aquaBrief()}>
       <Group title="업무 흐름" dummy>
         <ul className="plist">
           {AQ.aquaJourneys.map((j) => (
@@ -1066,7 +981,7 @@ export function aquaConfig(): DomainConfig {
       </Group>
       {khoaReview}
       <RelatedCams domain="aqua" />
-    </>
+    </LeaderBoardBrief>
   )
   const data = (
     <>
@@ -1381,16 +1296,7 @@ export function coastConfig(): DomainConfig {
     </Group>
   )
   const home = (
-    <>
-      <Kv
-        items={[
-          { k: "진행 중 이벤트", v: `${s.activeEvents.count}건`, d: s.activeEvents.detail },
-          { k: "미확인", v: `${s.unconfirmedEvents.count}건`, d: s.unconfirmedEvents.detail },
-          { k: "기관 공조", v: `${s.coordination.count}건`, d: s.coordination.detail },
-          { k: "장비", v: `정상 ${s.equipment.normal} · 오류 ${s.equipment.error}`, d: s.equipment.detail },
-        ]}
-        over={["미확인"]}
-      />
+    <LeaderBoardBrief brief={coastBrief()}>
       <Group title="AI 판단" dummy>
         {CO.coastAiInsights.map((a) => (
           <Box key={a.id} title={a.title} lines={[a.basis, a.match]} right={<Risk level={a.level} />} />
@@ -1432,7 +1338,7 @@ export function coastConfig(): DomainConfig {
         </p>
       </Group>
       <RelatedCams domain="coast" />
-    </>
+    </LeaderBoardBrief>
   )
   const d = CO.coastEventDetail
   const detail = (

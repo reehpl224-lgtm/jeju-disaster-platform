@@ -1,4 +1,6 @@
 import { Card } from "../../components/ui/Card"
+import { LeaderDetailBrief } from "../domain/LeaderBrief"
+import { typhoonBrief } from "../domain/leaderBriefs"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { typhoonReports, typhoonSource } from "../../data/mockTyphoon"
@@ -28,6 +30,8 @@ export function TyphoonHomePage() {
         <h1 className="text-xl font-bold text-white">태풍 정보</h1>
         <p className="mt-1 text-sm text-white/50">{typhoonSource.note}</p>
       </div>
+
+      <LeaderDetailBrief brief={typhoonBrief()} />
 
       <Card title="접근 위치 — 태풍 GIS" subtitle="기상청 발표 기준 접근 방향(자체 관측망 없음 — 상징적 표시)" dummy>
         <div className="relative h-96 w-full overflow-hidden rounded-lg">
