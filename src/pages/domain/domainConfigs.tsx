@@ -495,15 +495,17 @@ export function heavyRainConfig(isEmpty = false): DomainConfig {
 }
 
 // ================================================================== 태풍
-export function typhoonConfig(_isEmpty?: boolean): DomainConfig {
-  const rp = TY.typhoonReports
+export function typhoonConfig(isEmpty = false): DomainConfig {
+  const rp = isEmpty ? TY.typhoonReportsEmpty : TY.typhoonReports
   const cur = rp[0]
-  const trk = TY.typhoonForecastTrack
+  const trk = isEmpty ? TY.typhoonForecastTrackEmpty : TY.typhoonForecastTrack
+  const dispatch = isEmpty ? TY.typhoonAlertDispatchEmpty : TY.typhoonAlertDispatch
   const typLevel = (status: string): RiskLevel => (status === "태풍경보" ? "alert" : status === "태풍주의보" ? "warning" : "caution")
   // 대시보드·경로 분석 상세 화면이 모두 보여주는 기상청 발표 이력 — 두 탭에서 같이 쓴다
   const reportHistory = (
     <Group title="발표 이력" dummy>
       <ul className="plist">
+        {rp.length === 0 && <li className="s">발표 이력 없음 — 진행 중인 태풍 없음</li>}
         {rp.map((r) => (
           <li className="row-between" key={r.id}>
             <span>
@@ -516,7 +518,7 @@ export function typhoonConfig(_isEmpty?: boolean): DomainConfig {
     </Group>
   )
   const home = (
-    <LeaderBoardBrief brief={typhoonBrief()}>
+    <LeaderBoardBrief brief={typhoonBrief(isEmpty)}>
       {reportHistory}
       <Group title="해양관측부이 (KHOA)">
         <Buoys />
@@ -565,10 +567,12 @@ export function typhoonConfig(_isEmpty?: boolean): DomainConfig {
     id: "typhoon",
     title: "태풍",
     mapDomain: "typhoon",
-    headline: (
+    headline: cur ? (
       <>
         🌀 <b>{cur.name}</b> · {cur.status} · 제주까지 {trk[0].distanceFromJejuKm}km · 최근접 {trk[3].distanceFromJejuKm}km 예상
       </>
+    ) : (
+      <>🌀 진행 중인 태풍 없음 · 평시 감시 중</>
     ),
     tabs: navTabs(TYPHOON_NAV, home, {
       "/typhoon/data": (
@@ -584,7 +588,7 @@ export function typhoonConfig(_isEmpty?: boolean): DomainConfig {
         </>
       ),
       "/typhoon/analysis": analysis,
-      "/typhoon/alert": <Dispatch d={TY.typhoonAlertDispatch} />,
+      "/typhoon/alert": <Dispatch d={dispatch} />,
       "/typhoon/closure": <Closure c={TY.typhoonClosure} />,
     }),
     right: [

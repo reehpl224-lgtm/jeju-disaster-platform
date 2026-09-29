@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { typhoonAlertDispatch } from "../../data/mockTyphoon"
+import { typhoonAlertDispatch, typhoonAlertDispatchEmpty } from "../../data/mockTyphoon"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function TyphoonAlertPage() {
-  const d = typhoonAlertDispatch
+  const d = useModeValue(typhoonAlertDispatchEmpty, typhoonAlertDispatch)
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -43,7 +44,9 @@ export function TyphoonAlertPage() {
       </div>
 
       <Card title="수신 실패 현황" subtitle={`전체 실패: ${d.totalFail.toLocaleString()}건`} dummy>
-        <p className="text-xs text-white/40">전국 단위 대량 발송 특성상 일부 통신 지연 실패 포함 — 재전송 진행 중.</p>
+        <p className="text-xs text-white/40">
+          {d.totalFail > 0 ? "전국 단위 대량 발송 특성상 일부 통신 지연 실패 포함 — 재전송 진행 중." : "발령된 대비 안내가 없어 수신 실패 이력도 없습니다 — 평시 감시 중."}
+        </p>
       </Card>
     </div>
   )

@@ -3,7 +3,7 @@ import { LeaderDetailBrief } from "../domain/LeaderBrief"
 import { typhoonBrief } from "../domain/leaderBriefs"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
-import { typhoonReports, typhoonSource } from "../../data/mockTyphoon"
+import { typhoonReports, typhoonReportsEmpty, typhoonSource } from "../../data/mockTyphoon"
 import { riskMarkers } from "../../data/mockDashboard"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
@@ -11,6 +11,7 @@ import { TyphoonNameListPanel } from "../../components/ui/TyphoonNameListPanel"
 import { TyphoonNowPanel } from "../../components/ui/TyphoonNowPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
+import { useDataMode, useModeValue } from "../../context/DataModeContext"
 
 const TYPHOON_MARKERS = riskMarkers.filter((m) => m.domain === "typhoon")
 
@@ -22,7 +23,9 @@ const STATUS_LEVEL: Record<(typeof typhoonReports)[number]["status"], "caution" 
 }
 
 export function TyphoonHomePage() {
-  const latest = typhoonReports[0]
+  const { isEmpty } = useDataMode()
+  const reports = useModeValue(typhoonReportsEmpty, typhoonReports)
+  const latest = reports[0]
 
   return (
     <div className="flex flex-col gap-6">
@@ -31,7 +34,7 @@ export function TyphoonHomePage() {
         <p className="mt-1 text-sm text-white/50">{typhoonSource.note}</p>
       </div>
 
-      <LeaderDetailBrief brief={typhoonBrief()} />
+      <LeaderDetailBrief brief={typhoonBrief(isEmpty)} />
 
       <Card title="접근 위치 — 태풍 GIS" subtitle="기상청 발표 기준 접근 방향(자체 관측망 없음 — 상징적 표시)" dummy>
         <div className="relative h-96 w-full overflow-hidden rounded-lg">
@@ -46,27 +49,34 @@ export function TyphoonHomePage() {
         </div>
       </Card>
 
-      <Card title={latest.name} subtitle={`발표 ${latest.issuedAt}`} dummy>
-        <div className="flex flex-wrap items-center gap-3">
-          <RiskBadge level={STATUS_LEVEL[latest.status]} label={latest.status} solid />
-          <p className="text-sm text-white/70">{latest.location}</p>
-        </div>
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          <div className="rounded-lg border border-border-subtle p-3 text-center">
-            <p className="text-[11px] text-white/40">이동 속도</p>
-            <p className="mt-1 text-lg font-bold text-white">{latest.speedKmh}km/h</p>
+      {latest ? (
+        <Card title={latest.name} subtitle={`발표 ${latest.issuedAt}`} dummy>
+          <div className="flex flex-wrap items-center gap-3">
+            <RiskBadge level={STATUS_LEVEL[latest.status]} label={latest.status} solid />
+            <p className="text-sm text-white/70">{latest.location}</p>
           </div>
-          <div className="rounded-lg border border-border-subtle p-3 text-center">
-            <p className="text-[11px] text-white/40">중심기압</p>
-            <p className="mt-1 text-lg font-bold text-white">{latest.pressureHpa}hPa</p>
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="rounded-lg border border-border-subtle p-3 text-center">
+              <p className="text-[11px] text-white/40">이동 속도</p>
+              <p className="mt-1 text-lg font-bold text-white">{latest.speedKmh}km/h</p>
+            </div>
+            <div className="rounded-lg border border-border-subtle p-3 text-center">
+              <p className="text-[11px] text-white/40">중심기압</p>
+              <p className="mt-1 text-lg font-bold text-white">{latest.pressureHpa}hPa</p>
+            </div>
+            <div className="rounded-lg border border-border-subtle p-3 text-center">
+              <p className="text-[11px] text-white/40">최대풍속</p>
+              <p className="mt-1 text-lg font-bold text-white">{latest.maxWindMs}m/s</p>
+            </div>
           </div>
-          <div className="rounded-lg border border-border-subtle p-3 text-center">
-            <p className="text-[11px] text-white/40">최대풍속</p>
-            <p className="mt-1 text-lg font-bold text-white">{latest.maxWindMs}m/s</p>
-          </div>
-        </div>
-        <p className="mt-3 text-[11px] text-white/35">관련 레거시 시스템: {typhoonSource.relatedLegacySystem}</p>
-      </Card>
+          <p className="mt-3 text-[11px] text-white/35">관련 레거시 시스템: {typhoonSource.relatedLegacySystem}</p>
+        </Card>
+      ) : (
+        <Card title="진행 중인 태풍 없음" dummy>
+          <p className="text-sm text-white/60">현재 기상청이 발표한 태풍 정보가 없습니다 — 평시 모니터링을 유지합니다.</p>
+          <p className="mt-3 text-[11px] text-white/35">관련 레거시 시스템: {typhoonSource.relatedLegacySystem}</p>
+        </Card>
+      )}
 
       <Card
         title="실측 해상 관측 참고 — 국립해양조사원(KHOA) 해양관측부이"
@@ -115,7 +125,8 @@ export function TyphoonHomePage() {
 
       <Card title="발표 이력" subtitle="기상청 발표 시각 역순" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
-          {typhoonReports.map((report) => (
+          {reports.length === 0 && <li className="py-3 text-sm text-white/40">발표 이력 없음 — 진행 중인 태풍 없음</li>}
+          {reports.map((report) => (
             <li key={report.id} className="flex items-center justify-between gap-3 py-3 text-sm">
               <div>
                 <div className="flex items-center gap-2">

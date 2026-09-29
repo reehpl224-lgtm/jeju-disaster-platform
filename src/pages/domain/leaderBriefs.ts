@@ -147,13 +147,43 @@ export function heavyRainBrief(isEmpty = false): LeaderBrief {
 }
 
 // ------------------------------------------------------------------ 태풍
-export function typhoonBrief(_isEmpty?: boolean): LeaderBrief {
-  const cur = TY.typhoonReports[0]
-  const trk = TY.typhoonForecastTrack
-  const d = TY.typhoonAlertDispatch
+export function typhoonBrief(isEmpty = false): LeaderBrief {
+  const reports = isEmpty ? TY.typhoonReportsEmpty : TY.typhoonReports
+  const trk = isEmpty ? TY.typhoonForecastTrackEmpty : TY.typhoonForecastTrack
+  const d = isEmpty ? TY.typhoonAlertDispatchEmpty : TY.typhoonAlertDispatch
+  const cur = reports[0]
+  const buoy = khoaBuoyMarineConditions[0]
+
+  if (!cur) {
+    // 진행 중인 태풍이 없는 평시 — AGENTS.md에 따르면 이게 훨씬 흔한 정상 상태
+    return {
+      title: "진행 중인 태풍 없음",
+      lines: ["기상청 발표 기준 — 현재 제주 인근에 발표된 태풍 정보가 없습니다.", "평시 모니터링 유지 중"],
+      level: "safe",
+      badge: "평시",
+      kpis: [
+        { k: "제주까지", v: "해당 없음" },
+        { k: "최근접 예상", v: "해당 없음" },
+        { k: "최대 풍속", v: "해당 없음" },
+        { k: "중심 기압", v: "해당 없음" },
+      ],
+      tasks: [],
+      idle: "결재·지시 대기 없음 — 진행 중인 태풍 없음",
+      evidence: [
+        { k: "기상청 발표", v: "0회 · 발표 없음" },
+        { k: "관측 체계", v: TY.typhoonSource.note },
+      ],
+      outlook: ["현재 발표된 태풍 경로 정보가 없습니다."],
+      response: [
+        contactRow("general"),
+        { k: "대비 안내 발송", v: channelLine(d) },
+        ...(buoy ? [{ k: `해양관측 ${buoy.stationName}`, v: `파고 ${buoy.waveHeightM}m · 풍속 ${buoy.windSpeedMs}m/s` }] : []),
+      ],
+    }
+  }
+
   const nearest = trk.reduce((a, b) => (b.distanceFromJejuKm < a.distanceFromJejuKm ? b : a))
   const level: RiskLevel = cur.status === "태풍경보" ? "alert" : cur.status === "태풍주의보" ? "warning" : "caution"
-  const buoy = khoaBuoyMarineConditions[0]
   return {
     title: `${cur.name} · ${cur.status}`,
     lines: [cur.location, `기상청 발표 ${cur.issuedAt}`],
@@ -180,7 +210,7 @@ export function typhoonBrief(_isEmpty?: boolean): LeaderBrief {
     ],
     idle: "결재·지시 대기 없음",
     evidence: [
-      { k: "기상청 발표", v: `${TY.typhoonReports.length}회 · 최근 ${cur.status}` },
+      { k: "기상청 발표", v: `${reports.length}회 · 최근 ${cur.status}` },
       { k: "이동·세력", v: `${cur.speedKmh}km/h · ${cur.pressureHpa}hPa · ${cur.maxWindMs}m/s` },
       { k: "관측 체계", v: TY.typhoonSource.note },
     ],

@@ -100,3 +100,30 @@ export const typhoonSource = {
   note: "자체 실측 장비 없음 — 기상청 발표 자료를 전량 수신해 그대로 표출합니다.",
   relatedLegacySystem: "민방위경보시스템 (중앙 시스템과만 연계, 도 자체 연계 없음)",
 }
+
+/**
+ * "빈 화면" 모드용 — 저염분 고수온·호우와 같은 방향. 이 파일의 "현재값"은 이미 제24호 크로반이
+ * 접근 중인 상태라, 짝이 되는 "진행 중인 태풍 없음" 스냅샷을 새로 추가한다 — DataModeContext의
+ * mode="empty"일 때만 leaderBriefs.ts·Typhoon 상세 화면에서 이 값을 쓴다. 실제로 태풍이 없는 시기가
+ * 훨씬 더 흔하므로(AGENTS.md: "진행 중인 태풍이 없으면 빈 상태가 정상"), typhoonReports·
+ * typhoonForecastTrack은 river/coast처럼 빈 배열로 둔다 — 화면들은 이 빈 상태를 안전하게 처리해야 한다.
+ */
+export const typhoonReportsEmpty: TyphoonReport[] = []
+
+export const typhoonForecastTrackEmpty: TyphoonForecastPoint[] = []
+
+export const typhoonAlertDispatchEmpty: TyphoonAlertDispatch = {
+  stage: "0단계 · 정상 (발령 없음)",
+  level: "safe",
+  title: "현재 발령된 대비 안내 없음",
+  target: "해당 없음",
+  targetDetail: "평시 — 발송 대상 없음",
+  sentAt: "-",
+  approver: "-",
+  message: "정상 단계 — 현재 진행 중인 태풍이 없어 발령된 안내가 없습니다.",
+  channels: [
+    { id: "tc-1", name: "문자(CBS/SMS)", sent: 0, success: 0, fail: 0, rate: "-", lastSent: "-" },
+    { id: "tc-2", name: "모바일 앱 푸시", sent: 0, success: 0, fail: 0, rate: "-", lastSent: "-" },
+  ],
+  totalFail: 0,
+}

@@ -1,12 +1,21 @@
 import { Card } from "../../components/ui/Card"
-import { typhoonForecastTrack, typhoonReports, typhoonSource } from "../../data/mockTyphoon"
+import {
+  typhoonForecastTrack,
+  typhoonForecastTrackEmpty,
+  typhoonReports,
+  typhoonReportsEmpty,
+  typhoonSource,
+} from "../../data/mockTyphoon"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function TyphoonAnalysisPage() {
-  const latest = typhoonReports[0]
+  const reports = useModeValue(typhoonReportsEmpty, typhoonReports)
+  const track = useModeValue(typhoonForecastTrackEmpty, typhoonForecastTrack)
+  const latest = reports[0]
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-bold text-white">경로 분석 — {latest.name}</h1>
+        <h1 className="text-xl font-bold text-white">경로 분석 — {latest ? latest.name : "진행 중인 태풍 없음"}</h1>
         <p className="mt-1 text-sm text-white/50">{typhoonSource.note}</p>
       </div>
 
@@ -21,7 +30,14 @@ export function TyphoonAnalysisPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
-            {typhoonForecastTrack.map((point, i) => (
+            {track.length === 0 && (
+              <tr>
+                <td className="py-3 text-center text-white/30" colSpan={4}>
+                  예상 경로 없음 — 진행 중인 태풍 없음
+                </td>
+              </tr>
+            )}
+            {track.map((point, i) => (
               <tr key={point.time}>
                 <td className="py-2 font-medium text-white/80">{point.time}</td>
                 <td className={`py-2 ${i === 3 ? "font-bold text-risk-alert" : "text-white/60"}`}>{point.distanceFromJejuKm}km</td>
@@ -44,7 +60,14 @@ export function TyphoonAnalysisPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
-            {typhoonReports.map((r) => (
+            {reports.length === 0 && (
+              <tr>
+                <td className="py-3 text-center text-white/30" colSpan={4}>
+                  발표 이력 없음 — 진행 중인 태풍 없음
+                </td>
+              </tr>
+            )}
+            {reports.map((r) => (
               <tr key={r.id}>
                 <td className="py-2 font-medium text-white/80">{r.issuedAt}</td>
                 <td className="py-2 text-white/60">{r.status}</td>
