@@ -18,16 +18,20 @@ export function useDragScroll<T extends HTMLElement>() {
     dragging.current = true
     moved.current = false
     start.current = { x: e.clientX, scrollLeft: el.scrollLeft }
-    el.setPointerCapture(e.pointerId)
-    el.style.userSelect = "none"
+    // 여기서 바로 setPointerCapture 하면 이후 click이 탭 버튼이 아니라 탭 바로 가서 탭이 눌리지 않는다 —
+    // 실제로 끌기 시작(3px 초과)한 뒤에만 붙잡는다(onPointerMove)
   }
 
   function onPointerMove(e: React.PointerEvent) {
     const el = ref.current
     if (!dragging.current || !el) return
     const dx = e.clientX - start.current.x
-    if (Math.abs(dx) > 3) moved.current = true
-    el.scrollLeft = start.current.scrollLeft - dx
+    if (!moved.current && Math.abs(dx) > 3) {
+      moved.current = true
+      el.setPointerCapture(e.pointerId)
+      el.style.userSelect = "none"
+    }
+    if (moved.current) el.scrollLeft = start.current.scrollLeft - dx
   }
 
   function endDrag() {
