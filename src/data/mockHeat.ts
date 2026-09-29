@@ -65,6 +65,45 @@ export const heatClosure: HeatClosure = {
   },
 }
 
+/**
+ * "빈 화면" 모드용 — 저염분 고수온·호우·태풍과 같은 방향. 이 파일의 "현재값"은 이미 제주 전역
+ * 폭염주의보가 발효 중인 상태라, 짝이 되는 평시(정상, 특보 없음) 스냅샷을 새로 추가한다 —
+ * DataModeContext의 mode="empty"일 때만 leaderBriefs.ts·Heat 상세 화면에서 이 값을 쓴다.
+ * 무더위쉼터(heatShelters)·시원한 길·더운 길 안내(heatRouteTips)는 특보 여부와 무관한 상시
+ * 안내 정보라 두 모드 동일하게 유지한다.
+ */
+export const heatLevelInfoEmpty: HeatLevelInfo = {
+  level: "safe",
+  label: "정상 (폭염특보 없음)",
+  feelsLikeC: 28.5,
+  criteria: "기상청 폭염특보 기준 — 체감온도 33℃ 이상 2일 이상 지속 시 주의보, 35℃ 이상 시 경보",
+  updatedAt: "09:00",
+}
+
+export const heatTrendEmpty: HeatTrendPoint[] = [
+  { date: "09-24", maxTempC: 28.1, feelsLikeC: 28.4 },
+  { date: "09-25", maxTempC: 28.3, feelsLikeC: 28.7 },
+  { date: "09-26", maxTempC: 28.0, feelsLikeC: 28.3 },
+  { date: "09-27", maxTempC: 28.4, feelsLikeC: 28.9 },
+  { date: "09-28", maxTempC: 28.2, feelsLikeC: 28.5 },
+]
+
+export const heatAlertDispatchEmpty: HeatAlertDispatch = {
+  stage: "0단계 · 정상 (발령 없음)",
+  level: "safe",
+  title: "현재 발령된 안내 없음",
+  target: "해당 없음",
+  targetDetail: "평시 — 발송 대상 없음",
+  sentAt: "-",
+  approver: "-",
+  message: "정상 단계 — 현재 발령된 폭염 안내가 없습니다.",
+  channels: [
+    { id: "hac-1", name: "문자(CBS/SMS)", sent: 0, success: 0, fail: 0, rate: "-", lastSent: "-" },
+    { id: "hac-2", name: "모바일 앱 푸시", sent: 0, success: 0, fail: 0, rate: "-", lastSent: "-" },
+  ],
+  totalFail: 0,
+}
+
 /** "무더위 쉼터를 몰라서 못 간다"는 현장 지적 반영 — 경로당·마을회관 등 실제 쉼터 유형으로 구성 */
 export const heatShelters: HeatShelter[] = [
   { id: "hs-1", name: "이도1동 경로당", region: "제주시", address: "제주시 이도1동", type: "경로당", capacity: 30 },

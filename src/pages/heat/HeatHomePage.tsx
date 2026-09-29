@@ -9,9 +9,10 @@ import { GisIconRail, GIS_RAIL_ITEMS, type GisRailKey } from "../../components/u
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
-import { heatLevelInfo, heatRouteTips, heatShelters } from "../../data/mockHeat"
+import { heatLevelInfo, heatLevelInfoEmpty, heatRouteTips, heatShelters } from "../../data/mockHeat"
 import { riskMarkers } from "../../data/mockDashboard"
 import type { HeatShelter } from "../../types/heat"
+import { useDataMode, useModeValue } from "../../context/DataModeContext"
 
 const HEAT_MARKERS = riskMarkers.filter((m) => m.domain === "heat")
 // 폭염은 무더위쉼터(자산현황) 외 센서·담당자·전파 데이터가 없어 레일에 asset만 노출
@@ -43,6 +44,8 @@ export function HeatHomePage() {
   const [region, setRegion] = useState<HeatShelter["region"] | "all">("all")
   const [query, setQuery] = useState("")
   const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
+  const { isEmpty } = useDataMode()
+  const levelInfo = useModeValue(heatLevelInfoEmpty, heatLevelInfo)
 
   const filteredShelters = useMemo(() => {
     const q = query.trim()
@@ -63,7 +66,7 @@ export function HeatHomePage() {
         <p className="mt-1 text-sm text-white/50">열섬지도 기반 시원한 길·더운 길 안내, 무더위쉼터 위치 안내</p>
       </div>
 
-      <LeaderDetailBrief brief={heatBrief()} />
+      <LeaderDetailBrief brief={heatBrief(isEmpty)} />
 
       <Card title="위험 위치 및 열섬 지점 — 폭염 GIS" subtitle="더운 길·무더위쉼터 관측 지점" dummy>
         <div className="relative h-[560px] w-full overflow-hidden rounded-lg">
@@ -87,10 +90,10 @@ export function HeatHomePage() {
         </div>
       </Card>
 
-      <Card title="현재 폭염 위기단계" subtitle={`${heatLevelInfo.criteria} · 갱신 ${heatLevelInfo.updatedAt}`} dummy>
+      <Card title="현재 폭염 위기단계" subtitle={`${levelInfo.criteria} · 갱신 ${levelInfo.updatedAt}`} dummy>
         <div className="flex items-center gap-4">
-          <RiskBadge level={heatLevelInfo.level} label={heatLevelInfo.label} solid />
-          <p className="text-lg font-bold text-white">체감온도 {heatLevelInfo.feelsLikeC}℃</p>
+          <RiskBadge level={levelInfo.level} label={levelInfo.label} solid />
+          <p className="text-lg font-bold text-white">체감온도 {levelInfo.feelsLikeC}℃</p>
         </div>
       </Card>
 

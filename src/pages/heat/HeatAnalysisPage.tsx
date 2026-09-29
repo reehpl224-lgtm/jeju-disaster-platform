@@ -2,27 +2,31 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
-import { heatLevelInfo, heatTrend } from "../../data/mockHeat"
+import { heatLevelInfo, heatLevelInfoEmpty, heatTrend, heatTrendEmpty } from "../../data/mockHeat"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function HeatAnalysisPage() {
+  const levelInfo = useModeValue(heatLevelInfoEmpty, heatLevelInfo)
+  const trend = useModeValue(heatTrendEmpty, heatTrend)
+
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-bold text-white">특보 현황</h1>
-        <p className="mt-1 text-sm text-white/50">{heatLevelInfo.criteria}</p>
+        <p className="mt-1 text-sm text-white/50">{levelInfo.criteria}</p>
       </div>
 
-      <Card title="현재 특보 단계" subtitle={`갱신 ${heatLevelInfo.updatedAt}`} dummy>
+      <Card title="현재 특보 단계" subtitle={`갱신 ${levelInfo.updatedAt}`} dummy>
         <div className="flex items-center gap-4">
-          <RiskBadge level={heatLevelInfo.level} label={heatLevelInfo.label} solid />
-          <p className="text-lg font-bold text-white">체감온도 {heatLevelInfo.feelsLikeC}℃</p>
+          <RiskBadge level={levelInfo.level} label={levelInfo.label} solid />
+          <p className="text-lg font-bold text-white">체감온도 {levelInfo.feelsLikeC}℃</p>
         </div>
       </Card>
 
       <Card title="최근 5일 기온 추이" subtitle="최고기온 · 체감온도" dummy>
         <div className="h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={heatTrend} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
+            <LineChart data={trend} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
               <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
               <YAxis tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" domain={[28, 36]} />

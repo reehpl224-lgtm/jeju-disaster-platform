@@ -227,16 +227,17 @@ export function typhoonBrief(isEmpty = false): LeaderBrief {
 // 기상청 폭염특보 기준(HT.heatLevelInfo.criteria): 체감 33℃ 이상 2일 이상 = 주의보, 35℃ 이상 = 경보
 const HEAT_WATCH_C = 33
 const HEAT_WARNING_C = 35
-export function heatBrief(_isEmpty?: boolean): LeaderBrief {
-  const li = HT.heatLevelInfo
-  const d = HT.heatAlertDispatch
-  const shelters = HT.heatShelters
+export function heatBrief(isEmpty = false): LeaderBrief {
+  const li = isEmpty ? HT.heatLevelInfoEmpty : HT.heatLevelInfo
+  const d = isEmpty ? HT.heatAlertDispatchEmpty : HT.heatAlertDispatch
+  const trend = isEmpty ? HT.heatTrendEmpty : HT.heatTrend
+  const shelters = HT.heatShelters // 상시 안내 정보 — 특보 여부와 무관, 두 모드 동일
   const capacity = shelters.reduce((sum, s) => sum + s.capacity, 0)
   let days = 0
-  for (let i = HT.heatTrend.length - 1; i >= 0 && HT.heatTrend[i].feelsLikeC >= HEAT_WATCH_C; i--) days++
+  for (let i = trend.length - 1; i >= 0 && trend[i].feelsLikeC >= HEAT_WATCH_C; i--) days++
   const gap = +(HEAT_WARNING_C - li.feelsLikeC).toFixed(1)
-  const first = HT.heatTrend[0]
-  const last = HT.heatTrend[HT.heatTrend.length - 1]
+  const first = trend[0]
+  const last = trend[trend.length - 1]
   return {
     title: li.label,
     lines: [`체감온도 ${li.feelsLikeC}℃ · ${li.updatedAt} 기준`, li.criteria],
@@ -248,27 +249,29 @@ export function heatBrief(_isEmpty?: boolean): LeaderBrief {
       { k: "경보(35℃)까지", v: gap > 0 ? `${gap}℃` : "도달", d: gap > 0 ? "남은 격차" : undefined, over: gap <= 0 },
       { k: "무더위쉼터", v: `${shelters.length}개소`, d: `수용 ${capacity}명` },
     ],
-    tasks: [
-      ...dispatchTask(d, "/heat/alert"),
-      {
-        role: "확인",
-        title: `폭염경보(${HEAT_WARNING_C}℃) 격상 판단`,
-        detail: `체감 ${li.feelsLikeC}℃ · ${days}일 지속 — ${gap > 0 ? `경보 기준까지 ${gap}℃` : "경보 기준 도달"}`,
-        status: gap > 0 ? "추이 관찰" : "격상 검토 필요",
-        level: gap > 0 ? "caution" : "alert",
-        to: "/heat/analysis",
-      },
-      {
-        role: "지시",
-        title: "무더위쉼터 운영·그늘길 안내 점검",
-        detail: `쉼터 ${shelters.length}개소 · 그늘길 ${HT.heatRouteTips.filter((r) => r.kind === "cool").length}곳 · 담당 ${contactOf("general")?.name ?? "-"}`,
-        status: "지시 권고",
-        level: "caution",
-        to: "/heat/alert",
-      },
-      { role: "결재", title: "해제 조건 확인", detail: HT.heatClosure.closureConditions[0], status: "해제 전 확인", level: "info", to: "/heat/closure" },
-    ],
-    idle: "결재·지시 대기 없음",
+    tasks: isEmpty
+      ? []
+      : [
+          ...dispatchTask(d, "/heat/alert"),
+          {
+            role: "확인",
+            title: `폭염경보(${HEAT_WARNING_C}℃) 격상 판단`,
+            detail: `체감 ${li.feelsLikeC}℃ · ${days}일 지속 — ${gap > 0 ? `경보 기준까지 ${gap}℃` : "경보 기준 도달"}`,
+            status: gap > 0 ? "추이 관찰" : "격상 검토 필요",
+            level: gap > 0 ? "caution" : "alert",
+            to: "/heat/analysis",
+          },
+          {
+            role: "지시",
+            title: "무더위쉼터 운영·그늘길 안내 점검",
+            detail: `쉼터 ${shelters.length}개소 · 그늘길 ${HT.heatRouteTips.filter((r) => r.kind === "cool").length}곳 · 담당 ${contactOf("general")?.name ?? "-"}`,
+            status: "지시 권고",
+            level: "caution",
+            to: "/heat/alert",
+          },
+          { role: "결재", title: "해제 조건 확인", detail: HT.heatClosure.closureConditions[0], status: "해제 전 확인", level: "info", to: "/heat/closure" },
+        ],
+    idle: isEmpty ? "결재·지시 대기 없음 — 평시 감시 중" : "결재·지시 대기 없음",
     evidence: [
       { k: "체감온도 추이", v: `${first.date} ${first.feelsLikeC}℃ → ${last.date} ${last.feelsLikeC}℃` },
       { k: "최근 최고기온", v: `${last.date} ${last.maxTempC}℃` },

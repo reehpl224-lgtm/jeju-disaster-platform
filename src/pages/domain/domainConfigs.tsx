@@ -616,10 +616,12 @@ export function typhoonConfig(isEmpty = false): DomainConfig {
 }
 
 // ================================================================== 폭염
-export function heatConfig(_isEmpty?: boolean): DomainConfig {
-  const li = HT.heatLevelInfo
+export function heatConfig(isEmpty = false): DomainConfig {
+  const li = isEmpty ? HT.heatLevelInfoEmpty : HT.heatLevelInfo
+  // 상세 탭(특보 현황·안내 발송)은 아직 데이터 모드 미연동 — Heat 상세 페이지(HeatHomePage 등)에서
+  // 먼저 연동했고, 이 보드 뷰의 나머지 탭은 다음 단계에서 이어서 연동한다.
   const home = (
-    <LeaderBoardBrief brief={heatBrief()}>
+    <LeaderBoardBrief brief={heatBrief(isEmpty)}>
       <Group title="무더위쉼터" dummy>
         <ul className="plist">
           {HT.heatShelters.map((s) => (
