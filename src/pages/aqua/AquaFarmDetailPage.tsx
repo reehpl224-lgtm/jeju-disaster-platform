@@ -1,10 +1,11 @@
 import { Link, Navigate, useParams } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { aquaFarms, aquaSummary } from "../../data/mockAqua"
+import { aquaFarms, aquaFarmsEmpty, aquaSummary } from "../../data/mockAqua"
 import { classifySalinity, classifyTemperature, marineStageToRiskLevel } from "../../data/marineAlertThresholds"
 import type { AquaFarm } from "../../types/aqua"
 import type { RiskLevel } from "../../types/domain"
+import { useModeValue } from "../../context/DataModeContext"
 
 /** e-SOP 5단계 번호체계(aquaStages와 동일: 관심1·주의2·경계3·심각4·해제5) 기준 표기 */
 const STAGE_LABEL: Record<RiskLevel, string> = {
@@ -50,7 +51,8 @@ function nextStageCondition(farm: AquaFarm): string {
 
 export function AquaFarmDetailPage() {
   const { farmId } = useParams()
-  const farm = aquaFarms.find((f) => f.id === farmId)
+  const farms = useModeValue(aquaFarmsEmpty, aquaFarms)
+  const farm = farms.find((f) => f.id === farmId)
 
   if (!farm) {
     return <Navigate to="/aqua/farms" replace />

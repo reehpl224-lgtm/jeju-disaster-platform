@@ -303,16 +303,19 @@ export function riverBrief(isEmpty = false): LeaderBrief {
 }
 
 // ------------------------------------------------------------------ 저염분 고수온
-export function aquaBrief(_isEmpty?: boolean): LeaderBrief {
-  const s = AQ.aquaSummary
-  const rs = AQ.aquaRiskState
-  const rsp = AQ.aquaResponseState
-  const ad = AQ.aquaAlertDraft
+export function aquaBrief(isEmpty = false): LeaderBrief {
+  const s = isEmpty ? AQ.aquaSummaryEmpty : AQ.aquaSummary
+  const rs = isEmpty ? AQ.aquaRiskStateEmpty : AQ.aquaRiskState
+  const rsp = isEmpty ? AQ.aquaResponseStateEmpty : AQ.aquaResponseState
+  const ad = isEmpty ? AQ.aquaAlertDraftEmpty : AQ.aquaAlertDraft
+  const checklist = isEmpty ? AQ.aquaChecklistEmpty : AQ.aquaChecklist
+  const agencyRows = isEmpty ? AQ.aquaAgencyRowsEmpty : AQ.aquaAgencyRows
+  const stages = isEmpty ? AQ.aquaStagesEmpty : AQ.aquaStages
   const steps = ad.approvalSteps
   const stepsDone = steps.filter((x) => x.owner !== "-").length
-  const undone = AQ.aquaChecklist.filter((c) => c.status !== "완료")
-  const issues = AQ.aquaDataIssues
-  const stage = AQ.aquaStages.find((x) => x.status === "진행 중")
+  const undone = checklist.filter((c) => c.status !== "완료")
+  const issues = AQ.aquaDataIssues // 데이터 소스 상태는 사건과 무관 — 두 모드 동일
+  const stage = stages.find((x) => x.status === "진행 중")
   return {
     title: rs.level,
     lines: [rs.headline, `신뢰도 ${rs.confidence}% · 갱신 ${rs.updatedAt}`],
@@ -325,21 +328,25 @@ export function aquaBrief(_isEmpty?: boolean): LeaderBrief {
       { k: "데이터 품질", v: `${s.dataQuality.percent}%`, d: s.dataQuality.detail },
     ],
     tasks: [
-      {
-        role: "결재",
-        title: `${ad.riskType} ${ad.grade} 경보 — 결재`,
-        detail: `${ad.effectiveAt} · ${steps.map((x) => x.stage).join("→")}`,
-        status: `결재 ${stepsDone}/${steps.length}단계`,
-        level: stepsDone < steps.length ? "caution" : "safe",
-        to: "/aqua/alerts",
-      },
+      ...(isEmpty
+        ? []
+        : [
+            {
+              role: "결재" as const,
+              title: `${ad.riskType} ${ad.grade} 경보 — 결재`,
+              detail: `${ad.effectiveAt} · ${steps.map((x) => x.stage).join("→")}`,
+              status: `결재 ${stepsDone}/${steps.length}단계`,
+              level: (stepsDone < steps.length ? "caution" : "safe") as RiskLevel,
+              to: "/aqua/alerts",
+            },
+          ]),
       ...(undone.length > 0
         ? [
             {
               role: "지시" as const,
               title: "e-SOP 미완료 조치 확인",
               detail: undone.map((c) => `${c.label}(${c.owner})`).join(" · "),
-              status: `미완료 ${undone.length}/${AQ.aquaChecklist.length}건`,
+              status: `미완료 ${undone.length}/${checklist.length}건`,
               level: "warning" as RiskLevel,
               to: "/aqua/response",
             },
@@ -349,7 +356,7 @@ export function aquaBrief(_isEmpty?: boolean): LeaderBrief {
         ? [{ role: "확인" as const, title: "데이터 수집 이상 조치", detail: issues.map((i) => i.title).join(" · "), status: `이상 ${issues.length}건`, level: "warning" as RiskLevel, to: "/aqua/data" }]
         : []),
     ],
-    idle: "결재·지시 대기 없음",
+    idle: "결재·지시 대기 없음 — 평시 감시 중",
     evidence: [
       { k: "염분", v: rsp.salinity },
       { k: "수온", v: rsp.temperature },
@@ -363,8 +370,8 @@ export function aquaBrief(_isEmpty?: boolean): LeaderBrief {
     response: [
       contactRow("aqua"),
       { k: "e-SOP 단계", v: stage ? `${stage.step}단계 ${stage.label} (${rsp.grade})` : rsp.grade },
-      { k: "조치 체크리스트", v: `완료 ${AQ.aquaChecklist.length - undone.length}/${AQ.aquaChecklist.length}건` },
-      { k: "기관 현황", v: AQ.aquaAgencyRows.map((a) => `${a.agency.replace(/^제주(특별자치도|시|시 )?/, "").trim()} ${a.execute}`).join(" · ") },
+      { k: "조치 체크리스트", v: `완료 ${checklist.length - undone.length}/${checklist.length}건` },
+      { k: "기관 현황", v: agencyRows.map((a) => `${a.agency.replace(/^제주(특별자치도|시|시 )?/, "").trim()} ${a.execute}`).join(" · ") },
     ],
   }
 }

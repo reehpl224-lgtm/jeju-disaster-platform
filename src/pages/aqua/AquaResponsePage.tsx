@@ -1,14 +1,33 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { StageTracker } from "../../components/aqua/StageTracker"
 import { ChecklistRow } from "../../components/aqua/ChecklistRow"
-import { aquaAgencyRows, aquaChecklist, aquaResponseState, aquaStages } from "../../data/mockAqua"
+import {
+  aquaAgencyRows,
+  aquaAgencyRowsEmpty,
+  aquaChecklist,
+  aquaChecklistEmpty,
+  aquaResponseState,
+  aquaResponseStateEmpty,
+  aquaStages,
+  aquaStagesEmpty,
+} from "../../data/mockAqua"
 import type { AquaChecklistItem } from "../../types/aqua"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function AquaResponsePage() {
-  const [checklist, setChecklist] = useState<AquaChecklistItem[]>(aquaChecklist)
+  const responseState = useModeValue(aquaResponseStateEmpty, aquaResponseState)
+  const stages = useModeValue(aquaStagesEmpty, aquaStages)
+  const agencyRows = useModeValue(aquaAgencyRowsEmpty, aquaAgencyRows)
+  const sourceChecklist = useModeValue(aquaChecklistEmpty, aquaChecklist)
+  const [checklist, setChecklist] = useState<AquaChecklistItem[]>(sourceChecklist)
+
+  // 데이터 모드 토글로 원본 체크리스트가 바뀌면 로컬 진행 상태(완료 처리 등)를 다시 동기화한다
+  useEffect(() => {
+    setChecklist(sourceChecklist)
+  }, [sourceChecklist])
 
   const resolveItem = (id: string, note: string) => {
     setChecklist((prev) =>
@@ -23,7 +42,7 @@ export function AquaResponsePage() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-white">e-SOP 대응 절차</h1>
-          <p className="mt-1 text-sm text-white/50">{aquaResponseState.title}</p>
+          <p className="mt-1 text-sm text-white/50">{responseState.title}</p>
         </div>
         <Link
           to="/aqua/monitoring"
@@ -35,25 +54,26 @@ export function AquaResponsePage() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="현재 재난 상황" dummy>
-          <RiskBadge level={aquaResponseState.riskLevel} label={aquaResponseState.level} solid />
+          <RiskBadge level={responseState.riskLevel} label={responseState.level} solid />
           <dl className="mt-3 flex flex-col gap-2 text-sm">
-            <Row label="위험 등급" value={aquaResponseState.grade} />
-            <Row label="발생 위치" value={aquaResponseState.location} />
-            <Row label="감지 시각" value={aquaResponseState.detectedAt} />
-            <Row label="예상 도달" value={aquaResponseState.eta} />
-            <Row label="염분(현재)" value={aquaResponseState.salinity} />
-            <Row label="수온(현재)" value={aquaResponseState.temperature} />
-            <Row label="영향 반경" value={aquaResponseState.radius} />
+            <Row label="위험 등급" value={responseState.grade} />
+            <Row label="발생 위치" value={responseState.location} />
+            <Row label="감지 시각" value={responseState.detectedAt} />
+            <Row label="예상 도달" value={responseState.eta} />
+            <Row label="염분(현재)" value={responseState.salinity} />
+            <Row label="수온(현재)" value={responseState.temperature} />
+            <Row label="영향 반경" value={responseState.radius} />
           </dl>
         </Card>
 
-        <Card title="진행 단계 요약" subtitle={`현재 단계 진입 ${aquaResponseState.detectedAt.slice(11)} · 담당: 최경보 (재난대응1팀)`} dummy>
-          <StageTracker stages={aquaStages} />
+        <Card title="진행 단계 요약" subtitle={`현재 단계 진입 ${responseState.detectedAt.slice(11)} · 담당: 최경보 (재난대응1팀)`} dummy>
+          <StageTracker stages={stages} />
         </Card>
       </div>
 
-      <Card title="e-SOP 단계별 대응 절차" subtitle={`${aquaResponseState.grade} · 현재 진행 중`} dummy>
+      <Card title="e-SOP 단계별 대응 절차" subtitle={`${responseState.grade} · 현재 진행 중`} dummy>
         <div className="flex flex-col gap-2.5">
+          {checklist.length === 0 && <p className="rounded-lg border border-border-subtle p-3 text-sm text-white/40">진행 중인 대응 절차 없음 — 평시 감시 중</p>}
           {checklist.map((item) => (
             <ChecklistRow
               key={item.id}
@@ -94,7 +114,7 @@ export function AquaResponsePage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border-subtle">
-              {aquaAgencyRows.map((row) => (
+              {agencyRows.map((row) => (
                 <tr key={row.id}>
                   <td className="py-2 font-medium text-white/80">{row.agency}</td>
                   <td className="py-2 text-white/40">{row.role}</td>

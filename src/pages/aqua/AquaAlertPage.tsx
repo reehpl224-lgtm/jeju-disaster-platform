@@ -3,10 +3,12 @@ import { Card } from "../../components/ui/Card"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { aquaAlertTargets } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { aquaAlertDraft } from "../../data/mockAqua"
+import { aquaAlertDraft as aquaAlertDraftBase, aquaAlertDraftEmpty } from "../../data/mockAqua"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function AquaAlertPage() {
   const [result, setResult] = useState<"idle" | "success" | "failure">("idle")
+  const aquaAlertDraft = useModeValue(aquaAlertDraftEmpty, aquaAlertDraftBase)
 
   return (
     <div className="flex flex-col gap-6">

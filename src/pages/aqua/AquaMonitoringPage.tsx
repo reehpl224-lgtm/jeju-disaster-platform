@@ -3,11 +3,23 @@ import { Card } from "../../components/ui/Card"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { aquaSensorOps } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { aquaAgencyRows, aquaMonitoringEvents, aquaMonitoringState, khoaLiveObservations } from "../../data/mockAqua"
+import {
+  aquaAgencyRows,
+  aquaAgencyRowsEmpty,
+  aquaMonitoringEvents,
+  aquaMonitoringEventsEmpty,
+  aquaMonitoringState,
+  aquaMonitoringStateEmpty,
+  khoaLiveObservations,
+} from "../../data/mockAqua"
 import { classifyMarineRiskLevel } from "../../data/marineAlertThresholds"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function AquaMonitoringPage() {
-  const cards = Object.values(aquaMonitoringState)
+  const monitoringState = useModeValue(aquaMonitoringStateEmpty, aquaMonitoringState)
+  const agencyRows = useModeValue(aquaAgencyRowsEmpty, aquaAgencyRows)
+  const monitoringEvents = useModeValue(aquaMonitoringEventsEmpty, aquaMonitoringEvents)
+  const cards = Object.values(monitoringState)
 
   return (
     <div className="flex flex-col gap-6">
@@ -83,7 +95,7 @@ export function AquaMonitoringPage() {
 
       <Card title="기관별 대응 상태" dummy>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {aquaAgencyRows.map((row) => (
+          {agencyRows.map((row) => (
             <div key={row.id} className="rounded-lg border border-border-subtle p-3 text-center">
               <p className="text-xs font-medium text-white/60">{row.agency}</p>
               <p className="mt-1 text-sm font-bold text-accent">{row.execute}</p>
@@ -94,7 +106,7 @@ export function AquaMonitoringPage() {
 
       <Card title="최근 감지 이벤트 및 조치 이력" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
-          {aquaMonitoringEvents.map((event) => (
+          {monitoringEvents.map((event) => (
             <li key={event.id} className="flex gap-3 py-2.5 text-sm">
               <span className="w-12 shrink-0 text-xs text-white/35">{event.time}</span>
               <p className="text-white/70">{event.title}</p>

@@ -3,9 +3,10 @@ import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { aquaPlannedData } from "../../data/mockMeetingItems"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { aquaActionLog, aquaDataIssues, aquaDataSources, aquaSummary } from "../../data/mockAqua"
+import { aquaActionLog, aquaActionLogEmpty, aquaDataIssues, aquaDataSources, aquaSummary } from "../../data/mockAqua"
 import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
 import { dataSourcesByService } from "../../data/mockDataSourceCategories"
+import { useModeValue } from "../../context/DataModeContext"
 
 const STATUS_LEVEL = {
   normal: "safe",
@@ -24,6 +25,7 @@ const STATUS_LABEL = {
 export function AquaDataPage() {
   const normalCount = aquaDataSources.filter((s) => s.status === "normal").length
   const issueCount = aquaDataSources.length - normalCount
+  const actionLog = useModeValue(aquaActionLogEmpty, aquaActionLog)
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,7 +89,7 @@ export function AquaDataPage() {
 
       <Card title="수집 상태 변경 및 조치 이력" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
-          {aquaActionLog.map((log) => (
+          {actionLog.map((log) => (
             <li key={log.id} className="flex items-start justify-between gap-3 py-2.5 text-sm">
               <div>
                 <p className="font-medium text-white/80">

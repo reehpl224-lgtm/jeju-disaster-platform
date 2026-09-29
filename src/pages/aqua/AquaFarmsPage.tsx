@@ -2,9 +2,13 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { aquaFarmTotals, aquaFarms } from "../../data/mockAqua"
+import { aquaFarmTotals, aquaFarmTotalsEmpty, aquaFarms, aquaFarmsEmpty } from "../../data/mockAqua"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function AquaFarmsPage() {
+  const farms = useModeValue(aquaFarmsEmpty, aquaFarms)
+  const farmTotals = useModeValue(aquaFarmTotalsEmpty, aquaFarmTotals)
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -14,21 +18,22 @@ export function AquaFarmsPage() {
 
       <StatTiles
         items={[
-          { label: "영향 양식장", value: `총 ${aquaFarmTotals.total}개소` },
-          { label: "심각", value: `${aquaFarmTotals.danger}개소`, tone: "danger" },
-          { label: "경계", value: `${aquaFarmTotals.alert}개소`, tone: "alert" },
-          { label: "주의", value: `${aquaFarmTotals.warning}개소`, tone: "warning" },
-          { label: "관심", value: `${aquaFarmTotals.caution}개소`, tone: "caution" },
+          { label: "영향 양식장", value: `총 ${farmTotals.total}개소` },
+          { label: "심각", value: `${farmTotals.danger}개소`, tone: "danger" },
+          { label: "경계", value: `${farmTotals.alert}개소`, tone: "alert" },
+          { label: "주의", value: `${farmTotals.warning}개소`, tone: "warning" },
+          { label: "관심", value: `${farmTotals.caution}개소`, tone: "caution" },
         ]}
       />
 
       <Card
         title="양식장별 영향 상태"
-        subtitle={`대표 사례 ${aquaFarms.length}개소 (전체 ${aquaFarmTotals.total}개소 중) · 목록 클릭 시 상세 정보로 이동`}
+        subtitle={`대표 사례 ${farms.length}개소 (전체 ${farmTotals.total}개소 중) · 목록 클릭 시 상세 정보로 이동`}
         dummy
       >
         <ul className="flex flex-col divide-y divide-border-subtle">
-          {aquaFarms.map((farm) => (
+          {farms.length === 0 && <li className="py-3 text-sm text-white/40">영향 양식장 없음 — 평시 감시 중</li>}
+          {farms.map((farm) => (
             <li key={farm.id}>
               <Link
                 to={`/aqua/farms/${farm.id}`}

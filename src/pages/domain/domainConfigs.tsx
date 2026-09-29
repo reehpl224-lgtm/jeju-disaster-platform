@@ -945,9 +945,12 @@ export function riverConfig(isEmpty = false): DomainConfig {
 }
 
 // ================================================================== 저염분 고수온
-export function aquaConfig(_isEmpty?: boolean): DomainConfig {
-  const s = AQ.aquaSummary
-  const rs = AQ.aquaRiskState
+export function aquaConfig(isEmpty = false): DomainConfig {
+  const s = isEmpty ? AQ.aquaSummaryEmpty : AQ.aquaSummary
+  const rs = isEmpty ? AQ.aquaRiskStateEmpty : AQ.aquaRiskState
+  const journeys = isEmpty ? AQ.aquaJourneysEmpty : AQ.aquaJourneys
+  // 상세 탭(데이터·AI 예측·양식장·경보·대응)은 아직 데이터 모드 미연동 — Aqua 상세 페이지
+  // (AquaHomePage 등)에서 먼저 연동했고, 이 보드 뷰의 나머지 탭은 다음 단계에서 이어서 연동한다.
   const levels = (arr: { level: RiskLevel; label: string; range: string }[]) => (
     <ul className="plist">
       {arr.map((x) => (
@@ -966,10 +969,10 @@ export function aquaConfig(_isEmpty?: boolean): DomainConfig {
     </Group>
   )
   const home = (
-    <LeaderBoardBrief brief={aquaBrief()}>
+    <LeaderBoardBrief brief={aquaBrief(isEmpty)}>
       <Group title="업무 흐름" dummy>
         <ul className="plist">
-          {AQ.aquaJourneys.map((j) => (
+          {journeys.map((j) => (
             <li key={j.id}>
               <p className="t">{j.label}</p>
               <p className="s">{j.desc}</p>

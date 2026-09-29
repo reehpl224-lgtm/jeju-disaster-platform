@@ -298,6 +298,126 @@ export const aquaMonitoringEvents: AquaTimelineEntry[] = [
 ]
 
 /**
+ * "빈 화면" 모드용 — 「제주 재난안전과 팀장 사용자 시나리오」(2026-09-23) 근거. 저염분 고수온은
+ * (하천범람·연안 안전관리와 반대로) 2026-09-22 리셋 이후 이 파일의 "현재값"이 이미 관심 단계
+ * 진행 중 케이스라, 대신 짝이 되는 평시(정상) 스냅샷을 새로 추가한다 — DataModeContext의
+ * mode="empty"일 때만 leaderBriefs.ts·Aqua 상세 화면에서 이 값을 쓴다. 데이터 소스 상태
+ * (aquaDataSources 등 인프라 상태)는 사건과 무관해 두 모드 동일하게 유지한다.
+ */
+export const aquaSummaryEmpty = {
+  lastUpdated: "09:15",
+  targetArea: "제주 서남부 한경·대정 육상양식장",
+  spatialResolution: "1km 이하",
+  aiLabels: ["Low_Salinity_Plume", "High_Temp_Water"],
+  salinityLevels: aquaSummary.salinityLevels,
+  combinedRuleNote: aquaSummary.combinedRuleNote,
+  temperatureLevels: aquaSummary.temperatureLevels,
+  activeRisk: { count: 0, detail: "평시 — 감지된 위험 없음" },
+  pendingApproval: { count: 0, detail: "승인 대기 없음" },
+  affectedFarms: { count: 0, detail: "영향 양식장 없음" },
+  dataQuality: { percent: 93, detail: "전체 소스 평균" },
+}
+
+export const aquaRiskStateEmpty = {
+  level: "정상 [0등급]",
+  riskLevel: "safe" as RiskLevel,
+  headline: "저염분수·고수온 위험 신호 없음 (평시)",
+  confidence: 0,
+  updatedAt: "09:15",
+  lowSalinity: { eta: "해당 없음", riskLevel: "safe" as RiskLevel, time: "-", location: "감지된 신호 없음" },
+  highTemp: { eta: "해당 없음", riskLevel: "safe" as RiskLevel, time: "-", location: "고수온 동반 신호 없음" },
+  affectedFarmCount: 0,
+  affectedFarmDelta: "해당 없음",
+}
+
+export const aquaFarmsEmpty: AquaFarm[] = []
+
+export const aquaFarmTotalsEmpty = { total: 0, danger: 0, alert: 0, warning: 0, caution: 0 }
+
+export const aquaAlertDraftEmpty = {
+  region: "한경면 용수리 일원",
+  riskType: "저염분수",
+  grade: "해당 없음",
+  riskLevel: "safe" as RiskLevel,
+  scope: "해당 없음 (평시)",
+  effectiveAt: "해당 없음",
+  validFor: "-",
+  currentGrade: "0단계 / 정상",
+  affectedFarms: 0,
+  affectedPopulation: "해당 없음 (평시)",
+  eta: "해당 없음",
+  affectedArea: "해당 없음",
+  channels: ["문자(CBS·SMS)", "재난안전앱", "현장 단말", "상황판"],
+  smsTarget: 0,
+  appTarget: 0,
+  fieldDevices: 0,
+  boards: "대기 (미발송)",
+  confidence: 0,
+  satelliteMatch: "해당 없음 (평시)",
+  fieldDelta: "해당 없음",
+  approvalSteps: [
+    { id: "d1", stage: "작성", owner: "-", time: "평시 — 작성 필요 없음" },
+    { id: "d2", stage: "1차 검토", owner: "-", time: "-" },
+    { id: "d3", stage: "승인 요청", owner: "-", time: "-" },
+    { id: "d4", stage: "최종 승인", owner: "-", time: "-" },
+  ],
+  audit: [
+    { id: "au1", time: "09:00", title: "정상 모니터링 중 — 이상 없음" },
+  ] as AquaTimelineEntry[],
+}
+
+export const aquaResponseStateEmpty = {
+  title: "평시 — 위험 신호 없음",
+  level: "정상",
+  riskLevel: "safe" as RiskLevel,
+  grade: "0단계 / 정상",
+  location: "한경·대정 양식장 전 구역",
+  detectedAt: "-",
+  eta: "해당 없음",
+  salinity: "30.6 psu / 정상 기준 30.0 psu 이상",
+  temperature: "24.2 °C / 정상 기준 25.0 °C 이하",
+  radius: "해당 없음",
+}
+
+export const aquaStagesEmpty: AquaStage[] = [
+  { step: 1, label: "관심", status: "대기" },
+  { step: 2, label: "주의", status: "대기" },
+  { step: 3, label: "경계", status: "대기" },
+  { step: 4, label: "심각", status: "대기" },
+  { step: 5, label: "해제", status: "대기" },
+]
+
+export const aquaChecklistEmpty: AquaChecklistItem[] = []
+
+export const aquaAgencyRowsEmpty: AquaAgencyRow[] = [
+  { id: "ag1", agency: "제주특별자치도 재난안전과", role: "총괄 모니터링", approve: "-", execute: "평시 대기", receive: "완료" },
+  { id: "ag2", agency: "제주시 한경면사무소", role: "한경 용수 현장 예찰", execute: "평시 대기", approve: "-", receive: "완료" },
+  { id: "ag3", agency: "서귀포시 대정읍사무소", role: "대정 현장 상시 관찰", execute: "평시 대기", approve: "-", receive: "완료" },
+  { id: "ag4", agency: "제주특별자치도 해양수산연구원", role: "예측 검증", approve: "-", execute: "평시 대기", receive: "완료" },
+]
+
+export const aquaMonitoringStateEmpty = {
+  ocean: { label: "양식장 해양환경", value: "표층 수온 24.2°C · 염분 30.6psu", level: "safe" as const, tag: "정상" },
+}
+
+export const aquaMonitoringEventsEmpty: AquaTimelineEntry[] = [
+  { id: "e1", time: "09:00", title: "정상 모니터링 중 — 이상 없음" },
+]
+
+export const aquaActionLogEmpty: AquaActionLogEntry[] = [
+  { id: "a1", time: "09:00", title: "정기 점검 완료 — 이상 없음", owner: "관리자", action: "해양관측부이 KHOA API 연동 정상 확인", status: "완료" },
+]
+
+export const aquaJourneysEmpty = [
+  { id: "data", label: "데이터 수집", desc: "전체 5개 소스 · 정상 4 · 지연 1", href: "/aqua/data" },
+  { id: "prediction", label: "AI 예측", desc: "위험 신호 없음 · 평시 모니터링", href: "/aqua/prediction" },
+  { id: "farms", label: "영향 양식장", desc: "영향 양식장 없음", href: "/aqua/farms" },
+  { id: "alerts", label: "경보 발송", desc: "평시 — 경보 초안 없음", href: "/aqua/alerts" },
+  { id: "response", label: "e-SOP 대응", desc: "0단계 · 정상 — 진행 중인 대응 없음", href: "/aqua/response" },
+  { id: "monitoring", label: "실시간 모니터링", desc: "표층 수온 24.2℃ · 염분 30.6psu", href: "/aqua/monitoring" },
+]
+
+/**
  * 종료 보고서(/aqua/closure) — 오늘(2026-09-22) 진행 중인 관심 단계 케이스가 아니라, 지난주
  * 정상적으로 종료된 관심 단계 사례를 예시로 남겨둔 것이다(날짜가 다름에 주의). 현재 진행 중인
  * 케이스는 아직 종료되지 않았으므로 /aqua/response · /aqua/monitoring에서 진행 상황을 확인할 것.
