@@ -14,119 +14,140 @@ import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { DutyContactPanel } from "../../components/ui/DutyContactPanel"
 import {
   riverApprovalHistory,
+  riverApprovalHistoryIncident,
   riverControlRows,
+  riverControlRowsIncident,
   riverControlTimeline,
+  riverControlTimelineIncident,
   riverInfra,
   riverJointAgencies,
+  riverJointAgenciesIncident,
   riverRiskBasis,
+  riverRiskBasisIncident,
   riverSensorCheck,
   riverSopStage,
+  riverSopStageIncident,
   riverStatuses,
+  riverStatusesIncident,
   riverSuddenRainAlert,
+  riverSuddenRainAlertIncident,
   riverTarget,
   riverWaterLevelAiForecast,
+  riverWaterLevelAiForecastIncident,
 } from "../../data/mockRiver"
 import { riskMarkers } from "../../data/mockDashboard"
 import { cctvCameras } from "../../data/mockCctv"
+import { useDataMode, useModeValue } from "../../context/DataModeContext"
 
 const RIVER_MARKERS = riskMarkers.filter((m) => m.domain === "river")
 const RIVER_CCTV = cctvCameras.filter((c) => c.domain === "river")
 
-const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
-  sensor: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {riverSensorCheck.map((sensor) => (
-        <li key={sensor.id} className="py-2 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-medium text-white/80">{sensor.name}</p>
-            <span className={sensor.status === "정상" ? "text-risk-safe" : "text-risk-danger"}>{sensor.status}</span>
-          </div>
-          <p className="mt-0.5 text-white/35">
-            {sensor.value} · {sensor.detail}
-          </p>
-        </li>
-      ))}
-    </ul>
-  ),
-  response: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {riverJointAgencies.map((agency) => (
-        <li key={agency.id} className="flex items-center justify-between gap-2 py-2 text-xs">
-          <p className="text-white/80">{agency.agency}</p>
-          <span className="text-white/50">{agency.status}</span>
-        </li>
-      ))}
-    </ul>
-  ),
-  asset: (
-    <ul className="flex flex-col gap-2">
-      {riverControlRows.map((row) => (
-        <li key={row.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
-          <p className="font-medium text-white/80">{row.river}</p>
-          <p className="mt-0.5 text-white/35">{row.location}</p>
-          <p className="mt-1 text-white/50">
-            차단기 {row.gate} · 출동 {row.dispatch} · 수신 {row.ack}
-          </p>
-        </li>
-      ))}
-    </ul>
-  ),
-  broadcast: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {riverApprovalHistory.map((entry) => (
-        <li key={entry.id} className="flex gap-3 py-2 text-xs">
-          <span className="w-10 shrink-0 text-white/35">{entry.time}</span>
-          <p className="text-white/80">{entry.title}</p>
-        </li>
-      ))}
-    </ul>
-  ),
-  timeline: (
-    <ul className="flex flex-col divide-y divide-border-subtle">
-      {riverControlTimeline.map((entry) => (
-        <li key={entry.id} className="flex gap-3 py-2 text-xs">
-          <span className="w-10 shrink-0 text-white/35">{entry.time}</span>
-          <p className="text-white/80">{entry.title}</p>
-        </li>
-      ))}
-    </ul>
-  ),
-  contact: <DutyContactPanel domain="river" />,
-}
-
-const TIMELINE_TABS: GisTimelineTab[] = [
-  {
-    key: "timeline",
-    label: "타임라인",
-    content: (
-      <ul className="flex flex-col divide-y divide-border-subtle">
-        {riverControlTimeline.map((entry) => (
-          <li key={entry.id} className="flex gap-3 py-2 text-xs">
-            <span className="w-10 shrink-0 text-white/35">{entry.time}</span>
-            <p className="text-white/80">{entry.title}</p>
-          </li>
-        ))}
-      </ul>
-    ),
-  },
-  {
-    key: "approval",
-    label: "승인 이력",
-    content: (
-      <ul className="flex flex-col divide-y divide-border-subtle">
-        {riverApprovalHistory.map((entry) => (
-          <li key={entry.id} className="flex gap-3 py-2 text-xs">
-            <span className="w-10 shrink-0 text-white/35">{entry.time}</span>
-            <p className="text-white/80">{entry.title}</p>
-          </li>
-        ))}
-      </ul>
-    ),
-  },
-]
-
 export function RiverHomePage() {
   const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
+  const { isEmpty } = useDataMode()
+
+  const statuses = useModeValue(riverStatusesIncident, riverStatuses)
+  const riskBasis = useModeValue(riverRiskBasisIncident, riverRiskBasis)
+  const suddenRainAlert = useModeValue(riverSuddenRainAlertIncident, riverSuddenRainAlert)
+  const waterLevelForecast = useModeValue(riverWaterLevelAiForecastIncident, riverWaterLevelAiForecast)
+  const sopStage = useModeValue(riverSopStageIncident, riverSopStage)
+  const controlRows = useModeValue(riverControlRowsIncident, riverControlRows)
+  const jointAgencies = useModeValue(riverJointAgenciesIncident, riverJointAgencies)
+  const approvalHistory = useModeValue(riverApprovalHistoryIncident, riverApprovalHistory)
+  const controlTimeline = useModeValue(riverControlTimelineIncident, riverControlTimeline)
+
+  const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
+    sensor: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {riverSensorCheck.map((sensor) => (
+          <li key={sensor.id} className="py-2 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <p className="font-medium text-white/80">{sensor.name}</p>
+              <span className={sensor.status === "정상" ? "text-risk-safe" : "text-risk-danger"}>{sensor.status}</span>
+            </div>
+            <p className="mt-0.5 text-white/35">
+              {sensor.value} · {sensor.detail}
+            </p>
+          </li>
+        ))}
+      </ul>
+    ),
+    response: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {jointAgencies.map((agency) => (
+          <li key={agency.id} className="flex items-center justify-between gap-2 py-2 text-xs">
+            <p className="text-white/80">{agency.agency}</p>
+            <span className="text-white/50">{agency.status}</span>
+          </li>
+        ))}
+      </ul>
+    ),
+    asset: (
+      <ul className="flex flex-col gap-2">
+        {controlRows.map((row) => (
+          <li key={row.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
+            <p className="font-medium text-white/80">{row.river}</p>
+            <p className="mt-0.5 text-white/35">{row.location}</p>
+            <p className="mt-1 text-white/50">
+              차단기 {row.gate} · 출동 {row.dispatch} · 수신 {row.ack}
+            </p>
+          </li>
+        ))}
+      </ul>
+    ),
+    broadcast: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {approvalHistory.map((entry) => (
+          <li key={entry.id} className="flex gap-3 py-2 text-xs">
+            <span className="w-10 shrink-0 text-white/35">{entry.time}</span>
+            <p className="text-white/80">{entry.title}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+    timeline: (
+      <ul className="flex flex-col divide-y divide-border-subtle">
+        {controlTimeline.map((entry) => (
+          <li key={entry.id} className="flex gap-3 py-2 text-xs">
+            <span className="w-10 shrink-0 text-white/35">{entry.time}</span>
+            <p className="text-white/80">{entry.title}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+    contact: <DutyContactPanel domain="river" />,
+  }
+
+  const TIMELINE_TABS: GisTimelineTab[] = [
+    {
+      key: "timeline",
+      label: "타임라인",
+      content: (
+        <ul className="flex flex-col divide-y divide-border-subtle">
+          {controlTimeline.map((entry) => (
+            <li key={entry.id} className="flex gap-3 py-2 text-xs">
+              <span className="w-10 shrink-0 text-white/35">{entry.time}</span>
+              <p className="text-white/80">{entry.title}</p>
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+    {
+      key: "approval",
+      label: "승인 이력",
+      content: (
+        <ul className="flex flex-col divide-y divide-border-subtle">
+          {approvalHistory.map((entry) => (
+            <li key={entry.id} className="flex gap-3 py-2 text-xs">
+              <span className="w-10 shrink-0 text-white/35">{entry.time}</span>
+              <p className="text-white/80">{entry.title}</p>
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+  ]
 
   return (
     <div className="flex flex-col gap-6">
@@ -135,7 +156,7 @@ export function RiverHomePage() {
         <p className="mt-1 text-sm text-white/50">강우레이더·수위센서 기반 하천 범람 예측 및 경보</p>
       </div>
 
-      <LeaderDetailBrief brief={riverBrief()} />
+      <LeaderDetailBrief brief={riverBrief(isEmpty)} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card title="위험 위치 및 영향 범위 — 하천 GIS" subtitle="효돈천(돈내코·쇠소깍) 관측 지점" className="xl:col-span-2" dummy>
@@ -165,24 +186,24 @@ export function RiverHomePage() {
 
       <Card
         title="AI 예측 — 돌발 강우 조기경고"
-        subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`}
+        subtitle={`감지 시각 ${suddenRainAlert.detectedAt} · ${suddenRainAlert.trendNote}`}
         dummy
       >
         <div className="flex flex-wrap items-center gap-4">
           <div>
             <p className="text-[11px] font-medium text-white/40">기상청 예보</p>
-            <p className="mt-1 text-lg font-bold text-white/70">{riverSuddenRainAlert.forecastMm}mm</p>
+            <p className="mt-1 text-lg font-bold text-white/70">{suddenRainAlert.forecastMm}mm</p>
           </div>
           <span className="text-xl text-white/30">→</span>
           <div>
             <p className="text-[11px] font-medium text-white/40">실측</p>
-            <p className="mt-1 text-lg font-bold text-risk-warning">{riverSuddenRainAlert.observedMm}mm</p>
+            <p className="mt-1 text-lg font-bold text-risk-warning">{suddenRainAlert.observedMm}mm</p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
-            AI 조기경고 · 강우레이더 예측 {riverRiskBasis.radar.value} (신뢰도 {riverRiskBasis.radar.confidence})
+            AI 조기경고 · 강우레이더 예측 {riskBasis.radar.value} (신뢰도 {riskBasis.radar.confidence})
           </span>
         </div>
-        <p className="mt-3 text-xs text-white/50">{riverSuddenRainAlert.aiNote}</p>
+        <p className="mt-3 text-xs text-white/50">{suddenRainAlert.aiNote}</p>
         <Link to="/river/analysis" className="mt-3 inline-block text-xs font-bold text-accent">
           상황 분석에서 근거 데이터 자세히 보기 →
         </Link>
@@ -190,25 +211,25 @@ export function RiverHomePage() {
 
       <Card
         title="AI 예측 — 수위 추이 조기경보"
-        subtitle={riverWaterLevelAiForecast.trendNote}
+        subtitle={waterLevelForecast.trendNote}
         dummy
       >
         <div className="flex flex-wrap items-center gap-4">
           <div>
             <p className="text-[11px] font-medium text-white/40">6시간 전 수위</p>
-            <p className="mt-1 text-lg font-bold text-white/70">{riverWaterLevelAiForecast.sixHourAgoM}m</p>
+            <p className="mt-1 text-lg font-bold text-white/70">{waterLevelForecast.sixHourAgoM}m</p>
           </div>
           <span className="text-xl text-white/30">→</span>
           <div>
             <p className="text-[11px] font-medium text-white/40">현재 수위</p>
-            <p className="mt-1 text-lg font-bold text-white/70">{riverWaterLevelAiForecast.currentM}m</p>
+            <p className="mt-1 text-lg font-bold text-white/70">{waterLevelForecast.currentM}m</p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-risk-safe bg-risk-safe-bg px-3 py-1 text-xs font-bold text-risk-safe">
-            {riverWaterLevelAiForecast.status}
+            {waterLevelForecast.status}
           </span>
         </div>
-        <p className="mt-3 text-xs text-white/50">{riverWaterLevelAiForecast.aiNote}</p>
-        <p className="mt-1 text-[11px] text-white/30">근거: {riverWaterLevelAiForecast.basis}</p>
+        <p className="mt-3 text-xs text-white/50">{waterLevelForecast.aiNote}</p>
+        <p className="mt-1 text-[11px] text-white/30">근거: {waterLevelForecast.basis}</p>
       </Card>
 
       <Card>
@@ -253,7 +274,7 @@ export function RiverHomePage() {
 
       <Card title="하천 위험 요약" subtitle="카드를 누르면 해당 하천의 현장 통제 현황으로 이동합니다" dummy>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {riverStatuses.map((river) => (
+          {statuses.map((river) => (
             <Link
               key={river.id}
               to="/river/control"
@@ -276,7 +297,7 @@ export function RiverHomePage() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="경보 승인 이력" dummy>
           <ul className="flex flex-col divide-y divide-border-subtle">
-            {riverApprovalHistory.map((h) => (
+            {approvalHistory.map((h) => (
               <li key={h.id} className="flex gap-3 py-2.5 text-sm">
                 <span className="w-12 shrink-0 text-xs text-white/35">{h.time}</span>
                 <p className="text-white/70">{h.title}</p>
@@ -287,8 +308,8 @@ export function RiverHomePage() {
 
         <Card title="e-SOP 단계 연결" dummy>
           <p className="text-sm font-semibold text-white/85">현재 적용 단계</p>
-          <RiskBadge level={riverSopStage.level} label={riverSopStage.current} solid />
-          <p className="mt-3 text-sm text-white/60">{riverSopStage.next}</p>
+          <RiskBadge level={sopStage.level} label={sopStage.current} solid />
+          <p className="mt-3 text-sm text-white/60">{sopStage.next}</p>
           <Link
             to="/river/control"
             className="mt-4 inline-flex rounded-full border border-accent px-3 py-2 text-xs font-bold text-accent hover:bg-accent-soft"

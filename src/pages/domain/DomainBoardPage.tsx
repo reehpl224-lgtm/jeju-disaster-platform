@@ -7,6 +7,7 @@ import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { cctvCameras } from "../../data/mockCctv"
 import { riskMarkers, serviceStatusCards } from "../../data/mockDashboard"
 import { DOMAIN_CONFIGS } from "./domainConfigs"
+import { useDataMode } from "../../context/DataModeContext"
 
 /**
  * 도메인 화면 — demo-10 클론의 재난 유형 상세 틀(지도 전면 + 좌측 세로 탭 패널 + 우측 패널 + 하단 서비스 스트립).
@@ -14,7 +15,8 @@ import { DOMAIN_CONFIGS } from "./domainConfigs"
  */
 export function DomainBoardPage({ domain }: { domain: string }) {
   const build = DOMAIN_CONFIGS[domain]
-  const config = useMemo(() => (build ? build() : null), [build])
+  const { isEmpty } = useDataMode()
+  const config = useMemo(() => (build ? build(isEmpty) : null), [build, isEmpty])
   const [params, setParams] = useSearchParams()
   const [rightTab, setRightTab] = useState("tl")
   const [mapTopRef, mapTopHeight] = useElementHeight<HTMLDivElement>()

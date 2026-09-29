@@ -365,7 +365,7 @@ const LIVE_MARINE_COAST = (
 )
 
 // ================================================================== 호우
-export function heavyRainConfig(): DomainConfig {
+export function heavyRainConfig(_isEmpty?: boolean): DomainConfig {
   const f = HR.heavyRainAiForecast
   // 대시보드·상세 분석·데이터 수집 상세 화면이 모두 보여주는 관측소 목록 — 세 탭에서 같이 쓴다
   const stationList = (
@@ -486,7 +486,7 @@ export function heavyRainConfig(): DomainConfig {
 }
 
 // ================================================================== 태풍
-export function typhoonConfig(): DomainConfig {
+export function typhoonConfig(_isEmpty?: boolean): DomainConfig {
   const rp = TY.typhoonReports
   const cur = rp[0]
   const trk = TY.typhoonForecastTrack
@@ -603,7 +603,7 @@ export function typhoonConfig(): DomainConfig {
 }
 
 // ================================================================== 폭염
-export function heatConfig(): DomainConfig {
+export function heatConfig(_isEmpty?: boolean): DomainConfig {
   const li = HT.heatLevelInfo
   const home = (
     <LeaderBoardBrief brief={heatBrief()}>
@@ -720,16 +720,20 @@ export function heatConfig(): DomainConfig {
 }
 
 // ================================================================== 하천범람
-export function riverConfig(): DomainConfig {
+export function riverConfig(isEmpty = false): DomainConfig {
   // 상단 헤드라인은 가장 위험한 지점 기준 — 예전엔 "효돈천(쇠소깍) 3단계 · 심각"이 하드코딩돼 평시 리셋 후에도 남아 있었음
   const RANK: RiskLevel[] = ["safe", "caution", "warning", "alert", "danger"]
-  const worstRiver = [...RV.riverStatuses].sort((a, b) => RANK.indexOf(b.level) - RANK.indexOf(a.level))[0]
-  const rb = RV.riverRiskBasis
+  const statuses = isEmpty ? RV.riverStatuses : RV.riverStatusesIncident
+  const worstRiver = [...statuses].sort((a, b) => RANK.indexOf(b.level) - RANK.indexOf(a.level))[0]
+  const rb = isEmpty ? RV.riverRiskBasis : RV.riverRiskBasisIncident
+  const approvalHistory = isEmpty ? RV.riverApprovalHistory : RV.riverApprovalHistoryIncident
   const tg = RV.riverTarget
+  // 상세 탭(분석·현장통제·출동요청)은 아직 데이터 모드 미연동 — River 상세 페이지(RiverAnalysisPage 등)에서
+  // 먼저 연동했고, 이 보드 뷰의 나머지 탭은 "서비스 차례대로" 다음 단계에서 이어서 연동한다.
   const home = (
-    <LeaderBoardBrief brief={riverBrief()}>
+    <LeaderBoardBrief brief={riverBrief(isEmpty)}>
       <Group title="승인 이력" dummy>
-        <Tl entries={RV.riverApprovalHistory} />
+        <Tl entries={approvalHistory} />
       </Group>
       <Group title="감시 대상" dummy>
         <Rows
@@ -941,7 +945,7 @@ export function riverConfig(): DomainConfig {
 }
 
 // ================================================================== 저염분 고수온
-export function aquaConfig(): DomainConfig {
+export function aquaConfig(_isEmpty?: boolean): DomainConfig {
   const s = AQ.aquaSummary
   const rs = AQ.aquaRiskState
   const levels = (arr: { level: RiskLevel; label: string; range: string }[]) => (
@@ -1286,7 +1290,7 @@ export function aquaConfig(): DomainConfig {
 }
 
 // ================================================================== 연안 안전관리
-export function coastConfig(): DomainConfig {
+export function coastConfig(_isEmpty?: boolean): DomainConfig {
   const s = CO.coastSummary
   // 상세 대시보드·현장 모니터링 상세 화면이 모두 보여주는 KHOA 보강 검토 — 두 탭에서 같이 쓴다
   const coastKhoaReview = (
@@ -1568,7 +1572,7 @@ export function coastConfig(): DomainConfig {
   }
 }
 
-export const DOMAIN_CONFIGS: Record<string, () => DomainConfig> = {
+export const DOMAIN_CONFIGS: Record<string, (isEmpty?: boolean) => DomainConfig> = {
   "heavy-rain": heavyRainConfig,
   typhoon: typhoonConfig,
   heat: heatConfig,

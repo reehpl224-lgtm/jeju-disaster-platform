@@ -1,9 +1,25 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { riverControlFailures, riverControlRows, riverControlTimeline, riverJointAgencies, riverPropagation } from "../../data/mockRiver"
+import {
+  riverControlFailures,
+  riverControlRows,
+  riverControlRowsIncident,
+  riverControlTimeline,
+  riverControlTimelineIncident,
+  riverJointAgencies,
+  riverJointAgenciesIncident,
+  riverPropagation,
+  riverPropagationIncident,
+} from "../../data/mockRiver"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function RiverControlPage() {
+  const controlRows = useModeValue(riverControlRowsIncident, riverControlRows)
+  const jointAgencies = useModeValue(riverJointAgenciesIncident, riverJointAgencies)
+  const propagation = useModeValue(riverPropagationIncident, riverPropagation)
+  const controlTimeline = useModeValue(riverControlTimelineIncident, riverControlTimeline)
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -13,7 +29,7 @@ export function RiverControlPage() {
 
       <Card title="효돈천 구간별 통제 현황" dummy>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {riverControlRows.map((row) => (
+          {controlRows.map((row) => (
             <div key={row.id} className="rounded-lg border border-border-subtle p-3">
               <p className="text-sm font-bold text-white/85">{row.river}</p>
               <p className={`mt-1 text-xs font-semibold ${row.gate === "정상 작동" ? "text-risk-safe" : "text-risk-warning"}`}>{row.stage}</p>
@@ -50,7 +66,7 @@ export function RiverControlPage() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="전파 이력 및 승인 근거" dummy>
           <ul className="flex flex-col gap-2">
-            {riverPropagation.map((p) => (
+            {propagation.map((p) => (
               <li key={p.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-2.5 text-sm">
                 <p className="text-white/80">{p.channel}</p>
                 <span className="text-xs text-white/40">{p.status}</span>
@@ -61,7 +77,7 @@ export function RiverControlPage() {
 
         <Card title="공동 대응 기관 현황" dummy>
           <ul className="flex flex-col gap-2">
-            {riverJointAgencies.map((a) => (
+            {jointAgencies.map((a) => (
               <li key={a.id} className="flex items-center justify-between rounded-lg border border-border-subtle p-2.5 text-sm">
                 <p className="text-white/80">{a.agency}</p>
                 <span className="text-xs text-white/40">{a.status}</span>
@@ -73,7 +89,7 @@ export function RiverControlPage() {
 
       <Card title="단계별 타임라인" dummy>
         <ul className="flex flex-col divide-y divide-border-subtle">
-          {riverControlTimeline.map((t) => (
+          {controlTimeline.map((t) => (
             <li key={t.id} className="flex gap-3 py-2.5 text-sm">
               <span className="w-12 shrink-0 text-xs text-white/35">{t.time}</span>
               <p className="text-white/70">{t.title}</p>

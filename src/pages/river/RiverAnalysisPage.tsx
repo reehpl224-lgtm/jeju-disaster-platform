@@ -10,15 +10,23 @@ import {
   riverCctv,
   riverDataConfidence,
   riverImpact,
+  riverImpactIncident,
   riverInfra,
   riverRiskBasis,
+  riverRiskBasisIncident,
   riverSensorCheck,
   riverSuddenRainAlert,
+  riverSuddenRainAlertIncident,
   riverStageCriteria,
   riverTideCorrelation,
 } from "../../data/mockRiver"
+import { useModeValue } from "../../context/DataModeContext"
 
 export function RiverAnalysisPage() {
+  const sr = useModeValue(riverSuddenRainAlertIncident, riverSuddenRainAlert)
+  const riskBasis = useModeValue(riverRiskBasisIncident, riverRiskBasis)
+  const impact = useModeValue(riverImpactIncident, riverImpact)
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -26,27 +34,27 @@ export function RiverAnalysisPage() {
         <p className="mt-1 text-sm text-white/50">위험 근거 데이터 및 센서 교차 검증</p>
       </div>
 
-      <Card title="돌발 강우 AI 조기경고" subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`} dummy>
+      <Card title="돌발 강우 AI 조기경고" subtitle={`감지 시각 ${sr.detectedAt} · ${sr.trendNote}`} dummy>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div>
               <p className="text-[11px] font-medium text-white/40">기상청 예보</p>
-              <p className="mt-1 text-lg font-bold text-white/70">{riverSuddenRainAlert.forecastMm}mm</p>
+              <p className="mt-1 text-lg font-bold text-white/70">{sr.forecastMm}mm</p>
             </div>
             <span className="text-xl text-white/30">→</span>
             <div>
               <p className="text-[11px] font-medium text-white/40">실측</p>
-              <p className="mt-1 text-lg font-bold text-risk-warning">{riverSuddenRainAlert.observedMm}mm</p>
+              <p className="mt-1 text-lg font-bold text-risk-warning">{sr.observedMm}mm</p>
             </div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
               AI 조기경고 · 예보 대비 +
-              {Math.round(((riverSuddenRainAlert.observedMm - riverSuddenRainAlert.forecastMm) / riverSuddenRainAlert.forecastMm) * 100)}%
+              {Math.round(((sr.observedMm - sr.forecastMm) / sr.forecastMm) * 100)}%
             </span>
           </div>
         </div>
-        <p className="mt-3 text-xs text-white/50">{riverSuddenRainAlert.aiNote}</p>
+        <p className="mt-3 text-xs text-white/50">{sr.aiNote}</p>
         <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3 text-xs font-medium text-accent">
-          {riverSuddenRainAlert.confirmNote}
+          {sr.confirmNote}
         </div>
       </Card>
 
@@ -79,10 +87,10 @@ export function RiverAnalysisPage() {
       <Card title="위험 근거 데이터" dummy>
         <StatTiles
           items={[
-            { label: "강우량 (1h 누적)", value: riverRiskBasis.rainfall.value, sub: `${riverRiskBasis.rainfall.detail} · ${riverRiskBasis.rainfall.trend}` },
-            { label: "현재 수위", value: riverRiskBasis.waterLevel.value, sub: `${riverRiskBasis.waterLevel.detail} · ${riverRiskBasis.waterLevel.trend}` },
-            { label: "강우레이더 예측", value: riverRiskBasis.radar.value, sub: `${riverRiskBasis.radar.detail} · ${riverRiskBasis.radar.confidence}` },
-            { label: "유역 포화도", value: riverRiskBasis.saturation.value, sub: `${riverRiskBasis.saturation.detail} · ${riverRiskBasis.saturation.grade}` },
+            { label: "강우량 (1h 누적)", value: riskBasis.rainfall.value, sub: `${riskBasis.rainfall.detail} · ${riskBasis.rainfall.trend}` },
+            { label: "현재 수위", value: riskBasis.waterLevel.value, sub: `${riskBasis.waterLevel.detail} · ${riskBasis.waterLevel.trend}` },
+            { label: "강우레이더 예측", value: riskBasis.radar.value, sub: `${riskBasis.radar.detail} · ${riskBasis.radar.confidence}` },
+            { label: "유역 포화도", value: riskBasis.saturation.value, sub: `${riskBasis.saturation.detail} · ${riskBasis.saturation.grade}` },
           ]}
         />
       </Card>
@@ -142,10 +150,10 @@ export function RiverAnalysisPage() {
           GIS 영향 범위 지도 — 범람 예상 구역·대피 경로·통제 지점 표시
         </div>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Field label="침수 예상 면적" value={riverImpact.area} />
-          <Field label="영향 주민" value={riverImpact.population} />
-          <Field label="주요 영향 시설" value={riverImpact.facilities} />
-          <Field label="대피 경로 확보" value={riverImpact.evacuationRoutes} />
+          <Field label="침수 예상 면적" value={impact.area} />
+          <Field label="영향 주민" value={impact.population} />
+          <Field label="주요 영향 시설" value={impact.facilities} />
+          <Field label="대피 경로 확보" value={impact.evacuationRoutes} />
         </div>
       </Card>
 

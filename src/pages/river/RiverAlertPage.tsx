@@ -6,6 +6,7 @@ import { RiskBadge } from "../../components/ui/RiskBadge"
 import { riverAlertDispatch } from "../../data/mockRiver"
 
 export function RiverAlertPage() {
+  // 경보발송은 이 시나리오 시점(경계 승인 전)엔 데이터/빈 화면 모드 모두 동일 — §leaderBriefs.ts 주석 참고
   const d = riverAlertDispatch
   const [retried, setRetried] = useState(false)
   return (

@@ -244,6 +244,86 @@ export const riverDispatchRequest = {
 }
 
 /**
+ * "데이터 있음" 모드용 — 「제주 재난안전과 팀장 사용자 시나리오」(2026-09-23) 시나리오 B·C 근거.
+ * 위 평시(빈 화면) 값들과 짝을 이루는 "돈내코 관심 단계 자동 감지(19:26), 경계 상향 승인 대기 중"
+ * 스냅샷이다 — DataModeContext의 mode="data"일 때만 leaderBriefs.ts·River 상세 화면에서 이 값을 쓴다.
+ * 아직 팀장 승인 전 시점이라 경보발송·출동요청은 의도적으로 평시값을 그대로 유지(§AGENTS.md
+ * "관련 없는 상태는 0/해당없음으로 명시적으로 끄세요" 원칙).
+ */
+export const riverStatusesIncident: RiverStatus[] = [
+  { id: "soesokkak", name: "효돈천(쇠소깍)", level: "safe", stage: "0단계 · 정상", eta: "해당 없음", updatedAt: "19:26" },
+  { id: "donnaeko", name: "효돈천(돈내코)", level: "caution", stage: "1단계 · 관심 (자동 감지)", eta: "약 2시간 후 (추세 지속 시)", updatedAt: "19:26" },
+]
+
+export const riverApprovalHistoryIncident: TimelineEntry[] = [
+  { id: "h1", time: "19:26", title: "시스템 자동감지 — 돈내코 관심 단계 진입(계획홍수량 24%)" },
+]
+
+export const riverSopStageIncident = {
+  current: "1단계 · 관심 (19:26 자동 감지)",
+  level: "caution" as RiskLevel,
+  next: "팀장 승인 시 2단계 경계로 상향",
+}
+
+export const riverRiskBasisIncident = {
+  rainfall: { value: "38.4 mm", detail: "6시간 누적 · 지속 강우", trend: "상승" },
+  waterLevel: { value: "1.62 m", detail: "관심 수위 도달 (계획홍수량 24%)", trend: "상승" },
+  radar: { value: "돈내코 상류 강우 지속 감지", detail: "시간당 12mm 지속", confidence: "높음" },
+  saturation: { value: "71%", detail: "포화 임박", grade: "높음" },
+}
+
+export const riverSuddenRainAlertIncident = {
+  forecastMm: 20,
+  observedMm: 34.6,
+  detectedAt: "19:26",
+  level: "caution" as RiskLevel,
+  label: "관심",
+  trendNote: "예보 대비 실측 강우가 뚜렷하게 초과 지속 중",
+  aiNote: "돈내코 상류에서 예보를 벗어난 돌발 강우 패턴이 감지되었습니다. 관심 단계 진입 — 팀장 확인이 필요합니다.",
+  confirmNote: "최종 단계 상향·경보 발령 여부는 반드시 담당자 확인이 필요합니다 (오경보 리스크 고려).",
+}
+
+export const riverWaterLevelAiForecastIncident = {
+  basis: "자동 침수 경보 시스템·하천 모니터링시스템 누적 수위 이력(레거시 DB)",
+  sixHourAgoM: 1.06,
+  currentM: 1.62,
+  trendNote: "6시간간 상승폭 0.56m — 뚜렷한 상승 기울기",
+  status: "조기경보 발령 · 관심 단계",
+  aiNote: "누적 수위 이력의 상승 기울기가 관심 단계(계획홍수량 20% 이상) 기준에 도달했습니다. 최종 판단은 담당자 몫입니다.",
+  confirmNote: "관심 단계 진입 — 담당자 확인이 필요합니다.",
+}
+
+export const riverImpactIncident = {
+  area: "돈내코 상류 산책로 인근 (관심 단계 — 확산 시 재평가)",
+  population: "인근 탐방객 상시 안내 중",
+  facilities: "돈내코 야영장 진입로 예비 통제 검토",
+  evacuationRoutes: "2개 경로 상시 가용",
+}
+
+export const riverControlRowsIncident: RiverControlRow[] = [
+  { id: "r1", river: "효돈천(쇠소깍)", stage: "정상 감시 중", location: "서귀포시 하효동 쇠소깍 일원", gate: "정상 작동", dispatch: "완료", ack: "확인" },
+  { id: "r2", river: "효돈천(돈내코)", stage: "관심 단계 — 예비 통제 준비", location: "서귀포시 상효동 돈내코 계곡", gate: "정상 작동", dispatch: "완료", ack: "확인" },
+]
+
+export const riverPropagationIncident = [
+  { id: "p1", channel: "문자(CBS)", status: "최근 발송 없음" },
+  { id: "p2", channel: "제주 AX 앱 푸시", status: "최근 발송 없음" },
+  { id: "p3", channel: "현장 단말", status: "최근 발송 없음" },
+  { id: "p4", channel: "상황판", status: "관심 단계 표시 중" },
+]
+
+export const riverJointAgenciesIncident = [
+  { id: "j1", agency: "제주도청 재난안전과", status: "상황 파악 중" },
+  { id: "j2", agency: "서귀포시 상황실", status: "상황 파악 중" },
+  { id: "j3", agency: "소방서 (서귀포)", status: "평시 대기" },
+  { id: "j4", agency: "경찰서 (서귀포시)", status: "평시 대기" },
+]
+
+export const riverControlTimelineIncident: TimelineEntry[] = [
+  { id: "ct1", time: "19:26", title: "돈내코 관심 단계 자동 감지 — 팀장 확인 대기" },
+]
+
+/**
  * 종료 보고서(/river/closure) — 지난 사례 예시. 오늘(2026-09-22) 진행 중인 사건이 아니라, 2차년도
  * 실증에서 있었던 범람 대응 사례를 "종료 보고서가 어떤 형태인지" 보여주기 위한 참고용으로 남겨둠.
  */

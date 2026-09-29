@@ -4,6 +4,7 @@ import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaBrief, coastBrief, heatBrief, heavyRainBrief, riverBrief, typhoonBrief, type BriefRole, type BriefTask } from "../domain/leaderBriefs"
 import type { RiskLevel } from "../../types/domain"
+import { useDataMode } from "../../context/DataModeContext"
 
 /**
  * 통합 결재함 — 재난안전과 팀장 시나리오의 "결재 대기 목록(팀장 전용)" 갭.
@@ -25,8 +26,9 @@ const ROLES: BriefRole[] = ["승인", "지시", "결재", "확인"]
 export function ApprovalsPage() {
   const [role, setRole] = useState<BriefRole | "all">("all")
   const [service, setService] = useState<string>("all")
+  const { isEmpty } = useDataMode()
 
-  const groups = SERVICES.map((s) => ({ ...s, b: s.brief() }))
+  const groups = SERVICES.map((s) => ({ ...s, b: s.brief(isEmpty) }))
   const rows = groups
     .flatMap((g) => g.b.tasks.map((t) => ({ ...t, svc: g })))
     // 급한 것부터: 상태 등급 높은 순, 같으면 승인·지시가 앞

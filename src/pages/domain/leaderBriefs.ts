@@ -16,6 +16,10 @@ import * as CO from "../../data/mockCoast"
  * 값은 전부 각 서비스 mock 데이터에서 계산한다 — 서비스 상황을 사용자 시나리오로 바꾸면 이 요약도 같이 바뀐다
  * (예: 결재 항목은 "발령된 경보가 있을 때만" 생긴다). 여기에 수치·문구를 새로 만들어 넣지 말 것.
  * 보드 패널(LeaderBoardBrief)과 상세 대시보드(LeaderDetailBrief)가 이 한 곳을 같이 쓴다.
+ *
+ * isEmpty(DataModeContext) — "데이터 있음/없음" 표시 모드 전환(2026-09-29). 서비스 차례대로 연동 중:
+ * 하천범람(riverBrief)부터 시나리오 진행중 데이터(*Incident)와 평시 데이터를 오가도록 연동했다.
+ * 나머지 5개는 아직 미연동 — 인자는 받되 무시한다(호출부 시그니처 통일용, `_isEmpty`).
  */
 
 export type BriefRole = "승인" | "지시" | "확인" | "결재"
@@ -78,7 +82,7 @@ function dispatchTask(
 }
 
 // ------------------------------------------------------------------ 호우
-export function heavyRainBrief(): LeaderBrief {
+export function heavyRainBrief(_isEmpty?: boolean): LeaderBrief {
   const f = HR.heavyRainAiForecast
   const ad = HR.heavyRainAlertDispatch
   const stations = HR.weatherStations
@@ -136,7 +140,7 @@ export function heavyRainBrief(): LeaderBrief {
 }
 
 // ------------------------------------------------------------------ 태풍
-export function typhoonBrief(): LeaderBrief {
+export function typhoonBrief(_isEmpty?: boolean): LeaderBrief {
   const cur = TY.typhoonReports[0]
   const trk = TY.typhoonForecastTrack
   const d = TY.typhoonAlertDispatch
@@ -186,7 +190,7 @@ export function typhoonBrief(): LeaderBrief {
 // 기상청 폭염특보 기준(HT.heatLevelInfo.criteria): 체감 33℃ 이상 2일 이상 = 주의보, 35℃ 이상 = 경보
 const HEAT_WATCH_C = 33
 const HEAT_WARNING_C = 35
-export function heatBrief(): LeaderBrief {
+export function heatBrief(_isEmpty?: boolean): LeaderBrief {
   const li = HT.heatLevelInfo
   const d = HT.heatAlertDispatch
   const shelters = HT.heatShelters
@@ -239,20 +243,25 @@ export function heatBrief(): LeaderBrief {
 }
 
 // ------------------------------------------------------------------ 하천범람
-export function riverBrief(): LeaderBrief {
-  const st = RV.riverStatuses
+export function riverBrief(isEmpty = false): LeaderBrief {
+  const st = isEmpty ? RV.riverStatuses : RV.riverStatusesIncident
   const worst = [...st].sort((a, b) => RANK.indexOf(b.level) - RANK.indexOf(a.level))[0]
-  const rb = RV.riverRiskBasis
-  const sr = RV.riverSuddenRainAlert
-  const wl = RV.riverWaterLevelAiForecast
-  const dr = RV.riverDispatchRequest
-  const d = RV.riverAlertDispatch
-  const tc = RV.riverTideCorrelation
+  const rb = isEmpty ? RV.riverRiskBasis : RV.riverRiskBasisIncident
+  const sr = isEmpty ? RV.riverSuddenRainAlert : RV.riverSuddenRainAlertIncident
+  const wl = isEmpty ? RV.riverWaterLevelAiForecast : RV.riverWaterLevelAiForecastIncident
+  const dr = RV.riverDispatchRequest // 출동요청은 이 시나리오 시점(19:26)엔 아직 발생 전 — 두 모드 동일
+  const d = RV.riverAlertDispatch // 경보발송도 경계 승인(20:10) 전이라 두 모드 동일
+  const tc = RV.riverTideCorrelation // 실측 조위 참고 데이터 — 시나리오와 무관하게 유지
+  const sopStage = isEmpty ? RV.riverSopStage : RV.riverSopStageIncident
+  const controlRows = isEmpty ? RV.riverControlRows : RV.riverControlRowsIncident
+  const jointAgencies = isEmpty ? RV.riverJointAgencies : RV.riverJointAgenciesIncident
+  const propagation = isEmpty ? RV.riverPropagation : RV.riverPropagationIncident
+  const approvalHistory = isEmpty ? RV.riverApprovalHistory : RV.riverApprovalHistoryIncident
   const calm = worst.level === "safe"
-  const gateBad = RV.riverControlRows.some((r) => r.gate !== "정상 작동")
+  const gateBad = controlRows.some((r) => r.gate !== "정상 작동")
   return {
     title: `${worst.name} ${worst.stage}`,
-    lines: [...st.map((s) => `${s.name} — 범람 도달 ${s.eta} · 갱신 ${s.updatedAt}`), `${RV.riverSopStage.current} — ${RV.riverSopStage.next}`],
+    lines: [...st.map((s) => `${s.name} — 범람 도달 ${s.eta} · 갱신 ${s.updatedAt}`), `${sopStage.current} — ${sopStage.next}`],
     level: worst.level,
     badge: worst.stage,
     kpis: [
@@ -264,7 +273,7 @@ export function riverBrief(): LeaderBrief {
     tasks: [
       ...(calm
         ? []
-        : [{ role: "승인" as const, title: `${worst.name} 단계 상향·경보 발령`, detail: RV.riverSopStage.next, status: worst.stage, level: worst.level, to: "/river/alert" }]),
+        : [{ role: "승인" as const, title: `${worst.name} 단계 상향·경보 발령`, detail: sopStage.next, status: worst.stage, level: worst.level, to: "/river/alert" }]),
       ...(sr.level !== "safe"
         ? [{ role: "확인" as const, title: "돌발 강우 감지 — 단계 상향 판단", detail: sr.confirmNote, status: sr.label, level: sr.level, to: "/river/analysis" }]
         : []),
@@ -276,7 +285,7 @@ export function riverBrief(): LeaderBrief {
         ? [{ role: "승인" as const, title: `출동 요청 — ${dr.target}`, detail: `도달 예상 ${dr.eta} · ${dr.impact}`, status: dr.stage.replace("⚠ ", ""), level: dr.level, to: "/river/dispatch" }]
         : []),
     ],
-    idle: `결재·지시 대기 없음 — ${RV.riverSopStage.next}`,
+    idle: `결재·지시 대기 없음 — ${sopStage.next}`,
     evidence: [
       { k: "수위", v: `6시간 전 ${wl.sixHourAgoM}m → 현재 ${wl.currentM}m · ${wl.status}` },
       { k: "돌발 강우", v: `예보 ${sr.forecastMm}mm → 실측 ${sr.observedMm}mm · ${sr.label}` },
@@ -286,15 +295,15 @@ export function riverBrief(): LeaderBrief {
     outlook: [wl.trendNote, `조위 참고 — 다음 만조 ${tc.nextHighTide} (${tc.location})`, sr.trendNote],
     response: [
       contactRow("river"),
-      { k: "공동 대응 기관", v: RV.riverJointAgencies.map((j) => `${j.agency.replace(/ \(.*\)/, "")} ${j.status}`).join(" · ") },
-      { k: "전파 현황", v: RV.riverPropagation.map((p) => `${p.channel} ${p.status}`).join(" · ") },
-      { k: "최근 승인 이력", v: RV.riverApprovalHistory[RV.riverApprovalHistory.length - 1]?.title ?? "-" },
+      { k: "공동 대응 기관", v: jointAgencies.map((j) => `${j.agency.replace(/ \(.*\)/, "")} ${j.status}`).join(" · ") },
+      { k: "전파 현황", v: propagation.map((p) => `${p.channel} ${p.status}`).join(" · ") },
+      { k: "최근 승인 이력", v: approvalHistory[approvalHistory.length - 1]?.title ?? "-" },
     ],
   }
 }
 
 // ------------------------------------------------------------------ 저염분 고수온
-export function aquaBrief(): LeaderBrief {
+export function aquaBrief(_isEmpty?: boolean): LeaderBrief {
   const s = AQ.aquaSummary
   const rs = AQ.aquaRiskState
   const rsp = AQ.aquaResponseState
@@ -361,7 +370,7 @@ export function aquaBrief(): LeaderBrief {
 }
 
 // ------------------------------------------------------------------ 연안 안전관리
-export function coastBrief(): LeaderBrief {
+export function coastBrief(_isEmpty?: boolean): LeaderBrief {
   const s = CO.coastSummary
   const events = CO.coastEvents
   const pending = events.filter((e) => e.status === "미확인")
