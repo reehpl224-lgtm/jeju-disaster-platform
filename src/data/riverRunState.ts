@@ -1,6 +1,7 @@
 import type { RiverRunState, RiverTimelinePoint, RiverResourceRequest } from "../types/riverRun"
 import { classifyRiverRisk, riverLevelRank, RIVER_LEVELS } from "./riverAlertThresholds"
 import { riverResources } from "./mockRiverResources"
+import { scopedKey } from "./appEnv"
 import * as DB from "./mockDashboard"
 import * as RV from "./mockRiver"
 
@@ -13,8 +14,8 @@ import * as RV from "./mockRiver"
  * 실행 1개"만 보관한다(과거 실행들의 별도 아카이브는 1차년도 범위가 아니다 — 과설계 금지 원칙).
  */
 
-const STORAGE_KEY = "jeju-ax-river-run"
-const CHANNEL_NAME = "jeju-ax-river-run"
+const STORAGE_KEY = scopedKey("jeju-ax-river-run")
+const CHANNEL_NAME = scopedKey("jeju-ax-river-run")
 const HOLD_DOWN_MIN = 30 // §2-3-2: 연안과 동일 30분, 한 단계씩
 const ARRIVAL_DELAY_MIN = 15 // 가상 자원 모의 출동→도착 지연(고정값, 재현 가능해야 함)
 
@@ -82,13 +83,20 @@ function persist(next: RiverRunState) {
 
 let state: RiverRunState = load() ?? emptyState()
 const listeners = new Set<() => void>()
+const emptyAlertDispatch = structuredClone(RV.riverAlertDispatch)
+const emptyDispatchRequest = structuredClone(RV.riverDispatchRequest)
+const emptyClosure = structuredClone(RV.riverClosure)
 
 let channel: BroadcastChannel | null = null
 // window가 없는 환경(Node 테스트 등)에서는 만들지 않는다 — BroadcastChannel은 핸들을 열어두므로
 // 테스트 프로세스가 종료되지 않는 원인이 된다(실제 브라우저에서는 항상 window가 있다).
 try {
   if (typeof window !== "undefined") channel = new BroadcastChannel(CHANNEL_NAME)
-  if (channel) channel.onmessage = () => {
+  if (channel) channel.onmessage = (event: MessageEvent<{ reset?: boolean }>) => {
+    if (event.data?.reset) {
+      window.location.reload() // 열린 보드·상세창도 저장값 삭제 후 평시 데이터로 다시 로드
+      return
+    }
     const next = load()
     if (next && next.version !== state.version) {
       state = next
@@ -149,6 +157,9 @@ export function loadTimeline(points: RiverTimelinePoint[]) {
     const fresh = emptyState()
     fresh.timeline = sorted
     fresh.createdAtSim = sorted[0]?.observedAt ?? "-"
+    // Object.assign만 하면 이전 실행의 선택 필드(endedAtSim·승인 스냅샷 등)가 남아
+    // 강제 종료 후 새 파일을 올려도 새 실행이 이미 종료된 것으로 판정된다.
+    for (const key of Object.keys(d)) delete (d as unknown as Record<string, unknown>)[key]
     Object.assign(d, fresh)
   })
 }
@@ -330,6 +341,22 @@ export function forceCloseRun() {
   })
 }
 
+/** 시나리오 초기화 — 저장값을 지우고 열린 화면을 평시 데이터로 다시 로드한다. */
+export function resetRun(): boolean {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    return false
+  }
+  try {
+    channel?.postMessage({ reset: true })
+  } catch {
+    /* BroadcastChannel 미지원 환경에서는 현재 창만 다시 로드 */
+  }
+  window.location.reload()
+  return true
+}
+
 // ------------------------------------------------------------------ mock*.ts 화면 투영(projectToMock)
 // 기존 화면(leaderBriefs·consistency·각 river 페이지)이 읽는 RV.* export에 실행 상태를 반영한다.
 // 이 함수가 유일하게 RV.* 값을 바꾼다 — 화면 코드는 실행 상태를 몰라도 된다(scenarios.ts와 같은 설계 원칙).
@@ -385,6 +412,8 @@ function projectToMock() {
       approver: "담당자 승인",
       message: `${STAGE_LABEL[lv]} 단계 경보가 승인·발령되었습니다.`,
     })
+  } else {
+    resetAndAssign(RV.riverAlertDispatch, emptyAlertDispatch)
   }
 
   if (state.dispatchSnapshot) {
@@ -399,6 +428,8 @@ function projectToMock() {
       requestedAt: state.dispatchSnapshot.atSim,
       requester: "담당자 승인",
     })
+  } else {
+    resetAndAssign(RV.riverDispatchRequest, emptyDispatchRequest)
   }
 
   RV.riverControlRows.splice(
@@ -446,6 +477,8 @@ function projectToMock() {
         `담당자 종료 확인: ${forced ? "예외 강제 종료로 대체됨" : "확인됨"}`,
       ],
     })
+  } else {
+    resetAndAssign(RV.riverClosure, emptyClosure)
   }
 }
 

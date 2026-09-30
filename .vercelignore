@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-local
+dist-staging
+.git
+.claude
+Improve Jeju Disaster Platform UI_UX
+run-local.bat
+README.md
+.env
+.env.local
+.env.staging
+tests
+docs

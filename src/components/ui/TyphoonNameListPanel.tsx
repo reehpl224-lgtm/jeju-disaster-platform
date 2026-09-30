@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import { fetchTyphoonNameList, formatKst, isActiveNow } from "../../data/typhoonApi"
 import type { TyphoonNameEntry } from "../../types/typhoonApi"
 
@@ -37,6 +38,10 @@ export function TyphoonNameListPanel() {
   }
 
   if (!entries) return null
+
+  if (entries.length === 0) {
+    return <p className="py-4 text-center text-xs text-white/40">{IS_SIMULATION_MODE ? "스테이징 모의값 — 진행 중/연내 태풍 없음으로 대체 표시" : "올해 발표된 태풍 이름이 없습니다."}</p>
+  }
 
   const recent = entries.slice(-5).reverse()
 

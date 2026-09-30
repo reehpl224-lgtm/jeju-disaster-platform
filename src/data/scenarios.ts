@@ -18,6 +18,8 @@
  *     (mockDashboard)와 각 서비스의 xxxFlowProgress. 어긋나는지는 consistency.ts가 검사한다(개발 서버 콘솔).
  */
 
+import { scopedKey } from "./appEnv"
+
 export interface ScenarioInfo {
   id: string
   label: string
@@ -35,7 +37,7 @@ export const SCENARIOS: ScenarioInfo[] = [
   },
 ]
 
-const STORAGE_KEY = "jeju-ax-scenario"
+const STORAGE_KEY = scopedKey("jeju-ax-scenario")
 
 export function getScenarioId(): string {
   try {

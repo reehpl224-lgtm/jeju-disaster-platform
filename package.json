@@ -8,8 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "build:local": "tsc -b && vite build --mode localhost --outDir dist-local",
+    "build:staging": "tsc -b && vite build --mode staging --outDir dist-staging",
     "preview": "vite preview",
-    "preview:local": "vite preview --outDir dist-local"
+    "preview:local": "vite preview --outDir dist-local",
+    "preview:staging": "vite preview --outDir dist-staging"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

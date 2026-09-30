@@ -12,6 +12,7 @@
  * 있던 걸 발견해 windSpeedMs/windDirDeg로 추가 노출함 — 새 API 신청이나 지점 조회 없이
  * 기존에 받아오던 값만 더 꺼내 쓴 것.
  */
+import { IS_SIMULATION_MODE } from "./appEnv"
 import type { RainfallStation } from "../types/rainfallApi"
 
 const PROXY_URL = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
@@ -20,6 +21,21 @@ const RIVER_REFERENCE_STATIONS: { stnId: string; label: string }[] = [
   { stnId: "189", label: "서귀포 (효돈천 하류 인근 참고)" },
   { stnId: "780", label: "제주남원 (효돈천 동측 인근 참고)" },
 ]
+
+/** 스테이징 모의 우량 관측 — 실제 AWS 응답이 아니다. */
+const MOCK_STATIONS: RainfallStation[] = RIVER_REFERENCE_STATIONS.map(({ stnId, label }) => ({
+  stnId,
+  label,
+  tm: "",
+  tempC: null,
+  rain15mMm: null,
+  rain60mMm: null,
+  rain12hMm: null,
+  rainDayMm: null,
+  humidityPercent: null,
+  windSpeedMs: null,
+  windDirDeg: null,
+}))
 
 function toNum(v: string | undefined): number | null {
   if (v === undefined || v === "") return null
@@ -30,6 +46,7 @@ function toNum(v: string | undefined): number | null {
 }
 
 export async function fetchRiverReferenceRainfall(): Promise<RainfallStation[]> {
+  if (IS_SIMULATION_MODE) return MOCK_STATIONS
   if (!PROXY_URL) {
     throw new Error("VITE_WEATHER_PROXY_URL이 설정되지 않았습니다 — .env에 kma-weather-proxy 배포 주소를 넣어주세요.")
   }

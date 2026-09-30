@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import { fetchJejuWarnings } from "../../data/warningsApi"
 import type { WarningEntry } from "../../types/warningsApi"
 import { RiskBadge } from "./RiskBadge"
@@ -62,7 +63,9 @@ export function WarningsPanel({ wrnCodes }: { wrnCodes?: string[] }) {
         ))}
       </ul>
       <p className="text-[10px] text-white/25">
-        기상청 API허브(apihub.kma.go.kr) 실연동 — 최근 24시간 내 발표 이력(해제 여부는 별도 확인 안 됨).
+        {IS_SIMULATION_MODE
+          ? "스테이징 모의 특보 — 기관이 실제 발표한 것이 아닙니다."
+          : "기상청 API허브(apihub.kma.go.kr) 실연동 — 최근 24시간 내 발표 이력(해제 여부는 별도 확인 안 됨)."}
       </p>
     </div>
   )

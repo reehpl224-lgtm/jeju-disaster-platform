@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import { fetchMarineStations } from "../../data/marineApi"
 import type { MarineStation } from "../../types/marineApi"
 
@@ -60,10 +61,16 @@ export function MarineObservationPanel({ stationNames }: { stationNames?: string
         ))}
       </div>
       <p className="text-[10px] text-white/25">
-        기상청 API허브(apihub.kma.go.kr) 실연동 — 해양기상부이·파고부이(sea_obs.php).{" "}
-        {stationNames
-          ? '"협재"만 연안 1차년도 실증 대상지와 정확히 일치하고, 나머지는 함덕 인근 참고 지점(관측망 없음)입니다.'
-          : '"협재"만 연안 3대 실증 대상지와 정확히 일치하고, 나머지는 인근 참고 지점입니다.'}
+        {IS_SIMULATION_MODE ? (
+          "스테이징 모의 관측 — 실제 해양기상부이 응답이 아닙니다."
+        ) : (
+          <>
+            기상청 API허브(apihub.kma.go.kr) 실연동 — 해양기상부이·파고부이(sea_obs.php).{" "}
+            {stationNames
+              ? '"협재"만 연안 1차년도 실증 대상지와 정확히 일치하고, 나머지는 함덕 인근 참고 지점(관측망 없음)입니다.'
+              : '"협재"만 연안 3대 실증 대상지와 정확히 일치하고, 나머지는 인근 참고 지점입니다.'}
+          </>
+        )}
       </p>
     </div>
   )

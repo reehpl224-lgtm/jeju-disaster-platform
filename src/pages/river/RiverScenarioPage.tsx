@@ -10,6 +10,7 @@ import {
   confirmClosure,
   forceCloseRun,
   loadTimeline,
+  resetRun,
   returnResourceRequest,
   requestResource,
   togglePlaying,
@@ -46,6 +47,11 @@ export function RiverScenarioPage() {
     }
   }
 
+  function onReset() {
+    if (!window.confirm("현재 시나리오와 실행 이력을 초기화할까요? 다시 진행하려면 엑셀을 업로드해야 합니다.")) return
+    if (!resetRun()) setError("시나리오 저장값을 삭제하지 못했습니다. 브라우저 저장소 설정을 확인해 주세요.")
+  }
+
   function onConfirmClosure() {
     const r = confirmClosure()
     setClosureError(r.ok ? "" : (r.reason ?? ""))
@@ -60,6 +66,7 @@ export function RiverScenarioPage() {
       <div>
         <h1 className="text-xl font-bold text-white">하천 시나리오 실행</h1>
         <p className="mt-1 text-sm text-white/50">시간별 계획홍수량비율(%) 엑셀을 올려 위험등급 변화·승인·가상 자원 배치를 시험합니다(효돈천 파일럿).</p>
+        <p className="mt-1 text-xs text-white/35">이 실행은 현재 브라우저에만 저장됩니다 — 다른 PC·다른 브라우저·시크릿 창과 공유되지 않습니다.</p>
       </div>
 
       <Card title="① 시계열 엑셀 업로드" subtitle="/dummy-data의 수집상태 엑셀과는 다른 별도 파일입니다" dummy>
@@ -75,6 +82,11 @@ export function RiverScenarioPage() {
           <button className="rounded bg-accent px-4 py-2 text-sm font-bold text-black" onClick={() => ref.current?.click()}>
             {busy ? "검증 중..." : "작성한 엑셀 업로드"}
           </button>
+          {started && (
+            <button className="rounded border border-white/20 px-4 py-2 text-sm" onClick={onReset}>
+              시나리오 초기화
+            </button>
+          )}
         </div>
         {error && (
           <p role="alert" className="mt-3 text-sm text-red-200">

@@ -12,6 +12,13 @@ export function SourceTag({ source }: { source: DataSource }) {
       </span>
     )
   }
+  if (source.kind === "simulated") {
+    return (
+      <span className="src-tag src-tag--snapshot" title="스테이징에서 실제 API 호출 대신 쓰는 모의값입니다 — 기관이 실제 발표한 값이 아닙니다">
+        모의(스테이징)
+      </span>
+    )
+  }
   return (
     <span
       className="src-tag src-tag--snapshot"

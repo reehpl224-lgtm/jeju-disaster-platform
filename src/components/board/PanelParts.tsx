@@ -1,6 +1,7 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { scopedKey } from "../../data/appEnv"
 import type { RiskLevel } from "../../types/domain"
 import { Risk } from "./BoardParts"
 import { SourceTag } from "../ui/SourceTag"
@@ -145,7 +146,7 @@ export function Note({ children, tone }: { children: ReactNode; tone?: "warning"
 }
 
 /** 상세 화면 전용 창 이름 — 보드의 모든 "상세 화면 →"이 이 창 하나를 재사용한다(여러 창이 쌓이지 않게) */
-export const DETAIL_WINDOW = "jeju-ax-detail"
+export const DETAIL_WINDOW = scopedKey("jeju-ax-detail")
 
 /**
  * 앱 하위 화면(기존 상세 페이지)으로 가는 링크 — 승인·발송 등 동작은 그 화면에서 한다.
@@ -168,6 +169,7 @@ export function MiniChart({
   names,
   xkey,
   refLine,
+  showDots = false,
 }: {
   data: object[]
   keys: string[]
@@ -175,6 +177,7 @@ export function MiniChart({
   names: string[]
   xkey: string
   refLine?: { y: number; label: string }
+  showDots?: boolean
 }) {
   return (
     <div style={{ height: 170, marginTop: 4 }}>
@@ -194,7 +197,7 @@ export function MiniChart({
             />
           )}
           {keys.map((key, i) => (
-            <Line key={key} type="monotone" dataKey={key} name={names[i]} stroke={colors[i]} strokeWidth={2} dot={false} />
+            <Line key={key} type="monotone" dataKey={key} name={names[i]} stroke={colors[i]} strokeWidth={2} dot={showDots ? { r: 3 } : false} />
           ))}
         </LineChart>
       </ResponsiveContainer>

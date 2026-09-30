@@ -8,6 +8,34 @@
 특히 "확정된 사실(Ground Truth)"과 "위험등급 체계"는 화면 하나만 보고 추측하면 반드시 틀리는
 부분이므로 꼭 확인해야 합니다.
 
+### 2026-09-30 스테이징 시나리오 검토 인계
+
+사용자는 **기존 사이트와 별도인 스테이징에서 시나리오를 실행하고 대시보드로 재난대응을 검토**하는 방향에 동의했습니다.
+스테이징의 실시간 운영 데이터는 동네예보만 유지하고, 나머지는 고정 모의 기본 목록·사용자 입력 시계열·모의 규칙·사용자 대응 조작으로 함께 갱신하는 방향입니다.
+Claude 검토용 상세 문서: [스테이징 시나리오 재검토 및 인계](docs/staging-scenario-review-2026-09-30.md).
+기존 하천 Q% 파일럿·별도 수집 엑셀·확정 위험기준은 유지합니다. 후속 검토에서 §11을 결정안으로 구체화했습니다: 별도 Vercel 프런트엔드 프로젝트(`staging` 브랜치 push 자동 배포, 실제 URL은 프로젝트 생성 때 확정), 1단계는 한 브라우저 독립 시연, 돈내코·쇠소깍별 고정 모의 시설 3개와 등급별 영향/권고 규칙, 수위·강우 모의 시계열은 1단계 제외(Q% 중심)입니다.
+현재 대시보드 구독은 이미 보완됐지만 자동 재생은 상태 플래그만 있으며, 주변 모의 영향/확인 자료 연결과 배포 환경 분리가 필요하다는 코드 확인 결과를 문서에 남겼습니다.
+같은 계정의 Pages 저장소를 추가해도 origin이 같을 수 있으므로 저장 키·BroadcastChannel 분리가 필요합니다.
+이번 작업은 문서 작성만 했으며 기능 구현·커밋·푸시·배포는 하지 않았습니다. 관련 후속 작업 전에 위 문서를 읽어 주세요.
+
+**같은 날 §9 1~2단계 구현 착수(사용자 승인 — "환경 분리 + 실호출 차단" 범위로 확인)**: 호스팅·배포(§11 미정 사항)는 건드리지 않고, 코드 쪽 환경/실호출 분리만 구현했습니다.
+- `src/data/appEnv.ts`(신규) — `IS_SIMULATION_MODE`(`VITE_DATA_MODE=simulation`일 때 참, `vite --mode staging`), `scopedKey(key)`(스테이징이면 `staging-` 접두어).
+- 저장 키·채널·상세 창 이름 분리: `riverRunState.ts`(`STORAGE_KEY`/`CHANNEL_NAME`), `dummyWorkbook.ts`, `scenarios.ts`, `mockAuth.ts`의 `STORAGE_KEY`, `PanelParts.tsx`의 `DETAIL_WINDOW` 모두 `scopedKey()`로 감쌌습니다.
+- 실호출 차단: `warningsApi.ts`/`rainfallApi.ts`/`marineApi.ts`/`typhoonApi.ts`가 스테이징이면 프록시를 호출하지 않고 모의값(특보·강우는 소량 모의 데이터, 태풍은 "진행 중 없음"과 동일한 빈 배열)을 반환합니다. 동네예보(`weatherApi.ts`)는 그대로 실호출 유지(§5 원칙).
+- 출처 표시 정합: `dataSource.ts`에 `SIMULATED` 소스 종류 추가, `SourceTag.tsx`가 "모의(스테이징)"로 표시. `domainParts.tsx`의 `LiveBlock`에 `simulated` prop을 추가하고 `domainConfigs.tsx`의 특보·해양·태풍·우량 블록에서만 `IS_SIMULATION_MODE`를 넘겨 동네예보 블록(`LIVE_FORECAST`)은 그대로 "실시간"으로 남깁니다. 각 패널의 하단 고지 문구도 스테이징에서 "실제 기관 발표가 아님"으로 바뀝니다.
+- 진단·표시: `main.tsx`의 일치 검사(`consistency.ts`)를 `DEV`뿐 아니라 `IS_SIMULATION_MODE`에서도 등록. `Header.tsx`에 "스테이징 · 모의 재난대응" 배지 상시 표시.
+- 빌드: `package.json`에 `build:staging`/`preview:staging`(`vite --mode staging`, `dist-staging`) 추가, `.env.staging.example`(커밋 대상, `.gitignore`에 예외 추가) 신규 — 로컬에서 `.env.staging`으로 복사해 씀.
+- 검증: `npm run build`·`build:staging`·`lint`(src 0 경고)·`node --test tests/*.test.mjs`(9개 통과) 모두 통과. `vite --mode staging`으로 직접 띄워 로그인 세션이 스테이징 저장 키 분리로 다시 요구되는 것, "모의(스테이징)" 표식과 모의 특보 노출, 동네예보만 실측 유지, 헤더 배지, 콘솔의 `[일치 검사] 어긋남 없음`을 모두 브라우저로 확인했습니다.
+- 하지 않은 것(§9 3~6단계, §11 미정): 하천 모의 기본 세트(시설·구역·영향 규칙), 화면 동기화 확장, 자동 재생 타이머, 다른 서비스 확대. 아직 커밋·푸시는 하지 않았습니다 — 별도 요청 시 진행.
+
+**같은 날 §11 검토 + Vercel 실배포(사용자 요청 2건 순차 승인)**: 먼저 §11 권장 결정안을 미커밋 코드와 대조 검토했다(코드는 안 건드림, 상세는 `docs/staging-scenario-review-2026-09-30.md`의 "Claude 검토" 절). 발견한 충돌 1건(`vite.config.ts`의 base가 `--mode staging`에서도 `/jeju-disaster-platform/`을 써서 Vercel 루트 배포 시 빈 화면이 뜨는 버그, `vite preview`로 직접 재현)과 누락 2건(§11-1의 `VITE_APP_ENV` 미구현, §11-2의 "이 실행은 현재 브라우저에만 저장됩니다" 문구 미구현) 중, 사용자는 base path 수정과 문구 추가만 진행하도록 결정했고 `VITE_APP_ENV`는 보류했다(현재 아무 코드도 안 읽는 변수라 추가해도 동작에 영향 없음 — 실제로 스테이징 표시와 모의 데이터 여부가 갈리는 요구가 생기면 추가).
+- `vite.config.ts` — base 조건에 `mode !== 'staging'` 추가(한 줄).
+- `RiverScenarioPage.tsx` — 헤더 아래 "이 실행은 현재 브라우저에만 저장됩니다 — 다른 PC·다른 브라우저·시크릿 창과 공유되지 않습니다." 문구 추가.
+- 이어서 사용자가 "Vercel에 실제로 배포해줘"를 요청해 실제 배포까지 진행했다. Vercel CLI가 이미 이 계정(`reehpl224@gmail.com`)으로 로그인돼 있어 새 계정을 만들지 않고 새 프로젝트만 만들었다: `vercel.json`(신규, `buildCommand: npm run build:staging`, `outputDirectory: dist-staging`, SPA `rewrites`)·`.vercelignore`(신규, `.claude`·`Improve Jeju Disaster Platform UI_UX`·`run-local.bat`·`README.md`·`.env*`·`tests`·`docs` 등 제외)를 만들고 `vercel link`로 **`rhkim/jeju-disaster-platform-staging`** 프로젝트를 생성한 뒤, 빌드 타임 환경변수(`VITE_DATA_MODE=simulation`, `VITE_WEATHER_PROXY_URL`은 기존 `.env`의 공개 프록시 URL 재사용)를 넘겨 `vercel deploy --prod`로 배포했다. 결과 주소는 **https://jeju-disaster-platform-staging.vercel.app** — §11-1이 제안한 이름과 정확히 일치한다. 로그인 → 대시보드 → `/river/scenario`까지 실제 배포 사이트에서 브라우저로 열어 스테이징 배지·문구·콘솔 무오류를 확인했다.
+- GitHub Git 연동(`staging` 브랜치 push 자동 배포)은 시도했지만 이 Vercel 계정에 GitHub 로그인 연결이 없어 실패했고(`vercel git connect`로 나중에 별도 진행 가능), 이번 요청 범위가 아니라 추가로 붙이지 않았다 — 지금 배포는 CLI 수동 배포이며 자동 재배포 트리거는 없다.
+- **부작용**: `vercel link`가 `.gitignore` 끝에 CRLF로 `.vercel`·`.env*`를 추가했는데, 뒤에 덧붙은 `.env*`가 기존 `!.env.example`/`!.env.staging.example` 예외보다 순서가 늦어 두 예제 파일을 다시 무시 대상으로 만드는 실제 버그였다 — 발견 즉시 `.env*` 줄만 제거하고 `.vercel`은 유지해 고쳤다(`git check-ignore`로 `.env.staging.example`이 다시 안 걸리는 것 확인).
+- 커밋은 하지 않았다 — `vercel.json`·`.vercelignore`·수정된 `.gitignore`·`vite.config.ts`·`RiverScenarioPage.tsx` 모두 미커밋 상태. `.vercel/`(로컬 프로젝트 연결 정보)은 gitignore돼 있어 커밋 대상 아님.
+
 ### 2026-09-30 더미데이터 요구사항 검토 인계
 
 사용자가 **직접 입력한 서비스별 시간별 수치로 위험등급 변화를 확인하고, 가상 인력·장비로 대응 절차를 시험**하려는 목적을 설명했습니다.

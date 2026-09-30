@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Risk } from "../../components/board/BoardParts"
-import { LIVE } from "../../components/ui/dataSource"
+import { LIVE, SIMULATED } from "../../components/ui/dataSource"
 import { SourceTag } from "../../components/ui/SourceTag"
 import { Box, Checks, Group, Kv, Note, Rows, St } from "../../components/board/PanelParts"
 import { cctvCameras } from "../../data/mockCctv"
@@ -260,12 +260,23 @@ export function Events({ items }: { items: { icon: string; time: string; lines: 
 export function Live({ children }: { children: ReactNode }) {
   return <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>{children}</div>
 }
-export function LiveBlock({ title, note, children }: { title: string; note: string; children: ReactNode }) {
+export function LiveBlock({
+  title,
+  note,
+  simulated,
+  children,
+}: {
+  title: string
+  note: string
+  /** 스테이징에서 이 패널이 실호출 대신 모의값을 쓰는지 — true면 "실시간" 대신 "모의(스테이징)" 표식 */
+  simulated?: boolean
+  children: ReactNode
+}) {
   return (
     <div>
       <p className="pnote">
         {title}
-        <SourceTag source={LIVE} />
+        <SourceTag source={simulated ? SIMULATED : LIVE} />
       </p>
       <p className="s" style={{ fontSize: 11, color: "var(--foreground-subtle)", marginBottom: 6 }}>
         {note}

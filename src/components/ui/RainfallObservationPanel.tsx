@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import { fetchRiverReferenceRainfall } from "../../data/rainfallApi"
 import type { RainfallStation } from "../../types/rainfallApi"
 
@@ -64,8 +65,9 @@ export function RainfallObservationPanel() {
         ))}
       </div>
       <p className="text-[10px] text-white/25">
-        기상청 API허브(apihub.kma.go.kr) 실연동(방재기상관측 AWS 매분자료) — 효돈천(돈내코·쇠소깍)과
-        정확히 같은 지점은 없어 가장 가까운 저지대 지점을 참고용으로 표시합니다.
+        {IS_SIMULATION_MODE
+          ? "스테이징 모의 관측 — 실제 AWS 매분자료가 아닙니다."
+          : "기상청 API허브(apihub.kma.go.kr) 실연동(방재기상관측 AWS 매분자료) — 효돈천(돈내코·쇠소깍)과 정확히 같은 지점은 없어 가장 가까운 저지대 지점을 참고용으로 표시합니다."}
       </p>
     </div>
   )

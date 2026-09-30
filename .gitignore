@@ -16,6 +16,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+!.env.staging.example
 
 # Subagent-driven-development scratch workspace (per-plan ledgers, briefs, review packages)
 .superpowers/
@@ -31,7 +32,10 @@ dist-ssr
 *.sln
 *.sw?
 dist-local
+dist-staging
 
 # 엑셀 편집 중 생성되는 임시 잠금 파일과 로컬 검사 산출물
 public/~$*.xlsx
 public/*.xlsx.inspect.ndjson
+
+.vercel

@@ -30,6 +30,9 @@ export function RiverDataPage() {
       />
 
       <Card title="실측 센서 수집 현황" subtitle="효돈천 수위 센서 — 레이더 수위와 교차검증" dummy>
+        {riverSensorCheck.length === 0 && (
+          <p className="rounded-lg border border-border-subtle bg-inset p-3 text-sm text-white/50">수위 센서 수집 자료가 없습니다. 수집상태 엑셀에서 항목을 입력하면 이 목록에 표시됩니다.</p>
+        )}
         <ul className="flex flex-col divide-y divide-border-subtle">
           {riverSensorCheck.map((sensor) => (
             <li key={sensor.id} className="flex items-center justify-between gap-3 py-3 text-sm">
