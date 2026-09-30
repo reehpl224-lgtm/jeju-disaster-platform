@@ -54,8 +54,8 @@ export interface RiverRunState {
   /** 현재 재생 위치(타임라인 인덱스, -1 = 아직 시작 안 함) */
   playheadIndex: number
   playing: boolean
-  /** 지점별 현재 판정과 그 판정이 시작된 시나리오 시각(하향 유지시간 계산용) */
-  pointState: Record<"돈내코" | "쇠소깍", { level: RiskLevel; sinceSim: string } | undefined>
+  /** 지점별 현재 판정·그 판정이 시작된 시나리오 시각(하향 유지시간 계산용)·최신 입력값(Q%, 표시용) */
+  pointState: Record<"돈내코" | "쇠소깍", { level: RiskLevel; sinceSim: string; flowRatioPercent: number } | undefined>
   /** 하향 대기 중인 후보 등급(한 단계씩, 유지시간 미충족) — 충족하면 pointState로 옮기고 비운다 */
   pendingDown: Record<"돈내코" | "쇠소깍", { level: RiskLevel; sinceSim: string } | undefined>
   flow: Partial<Record<FlowStep, string>>

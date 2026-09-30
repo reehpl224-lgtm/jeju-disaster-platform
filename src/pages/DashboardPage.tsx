@@ -9,6 +9,7 @@ import { JejuTileMap } from "../components/ui/JejuTileMap"
 import { JejuVectorMap } from "../components/ui/JejuVectorMap"
 import { VilageForecastPanel } from "../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../components/ui/WarningsPanel"
+import { useRiverRun } from "../data/riverRunHooks"
 import {
   HorizontalTabsDock,
   MessengerFab,
@@ -68,6 +69,7 @@ const REGIONS = ["제주시", "서귀포시"] as const
 type TabKey = "summary" | "gis" | "cctv"
 
 export function DashboardPage() {
+  useRiverRun() // 하천 시나리오가 다른 창/탭에서 바뀌어도 이 화면이 다시 그려지게 구독만 한다
   const [params, setParams] = useSearchParams()
   const raw = params.get("tab")
   const tab: TabKey = raw === "gis" || raw === "cctv" ? raw : "summary"

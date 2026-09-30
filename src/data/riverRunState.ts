@@ -168,10 +168,10 @@ export function advance() {
     const candidate = classifyRiverRisk(point.flowRatioPercent)
     const cur = d.pointState[point.location]
     if (!cur) {
-      d.pointState[point.location] = { level: candidate, sinceSim: simNow }
+      d.pointState[point.location] = { level: candidate, sinceSim: simNow, flowRatioPercent: point.flowRatioPercent }
     } else if (riverLevelRank(candidate) > riverLevelRank(cur.level)) {
       // 상향은 즉시(안전을 늦추지 않음)
-      d.pointState[point.location] = { level: candidate, sinceSim: simNow }
+      d.pointState[point.location] = { level: candidate, sinceSim: simNow, flowRatioPercent: point.flowRatioPercent }
     } else if (riverLevelRank(candidate) < riverLevelRank(cur.level)) {
       // 하향은 한 단계씩, 그 단계에 HOLD_DOWN_MIN분 이상 머문 뒤에만(연안과 동일 규칙, §2-3-2)
       const oneStepDown = RIVER_LEVELS[riverLevelRank(cur.level) - 1]
@@ -180,13 +180,14 @@ export function advance() {
         if (!pending || pending.level !== oneStepDown) {
           d.pendingDown[point.location] = { level: oneStepDown, sinceSim: simNow }
         } else if (diffMinutes(simNow, pending.sinceSim) >= HOLD_DOWN_MIN) {
-          d.pointState[point.location] = { level: oneStepDown, sinceSim: pending.sinceSim }
+          d.pointState[point.location] = { level: oneStepDown, sinceSim: pending.sinceSim, flowRatioPercent: point.flowRatioPercent }
           d.pendingDown[point.location] = undefined
         }
       }
     } else {
       d.pendingDown[point.location] = undefined
     }
+    d.pointState[point.location]!.flowRatioPercent = point.flowRatioPercent // 표시용 최신 입력값은 등급과 무관하게 항상 갱신
 
     // 모의 출동 중인 자원의 도착 처리(예약된 사건을 시각 순서대로 적용)
     for (const req of d.resourceRequests) {

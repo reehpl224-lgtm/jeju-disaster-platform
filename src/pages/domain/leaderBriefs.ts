@@ -6,6 +6,7 @@ import * as HR from "../../data/mockHeavyRain"
 import * as TY from "../../data/mockTyphoon"
 import * as HT from "../../data/mockHeat"
 import * as RV from "../../data/mockRiver"
+import { getRunState } from "../../data/riverRunState"
 import * as AQ from "../../data/mockAqua"
 import * as CO from "../../data/mockCoast"
 import { FLOW_STEPS, type FlowProgress } from "../../types/flow"
@@ -344,6 +345,15 @@ export function riverBrief(): LeaderBrief {
     ],
     idle: `결재·지시 대기 없음 — ${RV.riverSopStage.next}`,
     evidence: [
+      {
+        k: "계획홍수량 대비 비율(Q%)",
+        v: (["돈내코", "쇠소깍"] as const)
+          .map((loc) => {
+            const p = getRunState().pointState[loc]
+            return `${loc} ${p ? `${p.flowRatioPercent}%` : "관측값 없음"}`
+          })
+          .join(" · "),
+      },
       { k: "수위", v: wl.currentM === null ? "관측값 없음" : `6시간 전 ${wl.sixHourAgoM ?? "-"}m → 현재 ${wl.currentM}m · ${wl.status}` },
       { k: "돌발 강우", v: `예보 ${sr.forecastMm}mm → 실측 ${sr.observedMm}mm · ${sr.label}` },
       { k: "토양 포화도", v: `${rb.saturation.value} (${rb.saturation.grade})` },
