@@ -40,7 +40,16 @@ Claude 검토용 상세 문서: [스테이징 시나리오 재검토 및 인계]
 - Vercel Production Branch(`master`→`staging`) 전환은 REST API에 해당 필드가 없어(`PATCH /v9/projects/{id}`가 `link`/`productionBranch`를 거부 — Vercel 공식 문서로 "대시보드 Environments 화면 전용" 기능임을 재확인) CLI/API로 대신할 수 없었다 — 사용자에게 직접 Settings → Environments → Production Branch를 `staging`으로 바꿔 달라고 요청했고, 사용자가 저장한 뒤 "확인해줘"라고 요청해 API로 `productionBranch: staging` 반영을 확인했다.
 - 브랜치 전환 저장은 기존 배포를 소급 승격하지 않는다는 것을 발견 — 방금 push된 staging 커밋의 배포가 여전히 "Preview"로 남아 있어 `vercel promote <preview-url> --yes`로 수동 승격했다. 승격 후 `https://jeju-disaster-platform-staging.vercel.app`(공개 주소)이 새 Production 배포를 가리키는 것을 브라우저로 재확인(`/river/scenario`의 "이 실행은 현재 브라우저에만 저장됩니다" 문구까지 라이브에서 확인).
 - 이제 `staging` 브랜치 push → Vercel이 자동으로 Production 배포·도메인 갱신까지 하는 구조가 완성됐다(§11-1과 일치). `master`는 이 스테이징 프로젝트와 완전히 분리됐다(기존 GitHub Pages 운영 배포만 그대로 `master` 트리거 유지).
-- 로컬 `master` 브랜치는 이번 커밋 이전 상태 그대로다 — `staging`에만 새 커밋이 있고, `master`로의 병합은 별도 요청 전까지 하지 않는다.
+- 로컬 `master` 브랜치는 이번 커밋 이전 상태 그대로다 — `staging`에만 새 커밋이 있고, `master`로의 병합은 별도 요청 전까지 하지 않는다. (이후 사용자가 "문제 없으면 master로 병합해줘"→"응, 푸시해줘"를 요청해 fast-forward 병합·빌드/lint/테스트 재검증 후 `master`에도 푸시했다 — GitHub Pages 운영 배포 성공 확인함. `staging`에도 같은 커밋을 push해 Vercel 자동 배포까지 확인했다.)
+
+**같은 날 §11-3 하천 모의 영향·권고 자원 + 동일 관측시각 묶음 처리 구현(`docs/staging-river-scenario-sample-2026-09-30.md` 반영, 사용자 요청)**: 입력 엑셀은 3열(지점·관측시각·계획홍수량비율)을 그대로 유지하고 수위(m)는 여전히 건드리지 않았다 — 이번 작업은 등급별 모의 영향·권고 자원 계산과 시점 진행 방식만 다룬다.
+- `src/data/riverMockImpact.ts`(신규) — 고정 모의 시설 카탈로그(돈내코 D-01~03, 쇠소깍 S-01~03), 등급별 영향(시설 수·모의 영향대상 인원)·권고 자원 표(§11-3 표와 동일), `riverImpactForPoint()`·`riverRecommendedQty()`·`riverImpactSummary()`.
+- `riverRunState.ts` — `advance()`를 같은 `observedAt`의 여러 행을 한 묶음으로 처리하도록 재작성(`applyPointObservation()`으로 지점별 판정 로직 분리, `playheadIndex`는 묶음의 마지막 행까지 이동). `projectToMock()`이 `riverImpactSummary()` 결과를 `RV.riverImpact`(면적→"모의 영향 구역 N개", 인구→"모의 영향대상 N명", 시설→활성 시설명 목록)에 반영 — 대피 경로는 근거 있는 모의 경로 카탈로그가 없어 손대지 않음(§11-4 원칙 유지).
+- `RiverScenarioPage.tsx` — ② 재생 제어 상태줄이 두 지점 Q%를 동시에 보여주도록 수정, 지점 카드에 "모의 영향 시설 N개 · 영향대상 N명" 추가, 자원 카드에 "현재 등급 권장 N건" 배지 추가(요청은 여전히 담당자가 수행 — 자동 배치 아님, §11-3 원칙).
+- `leaderBriefs.ts`의 `riverBrief()` evidence에 "모의 영향(§11-3)" 줄 추가(대시보드·상황분석·브리핑이 같은 영향값을 보게 함).
+- `tests/riverRunRestart.test.mjs`에 동일 관측시각 묶음 처리 테스트 추가(총 10개 테스트 통과).
+- **검증**: `npm run build`·`lint`(src 0 경고)·`node --test`(10개 통과) 후, `outputs/01a0eb63-.../하천_스테이징_시나리오_전체흐름_샘플.xlsx`(28행)를 로컬(`localhost:5173`)에 실제 업로드해 브라우저로 전체 흐름을 끝까지 실행했다: 28행 오류 없이 파싱 → 시점마다 두 지점 동시 반영(예: 시점 0→2, 시점 2→4로 항상 2행씩 이동) → 정상→관심→주의→경계→심각 상향은 즉시, 심각→경계→주의→관심→정상 하향은 각 단계 30분 유지 후 한 단계씩 적용됨을 확인 → 경계 단계에서 경보·출동 승인, 통제 인력 2건 요청→승인→(15분 후)도착→복귀까지 이력에 시나리오 시각으로 기록됨을 확인 → 대시보드 서비스 카드(경계 02)·상황분석의 "영향 범위"(모의 영향 구역 6개·영향대상 60명·시설 6곳 이름)·지도 마커가 모두 일치함을 확인 → 정상 등급 30분 유지+자원 복귀 후 정상 종료 확인(종료 보고서의 3개 조건 모두 ✔) → 같은 파일 재업로드 시 새 runId로 처음부터 재시작됨을 확인. 콘솔 에러 없음.
+- 커밋하지 않았다 — 별도 요청 전까지 진행 안 함.
 
 ### 2026-09-30 더미데이터 요구사항 검토 인계
 

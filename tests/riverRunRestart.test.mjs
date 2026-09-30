@@ -92,3 +92,23 @@ test("상황 분석 Q% 추이는 현재 시점까지만 표시하고 지점별 �
   assert.equal(latest.쇠소깍.observedAt, "2026-09-30 09:00")
   assert.equal(series.some((row) => row.observedAt === "2026-09-30 10:00"), false)
 })
+
+test("같은 관측시각의 돈내코·쇠소깍 행은 다음 시점 1회로 함께 반영된다", () => {
+  loadTimeline([
+    { location: "돈내코", observedAt: "2026-09-30 09:00", flowRatioPercent: 12 },
+    { location: "쇠소깍", observedAt: "2026-09-30 09:00", flowRatioPercent: 15 },
+    { location: "돈내코", observedAt: "2026-09-30 09:10", flowRatioPercent: 28 },
+    { location: "쇠소깍", observedAt: "2026-09-30 09:10", flowRatioPercent: 35 },
+  ])
+  advance()
+  assert.equal(getRunState().playheadIndex, 1) // 두 행을 한 묶음으로 처리 → 묶음의 마지막 행까지 이동
+  assert.equal(getRunState().pointState.돈내코.flowRatioPercent, 12)
+  assert.equal(getRunState().pointState.쇠소깍.flowRatioPercent, 15)
+
+  advance()
+  assert.equal(getRunState().playheadIndex, 3)
+  assert.equal(getRunState().pointState.돈내코.flowRatioPercent, 28)
+  assert.equal(getRunState().pointState.쇠소깍.flowRatioPercent, 35)
+  assert.equal(getRunState().pointState.돈내코.level, "caution")
+  assert.equal(getRunState().pointState.쇠소깍.level, "caution")
+})

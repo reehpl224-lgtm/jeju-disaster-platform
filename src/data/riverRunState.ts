@@ -1,6 +1,7 @@
 import type { RiverRunState, RiverTimelinePoint, RiverResourceRequest } from "../types/riverRun"
 import { classifyRiverRisk, riverLevelRank, RIVER_LEVELS } from "./riverAlertThresholds"
 import { riverResources } from "./mockRiverResources"
+import { riverImpactSummary } from "./riverMockImpact"
 import { scopedKey } from "./appEnv"
 import * as DB from "./mockDashboard"
 import * as RV from "./mockRiver"
@@ -164,41 +165,52 @@ export function loadTimeline(points: RiverTimelinePoint[]) {
   })
 }
 
-/** 다음 시점으로 진행 — 건너뛴 중간 시각의 예약된 사건(하향 유지시간 도달·모의 도착)도 순서대로 빠짐없이 적용한다 */
+/** 관측 한 건을 지점 상태에 반영(상향은 즉시, 하향은 한 단계씩 HOLD_DOWN_MIN분 유지 후) */
+function applyPointObservation(d: RiverRunState, point: RiverTimelinePoint, simNow: string) {
+  const candidate = classifyRiverRisk(point.flowRatioPercent)
+  const cur = d.pointState[point.location]
+  if (!cur) {
+    d.pointState[point.location] = { level: candidate, sinceSim: simNow, flowRatioPercent: point.flowRatioPercent }
+  } else if (riverLevelRank(candidate) > riverLevelRank(cur.level)) {
+    // 상향은 즉시(안전을 늦추지 않음)
+    d.pointState[point.location] = { level: candidate, sinceSim: simNow, flowRatioPercent: point.flowRatioPercent }
+  } else if (riverLevelRank(candidate) < riverLevelRank(cur.level)) {
+    // 하향은 한 단계씩, 그 단계에 HOLD_DOWN_MIN분 이상 머문 뒤에만(연안과 동일 규칙, §2-3-2)
+    const oneStepDown = RIVER_LEVELS[riverLevelRank(cur.level) - 1]
+    if (riverLevelRank(candidate) <= riverLevelRank(oneStepDown)) {
+      const pending = d.pendingDown[point.location]
+      if (!pending || pending.level !== oneStepDown) {
+        d.pendingDown[point.location] = { level: oneStepDown, sinceSim: simNow }
+      } else if (diffMinutes(simNow, pending.sinceSim) >= HOLD_DOWN_MIN) {
+        d.pointState[point.location] = { level: oneStepDown, sinceSim: pending.sinceSim, flowRatioPercent: point.flowRatioPercent }
+        d.pendingDown[point.location] = undefined
+      }
+    }
+  } else {
+    d.pendingDown[point.location] = undefined
+  }
+  d.pointState[point.location]!.flowRatioPercent = point.flowRatioPercent // 표시용 최신 입력값은 등급과 무관하게 항상 갱신
+}
+
+/**
+ * 다음 시점으로 진행 — 같은 관측시각의 돈내코·쇠소깍 행은 한 묶음으로 함께 반영하고
+ * playheadIndex도 그 묶음의 마지막 행까지 옮긴다(staging-river-scenario-sample §5-1).
+ * 건너뛴 중간 시각의 예약된 사건(하향 유지시간 도달·모의 도착)도 순서대로 빠짐없이 적용한다.
+ */
 export function advance() {
   commit((d) => {
     if (d.playheadIndex + 1 >= d.timeline.length) return
-    d.playheadIndex += 1
-    const point = d.timeline[d.playheadIndex]
-    const simNow = point.observedAt
+    const startIndex = d.playheadIndex + 1
+    const batchObservedAt = d.timeline[startIndex].observedAt
+    let endIndex = startIndex
+    while (endIndex + 1 < d.timeline.length && d.timeline[endIndex + 1].observedAt === batchObservedAt) endIndex += 1
+    d.playheadIndex = endIndex
+    const simNow = batchObservedAt
 
     if (d.flow.감지 === undefined) d.flow.감지 = hhmm(simNow)
     if (d.flow.확인 === undefined) d.flow.확인 = hhmm(simNow)
 
-    // 이 시점까지의 같은 지점 관측만 반영(직전 값 유지 — 이후 시점은 다음 advance에서 처리)
-    const candidate = classifyRiverRisk(point.flowRatioPercent)
-    const cur = d.pointState[point.location]
-    if (!cur) {
-      d.pointState[point.location] = { level: candidate, sinceSim: simNow, flowRatioPercent: point.flowRatioPercent }
-    } else if (riverLevelRank(candidate) > riverLevelRank(cur.level)) {
-      // 상향은 즉시(안전을 늦추지 않음)
-      d.pointState[point.location] = { level: candidate, sinceSim: simNow, flowRatioPercent: point.flowRatioPercent }
-    } else if (riverLevelRank(candidate) < riverLevelRank(cur.level)) {
-      // 하향은 한 단계씩, 그 단계에 HOLD_DOWN_MIN분 이상 머문 뒤에만(연안과 동일 규칙, §2-3-2)
-      const oneStepDown = RIVER_LEVELS[riverLevelRank(cur.level) - 1]
-      if (riverLevelRank(candidate) <= riverLevelRank(oneStepDown)) {
-        const pending = d.pendingDown[point.location]
-        if (!pending || pending.level !== oneStepDown) {
-          d.pendingDown[point.location] = { level: oneStepDown, sinceSim: simNow }
-        } else if (diffMinutes(simNow, pending.sinceSim) >= HOLD_DOWN_MIN) {
-          d.pointState[point.location] = { level: oneStepDown, sinceSim: pending.sinceSim, flowRatioPercent: point.flowRatioPercent }
-          d.pendingDown[point.location] = undefined
-        }
-      }
-    } else {
-      d.pendingDown[point.location] = undefined
-    }
-    d.pointState[point.location]!.flowRatioPercent = point.flowRatioPercent // 표시용 최신 입력값은 등급과 무관하게 항상 갱신
+    for (let i = startIndex; i <= endIndex; i++) applyPointObservation(d, d.timeline[i], simNow)
 
     // 모의 출동 중인 자원의 도착 처리(예약된 사건을 시각 순서대로 적용)
     for (const req of d.resourceRequests) {
@@ -398,6 +410,15 @@ function projectToMock() {
   RV.riverSopStage.next = worst === "safe" ? "현재 조치 필요 없음 · 강우·수위 임계값 도달 시 관심 단계로 전환" : (criteria?.action ?? "-")
 
   resetAndAssign(RV.riverFlowProgress, state.flow)
+
+  // 등급별 모의 영향(§11-3) — 두 지점을 합산해 대시보드·상황분석·브리핑이 같은 값을 보게 한다
+  const impact = riverImpactSummary(state.pointState)
+  resetAndAssign(RV.riverImpact, {
+    area: `모의 영향 구역 ${impact.facilities.length}개`,
+    population: `모의 영향대상 ${impact.totalPeople}명`,
+    facilities: impact.facilities.length > 0 ? impact.facilities.map((f) => f.label).join(", ") : "활성 시설 없음",
+    evacuationRoutes: RV.riverImpact.evacuationRoutes,
+  })
 
   if (state.alertSnapshot) {
     const lv = state.alertSnapshot.level

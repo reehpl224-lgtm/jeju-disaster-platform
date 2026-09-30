@@ -354,6 +354,7 @@ export function riverBrief(): LeaderBrief {
           })
           .join(" · "),
       },
+      { k: "모의 영향(§11-3)", v: `${RV.riverImpact.area} · ${RV.riverImpact.population}` },
       { k: "수위", v: wl.currentM === null ? "관측값 없음" : `6시간 전 ${wl.sixHourAgoM ?? "-"}m → 현재 ${wl.currentM}m · ${wl.status}` },
       { k: "돌발 강우", v: `예보 ${sr.forecastMm}mm → 실측 ${sr.observedMm}mm · ${sr.label}` },
       { k: "토양 포화도", v: `${rb.saturation.value} (${rb.saturation.grade})` },

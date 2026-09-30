@@ -2,6 +2,7 @@ import { useRef, useState } from "react"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { riverResources } from "../../data/mockRiverResources"
+import { riverImpactForPoint, riverRecommendedQty } from "../../data/riverMockImpact"
 import { useRiverRun } from "../../data/riverRunHooks"
 import {
   advance,
@@ -112,7 +113,11 @@ export function RiverScenarioPage() {
           <Card title="② 재생 제어" subtitle={`실행 ID ${run.runId}`} dummy>
             <div className="flex flex-wrap items-center gap-3">
               <RiskBadge level={run.endedAtSim ? "safe" : "info"} label={run.endedAtSim ? `종료(${run.endReason})` : `시점 ${run.playheadIndex + 1}/${run.timeline.length}`} solid />
-              <span className="text-sm text-white/70">{point ? `${point.observedAt} · ${point.location} ${point.flowRatioPercent}%` : "아직 시작 전"}</span>
+              <span className="text-sm text-white/70">
+                {point
+                  ? `${point.observedAt} · 돈내코 ${run.pointState.돈내코?.flowRatioPercent ?? "-"}% · 쇠소깍 ${run.pointState.쇠소깍?.flowRatioPercent ?? "-"}%`
+                  : "아직 시작 전"}
+              </span>
               <div className="ml-auto flex gap-2">
                 <button
                   className="rounded border border-white/20 px-4 py-2 text-xs font-bold text-white hover:bg-white/10 disabled:opacity-30"
@@ -136,11 +141,13 @@ export function RiverScenarioPage() {
             {(["돈내코", "쇠소깍"] as const).map((loc) => {
               const p = run.pointState[loc]
               const pd = run.pendingDown[loc]
+              const impact = riverImpactForPoint(loc, p?.level ?? "safe")
               return (
                 <Card key={loc} title={loc} dummy>
                   <RiskBadge level={p?.level ?? "safe"} label={p ? `${p.level}` : "관측 없음"} solid />
                   <p className="mt-2 text-xs text-white/40">{p ? `${p.sinceSim}부터 유지` : "-"}</p>
                   {pd && <p className="mt-1 text-xs text-risk-caution">하향 대기 중 → {pd.level}({pd.sinceSim}부터, 30분 유지 필요)</p>}
+                  <p className="mt-2 text-xs text-white/50">모의 영향 시설 {impact.facilities.length}개 · 영향대상 {impact.people}명</p>
                 </Card>
               )
             })}
@@ -153,10 +160,12 @@ export function RiverScenarioPage() {
                   (r) => r.resourceId === res.id && (r.status === "요청" || r.status === "출동 중" || r.status === "도착" || r.status === "철수 중"),
                 )
                 const used = active.reduce((s, r) => s + r.qty, 0)
+                const recommended = riverRecommendedQty(run.pointState[res.location]?.level ?? "safe", res.kind)
                 return (
                   <div key={res.id} className="rounded-lg border border-border-subtle p-3">
                     <p className="text-sm font-semibold text-white/85">{res.label}</p>
                     <p className="mt-1 text-xs text-white/40">가용 {res.capacity - used} / 전체 {res.capacity}</p>
+                    {recommended > 0 && <p className="mt-0.5 text-xs text-risk-caution">현재 등급 권장 {recommended}건 — 요청은 담당자가 직접 진행</p>}
                     <button
                       className="mt-2 rounded border border-white/20 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/10 disabled:opacity-30"
                       disabled={!started || !!run.endedAtSim || used >= res.capacity}
