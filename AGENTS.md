@@ -32,9 +32,15 @@ Claude 검토용 상세 문서: [스테이징 시나리오 재검토 및 인계]
 - `vite.config.ts` — base 조건에 `mode !== 'staging'` 추가(한 줄).
 - `RiverScenarioPage.tsx` — 헤더 아래 "이 실행은 현재 브라우저에만 저장됩니다 — 다른 PC·다른 브라우저·시크릿 창과 공유되지 않습니다." 문구 추가.
 - 이어서 사용자가 "Vercel에 실제로 배포해줘"를 요청해 실제 배포까지 진행했다. Vercel CLI가 이미 이 계정(`reehpl224@gmail.com`)으로 로그인돼 있어 새 계정을 만들지 않고 새 프로젝트만 만들었다: `vercel.json`(신규, `buildCommand: npm run build:staging`, `outputDirectory: dist-staging`, SPA `rewrites`)·`.vercelignore`(신규, `.claude`·`Improve Jeju Disaster Platform UI_UX`·`run-local.bat`·`README.md`·`.env*`·`tests`·`docs` 등 제외)를 만들고 `vercel link`로 **`rhkim/jeju-disaster-platform-staging`** 프로젝트를 생성한 뒤, 빌드 타임 환경변수(`VITE_DATA_MODE=simulation`, `VITE_WEATHER_PROXY_URL`은 기존 `.env`의 공개 프록시 URL 재사용)를 넘겨 `vercel deploy --prod`로 배포했다. 결과 주소는 **https://jeju-disaster-platform-staging.vercel.app** — §11-1이 제안한 이름과 정확히 일치한다. 로그인 → 대시보드 → `/river/scenario`까지 실제 배포 사이트에서 브라우저로 열어 스테이징 배지·문구·콘솔 무오류를 확인했다.
-- GitHub Git 연동(`staging` 브랜치 push 자동 배포)은 시도했지만 이 Vercel 계정에 GitHub 로그인 연결이 없어 실패했고(`vercel git connect`로 나중에 별도 진행 가능), 이번 요청 범위가 아니라 추가로 붙이지 않았다 — 지금 배포는 CLI 수동 배포이며 자동 재배포 트리거는 없다.
 - **부작용**: `vercel link`가 `.gitignore` 끝에 CRLF로 `.vercel`·`.env*`를 추가했는데, 뒤에 덧붙은 `.env*`가 기존 `!.env.example`/`!.env.staging.example` 예외보다 순서가 늦어 두 예제 파일을 다시 무시 대상으로 만드는 실제 버그였다 — 발견 즉시 `.env*` 줄만 제거하고 `.vercel`은 유지해 고쳤다(`git check-ignore`로 `.env.staging.example`이 다시 안 걸리는 것 확인).
-- 커밋은 하지 않았다 — `vercel.json`·`.vercelignore`·수정된 `.gitignore`·`vite.config.ts`·`RiverScenarioPage.tsx` 모두 미커밋 상태. `.vercel/`(로컬 프로젝트 연결 정보)은 gitignore돼 있어 커밋 대상 아님.
+
+**같은 날 GitHub 연동 + staging 브랜치 전환(사용자 요청 3건 순차 승인)**: 처음 `vercel git connect`는 Claude Code 자동 모드 안전 분류기가 차단했다 — 우회하지 않고 멈춘 뒤 사용자에게 두 가지 방법(Vercel 대시보드에서 직접 연결 / Claude Code 권한 규칙 추가)을 물었고, 사용자가 후자를 선택했다.
+- `.claude/settings.local.json`(신규, 미커밋 — `.claude/`는 커밋 제외 대상)에 `Bash(npx vercel git connect:*)`/`Bash(vercel git connect:*)` 허용 규칙 추가 → 재시도로 `reehpl224-lgtm/jeju-disaster-platform` 저장소 연동 성공(API로 `link.type: github` 확인).
+- 이어서 "staging 브랜치로 바꿔줘" 요청으로 실제 커밋·푸시를 진행했다: `git fetch`·상태 확인 후 `.github/workflows/deploy-pages.yml`이 `master` push에서만 트리거됨을 먼저 확인(staging push가 기존 운영 배포에 영향 없음 검증) → `npm run build`·`lint`(src 0 경고)·테스트 통과 확인 → `git checkout -b staging` → README.md·`.claude/`·`Improve Jeju Disaster Platform UI_UX/`·`run-local.bat`를 제외한 33개 파일을 명시적으로 스테이징해 커밋(`e70b7c8`) → `git push -u origin staging`. push 직후 Git 연동이 실제로 Preview 배포를 자동 생성하는 것도 확인했다.
+- Vercel Production Branch(`master`→`staging`) 전환은 REST API에 해당 필드가 없어(`PATCH /v9/projects/{id}`가 `link`/`productionBranch`를 거부 — Vercel 공식 문서로 "대시보드 Environments 화면 전용" 기능임을 재확인) CLI/API로 대신할 수 없었다 — 사용자에게 직접 Settings → Environments → Production Branch를 `staging`으로 바꿔 달라고 요청했고, 사용자가 저장한 뒤 "확인해줘"라고 요청해 API로 `productionBranch: staging` 반영을 확인했다.
+- 브랜치 전환 저장은 기존 배포를 소급 승격하지 않는다는 것을 발견 — 방금 push된 staging 커밋의 배포가 여전히 "Preview"로 남아 있어 `vercel promote <preview-url> --yes`로 수동 승격했다. 승격 후 `https://jeju-disaster-platform-staging.vercel.app`(공개 주소)이 새 Production 배포를 가리키는 것을 브라우저로 재확인(`/river/scenario`의 "이 실행은 현재 브라우저에만 저장됩니다" 문구까지 라이브에서 확인).
+- 이제 `staging` 브랜치 push → Vercel이 자동으로 Production 배포·도메인 갱신까지 하는 구조가 완성됐다(§11-1과 일치). `master`는 이 스테이징 프로젝트와 완전히 분리됐다(기존 GitHub Pages 운영 배포만 그대로 `master` 트리거 유지).
+- 로컬 `master` 브랜치는 이번 커밋 이전 상태 그대로다 — `staging`에만 새 커밋이 있고, `master`로의 병합은 별도 요청 전까지 하지 않는다.
 
 ### 2026-09-30 더미데이터 요구사항 검토 인계
 
