@@ -26,6 +26,7 @@ const CoastDispatchPage = lazy(() => import("./pages/coast/CoastDispatchPage").t
 const CoastMonitoringPage = lazy(() => import("./pages/coast/CoastMonitoringPage").then((m) => ({ default: m.CoastMonitoringPage })))
 const CoastClosurePage = lazy(() => import("./pages/coast/CoastClosurePage").then((m) => ({ default: m.CoastClosurePage })))
 const RiverHomePage = lazy(() => import("./pages/river/RiverHomePage").then((m) => ({ default: m.RiverHomePage })))
+const RiverScenarioPage = lazy(() => import("./pages/river/RiverScenarioPage").then((m) => ({ default: m.RiverScenarioPage })))
 const RiverDataPage = lazy(() => import("./pages/river/RiverDataPage").then((m) => ({ default: m.RiverDataPage })))
 const RiverAnalysisPage = lazy(() => import("./pages/river/RiverAnalysisPage").then((m) => ({ default: m.RiverAnalysisPage })))
 const RiverAlertPage = lazy(() => import("./pages/river/RiverAlertPage").then((m) => ({ default: m.RiverAlertPage })))
@@ -95,6 +96,7 @@ export default function App() {
 
           <Route path="/river" element={<DomainBoardPage domain="river" />} />
           <Route path="/river/dashboard" element={<RiverHomePage />} />
+          <Route path="/river/scenario" element={<RiverScenarioPage />} />
           <Route path="/river/data" element={<RiverDataPage />} />
           <Route path="/river/analysis" element={<RiverAnalysisPage />} />
           <Route path="/river/alert" element={<RiverAlertPage />} />

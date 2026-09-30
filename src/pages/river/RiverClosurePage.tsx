@@ -2,23 +2,39 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { riverClosure } from "../../data/mockRiver"
+import { useRiverRun } from "../../data/riverRunHooks"
 
 export function RiverClosurePage() {
   const c = riverClosure
+  const run = useRiverRun()
+  const ended = !!run.endedAtSim
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-white">종료 보고</h1>
-          <p className="mt-1 text-sm text-white/50">{c.caseId} · {c.title}</p>
+          <p className="mt-1 text-sm text-white/50">{ended ? `${c.caseId} · ${c.title}` : "진행 중인 시나리오가 아직 종료되지 않았습니다."}</p>
         </div>
         <Link to="/river" className="inline-flex h-9 items-center rounded-md border border-white/20 px-4 text-xs font-bold text-white hover:bg-white/10">
           하천 범람 대시보드로 →
         </Link>
       </div>
 
+      {!ended && (
+        <Card dummy title="종료되지 않음">
+          <p className="text-sm text-white/60">
+            {run.timeline.length === 0 ? "진행 중인 시나리오가 없습니다." : "종료 조건 확인·강제 종료는 시나리오 실행 화면에서 처리합니다."}
+          </p>
+          {run.timeline.length > 0 && (
+            <Link to="/river/scenario" className="mt-2 inline-block text-sm font-bold text-accent">
+              시나리오 실행 화면으로 →
+            </Link>
+          )}
+        </Card>
+      )}
+
       <Card title="사건 상태" dummy>
-        <RiskBadge level="safe" label={c.status} solid />
+        <RiskBadge level="safe" label={ended ? c.status : "진행 중"} solid />
         <p className="mt-2 text-xs text-white/40">{c.confirmedBy}</p>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="사건 유형" value={c.type} />
@@ -53,14 +69,25 @@ export function RiverClosurePage() {
       </div>
 
       <Card title="종료 조건 충족 여부" dummy>
-        <ul className="flex flex-col gap-2">
-          {c.closureConditions.map((cond) => (
-            <li key={cond} className="flex items-center gap-2 text-sm text-white/70">
-              <span className="text-risk-safe">✔</span> {cond}
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 text-xs font-semibold text-risk-safe">모든 종료 조건 충족 · 최종 승인 완료</p>
+        {c.closureConditions.length === 0 ? (
+          <p className="text-sm text-white/40">아직 종료된 사건이 없어 조건 이력이 없습니다.</p>
+        ) : (
+          <>
+            <ul className="flex flex-col gap-2">
+              {c.closureConditions.map((cond) => {
+                const unmet = cond.includes("미충족") || cond.includes("미확인") || cond.includes("대체됨")
+                return (
+                  <li key={cond} className="flex items-center gap-2 text-sm text-white/70">
+                    <span className={unmet ? "text-risk-warning" : "text-risk-safe"}>{unmet ? "✗" : "✔"}</span> {cond}
+                  </li>
+                )
+              })}
+            </ul>
+            <p className={`mt-3 text-xs font-semibold ${run.endReason === "예외 강제 종료" ? "text-risk-warning" : "text-risk-safe"}`}>
+              {run.endReason === "예외 강제 종료" ? "예외 강제 종료로 처리됨 — 정상 종료 조건 일부가 충족되지 않았을 수 있습니다" : "모든 종료 조건 충족 · 최종 승인 완료"}
+            </p>
+          </>
+        )}
       </Card>
 
       <Card title="최종 사건 종료 보고서" dummy>

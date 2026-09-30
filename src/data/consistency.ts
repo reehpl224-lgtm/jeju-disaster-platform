@@ -18,6 +18,8 @@ import * as DB from "./mockDashboard"
 import * as HR from "./mockHeavyRain"
 import * as HT from "./mockHeat"
 import * as RV from "./mockRiver"
+import { riverResources } from "./mockRiverResources"
+import { getRunState } from "./riverRunState"
 import * as TY from "./mockTyphoon"
 import { ACTIVE_SCENARIO_ID } from "./scenarios"
 
@@ -81,7 +83,22 @@ export function checkConsistency(): ConsistencyIssue[] {
   }
   eq("하천", "단계 문구 ↔ 등급", RV.riverStatuses.every((s) => (s.level === "safe") === s.stage.includes("정상")), true)
   eq("하천", "경보 발령 여부 ↔ 발송 시각", RV.riverAlertDispatch.level !== "safe", RV.riverAlertDispatch.sentAt !== "-")
-  eq("하천", "흐름 진행 ↔ 상태(평시면 비어 있어야)", Object.keys(RV.riverFlowProgress).length > 0, RV.riverStatuses.some((s) => s.level !== "safe"))
+
+  // 3-1. 하천 시나리오 실행 중(riverRunState)에는 "정상 복귀 후 종료 대기"처럼 등급은 safe인데 흐름 이력은
+  // 남아있는 상태가 정상이라 아래의 단순 등가 검사를 적용하지 않는다(2026-09-30, Codex 재검토 근거).
+  const riverRun = getRunState()
+  if (riverRun.timeline.length === 0) {
+    eq("하천", "흐름 진행 ↔ 상태(평시면 비어 있어야)", Object.keys(RV.riverFlowProgress).length > 0, RV.riverStatuses.some((s) => s.level !== "safe"))
+  } else {
+    eq("하천 시나리오", "종료 기록 ↔ 흐름 종료 단계", !!riverRun.endedAtSim, !!RV.riverFlowProgress.종료)
+    const overCapacity = riverResources.some((r) => {
+      const active = riverRun.resourceRequests
+        .filter((req) => req.resourceId === r.id && (req.status === "요청" || req.status === "출동 중" || req.status === "도착" || req.status === "철수 중"))
+        .reduce((sum, req) => sum + req.qty, 0)
+      return active > r.capacity
+    })
+    eq("하천 시나리오", "가상 자원 배치가 가용 수량을 넘지 않음", overCapacity, false)
+  }
 
   // 4. 연안
   eq("연안", "진행 중 이벤트 건수", CO.coastSummary.activeEvents.count, CO.coastEvents.length)

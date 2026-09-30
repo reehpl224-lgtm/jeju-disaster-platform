@@ -4,16 +4,30 @@ import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { riverFieldAlertGoal } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { riverAlertDispatch } from "../../data/mockRiver"
+import { useRiverRun } from "../../data/riverRunHooks"
+import { approveAlert } from "../../data/riverRunState"
 
 export function RiverAlertPage() {
   const d = riverAlertDispatch
   const [retried, setRetried] = useState(false)
+  const run = useRiverRun()
+  const judgePending = run.flow.판단 === "승인 대기" || (run.timeline.length > 0 && !run.flow.경보 && run.flow.판단 !== undefined)
+  const canApprove = run.timeline.length > 0 && !run.endedAtSim && !run.flow.경보 && Object.values(run.pointState).some((p) => p && p.level !== "safe")
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-bold text-white">경보 발송 현황</h1>
         <p className="mt-1 text-sm text-white/50">{d.message}</p>
       </div>
+
+      {canApprove && (
+        <Card title="담당자 승인 필요" subtitle="시나리오 실행 중 — 판단·경보 단계를 승인합니다">
+          <RiskBadge level="caution" label={judgePending ? "승인 대기" : "확인 필요"} />
+          <button className="ml-3 rounded bg-accent px-4 py-2 text-sm font-bold text-black" onClick={() => approveAlert()}>
+            발령 승인
+          </button>
+        </Card>
+      )}
 
       <Card title="발송 대상 및 위험 단계" dummy>
         <RiskBadge level={riverAlertDispatch.level} label={d.stage} solid />
