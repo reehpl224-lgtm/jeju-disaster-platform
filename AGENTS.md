@@ -115,7 +115,7 @@ Claude 검토 응답: [더미데이터 시나리오 인계 검토 — Claude 응
 - ③ 메뉴 재배치: `riverNav.ts`의 `RIVER_NAV` 순서를 `상세 대시보드 → 상황 분석 → 경보 발송 → 출동 요청 → 현장 통제 → 종료 보고 → 데이터 수집`으로, `시나리오 실행`은 맨 뒤로 분리했다. 사이드바(`DomainSidebar.tsx`)와 보드 탭(`domainConfigs.tsx`의 `navTabs()`)이 이 배열 하나를 공유하므로 양쪽 다 자동 반영된다. `NavItem`에 `divider?: boolean`을 추가해 사이드바에만 "시나리오 설정" 구분선을 넣었다 — 보드 쪽 세로 탭 레일(`SideTabsDock`, 다른 도메인과 공유)에는 넣지 않았다(하지 않은 것).
 - 다른 도메인의 메뉴 순서·`SideTabsDock` 등 공유 렌더러는 건드리지 않았다. Q%를 실제 수위(m)로 바꾸지 않고, 실제 피해접수·기관 전파 완료를 임의로 만들지 않았다.
 - 검증: `build`·`build:staging`·`lint`(src 0 경고)·`node --test`(14개, §3 분기 테스트 신규 1개) 통과. 로컬 스테이징에서 종합상황·GIS상황의 "하천 시나리오" 탭 수치 일치, GIS 마커 팝업 Q% 노출, 사이드바·보드 탭 순서, `window.__jejuConsistency()` 어긋남 0건을 확인했다.
-- 운영 `master`에는 병합하지 않았다. 커밋·푸시·배포 상태는 바로 다음 인계 기록에 남긴다.
+- 운영 `master`에는 병합하지 않았다. 기능 커밋 `cff59aa`를 `staging` 브랜치에 푸시했고, Vercel Production 배포가 42초 만에 Ready 상태가 돼 `https://jeju-disaster-platform-staging.vercel.app`에 정상 aliased됐다. 배포된 번들(`index-*.js`, `DashboardPage-*.js`)을 직접 내려받아 `시나리오 Q% 입력 없음`·`시나리오 미입력`·`하향 대기 중`·`시나리오 설정`·`하천 시나리오` 문자열이 실제로 포함된 것을 확인했다.
 
 ---
 
