@@ -7,6 +7,7 @@ import * as TY from "../../data/mockTyphoon"
 import * as HT from "../../data/mockHeat"
 import * as RV from "../../data/mockRiver"
 import { getRunState } from "../../data/riverRunState"
+import { riverFlowRatioAnalysis } from "../../data/riverFlowRatioAnalysis"
 import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import * as AQ from "../../data/mockAqua"
 import * as CO from "../../data/mockCoast"
@@ -315,6 +316,8 @@ export function riverBrief(): LeaderBrief {
   const gateBad = RV.riverControlRows.some((r) => r.gate !== "정상 작동")
   const judge = RV.riverFlowProgress.판단
   const judgePending = !!judge && !/^\d{1,2}:\d{2}/.test(judge) && judge !== "보류"
+  const run = getRunState()
+  const flowRatio = riverFlowRatioAnalysis(run)
   return {
     title: `${worst.name} ${worst.stage}`,
     lines: [...st.map((s) => `${s.name} — 범람 도달 ${s.eta} · 갱신 ${s.updatedAt}`), `${RV.riverSopStage.current} — ${RV.riverSopStage.next}`],
@@ -347,11 +350,15 @@ export function riverBrief(): LeaderBrief {
     idle: `결재·지시 대기 없음 — ${RV.riverSopStage.next}`,
     evidence: [
       {
+        // 지점별 독립 요약 — 대표 제목(worst)이 한쪽만 가리켜도 두 지점을 항상 구분해 보여준다
+        // (staging-river-dashboard-review-2026-10-01 §3: "돈내코 12% · 정상 · 관측 11:45" 형식)
         k: "계획홍수량 대비 비율(Q%)",
         v: (["돈내코", "쇠소깍"] as const)
           .map((loc) => {
-            const p = getRunState().pointState[loc]
-            return `${loc} ${p ? `${p.flowRatioPercent}%` : "관측값 없음"}`
+            const p = run.pointState[loc]
+            const last = flowRatio.latest[loc]
+            if (!p || !last) return `${loc} 시나리오 미입력`
+            return `${loc} ${p.flowRatioPercent}% · ${riskStyles[p.level].label} · 관측 ${last.observedAt}`
           })
           .join(" · "),
       },

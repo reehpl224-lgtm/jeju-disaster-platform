@@ -11,6 +11,8 @@ export interface NavItem {
   end?: boolean
   /** 별도 메뉴 없이 이 항목 아래로 묶이는 하위 화면 경로 */
   also?: string[]
+  /** 이 항목 위에 구분선을 넣어 앞의 대응 흐름 메뉴와 별도 그룹으로 보여준다(예: 시나리오 실행) */
+  divider?: boolean
 }
 
 export const underPath = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`)

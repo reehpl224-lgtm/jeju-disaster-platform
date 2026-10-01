@@ -24,6 +24,11 @@ export function DomainSidebar({ domain }: { domain: NonNullable<ReturnType<typeo
           const underGrouped = item.also?.some((p) => underPath(pathname, p)) ?? false
           return (
             <li key={item.to}>
+              {item.divider && (
+                <p style={{ margin: "8px 12px 4px", fontSize: 11, color: "var(--foreground-subtle)", fontWeight: 700, borderTop: "1px solid var(--foreground-faint)", paddingTop: 8 }}>
+                  시나리오 설정
+                </p>
+              )}
               {/* 사이드바는 상세 화면 창 안에만 있으므로 모든 메뉴가 그 창 안에서 이동한다 —
                   보드에서 상세 창을 여는 쪽(PanelParts의 DetailLink)이 창 분리를 담당(2026-09-28) */}
               <NavLink

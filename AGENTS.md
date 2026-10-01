@@ -109,6 +109,14 @@ Claude 검토 응답: [더미데이터 시나리오 인계 검토 — Claude 응
 
 **2026-10-01 스테이징 연관 모의 수치 연결(사용자 요청)**: 사용자가 Q% 시나리오를 토대로 연관 데이터·수치도 함께 변하도록 범위를 확장했다. `riverScenarioObservations.ts`(신규)가 현재 재생 시점의 Q% 묶음에서 시간당·일누적 모의 강우, 강우대, 누적 토양 포화도, Q% 추세를 난수 없이 계산하고, 일누적은 엑셀 관측시각의 실제 간격(10·15·30분 등)을 적분한다. `rainfallApi.ts`의 스테이징 우량 패널과 `riverRunState.projectToMock()`의 `riverRiskBasis`가 같은 결과를 공유한다. 팀장 브리핑과 `/river/analysis`는 `수위 지표(Q%)`·`모의 강우량`·`모의 레이더`·`모의 토양 포화도`를 표시한다. Q%를 실제 수위(m)로 환산하지 않고 실제 센서·조위·교차검증 목록은 채우지 않는다. 모의 주변값은 상황 설명용이며 위험등급의 유일한 입력은 계속 Q%다. `riverSuddenRainAlert`에는 동일한 모의 강우를 참고값으로만 투영하고 독립 AI 판정은 하지 않는다. `build:staging`·테스트 13개 통과, 로컬 스테이징에서 Q% 78/85%(경계) 시 카드 85%·15mm/h·강한 강우대·포화도 76%, 우량 패널 15mm/h가 일치하고 콘솔 일치 검사도 어긋남 없음으로 확인했다. 기능 커밋 `69e5274`를 `staging` 브랜치에 푸시했고, Vercel Production 배포가 Ready 상태로 `https://jeju-disaster-platform-staging.vercel.app`에 반영됐다. 운영 `master`에는 병합하지 않았다.
 
+**2026-10-01 통합화면 연결·지점 표시 구분·메뉴 재배치(Codex 검토 문서 기반, 사용자 요청)**: Codex가 작성한 [스테이징 하천 시나리오 화면 연결·지점 표시·메뉴 검토](docs/staging-river-dashboard-review-2026-10-01.md)(커밋 `47ab65f` 기준)를 코드와 대조 검토한 뒤 ①②③ 순서로 구현했다.
+- ① 종합상황·GIS상황 연결: `riverRunState.projectToMock()`이 GIS 마커(`riskMarkers`) `value`에 `riverFlowRatioAnalysis()`로 구한 지점별 Q%·등급·마지막 관측시각·"시나리오 모의" 표식을 채운다. `DashboardPage.tsx`의 종합상황·GIS상황 양쪽 대응 패널에 전용 "하천 시나리오" 탭(`dummy: true`)을 새로 추가해 실행 상태·지점별 Q%·Q% 추이 그래프(`riverFlowRatioAnalysis` 재사용)·판단 근거 모의값(`riverRiskBasis`, `IS_SIMULATION_MODE`에서만)·시나리오 활동 이력(`run.history`)·가상 자원·모의 영향을 보여준다. 기존 `dashboardSensors`/`timeSeries`/`disasterIncidents`(실제 피해접수로 오인될 수 있는 배열)는 전혀 건드리지 않고 전용 영역에만 표시했다.
+- ② 돈내코·쇠소깍 개별 구분: `projectToMock()`의 `riverStatuses[].eta`/`.updatedAt` 계산을 근본적으로 고쳤다 — 관측 없음(`시나리오 미입력`)·하향 유지 대기(`OO 하향 대기 중 — 30분 유지 필요`)·관측됨+비정상·진짜 정상을 구분하고, `updatedAt`은 배치 공통 시각이 아니라 `riverFlowRatioAnalysis().latest[loc]`로 구한 그 지점의 실제 마지막 관측시각을 쓴다. 이 두 필드를 그대로 쓰는 `leaderBriefs.ts`(팀장 브리핑)·`RiverHomePage.tsx`("하천 위험 요약" 카드)는 코드 수정 없이 자동으로 개선됐다. `leaderBriefs.ts`의 "판단 근거" Q% 줄도 `돈내코 78% · 경계 · 관측 2026-09-30 09:30 · 쇠소깍 85% · 경계 · 관측 2026-09-30 09:30` 형식으로 두 지점을 항상 함께 보여주게 바꿨다.
+- ③ 메뉴 재배치: `riverNav.ts`의 `RIVER_NAV` 순서를 `상세 대시보드 → 상황 분석 → 경보 발송 → 출동 요청 → 현장 통제 → 종료 보고 → 데이터 수집`으로, `시나리오 실행`은 맨 뒤로 분리했다. 사이드바(`DomainSidebar.tsx`)와 보드 탭(`domainConfigs.tsx`의 `navTabs()`)이 이 배열 하나를 공유하므로 양쪽 다 자동 반영된다. `NavItem`에 `divider?: boolean`을 추가해 사이드바에만 "시나리오 설정" 구분선을 넣었다 — 보드 쪽 세로 탭 레일(`SideTabsDock`, 다른 도메인과 공유)에는 넣지 않았다(하지 않은 것).
+- 다른 도메인의 메뉴 순서·`SideTabsDock` 등 공유 렌더러는 건드리지 않았다. Q%를 실제 수위(m)로 바꾸지 않고, 실제 피해접수·기관 전파 완료를 임의로 만들지 않았다.
+- 검증: `build`·`build:staging`·`lint`(src 0 경고)·`node --test`(14개, §3 분기 테스트 신규 1개) 통과. 로컬 스테이징에서 종합상황·GIS상황의 "하천 시나리오" 탭 수치 일치, GIS 마커 팝업 Q% 노출, 사이드바·보드 탭 순서, `window.__jejuConsistency()` 어긋남 0건을 확인했다.
+- 운영 `master`에는 병합하지 않았다. 커밋·푸시·배포 상태는 바로 다음 인계 기록에 남긴다.
+
 ---
 
 ## 1. 프로젝트 성격 — 반드시 지킬 것
