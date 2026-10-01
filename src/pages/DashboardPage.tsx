@@ -11,6 +11,8 @@ import { VilageForecastPanel } from "../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../components/ui/WarningsPanel"
 import { useRiverRun } from "../data/riverRunHooks"
 import { riverResources } from "../data/mockRiverResources"
+import { RIVER_MOCK_FACILITIES, riverImpactForPoint } from "../data/riverMockImpact"
+import { riverFlowRatioAnalysis } from "../data/riverFlowRatioAnalysis"
 import {
   HorizontalTabsDock,
   MessengerFab,
@@ -70,8 +72,9 @@ const REGIONS = ["제주시", "서귀포시"] as const
 type TabKey = "summary" | "gis" | "cctv"
 
 export function DashboardPage() {
-  // 하천 시나리오가 다른 창/탭에서 바뀌어도 이 화면이 다시 그려지게 구독하고, 아래 타임라인·대응현황 패널에서 값도 읽는다
+  // 하천 시나리오가 다른 창/탭에서 바뀌어도 이 화면이 다시 그려지게 구독하고, 아래 타임라인·대응현황·센서·자산 패널에서 값도 읽는다
   const riverRun = useRiverRun()
+  const riverFlowRatio = useMemo(() => riverFlowRatioAnalysis(riverRun), [riverRun])
   const [params, setParams] = useSearchParams()
   const raw = params.get("tab")
   const tab: TabKey = raw === "gis" || raw === "cctv" ? raw : "summary"
@@ -245,6 +248,22 @@ export function DashboardPage() {
             <Risk level={sensor.status} label={sensor.value} />
           </li>
         ))}
+        {/* 하천 Q% 가상 관측지점 — 고정 카탈로그(돈내코·쇠소깍), 실제 수위센서와 별개(staging-river-dashboard-review-2026-10-01 §7-3) */}
+        {(["돈내코", "쇠소깍"] as const).map((loc) => {
+          const p = riverRun.pointState[loc]
+          const last = riverFlowRatio.latest[loc]
+          return (
+            <li key={`river-obs-${loc}`} className="row-between">
+              <div>
+                <p className="t">{loc} Q% 가상 관측지점</p>
+                <p className="s">
+                  {loc} 담당 · 하천범람 파일럿 · {last ? `관측 ${last.observedAt}` : "시나리오 미입력"}
+                </p>
+              </div>
+              <Risk level={p?.level ?? "info"} label={p ? `${p.flowRatioPercent}%` : "관측값 없음"} />
+            </li>
+          )
+        })}
       </ul>
     ),
     response: (
@@ -317,6 +336,40 @@ export function DashboardPage() {
             </p>
           </div>
         ))}
+        {/* 하천 모의 시설·가상 자원 — 고정 카탈로그, 실제 보유·설치 아님(staging-river-dashboard-review-2026-10-01 §7-3) */}
+        <div className="pgroup">
+          <p className="pnote">하천 모의 시설 — 고정 카탈로그(§11-3), 실제 시설 아님</p>
+          <ul className="plist">
+            {(["돈내코", "쇠소깍"] as const).flatMap((loc) => {
+              const level = riverRun.pointState[loc]?.level ?? "safe"
+              const activeIds = new Set(riverImpactForPoint(loc, level).facilities.map((f) => f.id))
+              return RIVER_MOCK_FACILITIES[loc].map((facility) => (
+                <li key={facility.id} className="row-between">
+                  <span>{facility.label}</span>
+                  <Risk level={activeIds.has(facility.id) ? "info" : "offline"} label={activeIds.has(facility.id) ? "점검 대상" : "비활성"} />
+                </li>
+              ))
+            })}
+          </ul>
+        </div>
+        <div className="pgroup">
+          <p className="pnote">하천 가상 인력·장비 — 고정 카탈로그, 실제 보유량 아님</p>
+          <ul className="plist">
+            {riverResources.map((res) => {
+              const used = riverRun.resourceRequests
+                .filter((r) => r.resourceId === res.id && r.status !== "복귀 완료" && r.status !== "취소")
+                .reduce((sum, r) => sum + r.qty, 0)
+              return (
+                <li key={res.id} className="row-between">
+                  <span>{res.label}</span>
+                  <span className="s" style={{ margin: 0 }}>
+                    가용 {res.capacity - used} / {res.capacity}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
       </>
     ),
     messenger: <ComingSoonPanel kind="messenger" />,
