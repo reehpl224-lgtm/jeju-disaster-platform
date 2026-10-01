@@ -117,6 +117,8 @@ Claude 검토 응답: [더미데이터 시나리오 인계 검토 — Claude 응
 - 검증: `build`·`build:staging`·`lint`(src 0 경고)·`node --test`(14개, §3 분기 테스트 신규 1개) 통과. 로컬 스테이징에서 종합상황·GIS상황의 "하천 시나리오" 탭 수치 일치, GIS 마커 팝업 Q% 노출, 사이드바·보드 탭 순서, `window.__jejuConsistency()` 어긋남 0건을 확인했다.
 - 운영 `master`에는 병합하지 않았다. 기능 커밋 `cff59aa`를 `staging` 브랜치에 푸시했고, Vercel Production 배포가 42초 만에 Ready 상태가 돼 `https://jeju-disaster-platform-staging.vercel.app`에 정상 aliased됐다. 배포된 번들(`index-*.js`, `DashboardPage-*.js`)을 직접 내려받아 `시나리오 Q% 입력 없음`·`시나리오 미입력`·`하향 대기 중`·`시나리오 설정`·`하천 시나리오` 문자열이 실제로 포함된 것을 확인했다.
 
+**2026-10-01 ①②(통합화면 연결·지점 표시 구분) 원복(사용자 요청)**: 배포 후 사용자가 종합상황·GIS상황에서 바로 확인했을 때 "하천 시나리오" 탭이 우측/좌측 패널의 세로 탭 레일 맨 끝(11번째)에 숨어 있어 찾기 어렵다는 걸 지적했고, 애초에 요청한 방향과 다르다며 ①②를 되돌려 달라고 했다(재요청 예정). `src/data/riverRunState.ts`·`src/pages/DashboardPage.tsx`·`src/pages/domain/leaderBriefs.ts`·`tests/riverRunRestart.test.mjs` 4개 파일을 `47ab65f` 시점 내용으로 정확히 되돌렸다(`git checkout 47ab65f -- <path>`, 해당 4개 파일은 이 라운드에서만 바뀌었으므로 다른 손실 없음). ③(메뉴 재배치, `riverNav.ts`/`domainSidebarUtils.ts`/`DomainSidebar.tsx`)은 되돌리지 않고 그대로 유지했다 — 사용자가 원복 대상으로 지목한 건 1·2번뿐이다. `build`·`build:staging`·`lint`·`node --test`(13개, ①②용으로 추가했던 §3 테스트도 함께 제거되어 원래 개수로 복귀) 모두 통과 확인. 커밋 후 `staging` 푸시·Vercel 재배포까지 진행한다 — 아래 다음 기록에 배포 상태를 남긴다. ①②는 사용자가 다시 구체적으로 요청하면 별도로 재구현한다.
+
 ---
 
 ## 1. 프로젝트 성격 — 반드시 지킬 것

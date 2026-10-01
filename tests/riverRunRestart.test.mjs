@@ -41,7 +41,7 @@ const { advance, advanceTick, approveAlert, approveDispatch, forceCloseRun, getR
 )
 const { riverFlowRatioAnalysis } = await import("../src/data/riverFlowRatioAnalysis.ts")
 const { deriveRiverScenarioObservation, deriveRiverScenarioWeather } = await import("../src/data/riverScenarioObservations.ts")
-const { riverAlertDispatch, riverClosure, riverDispatchRequest, riverStatuses } = await import("../src/data/mockRiver.ts")
+const { riverAlertDispatch, riverClosure, riverDispatchRequest } = await import("../src/data/mockRiver.ts")
 const points = [
   { location: "돈내코", observedAt: "2026-09-30 09:00", flowRatioPercent: 70 },
   { location: "돈내코", observedAt: "2026-09-30 09:30", flowRatioPercent: 80 },
@@ -199,38 +199,4 @@ test("Q% 시나리오의 모의 강우·레이더·포화도는 결정적으로 
 
   const repeated = deriveRiverScenarioObservation(run)
   assert.deepEqual(repeated, observation)
-})
-
-test("riverStatuses의 eta·updatedAt은 지점별 관측 유무·하향 대기를 정확히 구분한다(staging-river-dashboard-review-2026-10-01 §3)", () => {
-  // 돈내코만 입력된 시계열 — 쇠소깍은 이 실행 내내 관측이 없다("정상"과 구분돼야 함)
-  loadTimeline([{ location: "돈내코", observedAt: "2026-09-30 09:00", flowRatioPercent: 10 }])
-  advance()
-  const soesokkakNoInput = riverStatuses.find((s) => s.id === "soesokkak")
-  assert.equal(soesokkakNoInput.eta, "시나리오 미입력")
-
-  // 돈내코=정상 관측, 쇠소깍=경계 관측 — 둘 다 관측은 있지만 등급이 달라 문구도 달라야 한다
-  loadTimeline([
-    { location: "돈내코", observedAt: "2026-09-30 09:00", flowRatioPercent: 10 },
-    { location: "쇠소깍", observedAt: "2026-09-30 09:00", flowRatioPercent: 70 },
-  ])
-  advance()
-  const donnaeko = riverStatuses.find((s) => s.id === "donnaeko")
-  const soesokkak = riverStatuses.find((s) => s.id === "soesokkak")
-  assert.equal(donnaeko.eta, "해당 없음")
-  assert.equal(donnaeko.updatedAt, "2026-09-30 09:00")
-  assert.equal(soesokkak.eta, "관측 기반 추이 확인 중")
-  assert.equal(soesokkak.updatedAt, "2026-09-30 09:00")
-
-  // 쇠소깍이 경계 -> 관심으로 급락 — 한 단계씩만 하향하므로 "주의" 하향 대기 문구가 떠야 한다
-  loadTimeline([
-    { location: "돈내코", observedAt: "2026-09-30 09:00", flowRatioPercent: 10 },
-    { location: "쇠소깍", observedAt: "2026-09-30 09:00", flowRatioPercent: 70 },
-    { location: "돈내코", observedAt: "2026-09-30 09:10", flowRatioPercent: 10 },
-    { location: "쇠소깍", observedAt: "2026-09-30 09:10", flowRatioPercent: 40 },
-  ])
-  advance()
-  advance()
-  const soesokkakPending = riverStatuses.find((s) => s.id === "soesokkak")
-  assert.match(soesokkakPending.eta, /주의 하향 대기 중/)
-  assert.equal(soesokkakPending.updatedAt, "2026-09-30 09:10") // 공통 배치 시각이 아니라 그 지점의 마지막 관측시각
 })

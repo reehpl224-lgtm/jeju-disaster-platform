@@ -5,7 +5,6 @@ import { riverResources } from "./mockRiverResources"
 import { riverImpactSummary } from "./riverMockImpact"
 import { IS_SIMULATION_MODE, scopedKey } from "./appEnv"
 import { deriveRiverScenarioObservation } from "./riverScenarioObservations"
-import { riverFlowRatioAnalysis } from "./riverFlowRatioAnalysis"
 import * as DB from "./mockDashboard"
 import * as RV from "./mockRiver"
 
@@ -499,26 +498,13 @@ function projectScenarioObservations() {
 function projectToMock() {
   if (state.timeline.length === 0) return // 시나리오 미로딩 — 초기화된 평시 mock을 그대로 둔다
 
-  // 지점별 마지막 관측(값·시각)을 한 번만 계산해 eta·updatedAt·GIS 마커가 모두 같은 근거를 쓰게 한다
-  // (staging-river-dashboard-review-2026-10-01 §3 — "미입력"과 "정상 관측"을 구분, 지점별 실제 관측시각 사용)
-  const flowRatio = riverFlowRatioAnalysis(state)
   for (const st of RV.riverStatuses) {
     const loc = st.name.includes("쇠소깍") ? "쇠소깍" : "돈내코"
     const p = state.pointState[loc]
-    const last = flowRatio.latest[loc]
-    const pending = state.pendingDown[loc]
     st.level = p?.level ?? "safe"
     st.stage = STAGE_LABEL[st.level]
-    if (!p) {
-      st.eta = "시나리오 미입력" // 관측 자체가 없음 — "정상"과 혼동되지 않게 구분
-    } else if (pending) {
-      st.eta = `${STAGE_LABEL[pending.level]} 하향 대기 중 — ${HOLD_DOWN_MIN}분 유지 필요` // 현재 Q%와 적용 등급이 다른 경우(하향 유지시간 대기)
-    } else if (p.level !== "safe") {
-      st.eta = "관측 기반 추이 확인 중"
-    } else {
-      st.eta = "해당 없음"
-    }
-    st.updatedAt = last?.observedAt ?? st.updatedAt // 배치 공통 시각이 아니라 그 지점의 마지막 관측시각
+    st.eta = p && p.level !== "safe" ? "관측 기반 추이 확인 중" : "해당 없음"
+    st.updatedAt = state.timeline[state.playheadIndex]?.observedAt ?? st.updatedAt
   }
 
   projectScenarioObservations()
@@ -529,14 +515,9 @@ function projectToMock() {
   if (card) {
     for (const t of tiers) card.counts[t] = RV.riverStatuses.filter((s) => s.level === t).length
   }
-  // GIS 마커 팝업에 지점 Q%·적용 등급·마지막 관측시각을 노출한다(staging-river-dashboard-review-2026-10-01 §2)
   for (const st of RV.riverStatuses) {
-    const loc = st.name.includes("쇠소깍") ? "쇠소깍" : "돈내코"
     const m = DB.riskMarkers.find((mk) => mk.id === st.id)
-    if (!m) continue
-    m.level = st.level
-    const last = flowRatio.latest[loc]
-    m.value = last ? `Q% ${last.flowRatioPercent}% · ${STAGE_LABEL[st.level]} · ${last.observedAt.slice(5)} 관측 · 시나리오 모의` : "시나리오 Q% 입력 없음"
+    if (m) m.level = st.level
   }
 
   const worst = worstLevel()

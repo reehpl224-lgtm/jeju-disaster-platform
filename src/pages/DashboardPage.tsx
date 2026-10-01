@@ -9,13 +9,7 @@ import { JejuTileMap } from "../components/ui/JejuTileMap"
 import { JejuVectorMap } from "../components/ui/JejuVectorMap"
 import { VilageForecastPanel } from "../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../components/ui/WarningsPanel"
-import { riskStyles } from "../components/ui/riskStyles"
 import { useRiverRun } from "../data/riverRunHooks"
-import { riverFlowRatioAnalysis } from "../data/riverFlowRatioAnalysis"
-import { riverImpactSummary } from "../data/riverMockImpact"
-import { riverResources } from "../data/mockRiverResources"
-import { IS_SIMULATION_MODE } from "../data/appEnv"
-import { riverRiskBasis } from "../data/mockRiver"
 import {
   HorizontalTabsDock,
   MessengerFab,
@@ -75,10 +69,7 @@ const REGIONS = ["제주시", "서귀포시"] as const
 type TabKey = "summary" | "gis" | "cctv"
 
 export function DashboardPage() {
-  // 하천 시나리오가 다른 창/탭에서 바뀌어도 이 화면이 다시 그려지게 구독하고, 아래 "하천 시나리오" 패널에서 값도 읽는다
-  const riverRun = useRiverRun()
-  const riverFlowRatio = useMemo(() => riverFlowRatioAnalysis(riverRun), [riverRun])
-  const riverImpact = useMemo(() => riverImpactSummary(riverRun.pointState), [riverRun])
+  useRiverRun() // 하천 시나리오가 다른 창/탭에서 바뀌어도 이 화면이 다시 그려지게 구독만 한다
   const [params, setParams] = useSearchParams()
   const raw = params.get("tab")
   const tab: TabKey = raw === "gis" || raw === "cctv" ? raw : "summary"
@@ -351,98 +342,6 @@ export function DashboardPage() {
         </div>
       </>
     ),
-    river: riverRun.timeline.length === 0 ? (
-      <p className="pempty">
-        하천 시나리오가 실행 중이 아닙니다. <Link to="/river/scenario">시나리오 실행</Link>에서 엑셀을 업로드하면 여기서 확인할 수 있습니다.
-      </p>
-    ) : (
-      <>
-        <div className="pgroup">
-          <p className="pnote">
-            효돈천 시나리오 실행 중 · 현재 시각 {riverRun.timeline[riverRun.playheadIndex]?.observedAt ?? "-"}
-          </p>
-          <div className="kv-grid">
-            {(["돈내코", "쇠소깍"] as const).map((loc) => {
-              const p = riverRun.pointState[loc]
-              const last = riverFlowRatio.latest[loc]
-              return (
-                <div className="pbox" key={loc}>
-                  <small>{loc} · 시나리오 Q% 관측</small>
-                  <b>{p ? `${p.flowRatioPercent}% · ${riskStyles[p.level].label}` : "관측값 없음"}</b>
-                  <p className="s">{last ? `관측 ${last.observedAt}` : "시나리오 미입력"}</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-        {riverFlowRatio.series.length > 0 && (
-          <div style={{ marginTop: 12, height: 140 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={riverFlowRatio.series} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
-                <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
-                <YAxis tick={{ fontSize: 10, fill: "#ffffff88" }} unit="%" stroke="#3a3b3c" />
-                <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 11 }} />
-                <Legend wrapperStyle={{ fontSize: 10, color: "#ffffffaa" }} />
-                <Line type="monotone" dataKey="donnaeko" name="돈내코 Q%" stroke="#0054a3" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="soesokkak" name="쇠소깍 Q%" stroke="#8ec21f" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-        {IS_SIMULATION_MODE && (
-          <div className="pgroup">
-            <p className="pnote">판단 근거 (모의 — 위험등급 판정에는 쓰이지 않음)</p>
-            <div className="kv-grid">
-              <div className="pbox">
-                <small>모의 강우량</small>
-                <b>{riverRiskBasis.rainfall.value}</b>
-              </div>
-              <div className="pbox">
-                <small>모의 레이더</small>
-                <b>{riverRiskBasis.radar.value}</b>
-              </div>
-              <div className="pbox">
-                <small>모의 토양 포화도</small>
-                <b>{riverRiskBasis.saturation.value}</b>
-              </div>
-            </div>
-          </div>
-        )}
-        <div className="pgroup">
-          <p className="pnote">시나리오 활동 이력 — 실제 피해접수·기관 전파와 다름</p>
-          <ul className="plist">
-            {riverRun.history.length === 0 && <li className="pempty">이력 없음</li>}
-            {riverRun.history
-              .slice(-8)
-              .reverse()
-              .map((h) => (
-                <li key={h.id} className="row-between">
-                  <span className="t">{h.label}</span>
-                  <span className="s" style={{ margin: 0 }}>
-                    {h.simTime}
-                  </span>
-                </li>
-              ))}
-          </ul>
-        </div>
-        <div className="pgroup">
-          <p className="pnote">가상 자원·모의 영향 — {riverImpact.facilities.length}개 시설 · {riverImpact.totalPeople}명(모의)</p>
-          <ul className="plist">
-            {riverRun.resourceRequests.length === 0 && <li className="pempty">배치 요청 없음</li>}
-            {riverRun.resourceRequests.map((req) => (
-              <li key={req.id} className="row-between">
-                <span>{riverResources.find((r) => r.id === req.resourceId)?.label ?? req.resourceId}</span>
-                <Risk level={req.status === "복귀 완료" || req.status === "취소" ? "offline" : "info"} label={req.status} />
-              </li>
-            ))}
-          </ul>
-        </div>
-        <Link className="plink" to="/river/scenario">
-          시나리오 실행 화면에서 조작 →
-        </Link>
-      </>
-    ),
   }
 
   const summaryDockTabs: DockTab[] = [
@@ -456,7 +355,6 @@ export function DashboardPage() {
     { key: "news", label: "안전뉴스" },
     { key: "ai", label: "AI 분석", dummy: true },
     { key: "trend", label: "센서 추이", dummy: true },
-    { key: "river", label: "하천 시나리오", dummy: true },
   ].map((t) => ({ ...t, content: railContent[t.key] }))
 
   const gisLeftTabs: DockTab[] = [
@@ -469,7 +367,6 @@ export function DashboardPage() {
     { key: "asset", label: "자산현황", dummy: true },
     { key: "messenger", label: "방재메신저" },
     { key: "news", label: "안전뉴스" },
-    { key: "river", label: "하천 시나리오", dummy: true },
   ].map((t) => ({ ...t, content: railContent[t.key] }))
 
   const timelineFilters = (
