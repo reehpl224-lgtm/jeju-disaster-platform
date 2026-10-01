@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { riverResources } from "../../data/mockRiverResources"
@@ -6,6 +6,7 @@ import { riverImpactForPoint, riverRecommendedQty } from "../../data/riverMockIm
 import { useRiverRun } from "../../data/riverRunHooks"
 import {
   advance,
+  advanceTick,
   approveResourceRequest,
   cancelResourceRequest,
   confirmClosure,
@@ -18,6 +19,19 @@ import {
 } from "../../data/riverRunState"
 import { parseRiverTimelineWorkbook } from "../../data/riverTimelineWorkbook"
 import type { RiverTimelinePoint } from "../../types/riverRun"
+
+/** 표시용 시점 수 — 엑셀 행 수가 아니라 중복 제거한 관측시각 묶음 수로 센다(§7-3) */
+function uniqueObservedAtCount(points: { observedAt: string }[]) {
+  return new Set(points.map((p) => p.observedAt)).size
+}
+
+/** playheadIndex(행 인덱스)까지 진행된 관측시각 묶음 순번 */
+function batchPosition(points: { observedAt: string }[], playheadIndex: number) {
+  if (playheadIndex < 0) return 0
+  return new Set(points.slice(0, playheadIndex + 1).map((p) => p.observedAt)).size
+}
+
+const AUTO_PLAY_INTERVAL_MS = 5000
 
 export function RiverScenarioPage() {
   const run = useRiverRun()
@@ -44,9 +58,18 @@ export function RiverScenarioPage() {
   function startRun() {
     if (pending) {
       loadTimeline(pending)
+      advance() // 시작 시 첫 관측시각 묶음을 즉시 한 번 적용한다(§7-2)
       setPending(null)
     }
   }
+
+  // 자동 재생: playing이 true인 동안 5초마다 다음 관측시각 묶음을 진행한다(§7-2).
+  // 타이머는 이 컴포넌트에 종속되므로 화면을 벗어나면 정리되고, playing이 바뀔 때만 다시 만들어져 중복되지 않는다.
+  useEffect(() => {
+    if (!run.playing) return
+    const id = setInterval(() => advanceTick(), AUTO_PLAY_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [run.playing])
 
   function onReset() {
     if (!window.confirm("현재 시나리오와 실행 이력을 초기화할까요? 다시 진행하려면 엑셀을 업로드해야 합니다.")) return
@@ -96,7 +119,7 @@ export function RiverScenarioPage() {
         )}
         {pending && (
           <div className="mt-3 rounded-lg border border-accent/40 bg-accent-soft p-3">
-            <p className="text-sm text-white/80">검증 완료 — {pending.length}개 시점. 시작하면 새 실행(새 runId)으로 이전 실행을 대체합니다.</p>
+            <p className="text-sm text-white/80">검증 완료 — {uniqueObservedAtCount(pending)}개 시점. 시작하면 새 실행(새 runId)으로 이전 실행을 대체합니다.</p>
             <button className="mt-2 rounded bg-accent px-4 py-2 text-sm font-bold text-black" onClick={startRun}>
               이 시나리오로 시작
             </button>
@@ -112,7 +135,11 @@ export function RiverScenarioPage() {
         <>
           <Card title="② 재생 제어" subtitle={`실행 ID ${run.runId}`} dummy>
             <div className="flex flex-wrap items-center gap-3">
-              <RiskBadge level={run.endedAtSim ? "safe" : "info"} label={run.endedAtSim ? `종료(${run.endReason})` : `시점 ${run.playheadIndex + 1}/${run.timeline.length}`} solid />
+              <RiskBadge
+                level={run.endedAtSim ? "safe" : "info"}
+                label={run.endedAtSim ? `종료(${run.endReason})` : `시점 ${batchPosition(run.timeline, run.playheadIndex)}/${uniqueObservedAtCount(run.timeline)}`}
+                solid
+              />
               <span className="text-sm text-white/70">
                 {point
                   ? `${point.observedAt} · 돈내코 ${run.pointState.돈내코?.flowRatioPercent ?? "-"}% · 쇠소깍 ${run.pointState.쇠소깍?.flowRatioPercent ?? "-"}%`

@@ -1,8 +1,10 @@
 import type { RiverRunState, RiverTimelinePoint, RiverResourceRequest } from "../types/riverRun"
+import type { RiskLevel } from "../types/domain"
 import { classifyRiverRisk, riverLevelRank, RIVER_LEVELS } from "./riverAlertThresholds"
 import { riverResources } from "./mockRiverResources"
 import { riverImpactSummary } from "./riverMockImpact"
-import { scopedKey } from "./appEnv"
+import { IS_SIMULATION_MODE, scopedKey } from "./appEnv"
+import { deriveRiverScenarioObservation } from "./riverScenarioObservations"
 import * as DB from "./mockDashboard"
 import * as RV from "./mockRiver"
 
@@ -87,6 +89,9 @@ const listeners = new Set<() => void>()
 const emptyAlertDispatch = structuredClone(RV.riverAlertDispatch)
 const emptyDispatchRequest = structuredClone(RV.riverDispatchRequest)
 const emptyClosure = structuredClone(RV.riverClosure)
+const emptyRiskBasis = structuredClone(RV.riverRiskBasis)
+const emptySuddenRainAlert = structuredClone(RV.riverSuddenRainAlert)
+const emptyWaterLevelAiForecast = structuredClone(RV.riverWaterLevelAiForecast)
 
 let channel: BroadcastChannel | null = null
 // window가 없는 환경(Node 테스트 등)에서는 만들지 않는다 — BroadcastChannel은 핸들을 열어두므로
@@ -141,12 +146,16 @@ export function currentSimTime(): string {
   return p?.observedAt ?? state.createdAtSim
 }
 
-function worstLevel() {
-  const levels = Object.values(state.pointState)
+function worstLevelOf(pointState: RiverRunState["pointState"]) {
+  const levels = Object.values(pointState)
     .filter((v): v is NonNullable<typeof v> => !!v)
     .map((v) => v.level)
   if (levels.length === 0) return "safe" as const
   return levels.reduce((a, b) => (riverLevelRank(b) > riverLevelRank(a) ? b : a))
+}
+
+function worstLevel() {
+  return worstLevelOf(state.pointState)
 }
 
 // ------------------------------------------------------------------ 명령(commands)
@@ -165,10 +174,15 @@ export function loadTimeline(points: RiverTimelinePoint[]) {
   })
 }
 
-/** 관측 한 건을 지점 상태에 반영(상향은 즉시, 하향은 한 단계씩 HOLD_DOWN_MIN분 유지 후) */
+/**
+ * 관측 한 건을 지점 상태에 반영(상향은 즉시, 하향은 한 단계씩 HOLD_DOWN_MIN분 유지 후).
+ * 반환값은 우측 타임라인 이력 기록용(§7-4) — 변경 전 등급과 새 하향 대기 시작 여부를 알려준다.
+ */
 function applyPointObservation(d: RiverRunState, point: RiverTimelinePoint, simNow: string) {
   const candidate = classifyRiverRisk(point.flowRatioPercent)
   const cur = d.pointState[point.location]
+  const before = cur?.level
+  let pendingDownStarted: RiskLevel | undefined
   if (!cur) {
     d.pointState[point.location] = { level: candidate, sinceSim: simNow, flowRatioPercent: point.flowRatioPercent }
   } else if (riverLevelRank(candidate) > riverLevelRank(cur.level)) {
@@ -181,6 +195,7 @@ function applyPointObservation(d: RiverRunState, point: RiverTimelinePoint, simN
       const pending = d.pendingDown[point.location]
       if (!pending || pending.level !== oneStepDown) {
         d.pendingDown[point.location] = { level: oneStepDown, sinceSim: simNow }
+        pendingDownStarted = oneStepDown
       } else if (diffMinutes(simNow, pending.sinceSim) >= HOLD_DOWN_MIN) {
         d.pointState[point.location] = { level: oneStepDown, sinceSim: pending.sinceSim, flowRatioPercent: point.flowRatioPercent }
         d.pendingDown[point.location] = undefined
@@ -190,6 +205,7 @@ function applyPointObservation(d: RiverRunState, point: RiverTimelinePoint, simN
     d.pendingDown[point.location] = undefined
   }
   d.pointState[point.location]!.flowRatioPercent = point.flowRatioPercent // 표시용 최신 입력값은 등급과 무관하게 항상 갱신
+  return { before, after: d.pointState[point.location]!.level, pendingDownStarted }
 }
 
 /**
@@ -205,12 +221,31 @@ export function advance() {
     let endIndex = startIndex
     while (endIndex + 1 < d.timeline.length && d.timeline[endIndex + 1].observedAt === batchObservedAt) endIndex += 1
     d.playheadIndex = endIndex
+    if (endIndex >= d.timeline.length - 1) d.playing = false // 마지막 시점 도달 — 자동 재생 타이머 정리(§7-2)
     const simNow = batchObservedAt
 
     if (d.flow.감지 === undefined) d.flow.감지 = hhmm(simNow)
     if (d.flow.확인 === undefined) d.flow.확인 = hhmm(simNow)
 
-    for (let i = startIndex; i <= endIndex; i++) applyPointObservation(d, d.timeline[i], simNow)
+    // 같은 관측시각 묶음의 지점별 결과를 모아 우측 타임라인에 한 줄로 기록한다(staging-river-scenario-sample §7-4)
+    const events = new Map<RiverTimelinePoint["location"], { before?: RiskLevel; after: RiskLevel; flowRatioPercent: number; pendingDownStarted?: RiskLevel }>()
+    for (let i = startIndex; i <= endIndex; i++) {
+      const point = d.timeline[i]
+      events.set(point.location, { ...applyPointObservation(d, point, simNow), flowRatioPercent: point.flowRatioPercent })
+    }
+    const parts = (["돈내코", "쇠소깍"] as const)
+      .filter((loc) => events.has(loc))
+      .map((loc) => {
+        const ev = events.get(loc)!
+        const stage = ev.before && ev.before !== ev.after ? `${STAGE_LABEL[ev.before]}→${STAGE_LABEL[ev.after]}` : STAGE_LABEL[ev.after]
+        return `${loc} ${ev.flowRatioPercent}%(${stage})`
+      })
+    if (parts.length > 0) d.history.push({ id: uid("hist"), simTime: hhmm(simNow), label: `관측 ${parts.join(" · ")}` })
+    for (const [loc, ev] of events) {
+      if (ev.pendingDownStarted) {
+        d.history.push({ id: uid("hist"), simTime: hhmm(simNow), label: `${loc} 하향 대기 시작 → ${STAGE_LABEL[ev.pendingDownStarted]}(${HOLD_DOWN_MIN}분 유지 필요)` })
+      }
+    }
 
     // 모의 출동 중인 자원의 도착 처리(예약된 사건을 시각 순서대로 적용)
     for (const req of d.resourceRequests) {
@@ -229,6 +264,23 @@ export function togglePlaying() {
   commit((d) => {
     d.playing = !d.playing
   })
+}
+
+function stopPlaying() {
+  commit((d) => {
+    d.playing = false
+  })
+}
+
+/**
+ * 자동 재생 타이머가 호출하는 명령(§7-2) — advance() 뒤 경계·심각에 처음 도달했는데
+ * 아직 경보 승인 전이면 자동 일시정지한다. 수동 "다음 시점" 버튼은 advance()를 직접 호출해
+ * 이 정지 로직의 영향을 받지 않는다.
+ */
+export function advanceTick() {
+  advance()
+  const worst = worstLevel()
+  if (state.playing && (worst === "alert" || worst === "danger") && state.flow.경보 === undefined) stopPlaying()
 }
 
 /** 경보 발령 승인(/river/alert) — 판단·경보 단계를 함께 완료 처리한다. 승인 시점 등급을 얼려서 기록한다 */
@@ -337,6 +389,7 @@ export function confirmClosure(): { ok: boolean; reason?: string } {
     d.endedAtSim = simNow
     d.endReason = "정상 종료"
     d.flow.종료 = hhmm(simNow)
+    d.playing = false // 종료 시 자동 재생 타이머 정리(§7-2)
     d.history.push({ id: uid("hist"), simTime: hhmm(simNow), label: "정상 종료 확인" })
   })
   return result
@@ -349,6 +402,7 @@ export function forceCloseRun() {
     d.endedAtSim = simNow
     d.endReason = "예외 강제 종료"
     d.flow.종료 = `${hhmm(simNow)}(강제)`
+    d.playing = false // 종료 시 자동 재생 타이머 정리(§7-2)
     d.history.push({ id: uid("hist"), simTime: hhmm(simNow), label: "예외 강제 종료" })
   })
 }
@@ -380,6 +434,67 @@ function resetAndAssign<T extends object>(target: T, next: Partial<T>) {
 
 const STAGE_LABEL: Record<string, string> = { safe: "정상", caution: "관심", warning: "주의", alert: "경계", danger: "심각" }
 
+/**
+ * 스테이징에서만 Q% 시나리오와 주변 모의 관측을 함께 움직인다.
+ * Q%는 실제 수위(m)가 아니므로 waterLevel.value도 %로 표시하고, 실제 센서·조위 시계열은 채우지 않는다.
+ */
+function projectScenarioObservations() {
+  if (!IS_SIMULATION_MODE) return
+  const observation = deriveRiverScenarioObservation(state)
+  if (!observation) {
+    resetAndAssign(RV.riverRiskBasis, structuredClone(emptyRiskBasis))
+    resetAndAssign(RV.riverSuddenRainAlert, structuredClone(emptySuddenRainAlert))
+    resetAndAssign(RV.riverWaterLevelAiForecast, structuredClone(emptyWaterLevelAiForecast))
+    return
+  }
+
+  const previousRatio = observation.previousFlowRatioPercent === null ? "첫 관측" : `직전 ${observation.previousFlowRatioPercent}%`
+  resetAndAssign(RV.riverRiskBasis, {
+    rainfall: {
+      value: `${observation.rainfallHourlyMm}mm/h`,
+      detail: "시나리오 연동 모의 강우",
+      trend: `일누적 ${observation.rainfallDayMm}mm · ${observation.rainfallTrend}`,
+    },
+    waterLevel: {
+      value: `${observation.flowRatioPercent}%`,
+      detail: `${observation.leadLocation} 계획홍수량 대비(Q%) · 실측 수위(m) 아님`,
+      trend: `${previousRatio} → 현재 ${observation.flowRatioPercent}% · ${observation.flowTrend}`,
+    },
+    radar: {
+      value: observation.radarLabel,
+      detail: "Q% 단계 연동 모의 강우대",
+      confidence: "실측 아님",
+    },
+    saturation: {
+      value: `${observation.saturationPercent}%`,
+      detail: "누적 모의 강우 기반 추정",
+      grade: observation.saturationGrade,
+    },
+  })
+
+  // 이번 파일럿의 독립 AI 조기경고 입력은 여전히 제외한다. 값은 상황 참고용이며 위험등급을 바꾸지 않는다.
+  resetAndAssign(RV.riverSuddenRainAlert, {
+    forecastMm: observation.rainfallHourlyMm,
+    observedMm: observation.rainfallHourlyMm,
+    detectedAt: observation.observedAt,
+    level: "safe",
+    label: "모의 참고",
+    trendNote: `Q% 시나리오 연동 · ${observation.rainfallTrend}`,
+    aiNote: "스테이징 Q%로 생성한 모의 강우 참고값입니다. 독립 AI 조기경고 판정에는 사용하지 않습니다.",
+    confirmNote: "위험등급과 대응 단계는 업로드한 계획홍수량 대비 비율(Q%)로만 결정됩니다.",
+  })
+
+  resetAndAssign(RV.riverWaterLevelAiForecast, {
+    basis: "계획홍수량 대비 비율(Q%) 시나리오 입력 — 실측 수위(m) 아님",
+    sixHourAgoM: null,
+    currentM: null,
+    trendNote: `${observation.leadLocation} Q% ${observation.flowTrend}`,
+    status: `${STAGE_LABEL[observation.currentLevel]} · Q% 모의`,
+    aiNote: "Q% 변화 추세만 표시합니다. 실제 수위(m) 예측은 수위 센서가 연동되기 전까지 생성하지 않습니다.",
+    confirmNote: "현재 카드는 시나리오 검토용이며 실제 수위 경보로 사용할 수 없습니다.",
+  })
+}
+
 function projectToMock() {
   if (state.timeline.length === 0) return // 시나리오 미로딩 — 초기화된 평시 mock을 그대로 둔다
 
@@ -391,6 +506,8 @@ function projectToMock() {
     st.eta = p && p.level !== "safe" ? "관측 기반 추이 확인 중" : "해당 없음"
     st.updatedAt = state.timeline[state.playheadIndex]?.observedAt ?? st.updatedAt
   }
+
+  projectScenarioObservations()
 
   // 서비스 카드 집계·지도 마커도 riverStatuses와 같은 등급을 쓴다(consistency.ts가 검사하는 그 규칙)
   const tiers = ["caution", "warning", "alert", "danger"] as const

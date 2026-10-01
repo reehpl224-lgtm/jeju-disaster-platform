@@ -5,6 +5,7 @@ import { LIVE } from "../../components/ui/dataSource"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { riverPipeline, riverHydrology, riverPredictionOutput } from "../../data/mockMeetingItems"
 import { riverFlowRatioAnalysis } from "../../data/riverFlowRatioAnalysis"
+import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import { useRiverRun } from "../../data/riverRunHooks"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
@@ -73,19 +74,23 @@ export function RiverAnalysisPage() {
         )}
       </Card>
 
-      <Card title="돌발 강우 AI 조기경고" subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`} dummy>
+      <Card title={IS_SIMULATION_MODE ? "시나리오 분석 — 모의 강우 참고" : "돌발 강우 AI 조기경고"} subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`} dummy>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div>
-              <p className="text-[11px] font-medium text-white/40">기상청 예보</p>
-              <p className="mt-1 text-lg font-bold text-white/70">{riverSuddenRainAlert.forecastMm}mm</p>
+              <p className="text-[11px] font-medium text-white/40">{IS_SIMULATION_MODE ? "모의 기준" : "기상청 예보"}</p>
+              <p className="mt-1 text-lg font-bold text-white/70">{riverSuddenRainAlert.forecastMm}{IS_SIMULATION_MODE ? "mm/h" : "mm"}</p>
             </div>
             <span className="text-xl text-white/30">→</span>
             <div>
-              <p className="text-[11px] font-medium text-white/40">실측</p>
-              <p className="mt-1 text-lg font-bold text-risk-warning">{riverSuddenRainAlert.observedMm}mm</p>
+              <p className="text-[11px] font-medium text-white/40">{IS_SIMULATION_MODE ? "모의 강우" : "실측"}</p>
+              <p className="mt-1 text-lg font-bold text-risk-warning">{riverSuddenRainAlert.observedMm}{IS_SIMULATION_MODE ? "mm/h" : "mm"}</p>
             </div>
-            {riverSuddenRainAlert.level !== "safe" && riverSuddenRainAlert.forecastMm > 0 ? (
+            {IS_SIMULATION_MODE ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle px-3 py-1 text-xs font-bold text-white/50">
+                시나리오 참고 · 독립 AI 판정 안 함
+              </span>
+            ) : riverSuddenRainAlert.level !== "safe" && riverSuddenRainAlert.forecastMm > 0 ? (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
                 AI 조기경고 · 예보 대비 +
                 {Math.round(((riverSuddenRainAlert.observedMm - riverSuddenRainAlert.forecastMm) / riverSuddenRainAlert.forecastMm) * 100)}%
@@ -132,10 +137,10 @@ export function RiverAnalysisPage() {
       <Card title="위험 근거 데이터" dummy>
         <StatTiles
           items={[
-            { label: "강우량 (1h 누적)", value: riverRiskBasis.rainfall.value, sub: `${riverRiskBasis.rainfall.detail} · ${riverRiskBasis.rainfall.trend}` },
-            { label: "현재 수위", value: riverRiskBasis.waterLevel.value, sub: `${riverRiskBasis.waterLevel.detail} · ${riverRiskBasis.waterLevel.trend}` },
-            { label: "강우레이더 예측", value: riverRiskBasis.radar.value, sub: `${riverRiskBasis.radar.detail} · ${riverRiskBasis.radar.confidence}` },
-            { label: "유역 포화도", value: riverRiskBasis.saturation.value, sub: `${riverRiskBasis.saturation.detail} · ${riverRiskBasis.saturation.grade}` },
+            { label: IS_SIMULATION_MODE ? "모의 강우량 (시간당)" : "강우량 (1h 누적)", value: riverRiskBasis.rainfall.value, sub: `${riverRiskBasis.rainfall.detail} · ${riverRiskBasis.rainfall.trend}` },
+            { label: IS_SIMULATION_MODE ? "수위 지표(Q%)" : "현재 수위", value: riverRiskBasis.waterLevel.value, sub: `${riverRiskBasis.waterLevel.detail} · ${riverRiskBasis.waterLevel.trend}` },
+            { label: IS_SIMULATION_MODE ? "모의 강우레이더" : "강우레이더 예측", value: riverRiskBasis.radar.value, sub: `${riverRiskBasis.radar.detail} · ${riverRiskBasis.radar.confidence}` },
+            { label: IS_SIMULATION_MODE ? "모의 유역 포화도" : "유역 포화도", value: riverRiskBasis.saturation.value, sub: `${riverRiskBasis.saturation.detail} · ${riverRiskBasis.saturation.grade}` },
           ]}
         />
       </Card>

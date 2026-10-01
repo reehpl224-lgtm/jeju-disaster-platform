@@ -36,8 +36,11 @@ globalThis.localStorage = {
   removeItem: (key) => stored.delete(key),
 }
 
-const { advance, approveAlert, approveDispatch, forceCloseRun, getRunState, loadTimeline, resetRun } = await import("../src/data/riverRunState.ts")
+const { advance, advanceTick, approveAlert, approveDispatch, forceCloseRun, getRunState, loadTimeline, resetRun, togglePlaying } = await import(
+  "../src/data/riverRunState.ts"
+)
 const { riverFlowRatioAnalysis } = await import("../src/data/riverFlowRatioAnalysis.ts")
+const { deriveRiverScenarioObservation, deriveRiverScenarioWeather } = await import("../src/data/riverScenarioObservations.ts")
 const { riverAlertDispatch, riverClosure, riverDispatchRequest } = await import("../src/data/mockRiver.ts")
 const points = [
   { location: "돈내코", observedAt: "2026-09-30 09:00", flowRatioPercent: 70 },
@@ -111,4 +114,89 @@ test("같은 관측시각의 돈내코·쇠소깍 행은 다음 시점 1회로 �
   assert.equal(getRunState().pointState.쇠소깍.flowRatioPercent, 35)
   assert.equal(getRunState().pointState.돈내코.level, "caution")
   assert.equal(getRunState().pointState.쇠소깍.level, "caution")
+})
+
+test("advance()는 관측 묶음과 등급 전환을 우측 타임라인 이력으로 남기고, 마지막 시점에서 자동 재생을 정지한다", () => {
+  loadTimeline([
+    { location: "돈내코", observedAt: "2026-09-30 09:00", flowRatioPercent: 12 },
+    { location: "쇠소깍", observedAt: "2026-09-30 09:00", flowRatioPercent: 15 },
+    { location: "돈내코", observedAt: "2026-09-30 09:10", flowRatioPercent: 78 },
+    { location: "쇠소깍", observedAt: "2026-09-30 09:10", flowRatioPercent: 85 },
+  ])
+  advance()
+  assert.equal(getRunState().history.at(-1).label, "관측 돈내코 12%(정상) · 쇠소깍 15%(정상)")
+
+  advance()
+  assert.equal(getRunState().history.at(-1).label, "관측 돈내코 78%(정상→경계) · 쇠소깍 85%(정상→경계)")
+  assert.equal(getRunState().playheadIndex, 3)
+  assert.equal(getRunState().playing, false) // 마지막 시점 도달 — 자동 재생 상태였다면 정리되어야 한다(§7-2)
+})
+
+test("advanceTick()은 경계·심각에 처음 도달했는데 경보 승인 전이면 자동 재생을 일시정지한다", () => {
+  loadTimeline([
+    { location: "돈내코", observedAt: "2026-09-30 09:00", flowRatioPercent: 12 },
+    { location: "쇠소깍", observedAt: "2026-09-30 09:00", flowRatioPercent: 15 },
+    { location: "돈내코", observedAt: "2026-09-30 09:10", flowRatioPercent: 78 },
+    { location: "쇠소깍", observedAt: "2026-09-30 09:10", flowRatioPercent: 85 },
+    { location: "돈내코", observedAt: "2026-09-30 09:20", flowRatioPercent: 80 },
+    { location: "쇠소깍", observedAt: "2026-09-30 09:20", flowRatioPercent: 88 },
+    { location: "돈내코", observedAt: "2026-09-30 09:30", flowRatioPercent: 82 },
+    { location: "쇠소깍", observedAt: "2026-09-30 09:30", flowRatioPercent: 90 },
+  ])
+  togglePlaying() // playing: false -> true, 자동 재생 시작
+  advanceTick() // 09:00 정상 — 정지 사유 없음
+  assert.equal(getRunState().playing, true)
+
+  advanceTick() // 09:10 경계 진입, 경보 미승인 — 자동 정지되어야 한다
+  assert.equal(getRunState().playheadIndex, 3)
+  assert.equal(getRunState().playing, false)
+
+  togglePlaying() // 사용자가 확인 후 다시 재생
+  approveAlert()
+  advanceTick() // 09:20 경계 유지, 이미 경보 승인됨 — 더 이상 자동 정지하지 않는다(마지막 시점도 아님)
+  assert.equal(getRunState().playheadIndex, 5)
+  assert.equal(getRunState().playing, true)
+
+  advanceTick() // 09:30이 마지막 시점 — advance() 자체가 정지시킨다
+  assert.equal(getRunState().playheadIndex, 7)
+  assert.equal(getRunState().playing, false)
+})
+
+test("Q% 시나리오의 모의 강우·레이더·포화도는 결정적으로 함께 변하고 실제 수위(m)를 만들지 않는다", () => {
+  const run = {
+    runId: "derived-test",
+    createdAtSim: "2026-09-30 09:00",
+    timeline: [
+      { location: "돈내코", observedAt: "2026-09-30 09:00", flowRatioPercent: 10 },
+      { location: "쇠소깍", observedAt: "2026-09-30 09:00", flowRatioPercent: 12 },
+      { location: "돈내코", observedAt: "2026-09-30 09:15", flowRatioPercent: 75 },
+      { location: "쇠소깍", observedAt: "2026-09-30 09:15", flowRatioPercent: 40 },
+    ],
+    playheadIndex: 3,
+    playing: false,
+    pointState: { 돈내코: undefined, 쇠소깍: undefined },
+    pendingDown: { 돈내코: undefined, 쇠소깍: undefined },
+    flow: {},
+    resourceRequests: [],
+    history: [],
+    closurePending: false,
+    version: 0,
+  }
+
+  const observation = deriveRiverScenarioObservation(run)
+  assert.equal(observation.currentLevel, "alert")
+  assert.equal(observation.leadLocation, "돈내코")
+  assert.equal(observation.flowRatioPercent, 75)
+  assert.equal(observation.rainfallHourlyMm, 15)
+  assert.equal(observation.rainfallDayMm, 3.8)
+  assert.equal(observation.radarLabel, "강한 강우대")
+  assert.equal(observation.saturationPercent, 76)
+
+  const weather = deriveRiverScenarioWeather(run)
+  assert.equal(weather.tm, "202609300915")
+  assert.equal(weather.rain60mMm, observation.rainfallHourlyMm)
+  assert.equal(weather.rainDayMm, observation.rainfallDayMm)
+
+  const repeated = deriveRiverScenarioObservation(run)
+  assert.deepEqual(repeated, observation)
 })

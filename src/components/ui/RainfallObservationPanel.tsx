@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import { fetchRiverReferenceRainfall } from "../../data/rainfallApi"
+import { useRiverRun } from "../../data/riverRunHooks"
 import type { RainfallStation } from "../../types/rainfallApi"
 
 function formatTm(tm: string) {
@@ -10,6 +11,9 @@ function formatTm(tm: string) {
 
 /** 기상청 API허브 방재기상관측(AWS) 매분자료 실시간 연동 패널 — /river(하천범람)용. */
 export function RainfallObservationPanel() {
+  // 스테이징에서는 시나리오가 진행될 때(version 증가)마다 모의 관측을 다시 계산한다(§7-5).
+  // 실연동 모드에서도 version은 사실상 고정값이라 최초 1회 조회만 일어난다.
+  const { version } = useRiverRun()
   const [stations, setStations] = useState<RainfallStation[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -18,7 +22,10 @@ export function RainfallObservationPanel() {
     let cancelled = false
     fetchRiverReferenceRainfall()
       .then((res) => {
-        if (!cancelled) setStations(res)
+        if (!cancelled) {
+          setStations(res)
+          setError(null)
+        }
       })
       .catch((err: Error) => {
         if (!cancelled) setError(err.message)
@@ -29,7 +36,7 @@ export function RainfallObservationPanel() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [version])
 
   if (loading) return <p className="py-4 text-center text-xs text-white/30">불러오는 중...</p>
 
