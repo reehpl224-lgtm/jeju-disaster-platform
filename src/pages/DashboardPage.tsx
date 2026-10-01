@@ -10,6 +10,7 @@ import { JejuVectorMap } from "../components/ui/JejuVectorMap"
 import { VilageForecastPanel } from "../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../components/ui/WarningsPanel"
 import { useRiverRun } from "../data/riverRunHooks"
+import { riverResources } from "../data/mockRiverResources"
 import {
   HorizontalTabsDock,
   MessengerFab,
@@ -69,7 +70,8 @@ const REGIONS = ["제주시", "서귀포시"] as const
 type TabKey = "summary" | "gis" | "cctv"
 
 export function DashboardPage() {
-  useRiverRun() // 하천 시나리오가 다른 창/탭에서 바뀌어도 이 화면이 다시 그려지게 구독만 한다
+  // 하천 시나리오가 다른 창/탭에서 바뀌어도 이 화면이 다시 그려지게 구독하고, 아래 타임라인·대응현황 패널에서 값도 읽는다
+  const riverRun = useRiverRun()
   const [params, setParams] = useSearchParams()
   const raw = params.get("tab")
   const tab: TabKey = raw === "gis" || raw === "cctv" ? raw : "summary"
@@ -165,6 +167,19 @@ export function DashboardPage() {
             </p>
           </li>
         ))}
+        {/* 하천 시나리오 실행 이력 — 실제 피해접수가 아니라 시나리오 조작 기록이라 라벨로 구분한다 */}
+        {riverRun.history
+          .slice(-10)
+          .reverse()
+          .map((h) => (
+            <li key={h.id}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Risk level="info" />
+                <span className="t">[하천 시나리오] {h.label}</span>
+              </div>
+              <p className="s">{h.simTime} · 모의 — 실제 피해접수 아님</p>
+            </li>
+          ))}
       </ul>
     ),
     broadcast: (
@@ -258,6 +273,19 @@ export function DashboardPage() {
             ))}
           </ul>
         </div>
+        {riverRun.resourceRequests.length > 0 && (
+          <div className="pgroup">
+            <p className="pnote">하천 시나리오 — 가상 자원(모의)</p>
+            <ul className="plist">
+              {riverRun.resourceRequests.map((req) => (
+                <li key={req.id} className="row-between">
+                  <span>{riverResources.find((r) => r.id === req.resourceId)?.label ?? req.resourceId}</span>
+                  <Risk level={req.status === "복귀 완료" || req.status === "취소" ? "offline" : "info"} label={req.status} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </>
     ),
     contact: <DutyContactPanel />,
@@ -406,7 +434,7 @@ export function DashboardPage() {
       dummy: true,
       content: (
         <ul className="plist">
-          {filteredIncidents.length === 0 && <li className="pempty">조건에 맞는 항목이 없습니다.</li>}
+          {filteredIncidents.length === 0 && riverRun.history.length === 0 && <li className="pempty">조건에 맞는 항목이 없습니다.</li>}
           {filteredIncidents.map((incident) => (
             <li key={incident.id}>
               <div className="row-between">
@@ -421,6 +449,24 @@ export function DashboardPage() {
               </p>
             </li>
           ))}
+          {/* 하천 시나리오 실행 이력 — 실제 피해접수 필터(유형·검색)와는 무관하게 항상 보여준다 */}
+          {riverRun.history
+            .slice(-10)
+            .reverse()
+            .map((h) => (
+              <li key={h.id}>
+                <div className="row-between">
+                  <span className="time">{h.simTime}</span>
+                  <Risk level="info" label="시나리오" solid />
+                </div>
+                <p className="mt">
+                  <Risk level="info" label="하천 시나리오" />
+                </p>
+                <p className="t" style={{ marginTop: 4 }}>
+                  {h.label}
+                </p>
+              </li>
+            ))}
         </ul>
       ),
     },
