@@ -2,6 +2,7 @@ import { AQUA_NAV } from "../../pages/aqua/aquaNav"
 import { COAST_NAV } from "../../pages/coast/coastNav"
 import { HEAT_NAV } from "../../pages/heat/heatNav"
 import { HEAVY_RAIN_NAV } from "../../pages/heavyrain/heavyRainNav"
+import { SNOW_NAV, TSUNAMI_NAV, WILDFIRE_NAV } from "../../pages/hazard/hazardNav"
 import { RIVER_NAV } from "../../pages/river/riverNav"
 import { TYPHOON_NAV } from "../../pages/typhoon/typhoonNav"
 
@@ -19,10 +20,13 @@ export const underPath = (pathname: string, path: string) => pathname === path |
 
 /** 도메인 경로 접두사 → 사이드바 제목·메뉴. items[0]("홈" — 지도 상황판)은 "상세 대시보드"가 새 창으로 열리게 되면서
  *  사이드바에서 주석 처리함(2026-09-28) — 아래 DomainSidebar의 items 구성부 참고 */
-const DOMAINS: { prefix: string; title: string; icon: string; items: NavItem[] }[] = [
+export const DOMAINS: { prefix: string; title: string; icon: string; items: NavItem[] }[] = [
   { prefix: "/heavy-rain", title: "호우", icon: "☔", items: HEAVY_RAIN_NAV },
   { prefix: "/typhoon", title: "태풍", icon: "🌀", items: TYPHOON_NAV },
   { prefix: "/heat", title: "폭염 대응", icon: "🔆", items: HEAT_NAV },
+  { prefix: "/wildfire", title: "산불", icon: "🔥", items: WILDFIRE_NAV },
+  { prefix: "/tsunami", title: "지진해일", icon: "🛟", items: TSUNAMI_NAV },
+  { prefix: "/snow", title: "대설", icon: "❄️", items: SNOW_NAV },
   { prefix: "/river", title: "하천범람", icon: "🏞️", items: RIVER_NAV },
   { prefix: "/aqua", title: "저염분 고수온", icon: "🌡️", items: AQUA_NAV },
   { prefix: "/coast", title: "연안 안전관리", icon: "🌊", items: COAST_NAV },

@@ -10,6 +10,7 @@ import { getRunState } from "../../data/riverRunState"
 import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import * as AQ from "../../data/mockAqua"
 import * as CO from "../../data/mockCoast"
+import { HAZARDS, type HazardId } from "../../data/mockHazards"
 import { FLOW_STEPS, type FlowProgress } from "../../types/flow"
 
 /**
@@ -162,6 +163,39 @@ export function heavyRainBrief(): LeaderBrief {
       contactRow("general"),
       { k: "경보 발송 결과", v: ad.sentAt !== "-" ? channelLine(ad) : "발송 없음" },
       { k: "레거시 연계", v: `연계 진행중 ${linked}/${HR.legacySystems.length}개 시스템` },
+    ],
+  }
+}
+
+// ------------------------------------------------------------------ 산불·지진해일·대설
+const HAZARD_EVIDENCE: Record<HazardId, string> = {
+  wildfire: "기상청 건조·강풍 특보 · Open-Meteo 습도·풍속 예보(참고)",
+  tsunami: "기상청 지진해일·해일 특보 · USGS 최근 지진(참고)",
+  snow: "기상청 대설·한파 특보 · Open-Meteo 적설·기온 예보(참고)",
+}
+
+/** 자체 관측·시나리오 데이터가 없는 추가 재난 유형 — 평시 브리핑. 경보를 발령하면 결재 항목이 생긴다 */
+export function hazardBrief(id: HazardId): LeaderBrief {
+  const h = HAZARDS[id]
+  const ad = h.dispatch
+  const linked = h.legacy.filter((s) => s.linkStatus === "연계 진행중").length
+  return {
+    title: `${h.title} — 감지된 위험 없음`,
+    lines: ["자체 관측 데이터 없음 — 기상청 특보와 공개 예보를 참고해 평시 감시 중", ...(ad.sentAt !== "-" ? [`${ad.title} ${ad.sentAt} 발령`] : [])],
+    level: "safe",
+    badge: "평시",
+    kpis: [
+      { k: "발령 경보", v: ad.sentAt !== "-" ? ad.stage : "없음" },
+      { k: "레거시 연계", v: `${linked}/${h.legacy.length}`, d: "연계 진행중 기준" },
+    ],
+    tasks: dispatchTask(ad, `${h.path}/alert`),
+    idle: "결재·지시 대기 없음 — 평시 감시 중",
+    evidence: [{ k: "참고 지표", v: HAZARD_EVIDENCE[id] }],
+    outlook: [h.subtitle],
+    response: [
+      contactRow("general"),
+      { k: "경보 발송 결과", v: ad.sentAt !== "-" ? channelLine(ad) : "발송 없음" },
+      { k: "레거시 연계", v: `연계 진행중 ${linked}/${h.legacy.length}개 시스템` },
     ],
   }
 }

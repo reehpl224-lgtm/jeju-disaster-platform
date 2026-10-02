@@ -39,6 +39,19 @@ import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeam
 import { cctvCameras, cctvCoverageSummary } from "../data/mockCctv"
 import { overallStatus } from "../data/mockMonitoring"
 import { sequentialPropagation, simultaneousPropagationGoal } from "../data/mockPropagation"
+import {
+  AquaChecklistBlock,
+  AquaSeriesBlock,
+  CoastChecklistBlock,
+  CoastCrowdBlock,
+  IntakeBlock,
+  PlumeHeatmapBlock,
+  PropagationInfraBlock,
+  RiverForecastBlock,
+  RiverPointsBlock,
+  TideBlock,
+  VlmBlock,
+} from "./dashboard/PilotBatchBlocks"
 import { riskStyles } from "../components/ui/riskStyles"
 
 /**
@@ -55,6 +68,9 @@ const MAP_DOMAIN_FILTERS: { id: RiskMarker["domain"] | "all"; label: string }[] 
   { id: "heavyRain", label: "호우" },
   { id: "typhoon", label: "태풍" },
   { id: "heat", label: "폭염" },
+  { id: "wildfire", label: "산불" },
+  { id: "tsunami", label: "지진해일" },
+  { id: "snow", label: "대설" },
   { id: "river", label: "하천" },
   { id: "coast", label: "연안" },
   { id: "aqua", label: "해안관측" },
@@ -71,11 +87,8 @@ const CCTV_DOMAIN_LABEL = Object.fromEntries(CCTV_DOMAIN_FILTERS.map((f) => [f.i
 
 const REGIONS = ["제주시", "서귀포시"] as const
 
-// 종합상황 지도 영역 상단 상태정보 — 예전엔 헤더에 있던 위험 건수 요약(서비스 카드와 같은 4단계, 관심 포함)
-const RISK_TOTALS = (["danger", "alert", "warning", "caution"] as const).map((level) => ({
-  level,
-  count: serviceStatusCards.reduce((sum, card) => sum + (card.counts[level] ?? 0), 0),
-}))
+// 높은 등급부터 — 서비스 카드와 같은 4단계(관심 포함). 건수는 하천 시나리오가 카드 값을 바꾸므로 렌더 때마다 합산한다
+const RISK_ORDER = ["danger", "alert", "warning", "caution"] as const
 
 type TabKey = "summary" | "gis" | "cctv"
 
@@ -137,6 +150,12 @@ export function DashboardPage() {
     (sum, card) => sum + card.counts.danger + card.counts.alert + card.counts.warning + (card.counts.caution ?? 0),
     0,
   )
+  const riskTotals = RISK_ORDER.map((level) => ({
+    level,
+    count: serviceStatusCards.reduce((sum, card) => sum + (card.counts[level] ?? 0), 0),
+  }))
+  // 상황단계 = 서비스 전체에서 건수가 있는 가장 높은 등급(없으면 평시)
+  const stageLevel = riskTotals.find((t) => t.count > 0)?.level
   const totalDutyMembers = disasterResponseTeams.reduce((sum, team) => sum + team.members, 0)
   const dispatchedTeams = disasterResponseTeams.filter((team) => team.status === "출동중").length
   const connectedAgencies = agencyStatuses.filter((a) => a.status === "connected").length
@@ -160,6 +179,78 @@ export function DashboardPage() {
   const [openRegions, setOpenRegions] = useState<string[]>([])
   const [summaryDockTab, setSummaryDockTab] = useState("broadcast")
   const [gisDockTab, setGisDockTab] = useState("timeline")
+
+  // 센서 추이 — 하천 Q%는 시나리오가 입력한 값(모의)만 그리고, 실증 3사 샘플 배치 차트(수위 예측·조위·이용객·염분)를 뒤에 붙인다
+  const hasRiverQ = riverFlowRatio.series.length > 0
+  const trendContent: ReactNode = (
+      <>
+        {timeSeries.length > 0 && (
+          <div className="kv-grid">
+            {timeSeries.map((reading) => {
+              const over = reading.worseWhen === "below" ? reading.value <= reading.threshold : reading.value >= reading.threshold
+              return (
+                <div className="pbox" key={reading.label}>
+                  <small>{reading.label}</small>
+                  <b className={over ? "over" : undefined}>
+                    {reading.value}
+                    {reading.unit}
+                  </b>
+                </div>
+              )
+            })}
+          </div>
+        )}
+        {sixHourSeries.length > 0 && (
+          <div style={{ marginTop: 12, height: 160 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={sixHourSeries} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
+                <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
+                <YAxis tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
+                <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 10, color: "#ffffffaa" }} />
+                <Line type="monotone" dataKey="돈내코수위" stroke="#0054a3" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="쇠소깍수위" stroke="#8ec21f" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="함덕수온" stroke="#f2731a" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+        {hasRiverQ && (
+          <div className="pgroup">
+            <p className="pnote">하천 Q% 추이 — 시나리오(모의), 실측 수위 아님</p>
+            <div className="kv-grid">
+              {(["돈내코", "쇠소깍"] as const).map((loc) => {
+                const p = riverRun.pointState[loc]
+                return (
+                  <div className="pbox" key={loc}>
+                    <small>{loc} Q%</small>
+                    <b className={p && p.level !== "safe" ? "over" : undefined}>{p ? `${p.flowRatioPercent}%` : "-"}</b>
+                  </div>
+                )
+              })}
+            </div>
+            <div style={{ marginTop: 12, height: 160 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={riverFlowRatio.series} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
+                  <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
+                  <YAxis tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
+                  <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 11 }} />
+                  <Legend wrapperStyle={{ fontSize: 10, color: "#ffffffaa" }} />
+                  <Line type="monotone" dataKey="donnaeko" name="돈내코 Q%" stroke="#8ec21f" strokeWidth={2} dot />
+                  <Line type="monotone" dataKey="soesokkak" name="쇠소깍 Q%" stroke="#0054a3" strokeWidth={2} dot />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+        <RiverForecastBlock />
+        <TideBlock />
+        <CoastCrowdBlock />
+        <AquaSeriesBlock />
+      </>
+    )
 
   // ---- 패널 안 콘텐츠 (클론의 plist / pgroup / pbox 규칙) ----
   const railContent: Record<string, ReactNode> = {
@@ -247,9 +338,11 @@ export function DashboardPage() {
             ))}
           </ul>
         </div>
+        <PropagationInfraBlock />
       </>
     ),
     sensor: (
+      <>
       <ul className="plist">
         {dashboardSensors.map((sensor) => (
           <li key={sensor.id} className="row-between">
@@ -277,6 +370,8 @@ export function DashboardPage() {
           )
         })}
       </ul>
+      <RiverPointsBlock />
+      </>
     ),
     response: (
       <>
@@ -319,6 +414,8 @@ export function DashboardPage() {
             </ul>
           </div>
         )}
+        <CoastChecklistBlock />
+        <AquaChecklistBlock />
       </>
     ),
     contact: <DutyContactPanel />,
@@ -404,40 +501,12 @@ export function DashboardPage() {
             정상 {sensorCrossCheck.normal} / 장애 {sensorCrossCheck.fault} / 누락 {sensorCrossCheck.missing}
           </p>
         </div>
+        <VlmBlock />
+        <IntakeBlock />
+        <PlumeHeatmapBlock />
       </>
     ),
-    trend: (
-      <>
-        <div className="kv-grid">
-          {timeSeries.map((reading) => {
-            const over = reading.worseWhen === "below" ? reading.value <= reading.threshold : reading.value >= reading.threshold
-            return (
-              <div className="pbox" key={reading.label}>
-                <small>{reading.label}</small>
-                <b className={over ? "over" : undefined}>
-                  {reading.value}
-                  {reading.unit}
-                </b>
-              </div>
-            )
-          })}
-        </div>
-        <div style={{ marginTop: 12, height: 160 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={sixHourSeries} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
-              <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
-              <YAxis tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
-              <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 11 }} />
-              <Legend wrapperStyle={{ fontSize: 10, color: "#ffffffaa" }} />
-              <Line type="monotone" dataKey="돈내코수위" stroke="#0054a3" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="쇠소깍수위" stroke="#8ec21f" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="함덕수온" stroke="#f2731a" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </>
-    ),
+    trend: trendContent,
   }
 
   const summaryDockTabs: DockTab[] = [
@@ -765,7 +834,12 @@ export function DashboardPage() {
                       style={{ position: "absolute", left: "50%", bottom: 12, transform: "translateX(-50%)", zIndex: 500 }}
                       aria-label="서비스 경보 요약"
                     >
-                      {RISK_TOTALS.map(({ level, count }) => (
+                      <Risk
+                        level={stageLevel ?? "safe"}
+                        label={`상황단계 ${stageLevel ? riskStyles[stageLevel].label : "평시"}`}
+                        solid
+                      />
+                      {riskTotals.map(({ level, count }) => (
                         <Risk key={level} level={level} label={`${riskStyles[level].label} ${count}`} />
                       ))}
                       <Risk

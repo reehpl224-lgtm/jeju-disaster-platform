@@ -2,12 +2,12 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { aquaBrief, coastBrief, heatBrief, heavyRainBrief, riverBrief, typhoonBrief, type BriefRole, type BriefTask } from "../domain/leaderBriefs"
+import { aquaBrief, coastBrief, heatBrief, hazardBrief, heavyRainBrief, riverBrief, typhoonBrief, type BriefRole, type BriefTask } from "../domain/leaderBriefs"
 import type { RiskLevel } from "../../types/domain"
 
 /**
  * 통합 결재함 — 재난안전과 팀장 시나리오의 "결재 대기 목록(팀장 전용)" 갭.
- * 6개 서비스 팀장 브리핑(leaderBriefs.ts)의 "결재·지시" 항목을 한 표로 모은다. 새 데이터는 없고 브리핑을 그대로
+ * 9개 서비스 팀장 브리핑(leaderBriefs.ts)의 "결재·지시" 항목을 한 표로 모은다. 새 데이터는 없고 브리핑을 그대로
  * 합치므로, 서비스 상황을 시나리오로 바꾸면 여기도 같이 바뀐다. 동작(승인·발송 등)은 각 서비스 상세 화면에서 한다.
  */
 
@@ -15,6 +15,9 @@ const SERVICES = [
   { id: "heavy-rain", label: "호우", icon: "☔", brief: heavyRainBrief },
   { id: "typhoon", label: "태풍", icon: "🌀", brief: typhoonBrief },
   { id: "heat", label: "폭염 대응", icon: "🔆", brief: heatBrief },
+  { id: "wildfire", label: "산불", icon: "🔥", brief: () => hazardBrief("wildfire") },
+  { id: "tsunami", label: "지진해일", icon: "🛟", brief: () => hazardBrief("tsunami") },
+  { id: "snow", label: "대설", icon: "❄️", brief: () => hazardBrief("snow") },
   { id: "river", label: "하천범람", icon: "🏞️", brief: riverBrief },
   { id: "aqua", label: "저염분 고수온", icon: "🌡️", brief: aquaBrief },
   { id: "coast", label: "연안 안전관리", icon: "🌊", brief: coastBrief },
@@ -39,7 +42,7 @@ export function ApprovalsPage() {
       <div>
         <h1 className="text-xl font-bold text-white">통합 결재함</h1>
         <p className="mt-1 text-sm text-white/50">
-          6개 서비스의 결재·지시·확인 대기를 한곳에 — 급한 순서대로 정렬, 항목을 누르면 해당 서비스의 처리 화면으로 이동
+          9개 서비스의 결재·지시·확인 대기를 한곳에 — 급한 순서대로 정렬, 항목을 누르면 해당 서비스의 처리 화면으로 이동
         </p>
       </div>
 

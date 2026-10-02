@@ -30,6 +30,7 @@ const RiverScenarioPage = lazy(() => import("./pages/river/RiverScenarioPage").t
 const RiverDataPage = lazy(() => import("./pages/river/RiverDataPage").then((m) => ({ default: m.RiverDataPage })))
 const RiverAnalysisPage = lazy(() => import("./pages/river/RiverAnalysisPage").then((m) => ({ default: m.RiverAnalysisPage })))
 const RiverAlertPage = lazy(() => import("./pages/river/RiverAlertPage").then((m) => ({ default: m.RiverAlertPage })))
+const RiverMonitoringPage = lazy(() => import("./pages/river/RiverMonitoringPage").then((m) => ({ default: m.RiverMonitoringPage })))
 const RiverControlPage = lazy(() => import("./pages/river/RiverControlPage").then((m) => ({ default: m.RiverControlPage })))
 const RiverDispatchPage = lazy(() => import("./pages/river/RiverDispatchPage").then((m) => ({ default: m.RiverDispatchPage })))
 const RiverClosurePage = lazy(() => import("./pages/river/RiverClosurePage").then((m) => ({ default: m.RiverClosurePage })))
@@ -48,9 +49,16 @@ const HeatDataPage = lazy(() => import("./pages/heat/HeatDataPage").then((m) => 
 const HeatAnalysisPage = lazy(() => import("./pages/heat/HeatAnalysisPage").then((m) => ({ default: m.HeatAnalysisPage })))
 const HeatAlertPage = lazy(() => import("./pages/heat/HeatAlertPage").then((m) => ({ default: m.HeatAlertPage })))
 const HeatClosurePage = lazy(() => import("./pages/heat/HeatClosurePage").then((m) => ({ default: m.HeatClosurePage })))
+const HazardHomePage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardHomePage })))
+const HazardDataPage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardDataPage })))
+const HazardAnalysisPage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardAnalysisPage })))
+const HazardAlertPage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardAlertPage })))
+const HazardClosurePage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardClosurePage })))
+const HAZARD_IDS = ["wildfire", "tsunami", "snow"] as const
 const ApprovalsPage = lazy(() => import("./pages/approvals/ApprovalsPage").then((m) => ({ default: m.ApprovalsPage })))
 const PropagationHomePage = lazy(() => import("./pages/propagation/PropagationHomePage").then((m) => ({ default: m.PropagationHomePage })))
 const PilotStatusPage = lazy(() => import("./pages/pilot/PilotStatusPage").then((m) => ({ default: m.PilotStatusPage })))
+const EsopPage = lazy(() => import("./pages/esop/EsopPage").then((m) => ({ default: m.EsopPage })))
 const DataSystemPage = lazy(() => import("./pages/datasystem/DataSystemPage").then((m) => ({ default: m.DataSystemPage })))
 const DummyDataPage = lazy(() => import("./pages/dummydata/DummyDataPage").then((m) => ({ default: m.DummyDataPage })))
 const DemoVersionPage = lazy(() => import("./pages/DemoVersionPage").then((m) => ({ default: m.DemoVersionPage })))
@@ -104,6 +112,7 @@ export default function App() {
           <Route path="/river/analysis" element={<RiverAnalysisPage />} />
           <Route path="/river/alert" element={<RiverAlertPage />} />
           <Route path="/river/control" element={<RiverControlPage />} />
+          <Route path="/river/monitoring" element={<RiverMonitoringPage />} />
           <Route path="/river/dispatch" element={<RiverDispatchPage />} />
           <Route path="/river/closure" element={<RiverClosurePage />} />
 
@@ -128,9 +137,19 @@ export default function App() {
           <Route path="/heat/alert" element={<HeatAlertPage />} />
           <Route path="/heat/closure" element={<HeatClosurePage />} />
 
+          {HAZARD_IDS.flatMap((id) => [
+            <Route key={`${id}`} path={`/${id}`} element={<DomainBoardPage domain={id} />} />,
+            <Route key={`${id}-dashboard`} path={`/${id}/dashboard`} element={<HazardHomePage id={id} />} />,
+            <Route key={`${id}-data`} path={`/${id}/data`} element={<HazardDataPage id={id} />} />,
+            <Route key={`${id}-analysis`} path={`/${id}/analysis`} element={<HazardAnalysisPage id={id} />} />,
+            <Route key={`${id}-alert`} path={`/${id}/alert`} element={<HazardAlertPage id={id} />} />,
+            <Route key={`${id}-closure`} path={`/${id}/closure`} element={<HazardClosurePage id={id} />} />,
+          ])}
+
           <Route path="/approvals" element={<ApprovalsPage />} />
           <Route path="/propagation" element={<PropagationHomePage />} />
           <Route path="/data-systems" element={<DataSystemPage />} />
+          <Route path="/esop" element={<EsopPage />} />
           <Route path="/dummy-data" element={<DummyDataPage />} />
           <Route path="/demo-version" element={<DemoVersionPage />} />
           <Route path="/pilot-status" element={<PilotStatusPage />} />

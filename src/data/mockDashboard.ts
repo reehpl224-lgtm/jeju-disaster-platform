@@ -21,16 +21,21 @@ export const serviceStatusCards: {
   title: string
   icon: string
   href: string
+  /** 시스템 구분(화면목록 S1-02/S1-03) — 레거시 연계 서비스 / 실증3사(AX) 서비스 */
+  kind: "legacy" | "pilot"
   counts: { warning: number; alert: number; danger: number; caution?: number }
 }[] = [
   // 카드 순서: 사용자 지정(2026-09-08) — 호우·태풍·폭염 대응·하천범람·저염분 고수온·연안 안전. 4단계(관심·주의·경계·심각) 통일.
   // counts는 각 서비스 원본(weatherStations·typhoonReports·heatLevelInfo·riverStatuses·aquaFarmTotals·coastEvents)과 반드시 같은 수치를 쓸 것
-  { id: "heavy-rain", title: "호우", icon: "☔", href: "/heavy-rain", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
-  { id: "typhoon", title: "태풍", icon: "🌀", href: "/typhoon", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
-  { id: "heat", title: "폭염 대응", icon: "🔆", href: "/heat", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
-  { id: "river", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
-  { id: "aqua", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
-  { id: "coast", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  { id: "heavy-rain", kind: "legacy", title: "호우", icon: "☔", href: "/heavy-rain", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  { id: "typhoon", kind: "legacy", title: "태풍", icon: "🌀", href: "/typhoon", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  { id: "heat", kind: "legacy", title: "폭염 대응", icon: "🔆", href: "/heat", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  { id: "wildfire", kind: "legacy", title: "산불", icon: "🔥", href: "/wildfire", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  { id: "tsunami", kind: "legacy", title: "지진해일", icon: "🛟", href: "/tsunami", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  { id: "snow", kind: "legacy", title: "대설", icon: "❄️", href: "/snow", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  { id: "river", kind: "pilot", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  { id: "aqua", kind: "pilot", title: "저염분 고수온", icon: "🌡️", href: "/aqua", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  { id: "coast", kind: "pilot", title: "연안 안전관리", icon: "🌊", href: "/coast", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
 ]
 
 export const riskMarkers: RiskMarker[] = [

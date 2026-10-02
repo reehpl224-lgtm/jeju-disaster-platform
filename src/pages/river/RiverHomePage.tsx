@@ -272,12 +272,22 @@ export function RiverHomePage() {
           <p className="text-sm font-semibold text-white/85">현재 적용 단계</p>
           <RiskBadge level={riverSopStage.level} label={riverSopStage.current} solid />
           <p className="mt-3 text-sm text-white/60">{riverSopStage.next}</p>
-          <Link
-            to="/river/control"
-            className="mt-4 inline-flex rounded-full border border-accent px-3 py-2 text-xs font-bold text-accent hover:bg-accent-soft"
-          >
-            e-SOP 단계 승인으로 이동 →
-          </Link>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(
+              [
+                ["/river/alert", "경보 승인으로 이동"],
+                ["/river/dispatch", "출동 승인으로 이동"],
+              ] as const
+            ).map(([to, label]) => (
+              <Link
+                key={to}
+                to={to}
+                className="inline-flex rounded-full border border-accent px-3 py-2 text-xs font-bold text-accent hover:bg-accent-soft"
+              >
+                {label} →
+              </Link>
+            ))}
+          </div>
         </Card>
       </div>
     </div>

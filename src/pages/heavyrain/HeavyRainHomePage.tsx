@@ -9,6 +9,7 @@ import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { GisIconRail } from "../../components/ui/GisIconRail"
 import { GIS_RAIL_ITEMS, type GisRailKey } from "../../components/ui/gisRailItems"
 import { GisSidePanel } from "../../components/ui/GisSidePanel"
+import { RainfallObservationPanel } from "../../components/ui/RainfallObservationPanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { broadcastLog, heavyRainAiForecast, legacySystems, weatherStations } from "../../data/mockHeavyRain"
@@ -114,6 +115,10 @@ export function HeavyRainHomePage() {
 
       <Card title="실시간 강풍·호우 특보 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(wrn_met_data.php)" source={LIVE}>
         <WarningsPanel wrnCodes={["R", "W"]} />
+      </Card>
+
+      <Card title="실시간 우량 관측 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(AWS 매분자료)" source={LIVE}>
+        <RainfallObservationPanel />
       </Card>
 
       <Card title="기상청 단기예보" subtitle="강수확률·강수형태 참고 — 돌발 강우 조기경보와 함께 확인" source={LIVE}>

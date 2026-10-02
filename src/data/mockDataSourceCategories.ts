@@ -18,7 +18,7 @@ export interface DataSourceItem {
 }
 
 export interface ServiceDataSources {
-  serviceId: "heavyRain" | "typhoon" | "heat" | "river" | "aqua" | "coast"
+  serviceId: "heavyRain" | "typhoon" | "heat" | "river" | "aqua" | "coast" | "wildfire" | "tsunami" | "snow"
   available: DataSourceItem[]
   legacy: DataSourceItem[]
   requestable: DataSourceItem[]
@@ -144,6 +144,47 @@ export const dataSourcesByService: Record<ServiceDataSources["serviceId"], Servi
     missing: [
       { id: "ht-m1", label: "무더위쉼터 실제 위치·정원 공식 리스트", note: "현재는 예시 구성 5개소" },
       { id: "ht-m2", label: "열섬지도 정밀 데이터", note: "현재는 대표 구간 수준" },
+    ],
+  },
+  wildfire: {
+    serviceId: "wildfire",
+    available: [
+      { id: "wf-a1", label: "기상청 건조·강풍 특보", note: "실시간(wrn_met_data)" },
+      { id: "wf-a2", label: "기상청 단기예보(습도·풍속)", note: "실시간" },
+      { id: "wf-a3", label: "Open-Meteo 시간별 예보(습도·풍속·기온)", note: "무료 공개 API, 참고용 — 산림청 산불위험예보 아님" },
+    ],
+    legacy: [{ id: "wf-l1", label: "산불 정보(산림청 산불상황·산불위험예보)", note: "연계 대상·방식 조사 전" }],
+    requestable: [{ id: "wf-r1", label: "해당 없음", note: "전담 실증사 없음" }],
+    missing: [
+      { id: "wf-m1", label: "산불 발생·진화 현황(실시간)", note: "현재 연계 경로 없음" },
+      { id: "wf-m2", label: "산불위험지수(산림청 산불위험예보)", note: "공공데이터 인증키 발급 후 검토" },
+    ],
+  },
+  tsunami: {
+    serviceId: "tsunami",
+    available: [
+      { id: "ts-a1", label: "기상청 지진해일·해일 특보", note: "실시간(wrn_met_data)" },
+      { id: "ts-a2", label: "USGS 최근 지진(규모 4.5 이상, 동아시아)", note: "무료 공개 API, 참고용 — 국내 지진통보 아님" },
+    ],
+    legacy: [{ id: "ts-l1", label: "민방위경보시스템", note: "미연계 — 중앙 시스템과만 연계, 도 자체 연계 없음" }],
+    requestable: [{ id: "ts-r1", label: "해당 없음", note: "전담 실증사 없음" }],
+    missing: [
+      { id: "ts-m1", label: "기상청 지진·지진해일 통보문", note: "현재 화면에 연동하지 않음" },
+      { id: "ts-m2", label: "해안 대피소 위치·정원", note: "자산현황에 목록 틀만 있음" },
+    ],
+  },
+  snow: {
+    serviceId: "snow",
+    available: [
+      { id: "sn-a1", label: "기상청 대설·한파 특보", note: "실시간(wrn_met_data)" },
+      { id: "sn-a2", label: "기상청 단기예보", note: "실시간" },
+      { id: "sn-a3", label: "Open-Meteo 시간별 예보(적설·기온)", note: "무료 공개 API, 참고용" },
+    ],
+    legacy: [{ id: "sn-l1", label: "자치경찰단 교통정보센터", note: "미연계 — ITS센터 CCTV는 예산·라이선스 문제로 일부만 연계 검토" }],
+    requestable: [{ id: "sn-r1", label: "해당 없음", note: "전담 실증사 없음" }],
+    missing: [
+      { id: "sn-m1", label: "적설계 실측(자체 관측망)", note: "대설 전용 관측 시스템 없음" },
+      { id: "sn-m2", label: "도로 결빙·제설 작업 현황", note: "현재 연계 경로 없음" },
     ],
   },
 }

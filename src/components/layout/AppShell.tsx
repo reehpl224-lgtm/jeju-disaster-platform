@@ -4,7 +4,7 @@ import { currentLabel, findDomain } from "./domainSidebarUtils"
 import { Header } from "./Header"
 import type { MockUser } from "../../data/mockAuth"
 
-const BOARD_PATHS = ["/dashboard", "/heavy-rain", "/typhoon", "/heat", "/river", "/aqua", "/coast"]
+const BOARD_PATHS = ["/dashboard", "/heavy-rain", "/typhoon", "/heat", "/wildfire", "/tsunami", "/snow", "/river", "/aqua", "/coast"]
 
 /**
  * demo-10 클론 셸 — 좌측 사이드바 없이 72px 헤더 + 본문.

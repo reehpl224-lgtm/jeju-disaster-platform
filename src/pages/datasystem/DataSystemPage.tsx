@@ -1,5 +1,12 @@
-import { Link } from "react-router-dom"
+import { useMemo } from "react"
+import { Link, useSearchParams } from "react-router-dom"
+import { DOMAINS } from "../../components/layout/domainSidebarUtils"
 import { Card } from "../../components/ui/Card"
+import { ServicePills } from "../../components/ui/ServicePills"
+import { HAZARDS, HAZARD_IDS, type HazardId } from "../../data/mockHazards"
+import { useRiverRun } from "../../data/riverRunHooks"
+import { typhoonSource } from "../../data/mockTyphoon"
+import { DOMAIN_CONFIGS } from "../domain/domainConfigs"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { commonSchedule, consortiumRoles } from "../../data/mockMeetingItems"
 import { StatTiles } from "../../components/ui/StatTiles"
@@ -116,7 +123,84 @@ const pilotNormalCount =
   coastSafetyAssets.filter((s) => s.status === "정상").length +
   riverSensorCheck.filter((s) => s.status === "정상").length
 
+/**
+ * 서비스 한 개의 데이터 수집·연계 시스템·실시간 연동 — 도메인 보드에서 숨긴 세 탭(2026-10-02)을 여기로 옮긴 것.
+ * 보드 설정(DOMAIN_CONFIGS)의 "data" 탭과 "live" 우측 탭 내용을 그대로 재사용한다.
+ */
+function ServiceView({ prefix, title }: { prefix: string; title: string }) {
+  const id = prefix.slice(1)
+  const version = useRiverRun().version
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- version만 재계산 트리거(DomainBoardPage와 같은 방식)
+  const config = useMemo(() => DOMAIN_CONFIGS[id](), [id, version])
+  const legacy = HAZARD_IDS.includes(id as HazardId)
+    ? HAZARDS[id as HazardId].legacy
+    : legacySystems.filter((s) => LEGACY_TARGETS[s.id].some((t) => t.href?.startsWith(prefix)))
+  const apis = apiLinks.filter((a) => API_TARGETS[a.id].some((t) => t.href?.startsWith(prefix)))
+  const legacyNote = id === "typhoon" ? typhoonSource.relatedLegacySystem : null
+  const empty = <p className="text-xs text-white/40">데이터가 없습니다.</p>
+  return (
+    <div className="flex flex-col gap-6">
+      <Card title={`${title} — 데이터 수집`} subtitle="이 서비스가 쓰는 데이터를 실제 연동 가능 여부로 구분">
+        {config.tabs.find((t) => t.key === "data")?.content}
+        <Link to={`${prefix}/data`} className="mt-3 inline-block text-xs font-semibold text-accent hover:underline">
+          데이터 수집 상세 화면 →
+        </Link>
+      </Card>
+
+      <Card title={`${title} — 연계 시스템 · 레거시`} subtitle="레거시시스템 현황 조사 기준 연계 상태">
+        {legacy.length === 0 && !legacyNote ? (
+          empty
+        ) : (
+          <ul className="flex flex-col divide-y divide-border-subtle">
+            {legacy.map((s) => (
+              <li key={s.id} className="flex items-start justify-between gap-3 py-3 text-sm">
+                <div>
+                  <p className="font-medium text-white/85">{s.name}</p>
+                  <p className="mt-0.5 text-xs text-white/35">
+                    운영 주체 {s.operator} · {s.note}
+                  </p>
+                </div>
+                <RiskBadge level={LEGACY_STATUS_LEVEL[s.linkStatus]} label={s.linkStatus} />
+              </li>
+            ))}
+            {legacyNote && <li className="py-3 text-xs text-white/50">관련 레거시 시스템: {legacyNote}</li>}
+          </ul>
+        )}
+      </Card>
+
+      <Card title={`${title} — 연계 시스템 · 외부 API`} subtitle="기관별 외부 데이터 API — 이 서비스의 입력값으로 쓰이는 것만" dummy>
+        {apis.length === 0 ? (
+          empty
+        ) : (
+          <ul className="flex flex-col divide-y divide-border-subtle">
+            {apis.map((api) => (
+              <li key={api.id} className="flex items-start justify-between gap-3 py-3 text-sm">
+                <div>
+                  <p className="font-medium text-white/85">{api.name}</p>
+                  <p className="mt-0.5 text-xs text-white/35">
+                    {api.agency} · 응답속도 {api.responseTime} · 최근 수신 {api.lastReceived}
+                  </p>
+                </div>
+                <RiskBadge
+                  level={API_STATUS_LEVEL[api.status]}
+                  label={api.status === "normal" ? "정상" : api.status === "delayed" ? "지연" : "장애"}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      <Card title={`${title} — 실시간 연동`} subtitle="화면을 열 때마다 호출하는 실시간 API 패널">
+        {config.right.find((t) => t.key === "live")?.content ?? empty}
+      </Card>
+    </div>
+  )
+}
+
 export function DataSystemPage() {
+  const [params] = useSearchParams()
+  const service = DOMAINS.find((d) => d.prefix.slice(1) === params.get("system"))
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -130,6 +214,16 @@ export function DataSystemPage() {
         </p>
       </div>
 
+      <ServicePills basePath="/data-systems" current={service?.prefix} />
+
+      {service ? <ServiceView key={service.prefix} prefix={service.prefix} title={service.title} /> : <AllSystemsView />}
+    </div>
+  )
+}
+
+function AllSystemsView() {
+  return (
+    <div className="flex flex-col gap-6">
       <StatTiles
         items={[
           { label: "레거시 시스템", value: `연계 진행중 ${legacyActiveCount}`, sub: `총 ${legacySystems.length}건` },

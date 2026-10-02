@@ -20,12 +20,16 @@ const SERVICE_NAV = [
   { to: "/heavy-rain", label: "호우", icon: "☔" },
   { to: "/typhoon", label: "태풍", icon: "🌀" },
   { to: "/heat", label: "폭염 대응", icon: "🔆" },
+  { to: "/wildfire", label: "산불", icon: "🔥" },
+  { to: "/tsunami", label: "지진해일", icon: "🛟" },
+  { to: "/snow", label: "대설", icon: "❄️" },
   { to: "/river", label: "하천범람", icon: "🏞️" },
   { to: "/aqua", label: "저염분 고수온", icon: "🌡️" },
   { to: "/coast", label: "연안 안전관리", icon: "🌊" },
 ]
 const OPS_NAV = [
   { to: "/approvals", label: "통합 결재함", icon: "✅" },
+  { to: "/esop", label: "e-SOP 대응", icon: "📑" },
   { to: "/pilot-status", label: "실증서비스 구현 현황", icon: "🧪" },
   { to: "/propagation", label: "상황전파·보고체계", icon: "📡" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
@@ -34,9 +38,6 @@ const OPS_NAV = [
   { to: "/reports", label: "이력·보고서", icon: "📋" },
   { to: "/demo-version", label: "데모버전", icon: "🏷️" },
 ]
-
-// 서비스 카드 id와 도메인 경로("/" + id)가 일치 — 도메인 메뉴 옆에 현재 최고 위험 등급 점을 붙인다
-const domainRisk = new Map(serviceStatusCards.map((card) => [`/${card.id}`, getDominantRiskLevel(card.counts)]))
 
 function useClock() {
   const [now, setNow] = useState(() => new Date())
@@ -60,6 +61,9 @@ export function Header({ user }: { user: MockUser }) {
   const onDashboard = location.pathname === "/dashboard"
   const activeTab = (params.get("tab") as DashboardTabKey | null) ?? "summary"
   const userLabel = `${user.org.replace("제주특별자치도 ", "")} ${user.name} 님`
+  // 서비스 카드 id와 도메인 경로("/" + id)가 일치 — 도메인 메뉴 옆에 현재 최고 위험 등급 점을 붙인다.
+  // 하천 시나리오가 카드 값을 바꾸므로 모듈 로드 때 한 번이 아니라 렌더마다 계산한다
+  const domainRisk = new Map(serviceStatusCards.map((card) => [`/${card.id}`, getDominantRiskLevel(card.counts)]))
 
   // 화면이 바뀌면 열려 있던 메뉴를 닫는다 — effect 안에서 setState 하지 않고 렌더 중에 이전 경로와 비교한다
   const routeKey = `${location.pathname}${location.search}`

@@ -4,6 +4,7 @@ import { Navigate, useSearchParams } from "react-router-dom"
 import { DetailLink } from "../../components/board/PanelParts"
 import { HorizontalTabsDock, MessengerFab, Risk, ServiceStrip, SideTabsDock, StripToggle, type DockTab } from "../../components/board/BoardParts"
 import { MessengerNotice } from "../../components/board/ComingSoon"
+import { WarningsSummary } from "../../components/board/WarningsSummary"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { cctvCameras } from "../../data/mockCctv"
 import { riskMarkers, serviceStatusCards } from "../../data/mockDashboard"
@@ -27,10 +28,14 @@ export function DomainBoardPage({ domain }: { domain: string }) {
 
   if (!config) return <Navigate to="/dashboard" replace />
 
-  const activeKey = config.tabs.some((t) => t.key === params.get("tab")) ? (params.get("tab") as string) : config.tabs[0].key
+  // 데이터 수집·연계 시스템·실시간 연동은 보드에서 숨기고 운영 > 데이터 시스템 연계현황에서 서비스별로 본다(2026-10-02)
+  // 하천범람의 "시나리오 실행"도 보드에서는 숨긴다 — 상세 대시보드 사이드바(RIVER_NAV)에는 그대로 둠
+  const tabs = config.tabs.filter((t) => t.key !== "data" && t.key !== "scenario")
+  const right = config.right.filter((t) => t.key !== "legacy" && t.key !== "live")
+  const activeKey = tabs.some((t) => t.key === params.get("tab")) ? (params.get("tab") as string) : tabs[0].key
   const markers = riskMarkers.filter((m) => m.domain === config.mapDomain)
 
-  const leftTabs: DockTab[] = config.tabs.map((t) => ({
+  const leftTabs: DockTab[] = tabs.map((t) => ({
     key: t.key,
     label: t.label,
     content: (
@@ -41,7 +46,20 @@ export function DomainBoardPage({ domain }: { domain: string }) {
       </>
     ),
   }))
-  const rightTabs: DockTab[] = config.right.map((t) => ({ key: t.key, label: t.label, content: t.content }))
+  const rightTabs: DockTab[] = right.map((t) => ({
+    key: t.key,
+    label: t.label,
+    // 타임라인 맨 위에 이 서비스의 특보 요약을 둔다(2026-10-02)
+    content:
+      t.key === "tl" ? (
+        <>
+          <WarningsSummary {...config.wrn} />
+          {t.content}
+        </>
+      ) : (
+        t.content
+      ),
+  }))
 
   return (
     <main className="stage" id="main-content" tabIndex={-1}>

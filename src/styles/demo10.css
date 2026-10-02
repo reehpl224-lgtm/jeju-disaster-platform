@@ -1450,6 +1450,8 @@ h1, h2, h3, p { margin: 0; }
 .strip__body li .n.on-caution { color: var(--risk-caution); }
 .strip__head { position: relative; }
 .strip__head .dot { position: absolute; top: 10px; right: 10px; }
+.strip__kind { padding: 1px 7px; border: 1px solid var(--foreground-faint); border-radius: 9999px; font-size: 10px; font-weight: 700; color: var(--foreground-subtle); white-space: nowrap; }
+.strip__kind--pilot { color: var(--primary); border-color: var(--primary); }
 .strip > ul > li.is-current .strip__head { background: var(--background-lighter); }
 
 /* ---------- CCTV 카메라 카드 ---------- */

@@ -11,7 +11,8 @@
     "build:staging": "tsc -b && vite build --mode staging --outDir dist-staging",
     "preview": "vite preview",
     "preview:local": "vite preview --outDir dist-local",
-    "preview:staging": "vite preview --outDir dist-staging"
+    "preview:staging": "vite preview --outDir dist-staging",
+    "batch:pilot": "node scripts/pilot-batch.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

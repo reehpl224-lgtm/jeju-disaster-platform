@@ -63,6 +63,7 @@ export function AquaAlertPage() {
             <Row label="문자 수신 예상" value={`${aquaAlertDraft.smsTarget.toLocaleString()}명`} />
             <Row label="앱 푸시 대상" value={`${aquaAlertDraft.appTarget.toLocaleString()}명`} />
             <Row label="현장 단말" value={`${aquaAlertDraft.fieldDevices}대`} />
+            <Row label="어업인 전파(수협·어촌계)" value={aquaAlertDraft.fishers} />
             <Row label="상황판 연동" value={aquaAlertDraft.boards} />
           </dl>
         </Card>

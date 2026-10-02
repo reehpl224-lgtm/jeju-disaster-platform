@@ -58,7 +58,7 @@ export const aquaSummary = {
 export const aquaJourneys = [
   { id: "data", label: "데이터 수집", desc: "수집 소스 현황", href: "/aqua/data" },
   { id: "prediction", label: "AI 예측", desc: "위험 등급·신뢰도", href: "/aqua/prediction" },
-  { id: "farms", label: "영향 양식장", desc: "위험권 양식장 현황", href: "/aqua/farms" },
+  { id: "farms", label: "영향 대상", desc: "양식장·마을어장·연안 생태 현황", href: "/aqua/farms" },
   { id: "alerts", label: "경보 발송", desc: "경보 초안·승인·발송", href: "/aqua/alerts" },
   { id: "response", label: "e-SOP 대응", desc: "단계별 조치 체크리스트", href: "/aqua/response" },
   { id: "monitoring", label: "실시간 모니터링", desc: "해양환경 관측", href: "/aqua/monitoring" },
@@ -149,10 +149,11 @@ export const aquaAlertDraft = {
   affectedPopulation: "해당 없음",
   eta: "해당 없음",
   affectedArea: "-",
-  channels: ["문자(CBS·SMS)", "재난안전앱", "현장 단말", "상황판"],
+  channels: ["문자(CBS·SMS)", "재난안전앱", "현장 단말", "상황판", "수협·어촌계 전파(협의 전)"],
   smsTarget: 0,
   appTarget: 0,
   fieldDevices: 0,
+  fishers: "-",
   boards: "-",
   confidence: 0,
   satelliteMatch: "-",
@@ -197,6 +198,8 @@ export const aquaAgencyRows: AquaAgencyRow[] = [
   { id: "ag2", agency: "제주시 한경면사무소", role: "한경 용수 현장 예찰", approve: "-", execute: "-", receive: "-" },
   { id: "ag3", agency: "서귀포시 대정읍사무소", role: "대정 현장 상시 관찰", approve: "-", execute: "-", receive: "-" },
   { id: "ag4", agency: "제주특별자치도 해양수산연구원", role: "예측 검증", approve: "-", execute: "-", receive: "-" },
+  { id: "ag5", agency: "제주특별자치도수협", role: "어업인 경보 전파·마을어장 예찰(역할 협의 전)", approve: "-", execute: "-", receive: "-" },
+  { id: "ag6", agency: "어촌계(마을어장·해녀)", role: "마을어장 작업 안내·피해 신고(역할 협의 전)", approve: "-", execute: "-", receive: "-" },
 ]
 
 export const aquaMonitoringState = {

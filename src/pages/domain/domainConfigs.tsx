@@ -7,6 +7,7 @@ import { MarineObservationPanel } from "../../components/ui/MarineObservationPan
 import { RainfallObservationPanel } from "../../components/ui/RainfallObservationPanel"
 import { TyphoonNameListPanel } from "../../components/ui/TyphoonNameListPanel"
 import { TyphoonNowPanel } from "../../components/ui/TyphoonNowPanel"
+import { FireWeatherPanel, QuakePanel, SnowForecastPanel } from "../../components/ui/HazardLivePanels"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import type { RiskLevel, RiskMarker } from "../../types/domain"
@@ -31,8 +32,14 @@ import {
 import { COAST_COMBINE_RULES } from "../../data/coastAlertThresholds"
 import { KHOA_BUOY_SNAPSHOT, KHOA_OBS_SNAPSHOT, KHOA_TIDE_SNAPSHOT } from "../../components/ui/dataSource"
 import { LeaderBoardBrief } from "./LeaderBrief"
-import { aquaBrief, coastBrief, heatBrief, heavyRainBrief, riverBrief, typhoonBrief } from "./leaderBriefs"
-import { Buoys, Closure, DataSources, Dispatch, Events, Live, LiveBlock, Plans, RelatedCams, StageCriteria } from "./domainParts"
+import { aquaBrief, coastBrief, hazardBrief, heatBrief, heavyRainBrief, riverBrief, typhoonBrief } from "./leaderBriefs"
+import { HAZARDS, type HazardId } from "../../data/mockHazards"
+import { sampleShelters } from "../../data/placeholderSamples"
+import { aquaAdvisories, type AdvisoryItem } from "../../data/aquaAdvisories"
+import { coastalEcology, villageFisheries } from "../../data/aquaImpactTargets"
+import { hazardNav } from "../hazard/hazardNav"
+import { RiverForecastBlock, RiverPointsBlock, TideBlock } from "../dashboard/PilotBatchBlocks"
+import { Buoys, Closure, DataSources, Dispatch, Events, Live, LiveBlock, Plans, RelatedCams, SampleNote, StageCriteria } from "./domainParts"
 import { AQUA_NAV } from "../aqua/aquaNav"
 import { COAST_NAV } from "../coast/coastNav"
 import { HEAT_NAV } from "../heat/heatNav"
@@ -63,6 +70,8 @@ export interface DomainConfig {
   id: string
   title: string
   mapDomain: RiskMarker["domain"]
+  /** 우측 타임라인 상단 "특보 요약" — codes: 기상청 특보 종류, advisories: 기상청 외 기관 특보 */
+  wrn: { codes?: string[]; advisories?: AdvisoryItem[] }
   headline: ReactNode
   tabs: DomainTab[]
   right: DomainRightTab[]
@@ -187,6 +196,7 @@ export function heavyRainConfig(): DomainConfig {
     id: "heavy-rain",
     title: "호우",
     mapDomain: "heavyRain",
+    wrn: { codes: ["R", "W"] },
     headline: (
       <>
         ☔ 예보 <b>{f.forecastMm}mm/h</b> 초과 · 한천 침수센서 경보 발령
@@ -226,7 +236,19 @@ export function heavyRainConfig(): DomainConfig {
           </ul>
         ),
       },
-      { key: "live", label: "실시간 연동", content: <Live>{liveWarnings(["R", "W"], "실시간 강풍·호우 특보")}{LIVE_FORECAST}</Live> },
+      {
+        key: "live",
+        label: "실시간 연동",
+        content: (
+          <Live>
+            {liveWarnings(["R", "W"], "실시간 강풍·호우 특보")}
+            <LiveBlock title="실시간 우량 관측" note="기상청 API허브 AWS 매분자료" simulated={IS_SIMULATION_MODE}>
+              <RainfallObservationPanel />
+            </LiveBlock>
+            {LIVE_FORECAST}
+          </Live>
+        ),
+      },
     ],
   }
 }
@@ -295,13 +317,14 @@ export function typhoonConfig(): DomainConfig {
   const evs = rp.map((r) => ({
     icon: "🌀",
     time: r.issuedAt.slice(5),
-    lines: [`${r.name} · ${r.status}`, r.location, `↗ ${r.speedKmh}km/h · ✳ ${r.pressureHpa}hPa · ≈ ${r.maxWindMs}m/s`],
+    lines: [`기상청 발표 · ${r.name} · ${r.status}`, r.location, `↗ ${r.speedKmh}km/h · ✳ ${r.pressureHpa}hPa · ≈ ${r.maxWindMs}m/s`],
     badge: <Risk level="safe" label="발령" solid />,
   }))
   return {
     id: "typhoon",
     title: "태풍",
     mapDomain: "typhoon",
+    wrn: { codes: ["T"] },
     headline: cur ? (
       <>
         🌀 <b>{cur.name}</b> · {cur.status}
@@ -329,7 +352,7 @@ export function typhoonConfig(): DomainConfig {
       "/typhoon/closure": <Closure c={TY.typhoonClosure} />,
     }),
     right: [
-      { key: "tl", label: "기상청 발표", content: <Events items={evs} /> },
+      { key: "tl", label: "타임라인", content: <Events items={evs} /> },
       { key: "buoy", label: "해양 관측", content: <Buoys /> },
       {
         key: "live",
@@ -355,11 +378,15 @@ export function typhoonConfig(): DomainConfig {
 // ================================================================== 폭염
 export function heatConfig(): DomainConfig {
   const li = HT.heatLevelInfo
+  // 쉼터 원본이 비어 있으면 임의 샘플로 레이아웃을 보여준다(샘플 안내 표시, 원본에 값이 들어오면 자동으로 사라짐)
+  const sheltersSample = HT.heatShelters.length === 0
+  const shelters = sheltersSample ? sampleShelters : HT.heatShelters
   const home = (
     <LeaderBoardBrief brief={heatBrief()}>
       <Group title="무더위쉼터" dummy>
+        {sheltersSample && <SampleNote />}
         <ul className="plist">
-          {HT.heatShelters.map((s) => (
+          {shelters.map((s) => (
             <li className="row-between" key={s.id}>
               <div>
                 <p className="t">{s.name}</p>
@@ -424,6 +451,7 @@ export function heatConfig(): DomainConfig {
     id: "heat",
     title: "폭염",
     mapDomain: "heat",
+    wrn: { codes: ["H", "K"] },
     headline: (
       <>
         🔆 <b>{li.label}</b>{li.feelsLikeC !== null && <> · 체감온도 {li.feelsLikeC}℃ ({li.updatedAt} 기준)</>}
@@ -452,16 +480,19 @@ export function heatConfig(): DomainConfig {
         key: "shelter",
         label: "무더위쉼터",
         content: (
-          <ul className="plist">
-            {HT.heatShelters.map((s) => (
-              <li className="row-between" key={s.id}>
-                <span>
-                  {s.name} <span className="s">{s.region}</span>
-                </span>
-                <span className="t">{s.capacity}명</span>
-              </li>
-            ))}
-          </ul>
+          <>
+            {sheltersSample && <SampleNote />}
+            <ul className="plist">
+              {shelters.map((s) => (
+                <li className="row-between" key={s.id}>
+                  <span>
+                    {s.name} <span className="s">{s.region}</span>
+                  </span>
+                  <span className="t">{s.capacity}명</span>
+                </li>
+              ))}
+            </ul>
+          </>
         ),
       },
       { key: "live", label: "실시간 연동", content: <Live>{liveWarnings(["H", "K"], "실시간 폭염·열대야 특보")}{LIVE_FORECAST}</Live> },
@@ -680,6 +711,7 @@ export function riverConfig(): DomainConfig {
     id: "river",
     title: "하천범람",
     mapDomain: "river",
+    wrn: { codes: ["R", "W"] },
     headline: (
       <>
         🏞️ <b>
@@ -709,6 +741,16 @@ export function riverConfig(): DomainConfig {
         </>
       ),
       "/river/control": control,
+      "/river/monitoring": (
+        <>
+          <LiveBlock title="실시간 우량 관측" note="기상청 API허브 AWS 매분자료" simulated={IS_SIMULATION_MODE}>
+            <RainfallObservationPanel />
+          </LiveBlock>
+          <RiverPointsBlock />
+          <RiverForecastBlock />
+          <TideBlock />
+        </>
+      ),
       "/river/dispatch": disp,
       "/river/closure": <Closure c={RV.riverClosure} />,
     }),
@@ -886,6 +928,42 @@ export function aquaConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
+      <Group title="마을어장 — 소라·전복·홍해삼(샘플)" dummy>
+        <ul className="plist">
+          {villageFisheries.map((t) => (
+            <li key={t.id}>
+              <div className="row-between">
+                <span className="t">{t.name}</span>
+                <Risk level={t.level} label={t.riskType} />
+              </div>
+              <p className="s">
+                {t.region} · {t.species}
+              </p>
+              <p className="s">
+                염분 {t.salinity}psu · 수온 {t.temperature}℃
+              </p>
+            </li>
+          ))}
+        </ul>
+      </Group>
+      <Group title="연안 생태 — 연산호·해조류(샘플)" dummy>
+        <ul className="plist">
+          {coastalEcology.map((t) => (
+            <li key={t.id}>
+              <div className="row-between">
+                <span className="t">{t.name}</span>
+                <Risk level={t.level} label={t.riskType} />
+              </div>
+              <p className="s">
+                {t.region} · {t.species}
+              </p>
+              <p className="s">
+                염분 {t.salinity}psu · 수온 {t.temperature}℃
+              </p>
+            </li>
+          ))}
+        </ul>
+      </Group>
     </>
   )
   const ad = AQ.aquaAlertDraft
@@ -923,34 +1001,8 @@ export function aquaConfig(): DomainConfig {
       <Group title="감사 기록" dummy>
         <Tl entries={ad.audit} />
       </Group>
-      {/* e-SOP 대응·실시간 모니터링은 메뉴 없이 "경보 발송" 아래로 묶임(aquaNav.ts의 also) — 여기서 연다 */}
+      {/* e-SOP 대응은 운영 > e-SOP 대응(/esop)으로 옮김 — aquaNav.ts 참고 */}
       <DetailLink to="/aqua/response">e-SOP 대응 상세 화면</DetailLink>
-      <DetailLink to="/aqua/monitoring">실시간 모니터링 상세 화면</DetailLink>
-    </>
-  )
-  const rsp = AQ.aquaResponseState
-  const response = (
-    <>
-      <Box title={rsp.title} lines={[rsp.location, `탐지 ${rsp.detectedAt} · 도달 ${rsp.eta}`]} right={<Risk level={rsp.riskLevel} label={rsp.grade} />} />
-      <Rows pairs={[["염분", rsp.salinity], ["수온", rsp.temperature], ["영향 반경", rsp.radius]]} />
-      <Group title="e-SOP 단계" dummy>
-        <Steps items={AQ.aquaStages.map((st) => ({ title: `${st.step}. ${st.label}`, sub: st.status, on: st.status === "진행 중" }))} />
-      </Group>
-      <Group title="조치 체크리스트" dummy>
-        <ul className="plist">
-          {AQ.aquaChecklist.map((c) => (
-            <li key={c.id}>
-              <div className="row-between">
-                <span className="t">{c.label}</span>
-                <St text={c.status} />
-              </div>
-              <p className="s">
-                {c.owner} · {c.time}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </Group>
     </>
   )
   const monitor = (
@@ -1032,18 +1084,12 @@ export function aquaConfig(): DomainConfig {
       </Group>
     </>
   )
-  const responseTab = (
-    <>
-      {response}
-      <Group title="실시간 모니터링">{monitor}</Group>
-      <DetailLink to="/aqua/monitoring">실시간 모니터링 상세 화면</DetailLink>
-    </>
-  )
   const evs = AQ.aquaMonitoringEvents.map((e) => ({ icon: "●", time: e.time, lines: [e.title] }))
   return {
     id: "aqua",
     title: "저염분 고수온",
     mapDomain: "aqua",
+    wrn: { advisories: aquaAdvisories },
     headline: (
       <>
         🌡️ <b>{rs.level}</b> · {rs.headline} · 신뢰도 {rs.confidence}%
@@ -1054,11 +1100,11 @@ export function aquaConfig(): DomainConfig {
       "/aqua/prediction": pred,
       "/aqua/farms": farms,
       "/aqua/alerts": alert,
-      "/aqua/response": responseTab,
+      "/aqua/monitoring": monitor, // 상세 화면 링크는 보드(DomainBoardPage)가 탭마다 붙인다
       "/aqua/closure": clos,
     }),
     right: [
-      { key: "tl", label: "모니터링 이벤트", content: <Events items={evs} /> },
+      { key: "tl", label: "타임라인", content: <Events items={evs} /> },
       {
         key: "agency",
         label: "기관 현황",
@@ -1308,6 +1354,7 @@ export function coastConfig(): DomainConfig {
     id: "coast",
     title: "연안 안전관리",
     mapDomain: "coast",
+    wrn: { codes: ["V", "O", "N"] },
     headline: (
       <>
         🌊 진행 중 이벤트 <b>{s.activeEvents.count}건</b> · {s.activeEvents.detail} · 미확인 {s.unconfirmedEvents.count}건
@@ -1341,7 +1388,7 @@ export function coastConfig(): DomainConfig {
       "/coast/closure": <Closure c={CO.coastClosure} />,
     }),
     right: [
-      { key: "tl", label: "이벤트", content: <Events items={evs} /> },
+      { key: "tl", label: "타임라인", content: <Events items={evs} /> },
       {
         key: "agency",
         label: "기관 공조",
@@ -1364,10 +1411,76 @@ export function coastConfig(): DomainConfig {
   }
 }
 
+// ================================================================== 산불·지진해일·대설
+/** 호우·태풍처럼 보드 + 상세 5화면을 한 정의(mockHazards.ts)로 만든다. 자체 관측이 없어 실시간 공개 데이터만 보여준다 */
+export function hazardConfig(id: HazardId): DomainConfig {
+  const h = HAZARDS[id]
+  const liveRef =
+    h.live === "quake" ? (
+      <LiveBlock title="최근 지진 — USGS" note="무료 공개 API — 규모 4.5 이상·동아시아·서태평양(참고)">
+        <QuakePanel limit={6} />
+      </LiveBlock>
+    ) : (
+      <>
+        {(["jeju", "halla"] as const).map((site) => (
+          <LiveBlock
+            key={site}
+            title={`${h.live === "fire" ? "산불 기상조건(습도·풍속)" : "적설·기온 예보"} · ${site === "jeju" ? "제주시" : "한라산"}`}
+            note="Open-Meteo 시간별 예보 — 참고용"
+          >
+            {h.live === "fire" ? <FireWeatherPanel site={site} /> : <SnowForecastPanel site={site} />}
+          </LiveBlock>
+        ))}
+      </>
+    )
+  const legacyList = (
+    <ul className="plist">
+      {h.legacy.length === 0 && <li className="pempty">데이터가 없습니다.</li>}
+      {h.legacy.map((s) => (
+        <li key={s.id}>
+          <div className="row-between">
+            <span className="t">{s.name}</span>
+            <St text={s.linkStatus} />
+          </div>
+          <p className="s">
+            {s.operator} · {s.note}
+          </p>
+        </li>
+      ))}
+    </ul>
+  )
+  const home = (
+    <LeaderBoardBrief brief={hazardBrief(id)}>
+      <Group title="레거시·외부 시스템 연계">{legacyList}</Group>
+    </LeaderBoardBrief>
+  )
+  return {
+    id: h.id,
+    title: h.title,
+    mapDomain: h.id,
+    wrn: { codes: h.wrnCodes },
+    headline: <>{h.headline}</>,
+    tabs: navTabs(hazardNav(id), home, {
+      [`${h.path}/data`]: <DataSources s={dataSourcesByService[id]} />,
+      [`${h.path}/analysis`]: <Live>{liveWarnings(h.wrnCodes, h.wrnTitle)}{liveRef}</Live>,
+      [`${h.path}/alert`]: <Dispatch d={h.dispatch} />,
+      [`${h.path}/closure`]: <Closure c={h.closure} />,
+    }),
+    right: [
+      { key: "tl", label: "타임라인", content: <Events items={[]} /> },
+      { key: "legacy", label: "연계 시스템", content: legacyList },
+      { key: "live", label: "실시간 연동", content: <Live>{liveWarnings(h.wrnCodes, h.wrnTitle)}{liveRef}{LIVE_FORECAST}</Live> },
+    ],
+  }
+}
+
 export const DOMAIN_CONFIGS: Record<string, () => DomainConfig> = {
   "heavy-rain": heavyRainConfig,
   typhoon: typhoonConfig,
   heat: heatConfig,
+  wildfire: () => hazardConfig("wildfire"),
+  tsunami: () => hazardConfig("tsunami"),
+  snow: () => hazardConfig("snow"),
   river: riverConfig,
   aqua: aquaConfig,
   coast: coastConfig,

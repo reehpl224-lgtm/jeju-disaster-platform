@@ -6,6 +6,7 @@ import { SourceTag } from "../../components/ui/SourceTag"
 import { Box, Checks, Group, Kv, Note, Rows, St } from "../../components/board/PanelParts"
 import { cctvCameras } from "../../data/mockCctv"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
+import { sampleBuoys } from "../../data/placeholderSamples"
 import type { ServiceDataSources } from "../../data/mockDataSourceCategories"
 import type { PlanItem } from "../../data/mockMeetingItems"
 import type { CctvCamera, RiskLevel } from "../../types/domain"
@@ -212,10 +213,25 @@ export function RelatedCams({ domain }: { domain: CctvCamera["domain"] }) {
   )
 }
 
+/** 원본 데이터가 비어 임의 샘플을 보여줄 때 목록 위에 붙이는 안내 — 실데이터가 들어오면 같이 사라진다 */
+export function SampleNote() {
+  return <p className="pnote">* 샘플 데이터 — 실데이터 연동 전 임의 값</p>
+}
+
 export function Buoys() {
+  const sample = khoaBuoyMarineConditions.length === 0
+  return (
+    <>
+      {sample && <SampleNote />}
+      <BuoyRows rows={sample ? sampleBuoys : khoaBuoyMarineConditions} />
+    </>
+  )
+}
+
+function BuoyRows({ rows }: { rows: typeof khoaBuoyMarineConditions }) {
   return (
     <ul className="plist">
-      {khoaBuoyMarineConditions.map((b) => (
+      {rows.map((b) => (
         <li key={b.id}>
           <div className="row-between">
             <span className="t">
@@ -238,6 +254,7 @@ export function Buoys() {
 export function Events({ items }: { items: { icon: string; time: string; lines: string[]; badge?: ReactNode; level?: RiskLevel }[] }) {
   return (
     <ul className="plist">
+      {items.length === 0 && <li className="pempty">데이터가 없습니다.</li>}
       {items.map((e, i) => (
         <li key={i}>
           <div className="row-between">

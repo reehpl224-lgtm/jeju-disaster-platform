@@ -139,6 +139,7 @@ interface StripCard {
   title: string
   icon: string
   href: string
+  kind?: "legacy" | "pilot"
   counts: { warning: number; alert: number; danger: number; caution?: number }
 }
 
@@ -173,6 +174,9 @@ export function ServiceStrip({ cards, currentId }: { cards: StripCard[]; current
                 <p>
                   {card.icon} {card.title}
                 </p>
+                {card.kind && (
+                  <span className={`strip__kind strip__kind--${card.kind}`}>{card.kind === "pilot" ? "실증AX" : "레거시"}</span>
+                )}
                 <span className="arrow" aria-hidden>
                   ↗
                 </span>
