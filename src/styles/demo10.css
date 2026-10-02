@@ -210,14 +210,17 @@ h1, h2, h3, p { margin: 0; }
 .menu {
   position: absolute; top: 64px; right: 8px; z-index: 60;
   min-width: 200px; padding: .5rem;
+  /* 아주 낮은 화면에서도 페이지 스크롤이 생기지 않게 — 넘치면 메뉴 안에서만 스크롤 */
+  max-height: calc(100vh - 72px); overflow-y: auto;
   background: var(--background-lighter);
   border: 1px solid var(--foreground-faint);
   border-radius: .5rem;
   box-shadow: 0 10px 30px #0009;
 }
-.menu li a { display: flex; align-items: center; gap: .625rem; padding: .5rem .75rem; border-radius: .375rem; }
+/* 메뉴 항목이 많아(서비스 9 + 운영 9) 글자·상하 여백을 줄여 일반 화면 높이에서 스크롤이 생기지 않게 한다 */
+.menu li a { display: flex; align-items: center; gap: .625rem; padding: .3125rem .75rem; border-radius: .375rem; font-size: .8125rem; }
 .menu li a:hover { background: var(--foreground-ghost); }
-.menu .menu__action { display: flex; width: 100%; align-items: center; gap: .625rem; padding: .5rem .75rem; border-radius: .375rem; text-align: left; }
+.menu .menu__action { display: flex; width: 100%; align-items: center; gap: .625rem; padding: .3125rem .75rem; border-radius: .375rem; text-align: left; font-size: .8125rem; }
 .menu .menu__action:hover { background: var(--foreground-ghost); }
 .menu hr { border: 0; border-top: 1px solid var(--foreground-ghost); margin: .375rem .25rem; }
 .menu[hidden] { display: none; }
