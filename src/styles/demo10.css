@@ -224,6 +224,12 @@ h1, h2, h3, p { margin: 0; }
 .menu .menu__action:hover { background: var(--foreground-ghost); }
 .menu hr { border: 0; border-top: 1px solid var(--foreground-ghost); margin: .375rem .25rem; }
 .menu[hidden] { display: none; }
+/* 공통 스크롤 디자인(.tree·.content·.panel__scroll과 같음) — 메뉴가 낮은 화면에서 넘칠 때만 보인다 */
+.menu { scrollbar-width: thin; scrollbar-color: var(--foreground-faint) transparent; }
+.menu::-webkit-scrollbar { width: 6px; }
+.menu::-webkit-scrollbar-track { background: transparent; }
+.menu::-webkit-scrollbar-thumb { background: var(--foreground-faint); border-radius: 9999px; }
+.menu::-webkit-scrollbar-thumb:hover { background: var(--foreground-subtle); }
 
 /* ---------- 본문: 지도 + 떠 있는 패널 + 하단 스트립 ----------
    원본은 1920 기준 절대좌표. 여기서는 그리드로 짜서 폭이 줄어도 겹치지 않게 한다.
