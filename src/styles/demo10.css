@@ -181,7 +181,7 @@ h1, h2, h3, p { margin: 0; }
   margin-right: 1rem;
 }
 
-.header__user { display: flex; align-items: center; gap: .5rem; height: 100%; padding-right: .5rem; }
+.header__user { display: flex; align-items: center; gap: .5rem; height: 100%; padding-right: .5rem; margin-left: auto; }
 .header__user p { padding-right: 1rem; font-weight: 700; }
 
 /* 1280px 미만: 플랫폼 이름("제주 재난 대응 플랫폼")이 길어지고 경보 요약에 관심 단계가 더해지면서 최소 폭(1024px)에서

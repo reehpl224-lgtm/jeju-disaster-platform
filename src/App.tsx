@@ -53,6 +53,9 @@ const PropagationHomePage = lazy(() => import("./pages/propagation/PropagationHo
 const PilotStatusPage = lazy(() => import("./pages/pilot/PilotStatusPage").then((m) => ({ default: m.PilotStatusPage })))
 const DataSystemPage = lazy(() => import("./pages/datasystem/DataSystemPage").then((m) => ({ default: m.DataSystemPage })))
 const DummyDataPage = lazy(() => import("./pages/dummydata/DummyDataPage").then((m) => ({ default: m.DummyDataPage })))
+const DemoVersionPage = lazy(() => import("./pages/DemoVersionPage").then((m) => ({ default: m.DemoVersionPage })))
+const VlmPage = lazy(() => import("./pages/VlmPage").then((m) => ({ default: m.VlmPage })))
+const AxHubPage = lazy(() => import("./pages/AxHubPage").then((m) => ({ default: m.AxHubPage })))
 
 const DomainBoardPage = lazy(() => import("./pages/domain/DomainBoardPage").then((m) => ({ default: m.DomainBoardPage })))
 
@@ -129,7 +132,10 @@ export default function App() {
           <Route path="/propagation" element={<PropagationHomePage />} />
           <Route path="/data-systems" element={<DataSystemPage />} />
           <Route path="/dummy-data" element={<DummyDataPage />} />
+          <Route path="/demo-version" element={<DemoVersionPage />} />
           <Route path="/pilot-status" element={<PilotStatusPage />} />
+          <Route path="/vlm" element={<VlmPage />} />
+          <Route path="/ax-hub" element={<AxHubPage />} />
 
           <Route path="/reports" element={<ReportsListPage />} />
           <Route path="/reports/:incidentId" element={<ReportDetailPage />} />

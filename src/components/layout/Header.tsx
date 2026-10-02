@@ -4,7 +4,6 @@ import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import { logout, type MockUser } from "../../data/mockAuth"
 import { serviceStatusCards } from "../../data/mockDashboard"
 import { disasterAlerts } from "../../data/mockIncidents"
-import { overallStatus } from "../../data/mockMonitoring"
 import { RiskBadge } from "../ui/RiskBadge"
 import { getDominantRiskLevel, riskStyles } from "../ui/riskStyles"
 import { DemoDataMenu } from "./DemoDataMenu"
@@ -33,19 +32,11 @@ const OPS_NAV = [
   { to: "/data-systems", label: "데이터 시스템 연계현황", icon: "🗄️" },
   { to: "/dummy-data", label: "시나리오 더미데이터", icon: "📥" },
   { to: "/reports", label: "이력·보고서", icon: "📋" },
+  { to: "/demo-version", label: "데모버전", icon: "🏷️" },
 ]
-const ROUTE_LABEL: Record<string, string> = Object.fromEntries(
-  [...SERVICE_NAV, ...OPS_NAV].map((item) => [item.to, item.label]),
-)
 
 // 서비스 카드 id와 도메인 경로("/" + id)가 일치 — 도메인 메뉴 옆에 현재 최고 위험 등급 점을 붙인다
 const domainRisk = new Map(serviceStatusCards.map((card) => [`/${card.id}`, getDominantRiskLevel(card.counts)]))
-
-// 서비스 카드와 같은 4단계(관심 포함) — 예전엔 관심이 빠져 저염분 관심 3건이 상단 요약에 안 잡혔음
-const RISK_TOTALS = (["danger", "alert", "warning", "caution"] as const).map((level) => ({
-  level,
-  count: serviceStatusCards.reduce((sum, card) => sum + (card.counts[level] ?? 0), 0),
-}))
 
 function useClock() {
   const [now, setNow] = useState(() => new Date())
@@ -68,8 +59,6 @@ export function Header({ user }: { user: MockUser }) {
 
   const onDashboard = location.pathname === "/dashboard"
   const activeTab = (params.get("tab") as DashboardTabKey | null) ?? "summary"
-  const sectionLabel = Object.entries(ROUTE_LABEL).find(([path]) => location.pathname.startsWith(path))?.[1]
-  const systemNormal = overallStatus.status === "정상"
   const userLabel = `${user.org.replace("제주특별자치도 ", "")} ${user.name} 님`
 
   // 화면이 바뀌면 열려 있던 메뉴를 닫는다 — effect 안에서 setState 하지 않고 렌더 중에 이전 경로와 비교한다
@@ -103,18 +92,9 @@ export function Header({ user }: { user: MockUser }) {
   return (
     <header className="header" ref={wrapRef}>
       <div className="header__brand">
-        <Link to="/dashboard" aria-label="제주 재난 대응 플랫폼" style={{ display: "flex", alignItems: "center" }}>
-          <svg className="header__logo" viewBox="0 0 96 38" fill="none" aria-hidden="true">
-            <text x="0" y="27" fontFamily="Pretendard, sans-serif" fontSize="26" fontWeight="800" fill="#fff">
-              Je
-            </text>
-            <text x="32" y="27" fontFamily="Pretendard, sans-serif" fontSize="26" fontWeight="800" fill="var(--primary)">
-              ju
-            </text>
-            <path d="M2 33h68" stroke="var(--quaternary)" strokeWidth="3" strokeLinecap="round" />
-            <path d="M74 33h18" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" />
-          </svg>
-          <span className="header__title">제주 재난 대응 플랫폼</span>
+        <Link to="/dashboard" aria-label="제주 재난 대응 플랫폼 프로토타입" style={{ display: "flex", alignItems: "center" }}>
+          <img src="/jeju_w_ci.svg" alt="" className="header__logo" aria-hidden="true" style={{ width: "auto", objectFit: "contain" }} />
+          <span className="header__title">제주 재난 대응 플랫폼 프로토타입</span>
         </Link>
         {IS_SIMULATION_MODE && (
           <span
@@ -154,24 +134,13 @@ export function Header({ user }: { user: MockUser }) {
         </nav>
       </div>
 
-      <div
-        className="header__spacer"
-        style={{ display: "flex", alignItems: "center", gap: 6, paddingLeft: "1.25rem" }}
-        aria-label="서비스 경보 요약"
-      >
-        {onDashboard ? (
-          RISK_TOTALS.map(({ level, count }) => (
-            <span key={level} className={`risk risk--${level}`}>
-              {riskStyles[level].label} {count}
-            </span>
-          ))
-        ) : (
-          <span style={{ fontWeight: 700 }}>{sectionLabel ?? ""}</span>
-        )}
-        <span className={`risk ${systemNormal ? "risk--safe" : "risk--warning"}`}>시스템 {overallStatus.status}</span>
-      </div>
-
       <div className="header__user">
+        <a href="/vlm" target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--pill" style={{ height: 32, padding: "0 .75rem", fontSize: 12 }}>
+          VLM
+        </a>
+        <a href="/ax-hub" target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--pill" style={{ height: 32, padding: "0 .75rem", fontSize: 12 }}>
+          AX HUB
+        </a>
         <DemoDataMenu open={openMenu === "demo"} onToggle={() => setOpenMenu((v) => (v === "demo" ? null : "demo"))} />
         <p>{userLabel}</p>
         <div style={{ position: "relative" }}>

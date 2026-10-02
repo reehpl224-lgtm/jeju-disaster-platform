@@ -37,7 +37,9 @@ import {
 } from "../data/mockDashboard"
 import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeams, shelters } from "../data/mockIncidents"
 import { cctvCameras, cctvCoverageSummary } from "../data/mockCctv"
+import { overallStatus } from "../data/mockMonitoring"
 import { sequentialPropagation, simultaneousPropagationGoal } from "../data/mockPropagation"
+import { riskStyles } from "../components/ui/riskStyles"
 
 /**
  * 통합 대시보드 — demo-10 클론 디자인(헤더 탭 3종: 종합 상황 / GIS 상황 / CCTV).
@@ -68,6 +70,12 @@ const CCTV_DOMAIN_FILTERS: { id: CctvCamera["domain"] | "all"; label: string }[]
 const CCTV_DOMAIN_LABEL = Object.fromEntries(CCTV_DOMAIN_FILTERS.map((f) => [f.id, f.label])) as Record<string, string>
 
 const REGIONS = ["제주시", "서귀포시"] as const
+
+// 종합상황 지도 영역 상단 상태정보 — 예전엔 헤더에 있던 위험 건수 요약(서비스 카드와 같은 4단계, 관심 포함)
+const RISK_TOTALS = (["danger", "alert", "warning", "caution"] as const).map((level) => ({
+  level,
+  count: serviceStatusCards.reduce((sum, card) => sum + (card.counts[level] ?? 0), 0),
+}))
 
 type TabKey = "summary" | "gis" | "cctv"
 
@@ -745,6 +753,19 @@ export function DashboardPage() {
                   </select>
                   <div className="jmap">
                     <JejuVectorMap markers={summaryMarkers} />
+                    <div
+                      className="risk-legend"
+                      style={{ position: "absolute", left: "50%", bottom: 12, transform: "translateX(-50%)", zIndex: 500 }}
+                      aria-label="서비스 경보 요약"
+                    >
+                      {RISK_TOTALS.map(({ level, count }) => (
+                        <Risk key={level} level={level} label={`${riskStyles[level].label} ${count}`} />
+                      ))}
+                      <Risk
+                        level={overallStatus.status === "정상" ? "safe" : "warning"}
+                        label={`시스템 ${overallStatus.status}`}
+                      />
+                    </div>
                   </div>
                 </div>
 
