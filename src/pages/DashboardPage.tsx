@@ -165,6 +165,9 @@ export function DashboardPage() {
   const railContent: Record<string, ReactNode> = {
     timeline: (
       <ul className="plist">
+        {disasterIncidents.length === 0 && riverRun.history.length === 0 && (
+          <li className="pempty">데이터가 없습니다.</li>
+        )}
         {disasterIncidents.map((incident) => (
           <li key={incident.id}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -228,6 +231,7 @@ export function DashboardPage() {
         <div className="pgroup">
           <p className="pnote">최근 조치 이력</p>
           <ul className="plist">
+            {recentActions.length === 0 && <li className="pempty">데이터가 없습니다.</li>}
             {recentActions.map((action) => (
               <li key={action.id}>
                 <div className="row-between">
@@ -279,6 +283,7 @@ export function DashboardPage() {
         <div className="pgroup">
           <p className="pnote">기관별 대응 상태</p>
           <ul className="plist">
+            {agencyStatuses.length === 0 && <li className="pempty">데이터가 없습니다.</li>}
             {agencyStatuses.map((agency) => (
               <li key={agency.id} className="row-between">
                 <span>{agency.agency}</span>
@@ -292,6 +297,7 @@ export function DashboardPage() {
         <div className="pgroup">
           <p className="pnote">현장 대응팀</p>
           <ul className="plist">
+            {disasterResponseTeams.length === 0 && <li className="pempty">데이터가 없습니다.</li>}
             {disasterResponseTeams.map((team) => (
               <li key={team.id} className="row-between">
                 <span>{team.name}</span>
@@ -330,6 +336,7 @@ export function DashboardPage() {
     ),
     asset: (
       <>
+        {shelters.length === 0 && <p className="pempty">데이터가 없습니다.</p>}
         {shelters.map((shelter) => (
           <div className="pbox" key={shelter.id}>
             <div className="row-between">
