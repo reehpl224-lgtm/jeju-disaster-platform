@@ -96,6 +96,9 @@ export function Header({ user }: { user: MockUser }) {
           <img src="/jeju_w_ci.svg" alt="" className="header__logo" aria-hidden="true" style={{ width: "auto", objectFit: "contain" }} />
           <span className="header__title">제주 재난 대응 플랫폼 프로토타입</span>
         </Link>
+        <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 700, color: "var(--foreground-subtle)", whiteSpace: "nowrap" }}>
+          Demo V0.1
+        </span>
         {IS_SIMULATION_MODE && (
           <span
             style={{
