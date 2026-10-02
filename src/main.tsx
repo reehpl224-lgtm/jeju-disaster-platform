@@ -12,6 +12,8 @@ import { IS_SIMULATION_MODE } from './data/appEnv'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+// 폰트는 앱에 포함해 배포한다(Noto Sans KR 가변 폰트, 필요한 글자 조각만 내려받음) — PC마다 폰트가 달라 보이지 않게.
+import '@fontsource-variable/noto-sans-kr/wght.css'
 import './index.css'
 import './styles/demo10.css'
 import './styles/subpage.css'

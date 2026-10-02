@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+  --font-sans: "Noto Sans KR Variable", "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
 
   /* 배경/패널 (다크 테마 — 20.재난관리플랫폼 디자인 기준) */
   --color-base: #1d1d1d;

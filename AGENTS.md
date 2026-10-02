@@ -145,6 +145,8 @@ Claude 검토 응답: [더미데이터 시나리오 인계 검토 — Claude 응
 
 **2026-10-02 헤더 메뉴(☰) 항목 축소(사용자 요청)**: 서비스 9 + 운영 9로 항목이 늘어 메뉴가 화면 높이를 넘어 스크롤이 생겨, `.menu li a`·`.menu__action`의 글자를 14px → 13px, 상하 여백을 8px → 5px로 줄였다(메뉴 높이 약 795px → 653px). 아주 낮은 화면에서도 페이지 스크롤이 생기지 않게 `.menu`에 `max-height: calc(100vh - 72px); overflow-y: auto`를 넣어 넘치면 메뉴 안에서만 스크롤되고, 그 스크롤은 공통 스크롤 디자인(`.tree`·`.content`·`.panel__scroll`과 같은 6px 얇은 막대·투명 트랙·연한 썸)을 쓴다. 메뉴 항목을 더 늘릴 땐 이 높이를 다시 확인할 것.
 
+**2026-10-03 앱 폰트를 Noto Sans KR로 통일·포함 배포(사용자 요청, 로컬 확인 전)**: 기존 `--font-sans`는 `-apple-system, BlinkMacSystemFont, "Pretendard", "Malgun Gothic" …`였고 폰트 파일을 앱에 넣지 않아 보는 PC에 Pretendard가 설치돼 있을 때만 쓰였다(Mac은 시스템 폰트가 먼저, Windows 미설치 PC는 맑은 고딕) — PC마다 다르게 보였다. 이제 `@fontsource-variable/noto-sans-kr`(가변 폰트, 한글 조각 124개를 필요한 만큼만 내려받음, 인터넷 CDN 없이 앱과 함께 배포 → 내부망에서도 같음)을 `main.tsx`에서 import하고 `--font-sans`를 `"Noto Sans KR Variable", "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif`로 바꿨다. 숫자 폭은 기본이 이미 고정 폭이라 `tabular-nums`는 넣지 않았다. 빌드 산출물에 woff2 124개(약 5.6MB, 처음엔 쓰는 조각만 로드)가 포함된다. Figma 시안의 글자 스타일도 Noto Sans KR로 맞췄다.
+
 ---
 
 ## 1. 프로젝트 성격 — 반드시 지킬 것
@@ -955,8 +957,9 @@ shadcn/ui를 그대로 들여오지 않는다.
   가이드의 "Interstellar Blue(#3B82F6)"는 쓰지 않는다 — 이미 확립된 `--primary`가 그 역할.
 - **위험등급 색**: `--risk-danger/alert/warning/caution/safe/info/offline` (§3 참고) — 신규 UI에서 상태
   표시가 필요하면 항상 이 팔레트를 쓰고 임의 색을 새로 만들지 않는다.
-- **타이포그래피**: `--font-sans`(Pretendard 우선, 시스템 폰트 폴백) — 한글 지원 이미 반영됨. Inter는
-  별도로 로드하지 않는다(웹폰트 추가 없이 시스템 폰트로 충분).
+- **타이포그래피**: `--font-sans` = Noto Sans KR 가변 폰트(`@fontsource-variable/noto-sans-kr`, `main.tsx`에서 import해
+  앱과 함께 배포 — 필요한 글자 조각만 내려받음), 폴백은 맑은 고딕·Apple SD Gothic Neo. Inter는 별도로 로드하지 않는다.
+  Figma 시안(`jeju-disaster-platform` 디자인 파일)의 글자 스타일도 같은 Noto Sans KR이다.
 
 ### 코드 품질 규칙 (그대로 채택)
 1. **AI Slop 방지**: 무채색 평면 레이아웃 금지. 테두리(`border-color: var(--foreground-faint)`), 미묘한
