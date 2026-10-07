@@ -12,7 +12,7 @@ const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDat
 
 /** L1 · 좌측 · 타임라인 — 최근 7일 막대(색=그날 최고 등급) + 재난·기상 이력. 실데이터가 없으면 샘플로 채운다. */
 export function TimelinePanel() {
-  const { mode, events, messagesError, messagesAsOf, sampleReason } = useSidePanelEvents()
+  const { mode, events, nullSources, messagesAsOf } = useSidePanelEvents()
   const f = useEventFilters()
   const { cat, setCat } = f
   const [day, setDay] = useState<number | null>(null)
@@ -78,10 +78,15 @@ export function TimelinePanel() {
         <h3 className="sp-h" style={{ margin: 0 }}>
           재난·기상 이력
         </h3>
-        {mode === "sample" ? <SpSample /> : <SpLive />}
+        {mode === "staging" ? <SpSample /> : <SpLive />}
       </div>
-      {mode === "sample" && <p className="sp-note">{sampleReason === "staging" ? "스테이징 환경입니다 — 디자인 확인용 샘플을 보여줍니다(샘플은 실제 상황이 아닙니다)." : "기상청 특보·태풍 정보를 받지 못해 디자인 확인용 샘플을 보여줍니다(샘플은 실제 상황이 아닙니다)."}</p>}
-      {mode === "live" && <p className="sp-note">기상청 특보(최근 24시간 발표)·태풍 현황·긴급재난문자(제주 수신 — 받아 둔 스냅샷{messagesAsOf ? `, ${messagesAsOf.slice(0, 10).replace(/-/g, ".")} 기준` : ""})입니다.{messagesError ? " 재난문자 파일을 읽지 못했습니다." : ""}{events.length === 0 && !messagesError && " 지금은 발표된 특보·태풍·문자가 없습니다."}</p>}
+      {mode === "staging" && <p className="sp-note">스테이징 환경입니다 — 임의의 값(샘플)을 보여줍니다(실제 상황이 아닙니다).{nullSources.length > 0 ? ` 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다.` : ""}</p>}
+      {mode === "live" && (
+        <p className="sp-note">
+          기상청 특보(최근 24시간 발표)·태풍 현황·긴급재난문자(제주 수신 — 받아 둔 스냅샷{messagesAsOf ? `, ${messagesAsOf.slice(0, 10).replace(/-/g, ".")} 기준` : ""})입니다.{nullSources.length > 0 ? ` 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다.` : ""}
+          {events.length === 0 && " 지금은 발표된 특보·태풍·문자가 없습니다."}
+        </p>
+      )}
 
       {list.length === 0 ? (
         <div className="sp-dashed sp-dashed--center">
@@ -91,7 +96,7 @@ export function TimelinePanel() {
       ) : (
         <div className="sp-tl">
           {list.slice(0, 40).map((e, i) => (
-            <TimelineRow key={e.id} e={e} latest={i === 0} />
+            <TimelineRow key={e.id} e={e} latest={i === 0} chip={e.sample && mode === "live"} />
           ))}
         </div>
       )}
@@ -100,7 +105,7 @@ export function TimelinePanel() {
   )
 }
 
-function TimelineRow({ e, latest }: { e: SpEvent; latest: boolean }) {
+function TimelineRow({ e, latest, chip }: { e: SpEvent; latest: boolean; chip: boolean }) {
   const level: RiskLevel = e.status === "해제" ? "safe" : e.level
   return (
     <div className="sp-trow">
@@ -112,7 +117,10 @@ function TimelineRow({ e, latest }: { e: SpEvent; latest: boolean }) {
           <span className="time">{fmtDateTime(e.at)}</span>
           <SpRisk level={level}>{e.status}</SpRisk>
         </div>
-        <span className="title">{e.title}</span>
+        <span className="title">
+          {e.title}
+          {chip && <> <SpSample noData /></>}
+        </span>
         <span className="detail">{e.detail}</span>
         {e.meta && (
           <div className="sp-meta">

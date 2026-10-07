@@ -10,6 +10,8 @@ export interface SpDockTab {
   headTitle?: string
   /** 제목 옆 "샘플" 표식 */
   sample?: boolean
+  /** sample일 때 데이터 정보 자체가 없어서(null) 샘플인 경우 — "샘플 · 데이터 없음" */
+  noData?: boolean
 }
 
 /**
@@ -26,7 +28,7 @@ export function SummaryRightDock({ tabs, activeKey, onSelect }: { tabs: SpDockTa
         <div className="panel__head">
           <h2 className="panel__title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {active?.headTitle ?? active?.label}
-            {active?.sample && <SpSample />}
+            {active?.sample && <SpSample noData={active.noData} />}
           </h2>
         </div>
         <DragScrollTabs label="대응 패널 탭">

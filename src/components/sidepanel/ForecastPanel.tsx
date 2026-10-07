@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { WEATHER_REGIONS, SKY_LABEL, PTY_LABEL, fetchUltraNcst, fetchVilageForecast, toWeatherObservation } from "../../data/weatherApi"
-import { SAMPLE_WEEKLY } from "../../data/sidePanelSamples"
+import { IS_STAGING } from "../../data/appMode"
+import { SAMPLE_WEEKLY, buildSampleForecast } from "../../data/sidePanelSamples"
 import type { VilageForecastRegion, VilageForecastResponse, VilageForecastSlot } from "../../types/weather"
 import type { WeatherObservation } from "../../types/incident"
 import { SpLive, SpSample } from "./primitives"
@@ -10,7 +11,6 @@ interface Loaded {
   key: string
   forecast: VilageForecastResponse | null
   now: WeatherObservation | null
-  error: string | null
 }
 
 const slotDate = (s: VilageForecastSlot) => new Date(`${s.date.slice(0, 4)}-${s.date.slice(4, 6)}-${s.date.slice(6, 8)}T${s.time.slice(0, 2)}:00:00+09:00`)
@@ -21,7 +21,11 @@ const skyIcon = (s?: VilageForecastSlot) => {
   return v.SKY === "1" ? "☀️" : v.SKY === "3" ? "⛅" : v.SKY === "4" ? "☁️" : "–"
 }
 
-/** L3 · 좌측 · 동네예보 — 기상청 단기예보·초단기실황(실데이터). 4~7일째만 중기예보 미연동이라 샘플. */
+/**
+ * L3 · 좌측 · 동네예보 — 기상청 단기예보·초단기실황.
+ * 표시 규칙(세 환경 레이아웃 동일): 프로토타입·로컬은 받은 값 그대로, 못 받은(null) 부분은 샘플 + "샘플 · 데이터 없음",
+ * 스테이징은 받았어도 임의의 값(샘플). 주간 날씨는 단기예보가 닿는 날까지만 실값이고 나머지는 중기예보 미연동이라 샘플 + 데이터 없음.
+ */
 export function ForecastPanel() {
   const [region, setRegion] = useState<VilageForecastRegion>("jeju")
   const [reload, setReload] = useState(0)
@@ -38,7 +42,6 @@ export function ForecastPanel() {
         key,
         forecast: f.status === "fulfilled" ? f.value : null,
         now: u.status === "fulfilled" ? toWeatherObservation(u.value) : null,
-        error: f.status === "rejected" ? (f.reason instanceof Error ? f.reason.message : String(f.reason)) : null,
       })
     })
     return () => {
@@ -46,7 +49,14 @@ export function ForecastPanel() {
     }
   }, [region, key])
 
-  const slots = useMemo(() => res?.forecast?.slots ?? [], [res])
+  const sampleFc = useMemo(() => buildSampleForecast(), [])
+  // 단기예보·현재 관측은 각각 따로 판단한다 — 스테이징이면 항상 샘플, 아니면 못 받은(null) 쪽만 샘플
+  const fcSample = IS_STAGING || (!loading && !res?.forecast)
+  const obsSample = IS_STAGING || (!loading && !res?.now)
+  const fcNoData = !IS_STAGING && fcSample
+  const obsNoData = !IS_STAGING && obsSample
+  const slots = useMemo(() => (fcSample ? sampleFc.slots : res?.forecast?.slots ?? []), [fcSample, sampleFc, res])
+  const nowObs = obsSample ? sampleFc.now : res?.now
   const regionLabel = WEATHER_REGIONS.find((r) => r.key === region)?.label ?? ""
   const baseTime = slots[0] ? `${slots[0].time.slice(0, 2)}:${slots[0].time.slice(2, 4)}` : "-"
 
@@ -56,7 +66,7 @@ export function ForecastPanel() {
     return slots.filter((s) => slotDate(s).getTime() >= t0).filter((_, i) => i % 2 === 0).slice(0, 6)
   }, [slots, nowMs])
 
-  // 주간 날씨 — 단기예보가 닿는 날은 실값, 나머지는 샘플
+  // 주간 날씨 — 단기예보가 닿는 날은 그 값(샘플이면 샘플), 나머지 날은 중기예보 미연동이라 샘플
   const days = useMemo(() => {
     const by = new Map<string, VilageForecastSlot[]>()
     for (const s of slots) by.set(s.date, [...(by.get(s.date) ?? []), s])
@@ -66,22 +76,21 @@ export function ForecastPanel() {
       const pm = list.filter((s) => Number(s.time.slice(0, 2)) >= 12)
       const pop = (l: VilageForecastSlot[]) => (l.length ? Math.max(...l.map((s) => Number(s.values.POP ?? 0))) : null)
       const mid = (l: VilageForecastSlot[]) => l[Math.floor(l.length / 2)]
-      return { date: new Date(`${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T12:00:00+09:00`), min: Math.min(...temps), max: Math.max(...temps), am: skyIcon(mid(am)), pm: skyIcon(mid(pm)), popAm: pop(am), popPm: pop(pm), sample: false }
+      return { date: new Date(`${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T12:00:00+09:00`), min: Math.min(...temps), max: Math.max(...temps), am: skyIcon(mid(am)), pm: skyIcon(mid(pm)), popAm: pop(am), popPm: pop(pm), sample: fcSample }
     })
-  }, [slots])
+  }, [slots, fcSample])
   const weekly = useMemo(() => {
     const out = [...days]
-    const last = days.at(-1)?.date ?? new Date()
+    const last = days.at(-1)?.date ?? new Date(nowMs)
     SAMPLE_WEEKLY.forEach((w, i) => {
       if (out.length >= 7) return
       out.push({ date: new Date(last.getTime() + (i + 1) * 24 * 60 * 60 * 1000), min: w.min, max: w.max, am: w.am, pm: w.pm, popAm: w.popAm, popPm: w.popPm, sample: true })
     })
     return out
-  }, [days])
+  }, [days, nowMs])
   const lo = Math.min(...weekly.map((d) => d.min), 0)
   const hi = Math.max(...weekly.map((d) => d.max), 1)
 
-  const nowObs = res?.now
   const nowSlot = slots.find((s) => slotDate(s).getTime() >= nowMs - 60 * 60 * 1000)
   const skyText = nowSlot?.values.PTY && nowSlot.values.PTY !== "0" ? PTY_LABEL[nowSlot.values.PTY] : nowSlot?.values.SKY ? SKY_LABEL[nowSlot.values.SKY] : "-"
 
@@ -141,25 +150,28 @@ export function ForecastPanel() {
       </div>
 
       {loading && <p className="pempty">불러오는 중...</p>}
-      {!loading && res?.error && <div className="sp-error"><b>{res.error}</b></div>}
 
-      {!loading && res && !res.error && (
+      {!loading && (
         <>
           <div className="sp-row">
             <h3 className="sp-h" style={{ margin: 0 }}>
               제주특별자치도 {regionLabel} · 현재
             </h3>
+            {obsSample && <SpSample noData={obsNoData} />}
           </div>
           <div className="sp-now">
-            <span className="t">{nowObs ? `${Math.round(nowObs.temperatureC)}°` : nowSlot?.values.TMP ? `${nowSlot.values.TMP}°` : "-"}</span>
+            <span className="t">{nowObs ? `${Math.round(nowObs.temperatureC)}°` : "-"}</span>
             <div>
               <b>{skyText}</b>
-              <small>{nowObs ? `강수 ${nowObs.rainfallMm}mm · 습도 ${nowObs.humidityPercent}% · 풍속 ${nowObs.windSpeedMs}m/s` : "현재 관측값(초단기실황)을 받지 못했습니다"}</small>
+              <small>{nowObs ? `강수 ${nowObs.rainfallMm}mm · 습도 ${nowObs.humidityPercent}% · 풍속 ${nowObs.windSpeedMs}m/s` : "현재 관측값 없음"}</small>
             </div>
           </div>
 
           <div className="sp-card" style={{ gap: 10 }}>
-            <b className="sp-h2">단기 예보 · 6개 시간대</b>
+            <div className="sp-row">
+              <b className="sp-h2 sp-spacer">단기 예보 · 6개 시간대</b>
+              {fcSample && <SpSample noData={fcNoData} />}
+            </div>
             <div className="sp-hours">
               {six.map((s) => (
                 <span key={s.date + s.time}>
@@ -193,7 +205,7 @@ export function ForecastPanel() {
               <b className="sp-h2 sp-spacer" style={{ fontSize: 13 }}>
                 주간 날씨 · 7일
               </b>
-              <SpLive />
+              {weekly.every((d) => d.sample) ? <SpSample noData={!IS_STAGING} /> : <SpLive />}
             </div>
             <div className="sp-week sp-week--head">
               <span style={{ textAlign: "left" }}>날짜</span>
@@ -229,7 +241,7 @@ export function ForecastPanel() {
               {weekly.some((d) => d.sample) && (
                 <>
                   {" "}
-                  · 흐린 막대 {weekly.filter((d) => d.sample).length}일은 중기예보 미연동 <SpSample />
+                  · 흐린 막대 {weekly.filter((d) => d.sample).length}일은 {IS_STAGING ? "임의의 값" : "중기예보 미연동"} <SpSample noData={!IS_STAGING} />
                 </>
               )}
             </p>

@@ -6,31 +6,24 @@ import { fetchJejuWarnings } from "./warningsApi"
 import { fetchTyphoonNow } from "./typhoonApi"
 import { fetchDisasterMessages, type DisasterMsg } from "./disasterMsgApi"
 import { buildSampleEvents, type SpEvent } from "./sidePanelSamples"
+import { IS_STAGING } from "./appMode"
 
 /**
- * 종합상황 좌측 패널(타임라인·발효중 특보·실시간 특보)이 함께 쓰는 사건 목록.
- * 실데이터 = 기상청 API허브 특보(최근 24시간 발표)와 태풍 현황. **데이터를 받았으면(값이 0건이어도) 그 값 그대로** 보여준다 —
- * 0건이면 "발표 없음"이다(mode "live", events가 비어 있음). **둘 다 못 받았을 때만** 디자인 확인용 샘플을 보여주고
- * (mode "sample") 화면에 "샘플" 표식이 붙는다. 실데이터와 샘플을 섞지 않는다.
- * 재난문자는 행정안전부 긴급재난문자(제주 수신분)를 받아 둔 파일(스냅샷, scripts/fetch-disaster-msgs.mjs)에서 읽는다 — 못 읽으면 그것만 비고(messagesError) 나머지는 그대로다.
+ * 종합상황 좌측 패널(타임라인·발효중 특보·실시간 특보)이 함께 쓰는 사건 목록 — 출처 셋: 기상청 특보(최근 24시간 발표) · 태풍 현황 ·
+ * 긴급재난문자(제주 수신분, 받아 둔 스냅샷 scripts/fetch-disaster-msgs.mjs).
  *
- * 환경별 표시(2026-10-07 사용자 결정): **스테이징(vite --mode staging)은 항상 샘플**(sampleReason "staging" — 레이아웃 확인용 임의 데이터),
- **프로토타입·로컬은 현재 데이터가 있으면 그 값**(샘플은 데이터를 못 받았을 때만).
+ * 표시 규칙(2026-10-07 사용자 결정 — 세 환경 레이아웃은 같고 값만 다르다):
+ *  - 프로토타입·로컬: 출처마다 **데이터를 받았으면 그 값 그대로**(0건이면 0건). **못 받은(null) 출처만** 그 출처의 샘플로 채우고
+ *    사건 카드에 "샘플 · 데이터 없음"을 붙인다(nullSources에 이름이 담긴다). 실데이터와 샘플은 출처 단위로만 바뀐다.
+ *  - 스테이징(vite --mode staging): 데이터를 받았어도 **임의의 값(샘플) 전체**를 보여준다(mode "staging"). 못 받은 출처는 nullSources로 알린다.
  */
-export type EventsMode = "loading" | "live" | "sample"
-
-/** 스테이징 빌드(`npm run build:staging` = vite --mode staging)에서는 실데이터가 있어도 샘플을 보여준다 */
-const IS_STAGING = import.meta.env.MODE === "staging"
+export type EventsMode = "loading" | "live" | "staging"
 
 export interface SidePanelEvents {
   mode: EventsMode
   events: SpEvent[]
-  /** 특보 API를 못 받았을 때의 메시지(받았으면 null) */
-  warningsError: string | null
-  /** 재난문자를 못 받았을 때의 메시지(받았으면 null) */
-  messagesError: string | null
-  /** 샘플을 보여주는 이유 — 스테이징 환경이라서 / 데이터를 못 받아서(mode가 sample일 때만) */
-  sampleReason: "staging" | "failed" | null
+  /** 데이터를 못 받은(null) 출처 이름 — 프로토타입에선 그 출처가 샘플로 채워져 있다 */
+  nullSources: string[]
   /** 재난문자 파일을 받아 둔 시각(ISO) — 스냅샷 기준일 표시용 */
   messagesAsOf: string | null
   /** 마지막으로 성공 수신한 시각 */
@@ -39,19 +32,18 @@ export interface SidePanelEvents {
 
 interface Snapshot {
   loaded: boolean
-  /** 특보·태풍 중 하나라도 응답을 받았는가 */
-  anyOk: boolean
+  warningsOk: boolean
+  typhoonOk: boolean
+  messagesOk: boolean
   warnings: WarningEntry[]
   typhoons: TyphoonNowEntry[]
   messages: DisasterMsg[]
   messagesAsOf: string | null
-  warningsError: string | null
-  messagesError: string | null
   fetchedAt: Date | null
 }
 
 const REFRESH_MS = 10 * 60 * 1000
-let snapshot: Snapshot = { loaded: false, anyOk: false, warnings: [], typhoons: [], messages: [], messagesAsOf: null, warningsError: null, messagesError: null, fetchedAt: null }
+let snapshot: Snapshot = { loaded: false, warningsOk: false, typhoonOk: false, messagesOk: false, warnings: [], typhoons: [], messages: [], messagesAsOf: null, fetchedAt: null }
 const listeners = new Set<() => void>()
 const subscribe = (fn: () => void) => {
   listeners.add(fn)
@@ -65,13 +57,13 @@ function load(): Promise<void> {
     .then(([w, t, m]) => {
       snapshot = {
         loaded: true,
-        anyOk: w.status === "fulfilled" || t.status === "fulfilled" || m.status === "fulfilled",
+        warningsOk: w.status === "fulfilled",
+        typhoonOk: t.status === "fulfilled",
+        messagesOk: m.status === "fulfilled",
         warnings: w.status === "fulfilled" ? w.value.entries : [],
         typhoons: t.status === "fulfilled" ? t.value : [],
         messages: m.status === "fulfilled" ? m.value.messages : [],
         messagesAsOf: m.status === "fulfilled" ? m.value.fetchedAt || null : null,
-        warningsError: w.status === "rejected" ? (w.reason instanceof Error ? w.reason.message : String(w.reason)) : null,
-        messagesError: m.status === "rejected" ? (m.reason instanceof Error ? m.reason.message : String(m.reason)) : null,
         fetchedAt: w.status === "fulfilled" || t.status === "fulfilled" ? new Date() : snapshot.fetchedAt,
       }
       listeners.forEach((fn) => fn())
@@ -94,6 +86,7 @@ export function warningToEvent(e: WarningEntry): SpEvent {
   const level: RiskLevel = e.lvl === "2" ? "alert" : "warning"
   return {
     id: `w-${e.regId}-${e.wrn}-${e.tmFc}`,
+    source: "warnings",
     category: "weather",
     icon: WEATHER_ICON[e.wrnLabel] ?? "☔",
     level,
@@ -117,6 +110,7 @@ export function messageToEvent(m: DisasterMsg): SpEvent {
   const region = regions.length > 1 ? `제주 포함 ${regions.length}개 시도` : m.region
   return {
     id: `m-${m.id}`,
+    source: "messages",
     category: "message",
     icon: "📩",
     level,
@@ -131,6 +125,7 @@ export function messageToEvent(m: DisasterMsg): SpEvent {
 export function typhoonToEvent(t: TyphoonNowEntry): SpEvent {
   return {
     id: `t-${t.year}-${t.typ}-${t.typTmUtc}`,
+    source: "typhoon",
     category: "disaster",
     icon: "🌀",
     level: "caution",
@@ -155,16 +150,20 @@ export function useSidePanelEvents(): SidePanelEvents {
     return () => clearInterval(id)
   }, [])
 
-  const live = useMemo(() => {
-    const analysis = snap.typhoons.filter((t) => t.ft === "0")
-    return [...snap.warnings.map(warningToEvent), ...analysis.map(typhoonToEvent), ...snap.messages.map(messageToEvent)].sort((a, b) => b.at.getTime() - a.at.getTime())
-  }, [snap])
   const sample = useMemo(() => buildSampleEvents(), [])
+  const real = useMemo(() => {
+    const analysis = snap.typhoons.filter((t) => t.ft === "0")
+    return { warnings: snap.warnings.map(warningToEvent), typhoon: analysis.map(typhoonToEvent), messages: snap.messages.map(messageToEvent) }
+  }, [snap])
 
-  const base = { warningsError: snap.warningsError, messagesError: snap.messagesError, fetchedAt: snap.fetchedAt, messagesAsOf: snap.messagesAsOf }
-  // 스테이징은 받는 중에도, 데이터가 있어도 항상 샘플(레이아웃 확인용)
-  if (IS_STAGING) return { mode: "sample", events: sample, sampleReason: "staging", ...base, warningsError: null, messagesError: null }
-  if (!snap.loaded) return { mode: "loading", events: [], sampleReason: null, ...base, warningsError: null, messagesError: null }
-  if (!snap.anyOk) return { mode: "sample", events: sample, sampleReason: "failed", ...base }
-  return { mode: "live", events: live, sampleReason: null, ...base }
+  const nullSources = snap.loaded ? ([!snap.warningsOk && "기상청 특보", !snap.typhoonOk && "태풍 현황", !snap.messagesOk && "재난문자"].filter(Boolean) as string[]) : []
+  const base = { nullSources, fetchedAt: snap.fetchedAt, messagesAsOf: snap.messagesAsOf }
+
+  // 스테이징: 받는 중에도, 데이터가 있어도 항상 샘플 전체
+  if (IS_STAGING) return { mode: "staging", events: sample, ...base }
+  if (!snap.loaded) return { mode: "loading", events: [], ...base }
+  // 프로토타입·로컬: 출처마다 받았으면 그 값, 못 받았으면(null) 그 출처의 샘플
+  const pick = (src: "warnings" | "typhoon" | "messages", ok: boolean) => (ok ? real[src === "typhoon" ? "typhoon" : src === "messages" ? "messages" : "warnings"] : sample.filter((e) => e.source === src))
+  const events = [...pick("warnings", snap.warningsOk), ...pick("typhoon", snap.typhoonOk), ...pick("messages", snap.messagesOk)].sort((a, b) => b.at.getTime() - a.at.getTime())
+  return { mode: "live", events, ...base }
 }

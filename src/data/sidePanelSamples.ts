@@ -10,14 +10,14 @@ import type { RiskLevel } from "../types/domain"
  * 임의 데이터 영역(패널 → 이 파일의 export):
  *   L1 타임라인        → SAMPLE_EVENTS            (기상청 특보·태풍을 **받지 못했을 때만** 사용 — 받았는데 0건이면 0건 그대로)
  *   L2 발효중 특보      → SAMPLE_EVENTS            (위와 같은 조건 — 간트도 이 사건의 발효 구간으로 그린다)
- *   L3 동네예보        → SAMPLE_WEEKLY            (내일 이후 주간 날씨 — 중기예보 미연동)
+ *   L3 동네예보        → buildSampleForecast / SAMPLE_WEEKLY (스테이징·예보를 못 받았을 때 전체, 프로토타입은 내일 이후 주간 날씨만 — 중기예보 미연동)
  *   L4 실시간 특보      → SAMPLE_EVENTS 중 기상특보 (실데이터가 없을 때만)
- *   R1 상황전파        → SAMPLE_CHANNELS
+ *   R1 상황전파        → SAMPLE_CHANNELS (항상) · SAMPLE_REACH / SAMPLE_RECENT_ACTIONS (스테이징)
  *   R2 센서정보        → SAMPLE_SENSOR_SUMMARY / SAMPLE_SERVICE_SENSORS / SAMPLE_SENSOR_ALERTS
  *   R3 센서 추이       → SAMPLE_TREND_RANK / SAMPLE_TREND_CARDS
  *   R4 대응현황        → SAMPLE_SERVICE_STAGES / SAMPLE_ACTIONS / SAMPLE_AGENCIES / SAMPLE_TEAMS
- *   R7 자산현황        → SAMPLE_ASSET_SUMMARY / SAMPLE_RIVER_RESOURCES / SAMPLE_RIVER_FACILITIES
- *   R8 AI 분석         → SAMPLE_VLM_SUMMARY / SAMPLE_INTAKES
+ *   R7 자산현황        → SAMPLE_ASSET_SUMMARY / SAMPLE_RIVER_RESOURCES / SAMPLE_RIVER_FACILITIES (항상) · SAMPLE_SHELTER_COUNTS (스테이징)
+ *   R8 AI 분석         → SAMPLE_VLM_SUMMARY / SAMPLE_INTAKES / SAMPLE_AI
  * 실데이터(샘플 아님): L3 현재·단기예보(기상청), L1·L2·L4의 기상특보·태풍(있을 때), R5 담당자(mockContacts),
  *   R1의 보고체계(mockPropagation), R8의 신뢰도·교차검증·AI 기능 6종(mockDashboard).
  */
@@ -28,8 +28,12 @@ const DAY = 24 * HOUR
 
 export type SpCategory = "disaster" | "weather" | "message"
 
+/** 사건의 출처 — 기상청 특보 · 태풍 현황 · 재난문자 · 그 밖(홍수·산사태처럼 연동 API가 없는 것, 스테이징 샘플 전용) */
+export type SpSource = "warnings" | "typhoon" | "messages" | "other"
+
 export interface SpEvent {
   id: string
+  source: SpSource
   category: SpCategory
   /** 아이콘(이모지) */
   icon: string
@@ -54,7 +58,8 @@ export const CATEGORY_ICON: Record<SpCategory, string> = { disaster: "🌀", wea
 export function buildSampleEvents(now = new Date()): SpEvent[] {
   const base = Math.floor(now.getTime() / MIN) * MIN // 초는 00으로 맞춘다
   const t = (minutesAgo: number) => new Date(base - minutesAgo * MIN)
-  const ev = (e: Omit<SpEvent, "sample">): SpEvent => ({ ...e, sample: true })
+  const sourceOf = (id: string, category: SpCategory): SpSource => (id.startsWith("s-ty") ? "typhoon" : category === "message" ? "messages" : id === "s-landslide" || id === "s-flood" ? "other" : "warnings")
+  const ev = (e: Omit<SpEvent, "sample" | "source">): SpEvent => ({ ...e, source: sourceOf(e.id, e.category), sample: true })
   return [
     ev({ id: "s-ty27", category: "disaster", icon: "🌀", level: "caution", status: "발령", title: "제27호 초이완", detail: "일본 도쿄 동북동쪽 약 1220 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "65km/h" }, { label: "중심기압", value: "965hPa" }, { label: "최대풍속", value: "37m/s" }] }),
     ev({ id: "s-ty28", category: "disaster", icon: "🌀", level: "caution", status: "발령", title: "제28호 놀루", detail: "괌 북동쪽 약 2450 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "41km/h" }, { label: "중심기압", value: "965hPa" }, { label: "최대풍속", value: "37m/s" }] }),
@@ -65,6 +70,7 @@ export function buildSampleEvents(now = new Date()): SpEvent[] {
     ev({ id: "s-wave-w", category: "weather", icon: "🌊", level: "warning", status: "발령", title: "풍랑주의보 (기상특보)", detail: "제주시 동부·서귀포 남부 · 기상청 발표", at: t(120) }),
     ev({ id: "s-dry-w", category: "weather", icon: "🔥", level: "warning", status: "해제", title: "건조주의보 (기상특보)", detail: "제주시 중산간 · 해제", at: t(270), until: t(60) }),
     ev({ id: "s-msg-wind", category: "message", icon: "📩", level: "alert", status: "발령", title: "재난문자", detail: "제주시 · 강풍경보 발령 안내 문자", at: t(21 * 60 + 55) }),
+    ev({ id: "s-msg-rain", category: "message", icon: "📩", level: "warning", status: "발령", title: "재난문자 · 긴급재난", detail: "서귀포시 · 호우주의보 발효 — 하천·계곡 접근 금지", at: t(6 * 60 + 30) }),
     ev({ id: "s-wind-end", category: "weather", icon: "💨", level: "safe", status: "해제", title: "강풍주의보 (기상특보)", detail: "서귀포시 산지 · 해제", at: t(24 * 60 + 20) }),
     ev({ id: "s-landslide", category: "disaster", icon: "⛰️", level: "warning", status: "발령", title: "산사태 위기경보 '주의'", detail: "서귀포시 · 산림청 발표", at: t(2 * DAY / MIN + 5 * 60) }),
     ev({ id: "s-dry", category: "weather", icon: "🔥", level: "warning", status: "해제", title: "건조주의보 (기상특보)", detail: "제주시 중산간 · 해제", at: t(2 * DAY / MIN + 9 * 60) }),
@@ -88,7 +94,23 @@ export const SAMPLE_WEEKLY: { min: number; max: number; am: string; pm: string; 
   { min: 20, max: 26, am: "⛅", pm: "⛅", popAm: 20, popPm: 20 },
   { min: 19, max: 25, am: "☀️", pm: "🌤️", popAm: 10, popPm: 20 },
   { min: 18, max: 24, am: "☀️", pm: "☀️", popAm: 0, popPm: 10 },
+  { min: 18, max: 25, am: "🌤️", pm: "⛅", popAm: 10, popPm: 20 },
+  { min: 19, max: 24, am: "⛅", pm: "☁️", popAm: 20, popPm: 40 },
 ]
+
+/** 동네예보 샘플(스테이징 · 예보를 못 받았을 때) — 앞으로 12시간 시간별 예보(기온·강수확률·하늘상태)와 현재 관측 */
+export function buildSampleForecast(now = new Date()) {
+  const base = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 1, 0, 0)
+  const tmp = [24, 24, 23, 22, 22, 21, 20, 20, 19, 19, 19, 18]
+  const pop = [10, 10, 20, 20, 30, 40, 40, 50, 60, 50, 40, 30]
+  const sky = ["1", "1", "3", "3", "3", "4", "4", "4", "4", "3", "3", "3"]
+  const p2 = (n: number) => String(n).padStart(2, "0")
+  const slots = tmp.map((t, i) => {
+    const d = new Date(base.getTime() + i * HOUR)
+    return { date: `${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}`, time: `${p2(d.getHours())}00`, values: { TMP: String(t), POP: String(pop[i]), SKY: sky[i], PTY: "0", REH: "62", WSD: "3.1" } }
+  })
+  return { slots, now: { temperatureC: 24, rainfallMm: 0, humidityPercent: 62, windSpeedMs: 3.1 } }
+}
 
 // ------------------------------------------------------------------ R1 상황전파
 export interface SpChannel {
@@ -107,6 +129,28 @@ export const SAMPLE_CHANNELS: SpChannel[] = [
   { name: "PS-LTE", percent: null, state: "offline", note: "정보 없음" },
   { name: "스마트폴", percent: 67, state: "caution" },
 ]
+
+/** 순차 전파 단계별 도달 시각 샘플(스테이징) — 도청 → 시 상황실 → 읍면동 */
+export const SAMPLE_REACH = ["14:05", "14:11", "14:19"]
+/** 최근 조치 이력 샘플(스테이징) */
+export const SAMPLE_RECENT_ACTIONS: { id: string; time: string; title: string; owner: string; note: string }[] = [
+  { id: "ra1", time: "14:19", title: "읍면동 상황전파 완료", owner: "재난대응1팀", note: "도달 확인 12/12" },
+  { id: "ra2", time: "14:11", title: "시 상황실 전파", owner: "도청 상황실", note: "지연 6분" },
+  { id: "ra3", time: "14:05", title: "강풍경보 발령 보고", owner: "자연재난과", note: "행정안전부 1차 보고" },
+]
+
+// ------------------------------------------------------------------ R7 자산현황 — 대피·수용 시설 샘플(스테이징)
+/** 종류별 제주시·서귀포시 개소 수 — 임의의 값. 프로토타입은 받아 둔 실제 파일(shelters-jeju.json)을 쓴다 */
+export const SAMPLE_SHELTER_COUNTS: { label: string; jeju: number; seogwipo: number }[] = [
+  { label: "민방위 대피소", jeju: 312, seogwipo: 131 },
+  { label: "지진해일 긴급대피장소", jeju: 18, seogwipo: 22 },
+  { label: "지진 대피장소", jeju: 9, seogwipo: 7 },
+  { label: "지진 옥외대피장소", jeju: 85, seogwipo: 74 },
+  { label: "수용(구호) 시설", jeju: 96, seogwipo: 88 },
+]
+
+// ------------------------------------------------------------------ R8 AI 분석 — 예측 신뢰도·교차검증
+export const SAMPLE_AI = { confidence: { level: "고신뢰", percent: 92 }, crossCheck: { normal: 118, fault: 2, missing: 3 } }
 
 // ------------------------------------------------------------------ R2 센서정보
 export const SAMPLE_SENSOR_SUMMARY = { total: 131, normal: 118, delayedOrError: 8, delayed: 6, error: 2, unlinked: 5 }

@@ -18,7 +18,7 @@ interface GanttRow {
 
 /** L2 · 좌측 · 발효중 특보 — 분류별 건수 + 발효 시간 간트 + 분류별 목록. 기상청은 해제 시각을 주지 않아 막대 끝은 '미정'. */
 export function ActiveWarningsPanel() {
-  const { mode, events, messagesError, sampleReason } = useSidePanelEvents()
+  const { mode, events, nullSources } = useSidePanelEvents()
   const f = useEventFilters()
   const now = useMemo(() => new Date(), [])
   const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -111,7 +111,7 @@ export function ActiveWarningsPanel() {
           <section key={c} className="sp" style={{ gap: 8 }}>
             <h3 className="sp-group-h">
               {CATEGORY_LABEL[c]}
-              {mode === "sample" && <SpSample />}
+              {mode === "staging" ? <SpSample /> : items.some((e) => e.sample) ? <SpSample noData /> : null}
             </h3>
             {items.length === 0 ? (
               <div className="sp-dashed sp-dashed--center">
@@ -129,7 +129,7 @@ export function ActiveWarningsPanel() {
           <b>현재 발효 중인 특보가 없습니다</b>
         </div>
       )}
-      <p className="sp-note">해제 여부는 기상청 발표를 따릅니다 · 실시간 특보 탭엔 같은 카드{messagesError && " · 재난문자 파일을 읽지 못했습니다"}{mode === "sample" && (sampleReason === "staging" ? " · 스테이징 환경 — 샘플을 보여줍니다" : " · 기상청 특보·태풍 정보를 받지 못해 샘플을 보여줍니다")}</p>
+      <p className="sp-note">해제 여부는 기상청 발표를 따릅니다 · 실시간 특보 탭엔 같은 카드{mode === "staging" && " · 스테이징 환경 — 임의의 값(샘플)을 보여줍니다"}{nullSources.length > 0 && ` · 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다`}</p>
     </div>
   )
 }

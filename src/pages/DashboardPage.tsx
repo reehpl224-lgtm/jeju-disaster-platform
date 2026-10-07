@@ -380,13 +380,13 @@ export function DashboardPage() {
   const panelInput = usePanelInput()
   const summaryTabs: SpDockTab[] = [
     { key: "broadcast", label: "상황전파", content: <PropagationPanel /> },
-    { key: "sensor", label: "센서정보", sample: fullySample.sensor(panelInput), content: <SensorSummaryPanel /> },
-    { key: "trend", label: "센서 추이", sample: fullySample.trend(panelInput), content: <SensorTrendPanel /> },
-    { key: "response", label: "대응현황", sample: fullySample.response(panelInput), content: <ResponsePanel /> },
+    { key: "sensor", label: "센서정보", sample: fullySample.sensor(panelInput), noData: true, content: <SensorSummaryPanel /> },
+    { key: "trend", label: "센서 추이", sample: fullySample.trend(panelInput), noData: true, content: <SensorTrendPanel /> },
+    { key: "response", label: "대응현황", sample: fullySample.response(panelInput), noData: true, content: <ResponsePanel /> },
     { key: "contact", label: "담당자", content: <ContactPanel /> },
     { key: "report", label: "보고서", content: <ReportPanel /> },
     { key: "asset", label: "자산현황", content: <AssetPanel /> },
-    { key: "ai", label: "AI 분석", sample: true, content: <AiPanel /> },
+    { key: "ai", label: "AI 분석", content: <AiPanel /> },
     { key: "messenger", label: "방재메신저", headTitle: "예정 기능", content: <FuturePanel kind="messenger" /> },
     { key: "news", label: "안전뉴스", headTitle: "예정 기능", content: <FuturePanel kind="news" /> },
   ]

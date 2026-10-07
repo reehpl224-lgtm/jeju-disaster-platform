@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom"
 import { dutyContacts } from "../../data/mockContacts"
-import { aiInsights, predictionConfidence, sensorCrossCheck } from "../../data/mockDashboard"
-import { SAMPLE_ASSET_SUMMARY, SAMPLE_INTAKES, SAMPLE_RIVER_FACILITIES, SAMPLE_RIVER_RESOURCES, SAMPLE_VLM_SUMMARY } from "../../data/sidePanelSamples"
+import { aiInsights } from "../../data/mockDashboard"
+import { SAMPLE_AI, SAMPLE_ASSET_SUMMARY, SAMPLE_SHELTER_COUNTS, SAMPLE_INTAKES, SAMPLE_RIVER_FACILITIES, SAMPLE_RIVER_RESOURCES, SAMPLE_VLM_SUMMARY } from "../../data/sidePanelSamples"
 import { useShelters } from "../../data/sheltersJeju"
+import { IS_STAGING } from "../../data/appMode"
 import { SpRisk, SpSample } from "./primitives"
 
 /** "유선 · 카카오톡 단톡방(풍수방)" → ["유선", "카카오톡 풍수방"] */
@@ -61,6 +62,12 @@ export function ReportPanel() {
 export function AssetPanel() {
   const a = SAMPLE_ASSET_SUMMARY
   const shelters = useShelters()
+  // 대피·수용 시설 표 — 스테이징은 임의의 값, 그 밖의 환경은 받아 둔 실제 파일(제주 자료가 없는 종류는 0건 그대로)
+  const kindRows = IS_STAGING
+    ? SAMPLE_SHELTER_COUNTS.map((k) => ({ label: k.label, jeju: k.jeju, seogwipo: k.seogwipo, total: k.jeju + k.seogwipo }))
+    : shelters.status === "ready"
+      ? shelters.file.kinds.map((k) => ({ label: k.label, jeju: k.items.filter((i) => i.region === "제주시").length, seogwipo: k.items.filter((i) => i.region === "서귀포시").length, total: k.items.length }))
+      : null
   return (
     <div className="sp">
       <div className="sp-card sp-card--open">
@@ -68,15 +75,23 @@ export function AssetPanel() {
           <b className="sp-h2" style={{ fontSize: 13 }}>
             대피·수용 시설
           </b>
-          {shelters.status === "ready" && (
-            <span className="sp-sample sp-sample--snap" title={`${shelters.file.source} — ${shelters.file.fetchedAt.slice(0, 10)}에 받아 둔 목록`}>
-              스냅샷 · {shelters.file.fetchedAt.slice(0, 10).replace(/-/g, ".")} 기준
-            </span>
+          {IS_STAGING ? (
+            <SpSample />
+          ) : (
+            shelters.status === "ready" && (
+              <span className="sp-sample sp-sample--snap" title={`${shelters.file.source} — ${shelters.file.fetchedAt.slice(0, 10)}에 받아 둔 목록`}>
+                스냅샷 · {shelters.file.fetchedAt.slice(0, 10).replace(/-/g, ".")} 기준
+              </span>
+            )
           )}
         </div>
-        {shelters.status === "loading" && <p className="sp-note">불러오는 중...</p>}
-        {shelters.status === "missing" && <p className="sp-note">받아 둔 시설 목록이 없습니다(scripts/fetch-shelters.mjs로 받습니다).</p>}
-        {shelters.status === "ready" && (
+        {!IS_STAGING && shelters.status === "loading" && <p className="sp-note">불러오는 중...</p>}
+        {!IS_STAGING && shelters.status === "missing" && (
+          <p className="sp-note">
+            받아 둔 시설 목록이 없습니다(scripts/fetch-shelters.mjs로 받습니다) <SpSample noData />
+          </p>
+        )}
+        {kindRows && (
           <>
             <div className="sp-ktable">
               <div className="sp-ktr sp-ktr--head">
@@ -85,17 +100,17 @@ export function AssetPanel() {
                 <span>서귀포시</span>
                 <span>합계</span>
               </div>
-              {shelters.file.kinds.map((k) => (
-                <div className="sp-ktr" key={k.id}>
+              {kindRows.map((k) => (
+                <div className="sp-ktr" key={k.label}>
                   <span>{k.label}</span>
-                  <span>{k.items.filter((i) => i.region === "제주시").length}</span>
-                  <span>{k.items.filter((i) => i.region === "서귀포시").length}</span>
-                  <b className={k.items.length === 0 ? "sp-c--offline" : undefined}>{k.items.length === 0 ? "자료 없음" : `${k.items.length}곳`}</b>
+                  <span>{k.jeju}</span>
+                  <span>{k.seogwipo}</span>
+                  <b className={k.total === 0 ? "sp-c--offline" : undefined}>{k.total === 0 ? "자료 없음" : `${k.total}곳`}</b>
                 </div>
               ))}
             </div>
             <p className="sp-note">
-              출처 {shelters.file.source} · 종류마다 같은 시설이 겹쳐 들어 있을 수 있어 합산하지 않았습니다 · 수용 인원은 시설별 값이라 합계를 내지 않습니다
+              {IS_STAGING ? "스테이징 환경 — 임의의 값(샘플)입니다" : `출처 ${shelters.status === "ready" ? shelters.file.source : ""}`} · 종류마다 같은 시설이 겹쳐 들어 있을 수 있어 합산하지 않았습니다 · 수용 인원은 시설별 값이라 합계를 내지 않습니다
             </p>
           </>
         )}
@@ -105,7 +120,7 @@ export function AssetPanel() {
         <h3 className="sp-h2" style={{ fontSize: 13 }}>
           하천 인력·장비·시설
         </h3>
-        <SpSample />
+        <SpSample noData />
       </div>
       <div className="sp-stats">
         <div className="sp-stat">
@@ -163,11 +178,10 @@ export function AssetPanel() {
   )
 }
 
-/** R8 · 우측 · AI 분석 — 신뢰도·교차검증·AI 기능 6종은 앱 데이터, VLM 요약·취수구 도달은 연동 전 샘플 */
+/** R8 · 우측 · AI 분석 — AI 기능 6종은 앱 목록, 예측 신뢰도·교차검증·VLM 요약·취수구 도달은 연동된 데이터가 없어(null) 샘플 + "샘플 · 데이터 없음" */
 export function AiPanel() {
-  const conf = predictionConfidence
-  const cc = sensorCrossCheck
-  const filled = conf.level !== "-"
+  const conf = SAMPLE_AI.confidence
+  const cc = SAMPLE_AI.crossCheck
   return (
     <div className="sp">
       <div className="sp-card sp-card--open">
@@ -175,19 +189,20 @@ export function AiPanel() {
           <b className="sp-h2 sp-spacer" style={{ fontSize: 13 }}>
             예측 신뢰도
           </b>
-          <SpRisk level={filled ? "safe" : "offline"}>{filled ? conf.level : "미산정"}</SpRisk>
+          <SpSample noData={!IS_STAGING} />
+          <SpRisk level="safe">{conf.level}</SpRisk>
         </div>
         <span className="sp-track">
           <i className="sp-bg--safe" style={{ width: `${conf.percent}%` }} />
         </span>
         <p className="sp-note">
-          신뢰도 {conf.percent}% — {filled ? "AI 예측 결과 기준" : "데이터 수집 전이라 비어 있음(연계 후 실값)"}
+          신뢰도 {conf.percent}% — 임의의 값(샘플) · 연계 후 실값
         </p>
       </div>
 
       <div className="sp-stats">
         <div className="sp-stat">
-          <small>교차검증 정상</small>
+          <small>교차검증 정상 <SpSample noData={!IS_STAGING} /></small>
           <b>{cc.normal}</b>
         </div>
         <div className="sp-stat">
@@ -217,7 +232,7 @@ export function AiPanel() {
           <b className="sp-h2 sp-spacer" style={{ fontSize: 13 }}>
             연안 VLM 10분 상황요약
           </b>
-          <SpSample />
+          <SpSample noData={!IS_STAGING} />
         </div>
         {SAMPLE_VLM_SUMMARY.map((v) => (
           <div className="sp-vlm" key={v.time}>
@@ -233,7 +248,7 @@ export function AiPanel() {
           <b className="sp-h2 sp-spacer" style={{ fontSize: 13 }}>
             저염수 취수구 도달 예상
           </b>
-          <SpSample />
+          <SpSample noData={!IS_STAGING} />
         </div>
         {SAMPLE_INTAKES.map((i) => (
           <div key={i.name}>
