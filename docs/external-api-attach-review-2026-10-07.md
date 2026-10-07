@@ -24,8 +24,8 @@ Vercel 프록시 프로젝트(`rhkim/kma-weather-proxy`) 환경변수는 **`KMA_
 | KMA-001 초단기실황 | getUltraSrtNcst | **부착 완료(로컬 검증)** | 같은 `KMA_SERVICE_KEY`. 종합상황 '제주도 · 현재 날씨'가 지금 "관측값 없음"이라 효과가 가장 큼 |
 | KMA-002 초단기예보 | getUltraSrtFcst | 보류 | 키는 같음. 이미 단기예보(시간별)가 있어 화면에 새로 채울 자리가 약함. 필요하면 동네예보 앞 6시간을 촘촘히 하는 용도 |
 | KMA-003 단기예보 | getVilageFcst | 이미 있음 | §1 |
-| KHOA-001 조위관측소 최신 | dtRecent/getDTRecentApi | **다음 후보(키 확인 필요)** | 조위·수온·**염분**·기온·풍속. 쇠소깍 수위×조위(TideBlock 샘플), 저염분 수온·염분(지금 샘플)을 실측으로 바꿀 수 있다 |
-| KHOA-002 해양관측부이 최신 | (명세서 오기, 아래) | **다음 후보(키 확인 필요)** | 부이 수온·염분·파고. 저염분·연안 |
+| KHOA-001 조위관측소 최신 | dtRecent/GetDTRecentApiService(오퍼레이션 없이) | **연동(2026-10-07 실응답 확인)** | 조위·수온·**염분**·기온·풍속. 쇠소깍 수위×조위(TideBlock 샘플), 저염분 수온·염분(지금 샘플)을 실측으로 바꿀 수 있다 |
+| KHOA-002 해양관측부이 최신 | twRecent/GetTWRecentApiService | **연동(2026-10-07 실응답 확인)** | 부이 수온·염분·파고. 저염분·연안 |
 | KHOA-003 실측 파랑 | noonWave/getNoonWaveApi | 보류 | 하루 단위(정오 기준)라 실시간 화면에 약함 |
 | KHOA-004 이안류 지수 | ripCurrent/getRipCurrentApi | 보류 | **6~9월만 제공** — 지금(10월)은 빈 응답. 함덕·협재 obsCode도 명세서에 없음 |
 | KMA-004 천리안2A NetCDF | sat_file_down2.php | 제외 | 이진 파일(NetCDF) 내려받기 — 프론트 표시용 아님 |
@@ -43,7 +43,7 @@ Vercel 프록시 프로젝트(`rhkim/kma-weather-proxy`) 환경변수는 **`KMA_
 
 ## 3. 명세서에서 발견한 오류·모호한 점 (Codex·작성자 확인 요청)
 
-1. **EXT-KHOA-002(해양관측부이)의 서비스·요청 URL이 KHOA-001(조위관측소)과 같은 `dtRecent/GetDTRecentApiService/getDTRecentApi`로 적혀 있다.** 상세 기능명(영문)은 `getTWRecentApi`라서 복사 오류로 보인다. 부이용 경로는 확인이 필요하다(추정: `twRecent/GetTWRecentApiService/getTWRecentApi`, 미확인).
+1. **EXT-KHOA-002(해양관측부이)의 서비스·요청 URL이 KHOA-001(조위관측소)과 같은 `dtRecent/GetDTRecentApiService/getDTRecentApi`로 적혀 있다.** 상세 기능명(영문)은 `getTWRecentApi`라서 복사 오류로 보인다. 부이용 경로는 `twRecent/GetTWRecentApiService`로 확인했다. **조위관측소 호출 주소도 명세서의 `…/getDTRecentApi`가 아니라 활용가이드대로 서비스명(`GetDTRecentApiService`)까지만 써야 한다 — 오퍼레이션명을 붙이면 키가 맞아도 `SERVICE_KEY_IS_NOT_REGISTERED_ERROR`(코드 30)가 와서 키 문제로 오해하기 쉽다.**
 2. 3-5절 제목이 `[EXT-KHOA-001]`로 되어 있으나 본문 연계 ID는 EXT-KHOA-002다.
 3. KMA-001/002/003은 `apihub.kma.go.kr` 경로·"공공데이터포털 인증키"로 적혀 있다. 허브 키와 data.go.kr 키 중 어느 쪽인지 문서상 모호하다. 앱은 data.go.kr 경로 + data.go.kr 키로 동작 중이다.
 4. 갱신 주기와 수집 주기가 서로 다르다(예: KHOA-001 갱신 "실시간", 수집 "1시간").

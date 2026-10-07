@@ -3,9 +3,9 @@ import test from "node:test"
 import { extractKhoaItems, normalizeKhoaItems } from "../vercel-proxy/kma-weather-proxy/lib/khoa.ts"
 import { toKhoaArrays } from "../src/data/khoaMapping.ts"
 
-// 명세서(3-4·3-5절) 응답 예시 모양
-const tideRow = { obsvtrNm: "모슬포", iot: "126.25", lat: "33.21", obsrvnDt: "2026-10-07 10:00", wndrct: "344.00", wspd: "5.0", artmp: "21.4", atmpr: "1012.4", wtem: "22.90", bscTdlvHgt: "133.00", slntQty: "33.90", crdir: "", crsp: "" }
-const buoyRow = { obsvtrNm: "중문해수욕장", iot: "126.4", lat: "33.24", obsrvnDt: "2026-10-07 10:00", wndrct: "77.84", wspd: "3.7", artmp: "20.4", atmpr: "1002.1", wvhgt: "0.3", wvpd: "3.2", crdir: "276.04", crsp: "10.30", wtem: "22.55", sIntQty: "31.40" }
+// 활용가이드·실응답(2026-10-07) 모양 — 경도는 lot, 조위관측소 염분은 slntQty, 부이 염분은 slnty
+const tideRow = { obsvtrNm: "모슬포", lot: "126.25", lat: "33.21", obsrvnDt: "2026-10-07 10:00", wndrct: "344.00", wspd: "5.0", artmp: "21.4", atmpr: "1012.4", wtem: "22.90", bscTdlvHgt: "133.00", slntQty: "33.90", crdir: "", crsp: "" }
+const buoyRow = { obsvtrNm: "중문해수욕장", lot: "126.4", lat: "33.24", obsrvnDt: "2026-10-07 10:00", wndrct: "77.84", wspd: "3.7", artmp: "20.4", atmpr: "1002.1", wvhgt: "0.3", wvpd: "3.2", crdir: "276.04", crsp: "10.30", wtem: "22.55", slnty: "31.40" }
 
 test("항목을 숫자로 바꾸고 시각 오름차순으로 정렬한다", () => {
   const rows = normalizeKhoaItems([{ ...tideRow, obsrvnDt: "2026-10-07 11:00" }, tideRow, { obsvtrNm: "x" }])
@@ -16,8 +16,9 @@ test("항목을 숫자로 바꾸고 시각 오름차순으로 정렬한다", () 
   assert.equal(rows[0].values.currentSpeedCms, undefined) // 빈 문자열은 값 없음
 })
 
-test("염분 철자 sIntQty도 읽고 파고·주기를 옮긴다", () => {
+test("부이 염분(slnty)과 경도(lot)를 읽고 파고·주기를 옮긴다", () => {
   const [row] = normalizeKhoaItems([buoyRow])
+  assert.equal(row.lng, 126.4)
   assert.equal(row.values.salinityPsu, 31.4)
   assert.equal(row.values.waveHeightM, 0.3)
   assert.equal(row.values.wavePeriodSec, 3.2)
@@ -27,6 +28,8 @@ test("항목이 하나뿐이어서 객체로 와도 목록으로 꺼낸다", () 
   assert.equal(extractKhoaItems({ response: { body: { items: { item: tideRow } } } }).length, 1)
   assert.equal(extractKhoaItems({ response: { body: { items: { item: [tideRow, tideRow] } } } }).length, 2)
   assert.equal(extractKhoaItems({}).length, 0)
+  // 실응답은 response로 감싸지 않고 header·body로 바로 온다
+  assert.equal(extractKhoaItems({ header: { resultCode: "00" }, body: { items: { item: [tideRow, tideRow] } } }).length, 2)
 })
 
 test("화면 배열: 값이 모자란 관측점은 빼고 조위 시계열을 채운다", () => {

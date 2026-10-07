@@ -1,7 +1,7 @@
 /**
  * 국립해양조사원(KHOA) 조위관측소·해양관측부이 최신 관측데이터(EXT-KHOA-001/002) 응답 정리 — 순수 함수라 tests/에서 검증한다.
- * 항목 필드는 명세서(3-4·3-5절) 기준: obsvtrNm, iot, lat, obsrvnDt, wndrct, wspd, artmp, atmpr, wtem, bscTdlvHgt(조위 cm),
- * slntQty(염분 psu), crdir, crsp(유속 cm/s), wvhgt, wvpd. 명세서 표기가 소문자 l/대문자 I로 흔들려 두 철자를 모두 읽는다.
+ * 항목 필드는 활용가이드·실응답 기준: obsvtrNm, lot(경도 — 외부연계 명세서엔 iot로 오기), lat, obsrvnDt, wndrct, wspd, artmp, atmpr, wtem, bscTdlvHgt(조위 cm),
+ * slntQty(조위관측소 염분 psu)·slnty(부이 염분 psu), crdir, crsp(유속 cm/s), wvhgt, wvpd. 명세서 표기가 소문자 l/대문자 I로 흔들려 두 철자를 모두 읽는다.
  */
 
 export type KhoaKind = "tide" | "buoy"
@@ -15,9 +15,10 @@ export const KHOA_STATIONS: { code: string; kind: KhoaKind; name: string }[] = [
 ]
 
 export const KHOA_ENDPOINTS: Record<KhoaKind, string> = {
-  tide: "https://apis.data.go.kr/1192136/dtRecent/GetDTRecentApiService/getDTRecentApi",
-  // 명세서의 부이 요청 URL은 조위관측소와 같게 적힌 오기로 보여, 상세기능명(getTWRecentApi)과 서비스 경로(twRecent)로 맞췄다
-  buoy: "https://apis.data.go.kr/1192136/twRecent/GetTWRecentApiService/getTWRecentApi",
+  // 오픈API 활용가이드(2026-10-07)의 호출 주소는 서비스명(GetDTRecentApiService)까지다 — 뒤에 오퍼레이션명(getDTRecentApi)을 붙이면
+  // 키가 맞아도 '등록되지 않은 서비스키'(코드 30)가 온다. 부이도 같은 규칙(GetTWRecentApiService)으로 실호출해 정상 응답을 확인했다.
+  tide: "https://apis.data.go.kr/1192136/dtRecent/GetDTRecentApiService",
+  buoy: "https://apis.data.go.kr/1192136/twRecent/GetTWRecentApiService",
 }
 
 export interface KhoaValues {
@@ -56,14 +57,14 @@ export function normalizeKhoaItem(item: Item): KhoaObservation | null {
   return {
     observedAt: observedAt.slice(0, 16),
     lat: num(item.lat),
-    lng: num(item.iot),
+    lng: num(item.lot ?? item.iot),
     values: {
       windDirDeg: num(item.wndrct),
       windSpeedMs: num(item.wspd),
       airTempC: num(item.artmp),
       pressureHpa: num(item.atmpr),
       waterTempC: num(item.wtem),
-      salinityPsu: num(item.slntQty ?? item.sIntQty),
+      salinityPsu: num(item.slntQty ?? item.slnty ?? item.sIntQty),
       tideCm: num(item.bscTdlvHgt),
       waveHeightM: num(item.wvhgt ?? item.Wvhgt),
       wavePeriodSec: num(item.wvpd),
