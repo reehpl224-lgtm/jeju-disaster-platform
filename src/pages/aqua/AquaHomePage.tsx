@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { KHOA_OBS_SNAPSHOT } from "../../components/ui/dataSource"
+import { khoaSource, useKhoaLive } from "../../data/khoaLive"
 import { LIVE } from "../../components/ui/dataSource"
 import { LeaderDetailBrief } from "../domain/LeaderBrief"
 import { aquaBrief } from "../domain/leaderBriefs"
@@ -143,6 +144,7 @@ const TIMELINE_TABS: GisTimelineTab[] = [
 ]
 
 export function AquaHomePage() {
+  useKhoaLive() // 해양조사원 실측이 도착하면 다시 그린다
   const AQUA_CCTV = useCctvCameras().filter((c) => c.domain === "aqua")
   const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
 
@@ -229,9 +231,9 @@ export function AquaHomePage() {
       />
 
       <Card
-        title="해양관측 실측 — 국립해양조사원(KHOA) · 확인 시점 스냅샷"
-        source={KHOA_OBS_SNAPSHOT}
-        subtitle="data.go.kr 공공데이터 실연동 — 정적 프로토타입이라 2026-09-09 확인 시점 스냅샷으로 고정 표시"
+        title="해양관측 실측 — 국립해양조사원(KHOA)"
+        source={khoaSource(KHOA_OBS_SNAPSHOT)}
+        subtitle="data.go.kr 공공데이터 실연동 — 접속할 때 받은 모슬포 조위관측소·해양관측부이 최신 관측값(1시간 간격 자료)"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {khoaLiveObservations.map((obs) => (

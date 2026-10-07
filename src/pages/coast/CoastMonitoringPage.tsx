@@ -9,11 +9,13 @@ import { MarineObservationPanel } from "../../components/ui/MarineObservationPan
 import { coastKhoaEnhancementReview, coastMonitoringDomains, coastStageCriteria } from "../../data/mockCoast"
 import { COAST_COMBINE_RULES, classifyCoastRisk } from "../../data/coastAlertThresholds"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
+import { useKhoaLive } from "../../data/khoaLive"
 
 // 결합 규칙 적용 예시 — KHOA 부이 실측 스냅샷(조위 정보 없음 → 평시 가정, AI 이벤트 없음)
-const BUOY_EXAMPLES = khoaBuoyMarineConditions.map((b) => ({ ...b, result: classifyCoastRisk({ waveM: b.waveHeightM, windMs: b.windSpeedMs }) }))
 
 export function CoastMonitoringPage() {
+  useKhoaLive()
+  const BUOY_EXAMPLES = khoaBuoyMarineConditions.map((b) => ({ ...b, result: classifyCoastRisk({ waveM: b.waveHeightM, windMs: b.windSpeedMs }) }))
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">

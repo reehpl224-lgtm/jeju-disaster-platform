@@ -1,6 +1,7 @@
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card } from "../../components/ui/Card"
 import { KHOA_TIDE_SNAPSHOT } from "../../components/ui/dataSource"
+import { khoaSource, useKhoaLive } from "../../data/khoaLive"
 import { LIVE } from "../../components/ui/dataSource"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { riverPipeline, riverHydrology, riverPredictionOutput } from "../../data/mockMeetingItems"
@@ -25,6 +26,7 @@ import {
 } from "../../data/mockRiver"
 
 export function RiverAnalysisPage() {
+  useKhoaLive() // 해양조사원 실측이 도착하면 다시 그린다
   const run = useRiverRun()
   const flowRatio = riverFlowRatioAnalysis(run)
   const observedSiteCount = Object.values(flowRatio.latest).filter(Boolean).length
@@ -171,7 +173,7 @@ export function RiverAnalysisPage() {
 
       <Card
         title="실측 조위 참고 — 국립해양조사원(KHOA) 모슬포 조위관측소"
-        source={KHOA_TIDE_SNAPSHOT}
+        source={khoaSource(KHOA_TIDE_SNAPSHOT)}
         subtitle={`${khoaMoseulpoTide.location} · ${khoaMoseulpoTide.distanceNote}`}
       >
         {khoaMoseulpoTide.series.length > 0 && <div className="h-40 w-full">
@@ -187,10 +189,10 @@ export function RiverAnalysisPage() {
         </div>}
         <p className="mt-2 text-[11px] text-white/35">
           {khoaMoseulpoTide.series.length === 0 ? (
-            "조위 스냅샷이 비어 있습니다(2026-09-29 초기화) — 실시간 API만 유지됩니다."
+            "조위 실측을 아직 받지 못했습니다 — 프록시 연결 전이거나 해양조사원 응답이 없는 상태입니다."
           ) : (
             <>
-              data.go.kr 공공API 실연동 — {khoaMoseulpoTide.observedAt} 기준 실측값(정적 스냅샷). 현재 {khoaMoseulpoTide.series.at(-1)?.tideLevelCm}cm ·{" "}
+              data.go.kr 공공API 실연동 — {khoaMoseulpoTide.observedAt} 기준 실측값(접속할 때 받은 값). 현재 {khoaMoseulpoTide.series.at(-1)?.tideLevelCm}cm ·{" "}
               {khoaMoseulpoTide.series[0].tideLevelCm > (khoaMoseulpoTide.series.at(-1)?.tideLevelCm ?? 0) ? "간조 진행 중(하강)" : "만조 진행 중(상승)"}
             </>
           )}

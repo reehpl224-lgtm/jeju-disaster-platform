@@ -11,7 +11,8 @@ export interface HeatShelter {
   region: string
   address: string
   type: "경로당" | "마을회관" | "복지관" | "기타"
-  capacity: number
+  /** 정원 — 원본에 비어 있는 쉼터가 있어 null이면 "미등록"으로 표시한다 */
+  capacity: number | null
 }
 
 export interface HeatRouteTip {

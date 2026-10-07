@@ -31,6 +31,8 @@ import {
 } from "../../data/mockMeetingItems"
 import { COAST_COMBINE_RULES } from "../../data/coastAlertThresholds"
 import { KHOA_BUOY_SNAPSHOT, KHOA_OBS_SNAPSHOT, KHOA_TIDE_SNAPSHOT } from "../../components/ui/dataSource"
+import { khoaSource } from "../../data/khoaLive"
+import { heatSheltersSource } from "../../data/heatSheltersLive"
 import { LeaderBoardBrief } from "./LeaderBrief"
 import { aquaBrief, coastBrief, hazardBrief, heatBrief, heavyRainBrief, riverBrief, typhoonBrief } from "./leaderBriefs"
 import { HAZARDS, type HazardId } from "../../data/mockHazards"
@@ -277,7 +279,7 @@ export function typhoonConfig(): DomainConfig {
   const home = (
     <LeaderBoardBrief brief={typhoonBrief()}>
       {reportHistory}
-      <Group title="해양관측부이 (KHOA)" source={KHOA_BUOY_SNAPSHOT}>
+      <Group title="해양관측부이 (KHOA)" source={khoaSource(KHOA_BUOY_SNAPSHOT)}>
         <Buoys />
       </Group>
     </LeaderBoardBrief>
@@ -376,6 +378,10 @@ export function typhoonConfig(): DomainConfig {
 }
 
 // ================================================================== 폭염
+/** 보드 패널에 그리는 쉼터 수 — 제주 786곳을 모두 그리면 패널이 너무 길어진다 */
+const SHELTER_LIST_LIMIT = 40
+const shelterCapacity = (capacity: number | null) => (capacity === null ? "정원 미등록" : `${capacity}명`)
+
 export function heatConfig(): DomainConfig {
   const li = HT.heatLevelInfo
   // 쉼터 원본이 비어 있으면 임의 샘플로 레이아웃을 보여준다(샘플 안내 표시, 원본에 값이 들어오면 자동으로 사라짐)
@@ -383,10 +389,10 @@ export function heatConfig(): DomainConfig {
   const shelters = sheltersSample ? sampleShelters : HT.heatShelters
   const home = (
     <LeaderBoardBrief brief={heatBrief()}>
-      <Group title="무더위쉼터" dummy>
+      <Group title="무더위쉼터" dummy={sheltersSample} source={sheltersSample ? undefined : heatSheltersSource()}>
         {sheltersSample && <SampleNote />}
         <ul className="plist">
-          {shelters.map((s) => (
+          {shelters.slice(0, SHELTER_LIST_LIMIT).map((s) => (
             <li className="row-between" key={s.id}>
               <div>
                 <p className="t">{s.name}</p>
@@ -394,10 +400,11 @@ export function heatConfig(): DomainConfig {
                   {s.address} · {s.type}
                 </p>
               </div>
-              <span className="t">{s.capacity}명</span>
+              <span className="t">{shelterCapacity(s.capacity)}</span>
             </li>
           ))}
         </ul>
+        {shelters.length > SHELTER_LIST_LIMIT && <p className="s">앞 {SHELTER_LIST_LIMIT}곳만 표시 — 전체 {shelters.length}곳은 폭염 대시보드에서 검색</p>}
       </Group>
       <Group title="이동 경로 안내" dummy>
         <ul className="plist">
@@ -483,15 +490,16 @@ export function heatConfig(): DomainConfig {
           <>
             {sheltersSample && <SampleNote />}
             <ul className="plist">
-              {shelters.map((s) => (
+              {shelters.slice(0, SHELTER_LIST_LIMIT).map((s) => (
                 <li className="row-between" key={s.id}>
                   <span>
                     {s.name} <span className="s">{s.region}</span>
                   </span>
-                  <span className="t">{s.capacity}명</span>
+                  <span className="t">{shelterCapacity(s.capacity)}</span>
                 </li>
               ))}
             </ul>
+            {shelters.length > SHELTER_LIST_LIMIT && <p className="s">앞 {SHELTER_LIST_LIMIT}곳만 표시 — 전체 {shelters.length}곳</p>}
           </>
         ),
       },
@@ -633,7 +641,7 @@ export function riverConfig(): DomainConfig {
       <Group title="위험단계 기준 (TP-P22_002)">
         <StageCriteria rows={RV.riverStageCriteria.map((c) => ({ level: c.level, label: c.label, cells: [`계획홍수량 ${c.flowRatio}`, c.waterState] }))} />
       </Group>
-      <Group title="조위 참고 — KHOA 모슬포" source={KHOA_TIDE_SNAPSHOT}>
+      <Group title="조위 참고 — KHOA 모슬포" source={khoaSource(KHOA_TIDE_SNAPSHOT)}>
         <p className="s">
           {RV.khoaMoseulpoTide.distanceNote} · 최근 {RV.khoaMoseulpoTide.series.at(-1)?.tideLevelCm}cm (
           {RV.khoaMoseulpoTide.series.at(-1)?.time})
@@ -1018,7 +1026,7 @@ export function aquaConfig(): DomainConfig {
           </li>
         ))}
       </ul>
-      <Group title="해양 관측 실측 (KHOA)" source={KHOA_OBS_SNAPSHOT}>
+      <Group title="해양 관측 실측 (KHOA)" source={khoaSource(KHOA_OBS_SNAPSHOT)}>
         <ul className="plist">
           {AQ.khoaLiveObservations.map((o) => (
             <li key={o.id}>
@@ -1325,7 +1333,7 @@ export function coastConfig(): DomainConfig {
           </li>
         ))}
       </ul>
-      <Group title="해양관측부이 (KHOA)" source={KHOA_BUOY_SNAPSHOT}>
+      <Group title="해양관측부이 (KHOA)" source={khoaSource(KHOA_BUOY_SNAPSHOT)}>
         <Buoys />
       </Group>
       <Group title="위험단계 기준 (TP-P22_002)">

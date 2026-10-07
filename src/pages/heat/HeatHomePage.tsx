@@ -12,6 +12,7 @@ import { GisSidePanel } from "../../components/ui/GisSidePanel"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { heatLevelInfo, heatRouteTips, heatShelters } from "../../data/mockHeat"
+import { heatSheltersSource, useHeatShelters } from "../../data/heatSheltersLive"
 import { riskMarkers } from "../../data/mockDashboard"
 import type { HeatShelter } from "../../types/heat"
 
@@ -25,10 +26,13 @@ const REGION_FILTERS: { id: HeatShelter["region"] | "all"; label: string }[] = [
   { id: "서귀포시", label: "서귀포시" },
 ]
 
-const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
+/** 한 번에 그리는 쉼터 수 — 제주 786곳을 모두 그리면 화면이 길어져 앞쪽만 보이고 검색·지역으로 좁히게 한다 */
+const SHOW_LIMIT = 60
+
+const railContent = (): Partial<Record<GisRailKey, ReactNode>> => ({
   asset: (
     <ul className="flex flex-col gap-2">
-      {heatShelters.map((shelter) => (
+      {heatShelters.slice(0, SHOW_LIMIT).map((shelter) => (
         <li key={shelter.id} className="rounded-lg border border-border-subtle p-2.5 text-xs">
           <div className="flex items-center justify-between gap-2">
             <p className="font-medium text-white/80">{shelter.name}</p>
@@ -37,11 +41,13 @@ const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
           <p className="mt-1 text-white/35">{shelter.address}</p>
         </li>
       ))}
+      {heatShelters.length > SHOW_LIMIT && <li className="text-[11px] text-white/35">앞 {SHOW_LIMIT}곳만 표시 — 전체 {heatShelters.length}곳은 아래 '무더위쉼터 안내'에서 검색하세요.</li>}
     </ul>
   ),
-}
+})
 
 export function HeatHomePage() {
+  const sheltersLive = useHeatShelters() // 받아 둔 쉼터 목록이 도착하면 다시 그린다
   const [region, setRegion] = useState<HeatShelter["region"] | "all">("all")
   const [query, setQuery] = useState("")
   const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
@@ -76,7 +82,7 @@ export function HeatHomePage() {
             items={HEAT_RAIL_ITEMS}
           />
           {activeRailKey && (
-            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={RAIL_CONTENT} />
+            <GisSidePanel activeKey={activeRailKey} onClose={() => setActiveRailKey(null)} content={railContent()} />
           )}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
@@ -133,8 +139,13 @@ export function HeatHomePage() {
 
       <Card
         title="무더위쉼터 안내"
-        subtitle={`"무더위 쉼터를 몰라서 못 간다"는 현장 지적 반영 — 대표 ${heatShelters.length}개소 표시`}
-        dummy
+        subtitle={
+          sheltersLive
+            ? `"무더위 쉼터를 몰라서 못 간다"는 현장 지적 반영 — 제주 ${heatShelters.length}곳(행정안전부 무더위쉼터) 중 ${filteredShelters.length}곳 검색됨`
+            : `"무더위 쉼터를 몰라서 못 간다"는 현장 지적 반영 — 대표 ${heatShelters.length}개소 표시`
+        }
+        source={heatSheltersSource()}
+        dummy={!sheltersLive}
         action={
           <div className="flex flex-wrap items-center gap-2">
             <input
@@ -160,17 +171,20 @@ export function HeatHomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {filteredShelters.map((shelter) => (
+            {filteredShelters.slice(0, SHOW_LIMIT).map((shelter) => (
               <div key={shelter.id} className="rounded-lg border border-border-subtle bg-inset p-3 text-xs">
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-semibold text-white/85">{shelter.name}</p>
                   <span className="rounded-full border border-border-subtle px-2 py-0.5 text-white/50">{shelter.type}</span>
                 </div>
                 <p className="mt-1 text-white/35">{shelter.address}</p>
-                <p className="mt-1 text-white/50">정원 {shelter.capacity}명</p>
+                <p className="mt-1 text-white/50">{shelter.capacity === null ? "정원 미등록" : `정원 ${shelter.capacity}명`}</p>
               </div>
             ))}
           </div>
+        )}
+        {filteredShelters.length > SHOW_LIMIT && (
+          <p className="mt-3 text-[11px] text-white/35">앞 {SHOW_LIMIT}곳만 표시 중 — 이름이나 지역으로 검색하면 나머지를 볼 수 있습니다.</p>
         )}
       </Card>
     </div>

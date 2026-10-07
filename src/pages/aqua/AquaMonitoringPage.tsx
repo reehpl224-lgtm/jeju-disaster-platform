@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { KHOA_OBS_SNAPSHOT } from "../../components/ui/dataSource"
+import { khoaSource, useKhoaLive } from "../../data/khoaLive"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { aquaSensorOps } from "../../data/mockMeetingItems"
 import { RiskBadge } from "../../components/ui/RiskBadge"
@@ -12,6 +13,7 @@ import { riskMarkers } from "../../data/mockDashboard"
 const MONITOR_MARKERS = riskMarkers.filter((m) => m.domain === "aqua" || m.domain === "river" || m.domain === "coast")
 
 export function AquaMonitoringPage() {
+  useKhoaLive() // 해양조사원 실측이 도착하면 다시 그린다
   const cards = Object.values(aquaMonitoringState)
 
   return (
@@ -53,9 +55,9 @@ export function AquaMonitoringPage() {
       </div>
 
       <Card
-        title="해양관측 실측 — 국립해양조사원(KHOA) · 확인 시점 스냅샷"
-        source={KHOA_OBS_SNAPSHOT}
-        subtitle="data.go.kr 공공데이터 실연동 — 정적 프로토타입이라 2026-09-09 확인 시점 스냅샷으로 고정 표시"
+        title="해양관측 실측 — 국립해양조사원(KHOA)"
+        source={khoaSource(KHOA_OBS_SNAPSHOT)}
+        subtitle="data.go.kr 공공데이터 실연동 — 접속할 때 받은 모슬포 조위관측소·해양관측부이 최신 관측값(1시간 간격 자료)"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {khoaLiveObservations.map((obs) => (

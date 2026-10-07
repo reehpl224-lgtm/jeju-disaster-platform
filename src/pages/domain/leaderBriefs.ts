@@ -273,7 +273,8 @@ export function heatBrief(): LeaderBrief {
   const li = HT.heatLevelInfo
   const d = HT.heatAlertDispatch
   const shelters = HT.heatShelters
-  const capacity = shelters.reduce((sum, s) => sum + s.capacity, 0)
+  const capacity = shelters.reduce((sum, s) => sum + (s.capacity ?? 0), 0)
+  const noCapacity = shelters.filter((s) => s.capacity === null).length
   const feels = li.feelsLikeC
   let days = 0
   for (let i = HT.heatTrend.length - 1; i >= 0 && HT.heatTrend[i].feelsLikeC >= HEAT_WATCH_C; i--) days++
@@ -289,7 +290,7 @@ export function heatBrief(): LeaderBrief {
       { k: "체감온도", v: feels === null ? "-" : `${feels}℃`, over: feels !== null && feels >= HEAT_WATCH_C },
       { k: "주의보 기준 지속", v: feels === null ? "-" : `${days}일`, d: `체감 ${HEAT_WATCH_C}℃ 이상 연속` },
       { k: "경보(35℃)까지", v: gap === null ? "-" : gap > 0 ? `${gap}℃` : "도달", d: gap !== null && gap > 0 ? "남은 격차" : undefined, over: gap !== null && gap <= 0 },
-      { k: "무더위쉼터", v: `${shelters.length}개소`, d: shelters.length > 0 ? `수용 ${capacity}명` : undefined },
+      { k: "무더위쉼터", v: `${shelters.length}개소`, d: shelters.length > 0 ? `수용 ${capacity.toLocaleString()}명${noCapacity > 0 ? ` (정원 미등록 ${noCapacity}곳 제외)` : ""}` : undefined },
     ],
     tasks: [
       ...dispatchTask(d, "/heat/alert"),

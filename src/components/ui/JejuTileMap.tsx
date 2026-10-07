@@ -1,7 +1,7 @@
 import "leaflet/dist/leaflet.css"
 import { latLngBounds } from "leaflet"
 import { Fragment, useCallback, useEffect, useRef, useState } from "react"
-import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap, ZoomControl } from "react-leaflet"
+import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap, WMSTileLayer, ZoomControl } from "react-leaflet"
 import { cctvStatusLabel, openCctvPlayer } from "../../data/cctvLive"
 import type { CctvCamera, RiskLevel, RiskMarker } from "../../types/domain"
 import { placeTileLabels, type LabelSpot } from "./labelPlacement"
@@ -123,6 +123,16 @@ const RISK_RADIO_DOMAIN: Record<string, RiskMarker["domain"]> = {
   "high-temp-risk": "aqua",
   "ai-aqua": "aqua",
 }
+
+/**
+ * 재난위험도 라디오 → 생활안전지도(행정안전부) WMS 레이어. 하천위험지도 = 하천범람지도(지방하천), 침수이력 = 침수흔적도.
+ * 타일은 프록시(/api/safemap-wms)가 대신 받아 키가 브라우저에 보이지 않는다.
+ */
+const SAFEMAP_RADIO: Record<string, { layer: "river" | "trace"; name: string }> = {
+  "river-hazard-map": { layer: "river", name: "하천범람지도(지방하천)" },
+  "flood-history": { layer: "trace", name: "침수흔적도" },
+}
+const SAFEMAP_PROXY = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
 
 /** CCTV 라디오 → 카메라 필터(도메인). 공공CCTV는 전체 */
 const CCTV_RADIO_DOMAINS: Record<string, CctvCamera["domain"][] | "all"> = {
@@ -276,6 +286,7 @@ export function JejuTileMap({
   }
   const riskSel = radioSel["flood-risk"]
   const riskDomain = riskSel ? RISK_RADIO_DOMAIN[riskSel] : undefined
+  const safemap = mode === "riskLevel" && riskSel ? SAFEMAP_RADIO[riskSel] : undefined
   const shownMarkers = mode === "riskLevel" && riskDomain ? geoMarkers.filter((m) => m.domain === riskDomain) : geoMarkers
   const cctvSel = radioSel["cctv"]
   const cctvDomains = cctvSel ? CCTV_RADIO_DOMAINS[cctvSel] : undefined
@@ -287,7 +298,13 @@ export function JejuTileMap({
   if (activePanelId === "agency") {
     layerNotice = agencyChecked.length ? `유관기관 ${agencyChecked.length}종 선택 — 표기 기준 확정 전(TBD), 위치 데이터 준비 중` : null
   } else if (mode === "riskLevel" && riskSel) {
-    layerNotice = riskDomain ? `${labelOf(riskSel)} — 위험 마커 ${shownMarkers.length}건 표출 중` : `${labelOf(riskSel)} — 표기 기준 확정 전(TBD)`
+    layerNotice = safemap
+      ? SAFEMAP_PROXY
+        ? `${labelOf(riskSel)} — 생활안전지도(행정안전부) ${safemap.name} 표출 중`
+        : `${labelOf(riskSel)} — 프록시 주소가 없어 ${safemap.name}를 불러올 수 없음`
+      : riskDomain
+        ? `${labelOf(riskSel)} — 위험 마커 ${shownMarkers.length}건 표출 중`
+        : `${labelOf(riskSel)} — 표기 기준 확정 전(TBD)`
   } else if (mode === "cctv" && cctvSel) {
     layerNotice = cctvDomains ? `${labelOf(cctvSel)} — ${shownCctv.length}대 표출 중` : `${labelOf(cctvSel)} — 표기 기준 확정 전(TBD)`
   }
@@ -334,6 +351,18 @@ export function JejuTileMap({
           subdomains="abc"
           maxZoom={19}
         />
+
+        {safemap && SAFEMAP_PROXY && (
+          <WMSTileLayer
+            key={safemap.layer}
+            url={`${SAFEMAP_PROXY}/api/safemap-wms?layer=${safemap.layer}`}
+            layers={safemap.layer}
+            format="image/png"
+            transparent
+            opacity={0.8}
+            attribution="&copy; 행정안전부 생활안전지도"
+          />
+        )}
 
         {mode === "cctv"
           ? shownCctv.map((cam) => (

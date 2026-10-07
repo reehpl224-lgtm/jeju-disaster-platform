@@ -5,6 +5,7 @@ import { LIVE, SIMULATED } from "../../components/ui/dataSource"
 import { SourceTag } from "../../components/ui/SourceTag"
 import { Box, Checks, Group, Kv, Note, Rows, St } from "../../components/board/PanelParts"
 import { cctvStatusLabel, openCctvPlayer, useCctvCameras } from "../../data/cctvLive"
+import { useKhoaLive } from "../../data/khoaLive"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { sampleBuoys } from "../../data/placeholderSamples"
 import type { ServiceDataSources } from "../../data/mockDataSourceCategories"
@@ -227,6 +228,7 @@ export function SampleNote() {
 }
 
 export function Buoys() {
+  useKhoaLive()
   const sample = khoaBuoyMarineConditions.length === 0
   return (
     <>

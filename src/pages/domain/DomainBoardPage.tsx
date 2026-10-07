@@ -7,6 +7,8 @@ import { MessengerNotice } from "../../components/board/ComingSoon"
 import { WarningsSummary } from "../../components/board/WarningsSummary"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { useCctvCameras } from "../../data/cctvLive"
+import { useKhoaLive } from "../../data/khoaLive"
+import { useHeatShelters } from "../../data/heatSheltersLive"
 import { riskMarkers, serviceStatusCards } from "../../data/mockDashboard"
 import { useRiverRun } from "../../data/riverRunHooks"
 import { DOMAIN_CONFIGS } from "./domainConfigs"
@@ -18,8 +20,10 @@ import { DOMAIN_CONFIGS } from "./domainConfigs"
 export function DomainBoardPage({ domain }: { domain: string }) {
   const build = DOMAIN_CONFIGS[domain]
   const riverRunVersion = useRiverRun().version
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- riverRunVersion만 재계산 트리거로 씀(build 안에서 안 읽음)
-  const config = useMemo(() => (build ? build() : null), [build, riverRunVersion])
+  const sheltersLoaded = useHeatShelters()
+  const khoaLoaded = useKhoaLive() // 해양조사원 실측이 도착하면 설정(탭 내용)을 다시 만든다
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- riverRunVersion·khoaLoaded만 재계산 트리거로 씀(build 안에서 안 읽음)
+  const config = useMemo(() => (build ? build() : null), [build, riverRunVersion, khoaLoaded, sheltersLoaded])
   const cctvCameras = useCctvCameras()
   const [params, setParams] = useSearchParams()
   const [rightTab, setRightTab] = useState("tl")

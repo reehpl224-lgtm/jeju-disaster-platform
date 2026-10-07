@@ -9,6 +9,8 @@ import './data/scenarioClock'
 // 투영되지 않는다(카드·마커가 갱신 안 됨). scenarioClock 뒤에 둬야 시나리오 엑셀의 절대 시각이 옮겨지지 않는다.
 import './data/riverRunState'
 import { loadJejuCctv } from './data/cctvLive'
+import { loadKhoa } from './data/khoaLive'
+import { loadHeatShelters } from './data/heatSheltersLive'
 import { IS_SIMULATION_MODE } from './data/appEnv'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -22,6 +24,10 @@ import App from './App.tsx'
 
 // 제주시 감시 CCTV 목록(공공데이터포털)을 한 번 받아 대표 카메라 목록에 채운다 — 실패하면 빈 목록 그대로
 void loadJejuCctv()
+// 해양조사원 조위·부이 실측(모슬포·중문·제주해협·제주남부) — 비워 둔 KHOA 배열을 채운다. 실패하면 빈 채로 둔다
+void loadKhoa()
+// 무더위쉼터(행정안전부, 받아 둔 제주 786곳) — 비워 둔 heatShelters를 채운다
+void loadHeatShelters()
 
 // 개발 서버 또는 스테이징 빌드에서: 화면 간 상태·수치 일치 검사(콘솔 · window.__jejuConsistency())
 // 배포된 스테이징은 DEV가 아니므로 VITE_DATA_MODE=simulation도 별도로 확인한다(staging-scenario-review 문서 §3).

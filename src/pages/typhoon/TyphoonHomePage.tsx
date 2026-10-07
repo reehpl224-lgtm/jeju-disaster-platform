@@ -1,5 +1,6 @@
 import { Card } from "../../components/ui/Card"
 import { KHOA_BUOY_SNAPSHOT } from "../../components/ui/dataSource"
+import { khoaSource, useKhoaLive } from "../../data/khoaLive"
 import { LeaderDetailBrief } from "../domain/LeaderBrief"
 import { typhoonBrief } from "../domain/leaderBriefs"
 import { RiskBadge } from "../../components/ui/RiskBadge"
@@ -23,6 +24,7 @@ const STATUS_LEVEL: Record<(typeof typhoonReports)[number]["status"], "caution" 
 }
 
 export function TyphoonHomePage() {
+  useKhoaLive() // 해양조사원 실측이 도착하면 다시 그린다
   const latest = typhoonReports[0]
 
   return (
@@ -78,7 +80,7 @@ export function TyphoonHomePage() {
 
       <Card
         title="실측 해상 관측 참고 — 국립해양조사원(KHOA) 해양관측부이"
-        source={KHOA_BUOY_SNAPSHOT}
+        source={khoaSource(KHOA_BUOY_SNAPSHOT)}
         subtitle="자체 관측장비 없음(기상청 발표 전량 수신)을 보완하는 실측 참고치 — 특보 판단은 기상청 공식 발표 기준을 따름"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -96,7 +98,7 @@ export function TyphoonHomePage() {
             </div>
           ))}
         </div>
-        <p className="mt-3 text-[11px] text-white/35">data.go.kr 공공API 실연동 — 정적 프로토타입이라 확인 시점 스냅샷으로 고정 표시</p>
+        <p className="mt-3 text-[11px] text-white/35">data.go.kr 공공API 실연동 — 접속할 때 받은 최신 관측값(1시간 간격 자료)</p>
       </Card>
 
       <Card

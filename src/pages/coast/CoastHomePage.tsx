@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { KHOA_BUOY_SNAPSHOT } from "../../components/ui/dataSource"
+import { khoaSource, useKhoaLive } from "../../data/khoaLive"
 import { LIVE } from "../../components/ui/dataSource"
 import { LeaderDetailBrief } from "../domain/LeaderBrief"
 import { coastBrief } from "../domain/leaderBriefs"
@@ -139,6 +140,7 @@ const TIMELINE_TABS: GisTimelineTab[] = [
 ]
 
 export function CoastHomePage() {
+  useKhoaLive() // 해양조사원 실측이 도착하면 다시 그린다
   const COAST_CCTV = useCctvCameras().filter((c) => c.domain === "coast")
   const coastMarkers = riskMarkers.filter((m) => m.domain === "coast")
   const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
@@ -237,7 +239,7 @@ export function CoastHomePage() {
 
       <Card
         title="실측 파고·기상 참고 — 국립해양조사원(KHOA) 해양관측부이"
-        source={KHOA_BUOY_SNAPSHOT}
+        source={khoaSource(KHOA_BUOY_SNAPSHOT)}
         subtitle="함덕·협재 AIoT 스마트폴과는 다른 국가 관측망 지점 — 인근 해역 파고·풍속 참고용"
       >
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -255,7 +257,7 @@ export function CoastHomePage() {
             </div>
           ))}
         </div>
-        <p className="mt-3 text-[11px] text-white/35">data.go.kr 공공API 실연동 — 정적 프로토타입이라 확인 시점 스냅샷으로 고정 표시</p>
+        <p className="mt-3 text-[11px] text-white/35">data.go.kr 공공API 실연동 — 접속할 때 받은 최신 관측값(1시간 간격 자료)</p>
       </Card>
 
       <Card title="KHOA 실측 기반 AI 보강 가능성 검토" subtitle={coastKhoaEnhancementReview.feasible} dummy>
