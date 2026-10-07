@@ -5,22 +5,11 @@
  * wrn_met_data.php는 "현재 발효 중" 플래그를 안 줘서, 프록시가 최근 24시간 발표분만 추려서
  * 준다 — 그래서 이 데이터는 "최근 발표된 특보"로 표시하고 "지금 발효 중"이라고 단정하지 않는다.
  */
-import { IS_SIMULATION_MODE } from "./appEnv"
 import type { WarningsResponse } from "../types/warningsApi"
 
 const PROXY_URL = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
 
-/** 스테이징 모의 특보 — 기관이 실제 발표한 것이 아니다. 화면에는 SourceTag가 "모의(스테이징)"으로 따로 표시한다. */
-const MOCK_WARNINGS: WarningsResponse = {
-  windowStart: "",
-  windowEnd: "",
-  entries: [
-    { tmFc: "", tmEf: "", regId: "", regionLabel: "서귀포시", wrn: "R", wrnLabel: "호우", lvl: "1", lvlLabel: "주의보" },
-  ],
-}
-
 export async function fetchJejuWarnings(): Promise<WarningsResponse> {
-  if (IS_SIMULATION_MODE) return MOCK_WARNINGS
   if (!PROXY_URL) {
     throw new Error("VITE_WEATHER_PROXY_URL이 설정되지 않았습니다 — .env에 kma-weather-proxy 배포 주소를 넣어주세요.")
   }

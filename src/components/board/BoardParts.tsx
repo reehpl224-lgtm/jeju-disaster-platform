@@ -22,7 +22,7 @@ export interface DockTab {
   key: string
   label: string
   content: ReactNode
-  /** 실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터 탭 — 라벨 앞에 "*" 표시 */
+  /** 실제로 연동해서 가져올 수 없는 완전 가상 더미데이터 탭 — 라벨 앞에 "*" 표시 */
   dummy?: boolean
 }
 
@@ -57,7 +57,7 @@ export function SideTabsDock({
         <div className="panel__head">
           <h2 className="panel__title">
             {active?.dummy && (
-              <span aria-hidden title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">
+              <span aria-hidden title="실제로 연동해서 가져올 수 없는 완전 가상 더미데이터입니다">
                 *{" "}
               </span>
             )}
@@ -117,7 +117,7 @@ export function HorizontalTabsDock({
               onClick={() => onSelect(tab.key)}
             >
               {tab.dummy && (
-                <span aria-hidden title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">
+                <span aria-hidden title="실제로 연동해서 가져올 수 없는 완전 가상 더미데이터입니다">
                   *{" "}
                 </span>
               )}

@@ -6,7 +6,6 @@
  * apihub.kma.go.kr 활용신청 승인 완료 — 둘 다 실연동됨. 진행 중인 태풍이 없으면 typhoons가
  * 빈 배열인 게 정상(더미데이터로 대체하지 않음 — "지금은 없음"이 실제 상태).
  */
-import { IS_SIMULATION_MODE } from "./appEnv"
 import type { TyphoonNameEntry, TyphoonNowEntry } from "../types/typhoonApi"
 
 const PROXY_URL = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
@@ -19,8 +18,6 @@ function requireProxyUrl() {
 }
 
 export async function fetchTyphoonNameList(): Promise<TyphoonNameEntry[]> {
-  // 스테이징: 실제 발표 이름/날짜를 지어내지 않고 "진행 중인 태풍 없음"과 동일한 빈 배열로 대체한다.
-  if (IS_SIMULATION_MODE) return []
   const proxy = requireProxyUrl()
   const res = await fetch(`${proxy}/api/typhoon?mode=list`, { cache: "no-store" })
   if (!res.ok) {
@@ -42,7 +39,6 @@ export async function fetchTyphoonNameList(): Promise<TyphoonNameEntry[]> {
 
 /** 현재 진행 중인 태풍의 실시간 위치·기압·풍속(+예측). 없으면 빈 배열. */
 export async function fetchTyphoonNow(): Promise<TyphoonNowEntry[]> {
-  if (IS_SIMULATION_MODE) return []
   const proxy = requireProxyUrl()
   const res = await fetch(`${proxy}/api/typhoon`, { cache: "no-store" })
   if (!res.ok) {

@@ -1,5 +1,4 @@
 import { readSheet, type SheetData } from "read-excel-file/browser"
-import { scopedKey } from "./appEnv"
 import { aquaDataIssues, aquaDataSources, aquaSummary } from "./mockAqua"
 import { coastSafetyAssets, coastSummary } from "./mockCoast"
 import { weatherStations } from "./mockHeavyRain"
@@ -53,7 +52,7 @@ const REQUIRED_COLUMNS = [
 ]
 const COLLECTION_STATUSES: CollectionStatus[] = ["정상", "지연", "오류", "누락"]
 const HEAVY_RAIN_ITEM_TYPES: HeavyRainItemType[] = ["침수센서", "우량계", "적설계", "풍속풍향계"]
-const STORAGE_KEY = scopedKey("jeju-ax-dummy-workbook")
+const STORAGE_KEY = "jeju-ax-dummy-workbook"
 
 function toAquaStatus(status: CollectionStatus): "normal" | "delayed" | "error" | "missing" {
   if (status === "정상") return "normal"

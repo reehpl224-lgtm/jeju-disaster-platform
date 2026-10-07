@@ -6,8 +6,6 @@ import * as HR from "../../data/mockHeavyRain"
 import * as TY from "../../data/mockTyphoon"
 import * as HT from "../../data/mockHeat"
 import * as RV from "../../data/mockRiver"
-import { getRunState } from "../../data/riverRunState"
-import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import * as AQ from "../../data/mockAqua"
 import * as CO from "../../data/mockCoast"
 import { HAZARDS, type HazardId } from "../../data/mockHazards"
@@ -356,10 +354,10 @@ export function riverBrief(): LeaderBrief {
     level: worst.level,
     badge: worst.stage,
     kpis: [
-      { k: IS_SIMULATION_MODE ? "수위 지표(Q%)" : "수위", v: rb.waterLevel.value, d: rb.waterLevel.detail, over: !calm },
-      { k: IS_SIMULATION_MODE ? "모의 강우량" : "강우량", v: rb.rainfall.value, d: rb.rainfall.detail, over: !calm },
-      { k: IS_SIMULATION_MODE ? "모의 레이더" : "레이더", v: rb.radar.value, d: rb.radar.detail },
-      { k: IS_SIMULATION_MODE ? "모의 토양 포화도" : "토양 포화도", v: rb.saturation.value, d: rb.saturation.detail },
+      { k: "수위", v: rb.waterLevel.value, d: rb.waterLevel.detail, over: !calm },
+      { k: "강우량", v: rb.rainfall.value, d: rb.rainfall.detail, over: !calm },
+      { k: "레이더", v: rb.radar.value, d: rb.radar.detail },
+      { k: "토양 포화도", v: rb.saturation.value, d: rb.saturation.detail },
     ],
     tasks: [
       // 판단 단계가 "승인 대기" 같은 문구면 팀장 승인이 아직 안 난 것 — 이미 승인한 뒤(시각 기록)라면 다음 단계 상향 여부만 지켜본다
@@ -381,26 +379,12 @@ export function riverBrief(): LeaderBrief {
     ],
     idle: `결재·지시 대기 없음 — ${RV.riverSopStage.next}`,
     evidence: [
+      { k: "영향 예상", v: `${RV.riverImpact.area} · ${RV.riverImpact.population}` },
       {
-        k: "계획홍수량 대비 비율(Q%)",
-        v: (["돈내코", "쇠소깍"] as const)
-          .map((loc) => {
-            const p = getRunState().pointState[loc]
-            return `${loc} ${p ? `${p.flowRatioPercent}%` : "관측값 없음"}`
-          })
-          .join(" · "),
+        k: "수위",
+        v: wl.currentM === null ? "관측값 없음" : `6시간 전 ${wl.sixHourAgoM ?? "-"}m → 현재 ${wl.currentM}m · ${wl.status}`,
       },
-      { k: "모의 영향(§11-3)", v: `${RV.riverImpact.area} · ${RV.riverImpact.population}` },
-      {
-        k: IS_SIMULATION_MODE ? "수위 지표" : "수위",
-        v: wl.currentM === null
-          ? IS_SIMULATION_MODE && rb.waterLevel.value !== "-" ? `${rb.waterLevel.value} · ${rb.waterLevel.trend}` : "관측값 없음"
-          : `6시간 전 ${wl.sixHourAgoM ?? "-"}m → 현재 ${wl.currentM}m · ${wl.status}`,
-      },
-      {
-        k: IS_SIMULATION_MODE ? "모의 강우 참고" : "돌발 강우",
-        v: IS_SIMULATION_MODE ? `시간당 ${sr.observedMm}mm/h · ${sr.label}` : `예보 ${sr.forecastMm}mm → 실측 ${sr.observedMm}mm · ${sr.label}`,
-      },
+      { k: "돌발 강우", v: `예보 ${sr.forecastMm}mm → 실측 ${sr.observedMm}mm · ${sr.label}` },
       { k: "토양 포화도", v: `${rb.saturation.value} (${rb.saturation.grade})` },
       { k: "데이터 신뢰도", v: RV.riverDataConfidence.overall },
     ],

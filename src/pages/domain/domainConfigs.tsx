@@ -15,9 +15,6 @@ import * as HR from "../../data/mockHeavyRain"
 import * as TY from "../../data/mockTyphoon"
 import * as HT from "../../data/mockHeat"
 import * as RV from "../../data/mockRiver"
-import { IS_SIMULATION_MODE } from "../../data/appEnv"
-import { riverFlowRatioAnalysis } from "../../data/riverFlowRatioAnalysis"
-import { getRunState } from "../../data/riverRunState"
 import * as AQ from "../../data/mockAqua"
 import * as CO from "../../data/mockCoast"
 import { dataSourcesByService } from "../../data/mockDataSourceCategories"
@@ -103,17 +100,17 @@ const LIVE_FORECAST = (
   </LiveBlock>
 )
 const liveWarnings = (codes: string[], title: string) => (
-  <LiveBlock title={title} note="기상청 API허브 wrn_met_data — 최근 24시간 발표" simulated={IS_SIMULATION_MODE}>
+  <LiveBlock title={title} note="기상청 API허브 wrn_met_data — 최근 24시간 발표">
     <WarningsPanel wrnCodes={codes} />
   </LiveBlock>
 )
 const LIVE_MARINE = (
-  <LiveBlock title="실시간 해양관측" note="기상청 API허브 sea_obs — 파고·풍속·수온" simulated={IS_SIMULATION_MODE}>
+  <LiveBlock title="실시간 해양관측" note="기상청 API허브 sea_obs — 파고·풍속·수온">
     <MarineObservationPanel />
   </LiveBlock>
 )
 const LIVE_MARINE_COAST = (
-  <LiveBlock title="실시간 해양관측" note="기상청 API허브 sea_obs — 함덕·협재 인근 지점만" simulated={IS_SIMULATION_MODE}>
+  <LiveBlock title="실시간 해양관측" note="기상청 API허브 sea_obs — 함덕·협재 인근 지점만">
     <MarineObservationPanel stationNames={["협재", "김녕"]} />
   </LiveBlock>
 )
@@ -244,7 +241,7 @@ export function heavyRainConfig(): DomainConfig {
         content: (
           <Live>
             {liveWarnings(["R", "W"], "실시간 강풍·호우 특보")}
-            <LiveBlock title="실시간 우량 관측" note="기상청 API허브 AWS 매분자료" simulated={IS_SIMULATION_MODE}>
+            <LiveBlock title="실시간 우량 관측" note="기상청 API허브 AWS 매분자료">
               <RainfallObservationPanel />
             </LiveBlock>
             {LIVE_FORECAST}
@@ -361,10 +358,10 @@ export function typhoonConfig(): DomainConfig {
         label: "실시간 연동",
         content: (
           <Live>
-            <LiveBlock title="실시간 태풍 현황" note="기상청 API허브 typ_now" simulated={IS_SIMULATION_MODE}>
+            <LiveBlock title="실시간 태풍 현황" note="기상청 API허브 typ_now">
               <TyphoonNowPanel />
             </LiveBlock>
-            <LiveBlock title="태풍 이름 목록" note="기상청 API허브 typ_lst" simulated={IS_SIMULATION_MODE}>
+            <LiveBlock title="태풍 이름 목록" note="기상청 API허브 typ_lst">
               <TyphoonNameListPanel />
             </LiveBlock>
             {liveWarnings(["T"], "실시간 태풍 특보")}
@@ -514,13 +511,6 @@ export function riverConfig(): DomainConfig {
   const RANK: RiskLevel[] = ["safe", "caution", "warning", "alert", "danger"]
   const worstRiver = [...RV.riverStatuses].sort((a, b) => RANK.indexOf(b.level) - RANK.indexOf(a.level))[0]
   const rb = RV.riverRiskBasis
-  const run = getRunState()
-  const flowRatio = riverFlowRatioAnalysis(run)
-  const ratioRows = (["돈내코", "쇠소깍"] as const).map((location) => {
-    const reading = flowRatio.latest[location]
-    const stage = RV.riverStatuses.find((status) => status.name.includes(location))?.stage ?? "-"
-    return [location, reading ? `${reading.flowRatioPercent}% · ${stage} · 관측 ${reading.observedAt}` : "관측 없음"] as [string, ReactNode]
-  })
   const tg = RV.riverTarget
   const home = (
     <LeaderBoardBrief brief={riverBrief()}>
@@ -556,35 +546,15 @@ export function riverConfig(): DomainConfig {
       ))}
     </ul>
   ) : (
-    <p className="pbox">수위 센서 수집 자료가 없습니다. Q% 시나리오와 별도인 수집상태 엑셀에서 센서 현황을 입력할 수 있습니다.</p>
+    <p className="pbox">수위 센서 수집 자료가 없습니다. 수집상태 엑셀에서 센서 현황을 입력할 수 있습니다.</p>
   )
   const tc = RV.riverTideCorrelation
   const im = RV.riverImpact
   const dc = RV.riverDataConfidence
-  const observedSiteCount = Object.values(flowRatio.latest).filter(Boolean).length
-  const riskSiteCount = Object.values(run.pointState).filter((point) => point && point.level !== "safe").length
   const impactValue = (value: string) => value === "해당 없음" || value === "-" ? "영향 모델 미연동" : value
   const confidenceValue = (value: string) => value === "-" ? "미수신" : <St text={value} />
   const analysis = (
     <>
-      <Group title="계획홍수량 대비 비율(Q%) 추이 — 시나리오" dummy>
-        <Rows pairs={ratioRows} />
-        {flowRatio.series.length > 0 ? (
-          <>
-            <MiniChart
-              data={flowRatio.series}
-              keys={["donnaeko", "soesokkak"]}
-              colors={["#8ec21f", "#0054a3"]}
-              names={["돈내코 Q%", "쇠소깍 Q%"]}
-              xkey="time"
-              showDots
-            />
-            <p className="s" style={{ fontSize: 11, marginTop: 4 }}>현재 시나리오 시각까지의 입력값입니다. 다음 관측 전에는 지점별 직전 값을 유지합니다.</p>
-          </>
-        ) : (
-          <p className="pbox">시나리오를 업로드하고 첫 시점을 진행하면 Q% 값과 변화가 여기에 표시됩니다.</p>
-        )}
-      </Group>
       <Group title={`수위·조위 상관 — ${tc.location}`} dummy>
         {tc.series.length > 0 ? (
           <>
@@ -602,41 +572,38 @@ export function riverConfig(): DomainConfig {
             <p className="pbox" style={{ marginTop: 6 }}>{tc.note}</p>
           </>
         ) : (
-          <p className="pbox">수위·조위 관측 자료가 없어 상관 그래프를 표시할 수 없습니다. 이 파일럿은 계획홍수량 대비 비율(Q%)만 입력받습니다.</p>
+          <p className="pbox">수위·조위 관측 자료가 없어 상관 그래프를 표시할 수 없습니다.</p>
         )}
       </Group>
       <Group title="영향 범위" dummy>
         <Rows pairs={[
-          ["Q% 위험 지점", run.playheadIndex >= 0 ? `${riskSiteCount}/2곳` : "첫 관측 전"],
           ["면적", impactValue(im.area)],
           ["인구", impactValue(im.population)],
           ["시설", impactValue(im.facilities)],
           ["대피 경로", im.evacuationRoutes === "-" ? "경로 정보 미연동" : im.evacuationRoutes],
         ]} />
-        <p className="s" style={{ fontSize: 11, marginTop: 4 }}>위험 지점 수는 현재 Q% 등급에서 계산합니다. 면적·인구·시설·경로는 공간 영향 자료가 있어야 산출할 수 있습니다.</p>
+        <p className="s" style={{ fontSize: 11, marginTop: 4 }}>면적·인구·시설·경로는 공간 영향 자료가 있어야 산출할 수 있습니다.</p>
       </Group>
       <Group title="센서 교차검증" dummy>
         {sensorList}
-        <p className="s" style={{ fontSize: 11, marginTop: 4 }}>Q%만으로 실제 수위(m)나 센서 통신 상태를 추정하지 않습니다.</p>
       </Group>
       <Group title="CCTV 확인" dummy>
         {RV.riverCctv.length > 0 ? (
           <Rows pairs={RV.riverCctv.map((c) => [c.label, <span key={c.id}>{c.detected} · {c.quality} <span className="s">{c.time}</span></span>] as [string, ReactNode])} />
         ) : (
-          <p className="pbox">현장 CCTV 영상·탐지 정보가 연결되지 않았습니다. Q% 판정에는 영상 확인 결과를 사용하지 않습니다.</p>
+          <p className="pbox">현장 CCTV 영상·탐지 정보가 연결되지 않았습니다.</p>
         )}
       </Group>
       <Group title={`데이터 신뢰도 — ${dc.overall === "-" ? "산정 불가" : dc.overall}`} dummy>
         <Rows
           pairs={[
-            ["Q% 시나리오 입력", `${observedSiteCount}/2곳`],
             ["강우", confidenceValue(dc.rain)],
             ["수위", confidenceValue(dc.waterLevel)],
             ["레이더", confidenceValue(dc.radar)],
             ["영상", confidenceValue(dc.video)],
           ]}
         />
-        <p className="s" style={{ fontSize: 11 }}>Q% 입력 여부는 확인할 수 있지만, 다른 관측망이 없어 교차검증 신뢰도는 산정할 수 없습니다. {dc.note}</p>
+        <p className="s" style={{ fontSize: 11 }}>다른 관측망이 없어 교차검증 신뢰도는 산정할 수 없습니다. {dc.note}</p>
       </Group>
       <Group title="위험단계 기준 (TP-P22_002)">
         <StageCriteria rows={RV.riverStageCriteria.map((c) => ({ level: c.level, label: c.label, cells: [`계획홍수량 ${c.flowRatio}`, c.waterState] }))} />
@@ -725,9 +692,7 @@ export function riverConfig(): DomainConfig {
         🏞️ <b>
           {worstRiver.name} {worstRiver.stage}
         </b>{" "}
-        {run.timeline.length > 0
-          ? `— Q% ${(["돈내코", "쇠소깍"] as const).map((location) => `${location} ${flowRatio.latest[location]?.flowRatioPercent ?? "관측 없음"}${flowRatio.latest[location] ? "%" : ""}`).join(" · ")}`
-          : `— 수위 ${rb.waterLevel.value} (${rb.waterLevel.detail})`}
+        {`— 수위 ${rb.waterLevel.value} (${rb.waterLevel.detail})`}
       </>
     ),
     tabs: navTabs(RIVER_NAV, home, {
@@ -751,7 +716,7 @@ export function riverConfig(): DomainConfig {
       "/river/control": control,
       "/river/monitoring": (
         <>
-          <LiveBlock title="실시간 우량 관측" note="기상청 API허브 AWS 매분자료" simulated={IS_SIMULATION_MODE}>
+          <LiveBlock title="실시간 우량 관측" note="기상청 API허브 AWS 매분자료">
             <RainfallObservationPanel />
           </LiveBlock>
           <RiverPointsBlock />
@@ -774,7 +739,7 @@ export function riverConfig(): DomainConfig {
         label: "실시간 연동",
         content: (
           <Live>
-            <LiveBlock title="실시간 우량 관측" note="기상청 API허브 AWS 매분자료" simulated={IS_SIMULATION_MODE}>
+            <LiveBlock title="실시간 우량 관측" note="기상청 API허브 AWS 매분자료">
               <RainfallObservationPanel />
             </LiveBlock>
             {liveWarnings(["R", "W"], "실시간 호우특보")}

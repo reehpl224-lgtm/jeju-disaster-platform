@@ -1,7 +1,6 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { scopedKey } from "../../data/appEnv"
 import type { RiskLevel } from "../../types/domain"
 import { Risk } from "./BoardParts"
 import { SourceTag } from "../ui/SourceTag"
@@ -27,13 +26,13 @@ export function St({ text, lv }: { text: string; lv?: RiskLevel }) {
   return <Risk level={lv ?? STATUS_LV[text] ?? "info"} label={text} />
 }
 
-/** dummy: 실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터 — 제목 앞에 "*" 표시 */
+/** dummy: 실제로 연동해서 가져올 수 없는 완전 가상 더미데이터 — 제목 앞에 "*" 표시 */
 export function Group({ title, children, dummy, source }: { title: string; children: ReactNode; dummy?: boolean; source?: DataSource }) {
   return (
     <div className="pgroup">
       <p className="pnote">
         {dummy && (
-          <span aria-hidden title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">
+          <span aria-hidden title="실제로 연동해서 가져올 수 없는 완전 가상 더미데이터입니다">
             *{" "}
           </span>
         )}
@@ -146,7 +145,7 @@ export function Note({ children, tone }: { children: ReactNode; tone?: "warning"
 }
 
 /** 상세 화면 전용 창 이름 — 보드의 모든 "상세 화면 →"이 이 창 하나를 재사용한다(여러 창이 쌓이지 않게) */
-export const DETAIL_WINDOW = scopedKey("jeju-ax-detail")
+export const DETAIL_WINDOW = "jeju-ax-detail"
 
 /**
  * 앱 하위 화면(기존 상세 페이지)으로 가는 링크 — 승인·발송 등 동작은 그 화면에서 한다.

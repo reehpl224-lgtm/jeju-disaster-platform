@@ -8,7 +8,7 @@ interface CardProps {
   subtitle?: string
   action?: ReactNode
   className?: string
-  /** 실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터 — 제목 앞에 "*" 표시(실시간 API·KHOA 실측 스냅샷·UI 쇼케이스는 제외) */
+  /** 실제로 연동해서 가져올 수 없는 완전 가상 더미데이터 — 제목 앞에 "*" 표시(실시간 API·KHOA 실측 스냅샷·UI 쇼케이스는 제외) */
   dummy?: boolean
   /** 실시간 API / 실측 스냅샷 표식(기준 시각 포함) — dummy와 함께 쓰지 않는다 */
   source?: DataSource
@@ -23,7 +23,7 @@ export function Card({ title, subtitle, action, className = "", dummy, source, c
             {title && (
               <h2 className="text-base font-bold text-white">
                 {dummy && (
-                  <span aria-hidden title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">
+                  <span aria-hidden title="실제로 연동해서 가져올 수 없는 완전 가상 더미데이터입니다">
                     *{" "}
                   </span>
                 )}

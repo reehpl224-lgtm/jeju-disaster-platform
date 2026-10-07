@@ -11,5 +11,4 @@ export const RIVER_NAV = [
   { to: "/river/monitoring", label: "실시간 모니터링" },
   { to: "/river/closure", label: "종료 보고" },
   { to: "/river/data", label: "데이터 수집" },
-  { to: "/river/scenario", label: "시나리오 실행", divider: true },
 ]

@@ -4,7 +4,6 @@ import { DOMAINS } from "../../components/layout/domainSidebarUtils"
 import { Card } from "../../components/ui/Card"
 import { ServicePills } from "../../components/ui/ServicePills"
 import { HAZARDS, HAZARD_IDS, type HazardId } from "../../data/mockHazards"
-import { useRiverRun } from "../../data/riverRunHooks"
 import { typhoonSource } from "../../data/mockTyphoon"
 import { DOMAIN_CONFIGS } from "../domain/domainConfigs"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
@@ -129,9 +128,7 @@ const pilotNormalCount =
  */
 function ServiceView({ prefix, title }: { prefix: string; title: string }) {
   const id = prefix.slice(1)
-  const version = useRiverRun().version
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- version만 재계산 트리거(DomainBoardPage와 같은 방식)
-  const config = useMemo(() => DOMAIN_CONFIGS[id](), [id, version])
+  const config = useMemo(() => DOMAIN_CONFIGS[id](), [id])
   const legacy = HAZARD_IDS.includes(id as HazardId)
     ? HAZARDS[id as HazardId].legacy
     : legacySystems.filter((s) => LEGACY_TARGETS[s.id].some((t) => t.href?.startsWith(prefix)))

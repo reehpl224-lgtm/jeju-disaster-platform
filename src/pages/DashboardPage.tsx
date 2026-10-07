@@ -9,10 +9,6 @@ import { JejuTileMap } from "../components/ui/JejuTileMap"
 import { JejuVectorMap } from "../components/ui/JejuVectorMap"
 import { VilageForecastPanel } from "../components/ui/VilageForecastPanel"
 import { WarningsPanel } from "../components/ui/WarningsPanel"
-import { useRiverRun } from "../data/riverRunHooks"
-import { riverResources } from "../data/mockRiverResources"
-import { RIVER_MOCK_FACILITIES, riverImpactForPoint } from "../data/riverMockImpact"
-import { riverFlowRatioAnalysis } from "../data/riverFlowRatioAnalysis"
 import {
   HorizontalTabsDock,
   MessengerFab,
@@ -90,15 +86,12 @@ const CCTV_DOMAIN_LABEL = Object.fromEntries(CCTV_DOMAIN_FILTERS.map((f) => [f.i
 
 const REGIONS = ["제주시", "서귀포시"] as const
 
-// 높은 등급부터 — 서비스 카드와 같은 4단계(관심 포함). 건수는 하천 시나리오가 카드 값을 바꾸므로 렌더 때마다 합산한다
+// 높은 등급부터 — 서비스 카드와 같은 4단계(관심 포함). 건수는 렌더 때마다 합산한다
 const RISK_ORDER = ["danger", "alert", "warning", "caution"] as const
 
 type TabKey = "summary" | "gis" | "cctv"
 
 export function DashboardPage() {
-  // 하천 시나리오가 다른 창/탭에서 바뀌어도 이 화면이 다시 그려지게 구독하고, 아래 타임라인·대응현황·센서·자산 패널에서 값도 읽는다
-  const riverRun = useRiverRun()
-  const riverFlowRatio = useMemo(() => riverFlowRatioAnalysis(riverRun), [riverRun])
   // 현재 날씨는 기상청 초단기실황(실시간)을 우선 쓰고, 못 받으면 기존 mock(관측값 없음)으로 되돌린다
   const liveWeather = useLiveWeather()
   const cctvCameras = useCctvCameras()
@@ -187,8 +180,7 @@ export function DashboardPage() {
   const [summaryDockTab, setSummaryDockTab] = useState("broadcast")
   const [gisDockTab, setGisDockTab] = useState("timeline")
 
-  // 센서 추이 — 하천 Q%는 시나리오가 입력한 값(모의)만 그리고, 실증 3사 샘플 배치 차트(수위 예측·조위·이용객·염분)를 뒤에 붙인다
-  const hasRiverQ = riverFlowRatio.series.length > 0
+  // 센서 추이 — 실증 3사 샘플 배치 차트(수위 예측·조위·이용객·염분)를 뒤에 붙인다
   const trendContent: ReactNode = (
       <>
         {timeSeries.length > 0 && (
@@ -223,35 +215,6 @@ export function DashboardPage() {
             </ResponsiveContainer>
           </div>
         )}
-        {hasRiverQ && (
-          <div className="pgroup">
-            <p className="pnote">하천 Q% 추이 — 시나리오(모의), 실측 수위 아님</p>
-            <div className="kv-grid">
-              {(["돈내코", "쇠소깍"] as const).map((loc) => {
-                const p = riverRun.pointState[loc]
-                return (
-                  <div className="pbox" key={loc}>
-                    <small>{loc} Q%</small>
-                    <b className={p && p.level !== "safe" ? "over" : undefined}>{p ? `${p.flowRatioPercent}%` : "-"}</b>
-                  </div>
-                )
-              })}
-            </div>
-            <div style={{ marginTop: 12, height: 160 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={riverFlowRatio.series} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
-                  <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
-                  <YAxis tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
-                  <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 11 }} />
-                  <Legend wrapperStyle={{ fontSize: 10, color: "#ffffffaa" }} />
-                  <Line type="monotone" dataKey="donnaeko" name="돈내코 Q%" stroke="#8ec21f" strokeWidth={2} dot />
-                  <Line type="monotone" dataKey="soesokkak" name="쇠소깍 Q%" stroke="#0054a3" strokeWidth={2} dot />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
         <RiverForecastBlock />
         <TideBlock />
         <CoastCrowdBlock />
@@ -263,9 +226,7 @@ export function DashboardPage() {
   const railContent: Record<string, ReactNode> = {
     timeline: (
       <ul className="plist">
-        {disasterIncidents.length === 0 && riverRun.history.length === 0 && (
-          <li className="pempty">데이터가 없습니다.</li>
-        )}
+        {disasterIncidents.length === 0 && <li className="pempty">데이터가 없습니다.</li>}
         {disasterIncidents.map((incident) => (
           <li key={incident.id}>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -279,19 +240,6 @@ export function DashboardPage() {
             </p>
           </li>
         ))}
-        {/* 하천 시나리오 실행 이력 — 실제 피해접수가 아니라 시나리오 조작 기록이라 라벨로 구분한다 */}
-        {riverRun.history
-          .slice(-10)
-          .reverse()
-          .map((h) => (
-            <li key={h.id}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <Risk level="info" />
-                <span className="t">[하천 시나리오] {h.label}</span>
-              </div>
-              <p className="s">{h.simTime} · 모의 — 실제 피해접수 아님</p>
-            </li>
-          ))}
       </ul>
     ),
     broadcast: (
@@ -360,22 +308,6 @@ export function DashboardPage() {
             <Risk level={sensor.status} label={sensor.value} />
           </li>
         ))}
-        {/* 하천 Q% 가상 관측지점 — 고정 카탈로그(돈내코·쇠소깍), 실제 수위센서와 별개(staging-river-dashboard-review-2026-10-01 §7-3) */}
-        {(["돈내코", "쇠소깍"] as const).map((loc) => {
-          const p = riverRun.pointState[loc]
-          const last = riverFlowRatio.latest[loc]
-          return (
-            <li key={`river-obs-${loc}`} className="row-between">
-              <div>
-                <p className="t">{loc} Q% 가상 관측지점</p>
-                <p className="s">
-                  {loc} 담당 · 하천범람 파일럿 · {last ? `관측 ${last.observedAt}` : "시나리오 미입력"}
-                </p>
-              </div>
-              <Risk level={p?.level ?? "info"} label={p ? `${p.flowRatioPercent}%` : "관측값 없음"} />
-            </li>
-          )
-        })}
       </ul>
       <RiverPointsBlock />
       </>
@@ -408,19 +340,6 @@ export function DashboardPage() {
             ))}
           </ul>
         </div>
-        {riverRun.resourceRequests.length > 0 && (
-          <div className="pgroup">
-            <p className="pnote">하천 시나리오 — 가상 자원(모의)</p>
-            <ul className="plist">
-              {riverRun.resourceRequests.map((req) => (
-                <li key={req.id} className="row-between">
-                  <span>{riverResources.find((r) => r.id === req.resourceId)?.label ?? req.resourceId}</span>
-                  <Risk level={req.status === "복귀 완료" || req.status === "취소" ? "offline" : "info"} label={req.status} />
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
         <CoastChecklistBlock />
         <AquaChecklistBlock />
       </>
@@ -455,40 +374,6 @@ export function DashboardPage() {
             </p>
           </div>
         ))}
-        {/* 하천 모의 시설·가상 자원 — 고정 카탈로그, 실제 보유·설치 아님(staging-river-dashboard-review-2026-10-01 §7-3) */}
-        <div className="pgroup">
-          <p className="pnote">하천 모의 시설 — 고정 카탈로그(§11-3), 실제 시설 아님</p>
-          <ul className="plist">
-            {(["돈내코", "쇠소깍"] as const).flatMap((loc) => {
-              const level = riverRun.pointState[loc]?.level ?? "safe"
-              const activeIds = new Set(riverImpactForPoint(loc, level).facilities.map((f) => f.id))
-              return RIVER_MOCK_FACILITIES[loc].map((facility) => (
-                <li key={facility.id} className="row-between">
-                  <span>{facility.label}</span>
-                  <Risk level={activeIds.has(facility.id) ? "info" : "offline"} label={activeIds.has(facility.id) ? "점검 대상" : "비활성"} />
-                </li>
-              ))
-            })}
-          </ul>
-        </div>
-        <div className="pgroup">
-          <p className="pnote">하천 가상 인력·장비 — 고정 카탈로그, 실제 보유량 아님</p>
-          <ul className="plist">
-            {riverResources.map((res) => {
-              const used = riverRun.resourceRequests
-                .filter((r) => r.resourceId === res.id && r.status !== "복귀 완료" && r.status !== "취소")
-                .reduce((sum, r) => sum + r.qty, 0)
-              return (
-                <li key={res.id} className="row-between">
-                  <span>{res.label}</span>
-                  <span className="s" style={{ margin: 0 }}>
-                    가용 {res.capacity - used} / {res.capacity}
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
       </>
     ),
     messenger: <ComingSoonPanel kind="messenger" />,
@@ -578,7 +463,7 @@ export function DashboardPage() {
       dummy: true,
       content: (
         <ul className="plist">
-          {filteredIncidents.length === 0 && riverRun.history.length === 0 && <li className="pempty">조건에 맞는 항목이 없습니다.</li>}
+          {filteredIncidents.length === 0 && <li className="pempty">조건에 맞는 항목이 없습니다.</li>}
           {filteredIncidents.map((incident) => (
             <li key={incident.id}>
               <div className="row-between">
@@ -593,24 +478,6 @@ export function DashboardPage() {
               </p>
             </li>
           ))}
-          {/* 하천 시나리오 실행 이력 — 실제 피해접수 필터(유형·검색)와는 무관하게 항상 보여준다 */}
-          {riverRun.history
-            .slice(-10)
-            .reverse()
-            .map((h) => (
-              <li key={h.id}>
-                <div className="row-between">
-                  <span className="time">{h.simTime}</span>
-                  <Risk level="info" label="시나리오" solid />
-                </div>
-                <p className="mt">
-                  <Risk level="info" label="하천 시나리오" />
-                </p>
-                <p className="t" style={{ marginTop: 4 }}>
-                  {h.label}
-                </p>
-              </li>
-            ))}
         </ul>
       ),
     },
@@ -800,7 +667,7 @@ export function DashboardPage() {
                           ●
                         </span>
                       ) : (
-                        <span title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">*</span>
+                        <span title="실제로 연동해서 가져올 수 없는 완전 가상 더미데이터입니다">*</span>
                       )}{" "}
                       제주도 · 현재 날씨{liveWeather ? ` (${liveWeather.location} 기준)` : ""}
                     </p>
@@ -868,7 +735,7 @@ export function DashboardPage() {
                 <div className="region-col region-col--right">
                   <div className="region-card region-card--open">
                     <p className="region-card__label">
-                      <span title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">*</span> 총 합계 · 제주도 전체
+                      <span title="실제로 연동해서 가져올 수 없는 완전 가상 더미데이터입니다">*</span> 총 합계 · 제주도 전체
                     </p>
                     <div className="region-card__stats">
                       {/* 각 수치를 누르면 그 수치의 근거가 되는 패널·화면을 연다 */}

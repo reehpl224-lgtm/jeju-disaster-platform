@@ -5,9 +5,6 @@ import { khoaSource, useKhoaLive } from "../../data/khoaLive"
 import { LIVE } from "../../components/ui/dataSource"
 import { PlanItemsCard } from "../../components/ui/PlanItemsCard"
 import { riverPipeline, riverHydrology, riverPredictionOutput } from "../../data/mockMeetingItems"
-import { riverFlowRatioAnalysis } from "../../data/riverFlowRatioAnalysis"
-import { IS_SIMULATION_MODE } from "../../data/appEnv"
-import { useRiverRun } from "../../data/riverRunHooks"
 import { StatTiles } from "../../components/ui/StatTiles"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { VilageForecastPanel } from "../../components/ui/VilageForecastPanel"
@@ -19,7 +16,6 @@ import {
   riverInfra,
   riverRiskBasis,
   riverSensorCheck,
-  riverStatuses,
   riverSuddenRainAlert,
   riverStageCriteria,
   riverTideCorrelation,
@@ -27,10 +23,6 @@ import {
 
 export function RiverAnalysisPage() {
   useKhoaLive() // 해양조사원 실측이 도착하면 다시 그린다
-  const run = useRiverRun()
-  const flowRatio = riverFlowRatioAnalysis(run)
-  const observedSiteCount = Object.values(flowRatio.latest).filter(Boolean).length
-  const riskSiteCount = Object.values(run.pointState).filter((point) => point && point.level !== "safe").length
   const impactValue = (value: string) => value === "해당 없음" || value === "-" ? "영향 모델 미연동" : value
 
   return (
@@ -40,59 +32,19 @@ export function RiverAnalysisPage() {
         <p className="mt-1 text-sm text-white/50">위험 근거 데이터 및 센서 교차 검증</p>
       </div>
 
-      <Card title="시나리오 관측 — 계획홍수량 대비 비율(Q%)" subtitle="현재 시나리오 시각까지의 입력값 · 지점별 다음 관측 전에는 직전 값 유지" dummy>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {(["돈내코", "쇠소깍"] as const).map((location) => {
-            const reading = flowRatio.latest[location]
-            const status = riverStatuses.find((item) => item.name.includes(location))
-            return (
-              <div key={location} className="rounded-lg border border-border-subtle bg-inset p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-white/80">{location}</span>
-                  {reading && <RiskBadge level={status?.level ?? "safe"} label={status?.stage ?? "-"} />}
-                </div>
-                <p className="mt-2 text-xl font-bold text-white">{reading ? `${reading.flowRatioPercent}%` : "관측 없음"}</p>
-                <p className="mt-1 text-xs text-white/45">{reading ? `마지막 관측 ${reading.observedAt}` : "시나리오 첫 관측 대기"}</p>
-              </div>
-            )
-          })}
-        </div>
-        {flowRatio.series.length > 0 ? (
-          <div className="mt-4 h-56 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={flowRatio.series} margin={{ top: 8, right: 16, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
-                <XAxis dataKey="time" tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" />
-                <YAxis tick={{ fontSize: 11, fill: "#ffffff88" }} stroke="#3a3b3c" unit="%" />
-                <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 12 }} />
-                <Legend wrapperStyle={{ fontSize: 11, color: "#ffffffaa" }} />
-                <Line type="monotone" dataKey="donnaeko" name="돈내코 Q%" stroke="#8ec21f" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="soesokkak" name="쇠소깍 Q%" stroke="#0054a3" strokeWidth={2} dot={{ r: 3 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        ) : (
-          <p className="mt-3 rounded-lg border border-border-subtle bg-inset p-3 text-sm text-white/50">시나리오를 업로드하고 첫 시점을 진행하면 추이가 표시됩니다.</p>
-        )}
-      </Card>
-
-      <Card title={IS_SIMULATION_MODE ? "시나리오 분석 — 모의 강우 참고" : "돌발 강우 AI 조기경고"} subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`} dummy>
+      <Card title="돌발 강우 AI 조기경고" subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`} dummy>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <div>
-              <p className="text-[11px] font-medium text-white/40">{IS_SIMULATION_MODE ? "모의 기준" : "기상청 예보"}</p>
-              <p className="mt-1 text-lg font-bold text-white/70">{riverSuddenRainAlert.forecastMm}{IS_SIMULATION_MODE ? "mm/h" : "mm"}</p>
+              <p className="text-[11px] font-medium text-white/40">기상청 예보</p>
+              <p className="mt-1 text-lg font-bold text-white/70">{riverSuddenRainAlert.forecastMm}mm</p>
             </div>
             <span className="text-xl text-white/30">→</span>
             <div>
-              <p className="text-[11px] font-medium text-white/40">{IS_SIMULATION_MODE ? "모의 강우" : "실측"}</p>
-              <p className="mt-1 text-lg font-bold text-risk-warning">{riverSuddenRainAlert.observedMm}{IS_SIMULATION_MODE ? "mm/h" : "mm"}</p>
+              <p className="text-[11px] font-medium text-white/40">실측</p>
+              <p className="mt-1 text-lg font-bold text-risk-warning">{riverSuddenRainAlert.observedMm}mm</p>
             </div>
-            {IS_SIMULATION_MODE ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle px-3 py-1 text-xs font-bold text-white/50">
-                시나리오 참고 · 독립 AI 판정 안 함
-              </span>
-            ) : riverSuddenRainAlert.level !== "safe" && riverSuddenRainAlert.forecastMm > 0 ? (
+            {riverSuddenRainAlert.level !== "safe" && riverSuddenRainAlert.forecastMm > 0 ? (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
                 AI 조기경고 · 예보 대비 +
                 {Math.round(((riverSuddenRainAlert.observedMm - riverSuddenRainAlert.forecastMm) / riverSuddenRainAlert.forecastMm) * 100)}%
@@ -139,10 +91,10 @@ export function RiverAnalysisPage() {
       <Card title="위험 근거 데이터" dummy>
         <StatTiles
           items={[
-            { label: IS_SIMULATION_MODE ? "모의 강우량 (시간당)" : "강우량 (1h 누적)", value: riverRiskBasis.rainfall.value, sub: `${riverRiskBasis.rainfall.detail} · ${riverRiskBasis.rainfall.trend}` },
-            { label: IS_SIMULATION_MODE ? "수위 지표(Q%)" : "현재 수위", value: riverRiskBasis.waterLevel.value, sub: `${riverRiskBasis.waterLevel.detail} · ${riverRiskBasis.waterLevel.trend}` },
-            { label: IS_SIMULATION_MODE ? "모의 강우레이더" : "강우레이더 예측", value: riverRiskBasis.radar.value, sub: `${riverRiskBasis.radar.detail} · ${riverRiskBasis.radar.confidence}` },
-            { label: IS_SIMULATION_MODE ? "모의 유역 포화도" : "유역 포화도", value: riverRiskBasis.saturation.value, sub: `${riverRiskBasis.saturation.detail} · ${riverRiskBasis.saturation.grade}` },
+            { label: "강우량 (1h 누적)", value: riverRiskBasis.rainfall.value, sub: `${riverRiskBasis.rainfall.detail} · ${riverRiskBasis.rainfall.trend}` },
+            { label: "현재 수위", value: riverRiskBasis.waterLevel.value, sub: `${riverRiskBasis.waterLevel.detail} · ${riverRiskBasis.waterLevel.trend}` },
+            { label: "강우레이더 예측", value: riverRiskBasis.radar.value, sub: `${riverRiskBasis.radar.detail} · ${riverRiskBasis.radar.confidence}` },
+            { label: "유역 포화도", value: riverRiskBasis.saturation.value, sub: `${riverRiskBasis.saturation.detail} · ${riverRiskBasis.saturation.grade}` },
           ]}
         />
       </Card>
@@ -205,9 +157,8 @@ export function RiverAnalysisPage() {
 
       <Card title="영향 범위 GIS" dummy>
         <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-border-subtle bg-inset text-sm text-white/30">
-          공간 영향 모델 미연동 — Q% 입력값만으로 침수 구역을 그릴 수 없습니다.
+          공간 영향 모델 미연동 — 침수 구역을 그릴 수 없습니다.
         </div>
-        <p className="mt-3 text-sm text-white/65">현재 Q% 위험 지점: {run.playheadIndex >= 0 ? `${riskSiteCount}/2곳` : "첫 관측 전"}</p>
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Field label="침수 예상 면적" value={impactValue(riverImpact.area)} />
           <Field label="영향 주민" value={impactValue(riverImpact.population)} />
@@ -218,7 +169,7 @@ export function RiverAnalysisPage() {
       </Card>
 
       <Card title="현장 영상 및 센서 교차 검증" dummy>
-        {riverCctv.length === 0 && <p className="rounded-lg border border-border-subtle bg-inset p-3 text-sm text-white/50">현장 CCTV 영상·탐지 정보가 연결되지 않았습니다. Q% 판정에는 영상 확인 결과를 사용하지 않습니다.</p>}
+        {riverCctv.length === 0 && <p className="rounded-lg border border-border-subtle bg-inset p-3 text-sm text-white/50">현장 CCTV 영상·탐지 정보가 연결되지 않았습니다.</p>}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {riverCctv.map((cctv) => (
             <div key={cctv.id} className="rounded-lg border border-border-subtle p-3">
@@ -245,13 +196,11 @@ export function RiverAnalysisPage() {
             </div>
           ))}
         </div>
-        <p className="mt-2 text-xs text-white/40">Q%만으로 실제 수위(m)나 센서 통신 상태를 추정하지 않습니다.</p>
       </Card>
 
-      <Card title="데이터 신뢰도 종합" subtitle={`Q% 입력 ${observedSiteCount}/2곳 · 다른 관측망은 별도 연동 필요`} dummy>
+      <Card title="데이터 신뢰도 종합" subtitle="다른 관측망은 별도 연동 필요" dummy>
         <StatTiles
           items={[
-            { label: "Q% 시나리오 입력", value: `${observedSiteCount}/2곳` },
             { label: "강우 센서", value: riverDataConfidence.rain === "-" ? "미수신" : riverDataConfidence.rain },
             { label: "수위 센서", value: riverDataConfidence.waterLevel === "-" ? "미수신" : riverDataConfidence.waterLevel },
             { label: "강우레이더", value: riverDataConfidence.radar === "-" ? "미수신" : riverDataConfidence.radar },
@@ -259,7 +208,7 @@ export function RiverAnalysisPage() {
             { label: "종합 신뢰도", value: riverDataConfidence.overall === "-" ? "산정 불가" : riverDataConfidence.overall, highlight: true },
           ]}
         />
-        <p className="mt-2 text-xs text-white/40">Q% 입력 여부와 교차검증 신뢰도는 서로 다른 지표입니다. {riverDataConfidence.note}</p>
+        <p className="mt-2 text-xs text-white/40">{riverDataConfidence.note}</p>
       </Card>
 
       <Card title="레거시 연계 데이터" subtitle={riverInfra.legacy.note}>

@@ -12,9 +12,6 @@
  * 있던 걸 발견해 windSpeedMs/windDirDeg로 추가 노출함 — 새 API 신청이나 지점 조회 없이
  * 기존에 받아오던 값만 더 꺼내 쓴 것.
  */
-import { IS_SIMULATION_MODE } from "./appEnv"
-import { getRunState } from "./riverRunState"
-import { deriveRiverScenarioWeather } from "./riverScenarioObservations"
 import type { RainfallStation } from "../types/rainfallApi"
 
 const PROXY_URL = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
@@ -33,13 +30,6 @@ function toNum(v: string | undefined): number | null {
 }
 
 export async function fetchRiverReferenceRainfall(): Promise<RainfallStation[]> {
-  if (IS_SIMULATION_MODE) {
-    const run = getRunState()
-    return RIVER_REFERENCE_STATIONS.map(({ stnId, label }, i) => {
-      const w = deriveRiverScenarioWeather(run, i * 0.3)
-      return { stnId, label, rain15mMm: null, rain12hMm: null, ...w }
-    })
-  }
   if (!PROXY_URL) {
     throw new Error("VITE_WEATHER_PROXY_URL이 설정되지 않았습니다 — .env에 kma-weather-proxy 배포 주소를 넣어주세요.")
   }

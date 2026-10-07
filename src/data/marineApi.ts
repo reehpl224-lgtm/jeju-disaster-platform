@@ -5,7 +5,6 @@
  * 2026-09-09 실측으로 제주 인근 지점명을 직접 확인함(전국 지점을 받아 이름으로 필터) — 지어낸
  * 목록 아님. "협재"는 연안 1차년도 실증지(함덕·협재) 중 하나와 정확히 일치하는 관측지점.
  */
-import { IS_SIMULATION_MODE } from "./appEnv"
 import type { MarineStation } from "../types/marineApi"
 
 const PROXY_URL = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
@@ -13,22 +12,6 @@ const PROXY_URL = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
 // 제주 인근으로 실측 확인된 지점명만 — 함덕과 정확히 같은 지점은 관측망에 없어서 근처
 // 지점(김녕 등)까지만 참고용으로 포함. 정확 일치를 주장하지 않음.
 const JEJU_STATION_NAMES = ["협재", "김녕", "서귀포", "성산포", "모슬포", "마라도", "추자도", "제주항"]
-
-/** 스테이징 모의 해양관측 — 실제 sea_obs.php 응답이 아니다. */
-const MOCK_STATIONS: MarineStation[] = JEJU_STATION_NAMES.map((stnKo, i) => ({
-  stnId: `sim-${i}`,
-  stnKo,
-  tm: "",
-  lat: 0,
-  lon: 0,
-  waveHeightM: null,
-  windDirDeg: null,
-  windSpeedMs: null,
-  seaTempC: null,
-  airTempC: null,
-  pressureHpa: null,
-  humidityPercent: null,
-}))
 
 function toNum(v: string | undefined): number | null {
   if (v === undefined || v === "" || v.trim() === "") return null
@@ -41,7 +24,6 @@ function toNum(v: string | undefined): number | null {
 }
 
 export async function fetchMarineStations(): Promise<MarineStation[]> {
-  if (IS_SIMULATION_MODE) return MOCK_STATIONS
   if (!PROXY_URL) {
     throw new Error("VITE_WEATHER_PROXY_URL이 설정되지 않았습니다 — .env에 kma-weather-proxy 배포 주소를 넣어주세요.")
   }

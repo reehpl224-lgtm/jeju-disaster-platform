@@ -10,7 +10,6 @@ import { useCctvCameras } from "../../data/cctvLive"
 import { useKhoaLive } from "../../data/khoaLive"
 import { useHeatShelters } from "../../data/heatSheltersLive"
 import { riskMarkers, serviceStatusCards } from "../../data/mockDashboard"
-import { useRiverRun } from "../../data/riverRunHooks"
 import { DOMAIN_CONFIGS } from "./domainConfigs"
 
 /**
@@ -19,11 +18,10 @@ import { DOMAIN_CONFIGS } from "./domainConfigs"
  */
 export function DomainBoardPage({ domain }: { domain: string }) {
   const build = DOMAIN_CONFIGS[domain]
-  const riverRunVersion = useRiverRun().version
   const sheltersLoaded = useHeatShelters()
   const khoaLoaded = useKhoaLive() // 해양조사원 실측이 도착하면 설정(탭 내용)을 다시 만든다
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- riverRunVersion·khoaLoaded만 재계산 트리거로 씀(build 안에서 안 읽음)
-  const config = useMemo(() => (build ? build() : null), [build, riverRunVersion, khoaLoaded, sheltersLoaded])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- khoaLoaded·sheltersLoaded만 재계산 트리거로 씀(build 안에서 안 읽음)
+  const config = useMemo(() => (build ? build() : null), [build, khoaLoaded, sheltersLoaded])
   const cctvCameras = useCctvCameras()
   const [params, setParams] = useSearchParams()
   const [rightTab, setRightTab] = useState("tl")
@@ -34,8 +32,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
   if (!config) return <Navigate to="/dashboard" replace />
 
   // 데이터 수집·연계 시스템·실시간 연동은 보드에서 숨기고 운영 > 데이터 시스템 연계현황에서 서비스별로 본다(2026-10-02)
-  // 하천범람의 "시나리오 실행"도 보드에서는 숨긴다 — 상세 대시보드 사이드바(RIVER_NAV)에는 그대로 둠
-  const tabs = config.tabs.filter((t) => t.key !== "data" && t.key !== "scenario")
+  const tabs = config.tabs.filter((t) => t.key !== "data")
   const right = config.right.filter((t) => t.key !== "legacy" && t.key !== "live")
   const activeKey = tabs.some((t) => t.key === params.get("tab")) ? (params.get("tab") as string) : tabs[0].key
   const markers = riskMarkers.filter((m) => m.domain === config.mapDomain)

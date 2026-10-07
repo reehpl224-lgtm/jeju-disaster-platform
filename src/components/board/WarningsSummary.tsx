@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
-import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import type { AdvisoryItem } from "../../data/aquaAdvisories"
 import { fetchJejuWarnings } from "../../data/warningsApi"
-import { LIVE, SIMULATED } from "../ui/dataSource"
+import { LIVE } from "../ui/dataSource"
 import { Risk } from "./BoardParts"
 import { Group } from "./PanelParts"
 
@@ -69,7 +68,7 @@ export function WarningsSummary({ codes, advisories }: { codes?: string[]; advis
     )
   }
   return (
-    <Group title="특보 요약 · 기상청 최근 24시간 발표" source={IS_SIMULATION_MODE ? SIMULATED : LIVE}>
+    <Group title="특보 요약 · 기상청 최근 24시간 발표" source={LIVE}>
       {failed ? (
         <p className="pempty">특보를 불러오지 못했습니다.</p>
       ) : !items ? (

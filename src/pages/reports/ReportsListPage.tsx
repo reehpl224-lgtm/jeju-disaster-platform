@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { incidentRecords, reportsSummary } from "../../data/mockReports"
-import { SCENARIO_NOW } from "../../data/scenarioClock"
+import { DUMMY_NOW } from "../../data/dummyClock"
 import type { IncidentDomain } from "../../types/reports"
 
 const DOMAIN_FILTERS: { id: IncidentDomain | "all"; label: string }[] = [
@@ -38,7 +38,7 @@ function parseEndedAt(endedAt: string): Date {
   const [datePart, timePart] = endedAt.replace(" 종료", "").split(" ")
   return new Date(`${datePart}T${timePart}:00+09:00`)
 }
-const REFERENCE_TODAY = SCENARIO_NOW
+const REFERENCE_TODAY = DUMMY_NOW
 
 /** "8시간 28분" → 508(분). 정렬용. */
 function parseDurationMinutes(duration: string): number {

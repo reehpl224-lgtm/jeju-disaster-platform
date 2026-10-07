@@ -1,17 +1,17 @@
 /**
- * 시나리오 시계 — mock 데이터의 "현재 상황" 시각을 실제 현재 시각에 맞춘다(2026-09-28 사용자 요청).
+ * 더미 시계 — mock 데이터의 "현재 상황" 시각을 실제 현재 시각에 맞춘다(2026-09-28 사용자 요청).
  *
- * 서비스마다 더미 시나리오를 작성한 날짜가 달라(9/7·9/8·9/22 등) 화면마다 기준 시각이 제각각이었다.
+ * 서비스마다 더미 데이터를 작성한 날짜가 달라(9/7·9/8·9/22 등) 화면마다 기준 시각이 제각각이었다.
  * 데이터 값(위험 단계·수치)은 그대로 두고 **시각만** 옮긴다: 모듈마다 "작성 당시의 지금"(ANCHOR)을
- * 정해 두고, 그 모듈의 모든 시나리오 시각을 (실제 현재 − ANCHOR)만큼 평행이동한다. 그래서 ANCHOR 시각은
+ * 정해 두고, 그 모듈의 모든 더미 시각을 (실제 현재 - ANCHOR)만큼 평행이동한다. 그래서 ANCHOR 시각은
  * 지금이 되고, 사건 간 간격(예: 23분 전 감지, 3일 뒤 도달 예상, 7일 전 종료된 지난 사례)은 유지된다.
- * 사용자 시나리오가 바뀌어 데이터를 새로 쓸 땐 아래 ANCHOR만 그 시나리오의 "지금"으로 바꾸면 된다.
+ * 더미 데이터를 새로 쓸 땐 아래 ANCHOR만 그 데이터의 "지금"으로 바꾸면 된다.
  *
- * 표기 규칙 — 시나리오 시각은 하이픈(2026-09-22 09:15)으로 쓰고 이동 대상이 된다. 실제로 일어난 사실의
+ * 표기 규칙 - 더미 시각은 하이픈(2026-09-22 09:15)으로 쓰고 이동 대상이 된다. 실제로 일어난 사실의
  * 날짜(회의일, API 확인일 등)는 점(2026.09.09)으로 써서 이동하지 않게 한다. 실측 스냅샷 객체(KHOA)는
  * SKIP으로 통째로 제외한다.
  *
- * main.tsx에서 App보다 먼저 import해야 한다 — 다른 모듈이 import 시점에 값을 복사해 가기 전에 옮기기 위함.
+ * main.tsx에서 App보다 먼저 import해야 한다 - 다른 모듈이 import 시점에 값을 복사해 가기 전에 옮기기 위함.
  */
 import * as Aqua from "./mockAqua"
 import * as Cctv from "./mockCctv"
@@ -69,7 +69,7 @@ function kstParts(ms: number) {
 const STAMP =
   /(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})(?::(\d{2}))?(\+09:00)?|(\d{4}-\d{2}-\d{2}) ((?:[01]\d|2[0-3]):[0-5]\d)(?::([0-5]\d))?|(\d{4}-\d{2}-\d{2})(?![\d.])|(?<![\d:.])((?:[01]\d|2[0-3]):[0-5]\d)(?::([0-5]\d))?(?![\d:])/g
 
-/** 문자열 안의 시나리오 시각을 deltaMs만큼 옮긴다. anchorDate는 날짜 없는 "HH:MM"이 속한 날 */
+/** 문자열 안의 더미 시각을 deltaMs만큼 옮긴다. anchorDate는 날짜 없는 "HH:MM"이 속한 날 */
 function shiftText(text: string, deltaMs: number, anchorDate: string): string {
   // 연도 없는 "MM-DD"(폭염 추이 등)는 값 전체가 그 형식일 때만 날짜로 본다
   if (/^\d{2}-\d{2}$/.test(text)) {
@@ -128,13 +128,13 @@ for (const { name, mod, anchor, skip = [] } of MODULES) {
 }
 
 /**
- * 문자열(primitive)로 export된 시나리오 시각은 제자리에서 바꿀 수 없어, 쓰는 쪽에서 이 함수로 옮긴다.
- * 예: scenarioTime("mockMonitoring", monitoringLastSyncedAt)
+ * 문자열(primitive)로 export된 더미 시각은 제자리에서 바꿀 수 없어, 쓰는 쪽에서 이 함수로 옮긴다.
+ * 예: dummyTime("mockMonitoring", monitoringLastSyncedAt)
  */
-export function scenarioTime(moduleName: string, text: string): string {
+export function dummyTime(moduleName: string, text: string): string {
   const d = deltas[moduleName]
   return d ? shiftText(text, d.deltaMs, d.anchorDate) : text
 }
 
 /** 날짜 비교용 "오늘" — 예전 코드가 고정 날짜를 기준일로 쓰던 곳(이력 기간 필터 등)에서 쓴다 */
-export const SCENARIO_NOW = new Date(NOW)
+export const DUMMY_NOW = new Date(NOW)

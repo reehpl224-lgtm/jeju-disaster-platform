@@ -7,7 +7,6 @@ import { ServicePills } from "../../components/ui/ServicePills"
 import { coastAgencyStatuses, coastClosure, coastDispatch, coastEventDetail, coastEvents, coastStageCriteria } from "../../data/mockCoast"
 import { aquaResponseState } from "../../data/mockAqua"
 import { riverClosure, riverJointAgencies, riverSopStage, riverStageCriteria, riverStatuses, riverTarget } from "../../data/mockRiver"
-import { useRiverRun } from "../../data/riverRunHooks"
 import { AquaResponsePage } from "../aqua/AquaResponsePage"
 import { EsopStatusView } from "./EsopStatusView"
 
@@ -33,7 +32,6 @@ function Links({ items }: { items: [string, string][] }) {
 const pendingCoastEvents = () => coastEvents.filter((e) => e.status === "미확인").length
 
 function RiverView() {
-  useRiverRun() // 하천 시나리오가 진행되면 단계가 바뀌므로 다시 그린다
   const worst = riverStatuses.find((r) => r.level === riverSopStage.level) ?? riverStatuses[0]
   return (
     <EsopStatusView
@@ -92,7 +90,6 @@ function NotApplicable({ prefix, title }: { prefix: string; title: string }) {
 }
 
 function Overview() {
-  useRiverRun()
   const rows: Record<string, ReactNode> = {
     "/river": <RiskBadge level={riverSopStage.level} label={riverSopStage.current} />,
     "/aqua": <RiskBadge level={aquaResponseState.riskLevel} label={aquaResponseState.grade === "-" ? aquaResponseState.title : aquaResponseState.grade} />,

@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
-import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import { logout, type MockUser } from "../../data/mockAuth"
 import { serviceStatusCards } from "../../data/mockDashboard"
 import { disasterAlerts } from "../../data/mockIncidents"
@@ -34,7 +33,7 @@ const OPS_NAV = [
   { to: "/propagation", label: "상황전파·보고체계", icon: "📡" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
   { to: "/data-systems", label: "데이터 시스템 연계현황", icon: "🗄️" },
-  { to: "/dummy-data", label: "시나리오 더미데이터", icon: "📥" },
+  { to: "/dummy-data", label: "더미데이터", icon: "📥" },
   { to: "/reports", label: "이력·보고서", icon: "📋" },
   { to: "/demo-version", label: "데모버전", icon: "🏷️" },
 ]
@@ -103,23 +102,6 @@ export function Header({ user }: { user: MockUser }) {
         <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 700, color: "var(--foreground-subtle)", whiteSpace: "nowrap" }}>
           Demo V0.1
         </span>
-        {IS_SIMULATION_MODE && (
-          <span
-            style={{
-              marginLeft: 10,
-              padding: "2px 8px",
-              borderRadius: 9999,
-              fontSize: 11,
-              fontWeight: 700,
-              color: "var(--risk-caution)",
-              border: "1px solid var(--risk-caution)",
-              whiteSpace: "nowrap",
-            }}
-            title="이 화면은 스테이징입니다 — 동네예보를 제외한 실시간 관측은 모의값이고, 저장 상태는 기존 사이트와 분리됩니다"
-          >
-            스테이징 · 모의 재난대응
-          </span>
-        )}
         <p className="header__clock">
           {/* 좁은 화면(1280px 미만)에선 날짜를 숨기고 시각만 — demo10.css 헤더 축소 규칙 */}
           <span className="header__clock-date">{clock.slice(0, 11)}</span>

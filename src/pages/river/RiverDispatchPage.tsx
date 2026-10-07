@@ -2,14 +2,9 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { riverDispatchRequest } from "../../data/mockRiver"
-import { riverResources } from "../../data/mockRiverResources"
-import { useRiverRun } from "../../data/riverRunHooks"
-import { approveDispatch } from "../../data/riverRunState"
 
 export function RiverDispatchPage() {
   const d = riverDispatchRequest
-  const run = useRiverRun()
-  const canApprove = run.timeline.length > 0 && !run.endedAtSim && !run.flow.대응
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -32,14 +27,6 @@ export function RiverDispatchPage() {
           </Link>
         </div>
       </div>
-
-      {canApprove && (
-        <Card title="담당자 승인 필요" subtitle="시나리오 실행 중 — 출동(대응) 단계를 승인합니다">
-          <button className="rounded bg-accent px-4 py-2 text-sm font-bold text-black" onClick={() => approveDispatch()}>
-            출동 요청 승인
-          </button>
-        </Card>
-      )}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="출동 요청 개요" dummy>
@@ -85,25 +72,11 @@ export function RiverDispatchPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border-subtle">
-            {run.resourceRequests.length === 0 ? (
-              <tr>
+            <tr>
                 <td className="py-3 text-center text-white/30" colSpan={5}>
                   출동 요청 이력 없음 — 평시 감시 중
                 </td>
-              </tr>
-            ) : (
-              run.resourceRequests
-                .filter((r) => r.status !== "취소")
-                .map((r) => (
-                  <tr key={r.id}>
-                    <td className="py-2 text-white/70">{riverResources.find((x) => x.id === r.resourceId)?.label ?? r.resourceId}</td>
-                    <td className="py-2 text-white/40">{r.requestedAtSim}</td>
-                    <td className="py-2 text-white/40">{r.approvedAtSim ? "확인" : "대기"}</td>
-                    <td className="py-2 text-white/40">{r.status}</td>
-                    <td className="py-2 text-white/40">{r.arrivedAtSim ?? (r.status === "출동 중" ? "이동 중" : "-")}</td>
-                  </tr>
-                ))
-            )}
+            </tr>
           </tbody>
         </table>
       </Card>

@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react"
-import { IS_SIMULATION_MODE } from "../../data/appEnv"
 import { fetchRiverReferenceRainfall } from "../../data/rainfallApi"
-import { useRiverRun } from "../../data/riverRunHooks"
 import type { RainfallStation } from "../../types/rainfallApi"
 
 function formatTm(tm: string) {
@@ -11,9 +9,6 @@ function formatTm(tm: string) {
 
 /** 기상청 API허브 방재기상관측(AWS) 매분자료 실시간 연동 패널 — /river(하천범람)용. */
 export function RainfallObservationPanel() {
-  // 스테이징에서는 시나리오가 진행될 때(version 증가)마다 모의 관측을 다시 계산한다(§7-5).
-  // 실연동 모드에서도 version은 사실상 고정값이라 최초 1회 조회만 일어난다.
-  const { version } = useRiverRun()
   const [stations, setStations] = useState<RainfallStation[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -36,7 +31,7 @@ export function RainfallObservationPanel() {
     return () => {
       cancelled = true
     }
-  }, [version])
+  }, [])
 
   if (loading) return <p className="py-4 text-center text-xs text-white/30">불러오는 중...</p>
 
@@ -72,9 +67,7 @@ export function RainfallObservationPanel() {
         ))}
       </div>
       <p className="text-[10px] text-white/25">
-        {IS_SIMULATION_MODE
-          ? "스테이징 모의 관측 — 실제 AWS 매분자료가 아닙니다."
-          : "기상청 API허브(apihub.kma.go.kr) 실연동(방재기상관측 AWS 매분자료) — 효돈천(돈내코·쇠소깍)과 정확히 같은 지점은 없어 가장 가까운 저지대 지점을 참고용으로 표시합니다."}
+        기상청 API허브(apihub.kma.go.kr) 실연동(방재기상관측 AWS 매분자료) — 효돈천(돈내코·쇠소깍)과 정확히 같은 지점은 없어 가장 가까운 저지대 지점을 참고용으로 표시합니다.
       </p>
     </div>
   )

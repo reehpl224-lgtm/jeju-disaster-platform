@@ -30,12 +30,10 @@ import {
 } from "../../data/mockRiver"
 import { riskMarkers } from "../../data/mockDashboard"
 import { useCctvCameras } from "../../data/cctvLive"
-import { useRiverRun } from "../../data/riverRunHooks"
-import { IS_SIMULATION_MODE } from "../../data/appEnv"
 
 const RIVER_MARKERS = riskMarkers.filter((m) => m.domain === "river")
 
-const TIMELINE_EMPTY_NOTE = "시나리오를 시작하고 첫 시점을 진행하면 표시됩니다."
+const TIMELINE_EMPTY_NOTE = "표시할 이력이 없습니다."
 
 function TimelineList({ entries }: { entries: { id: string; time: string; title: string }[] }) {
   if (entries.length === 0) return <p className="py-4 text-center text-xs text-white/35">{TIMELINE_EMPTY_NOTE}</p>
@@ -54,9 +52,6 @@ function TimelineList({ entries }: { entries: { id: string; time: string; title:
 export function RiverHomePage() {
   const RIVER_CCTV = useCctvCameras().filter((c) => c.domain === "river")
   const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
-  // riverControlTimeline·riverApprovalHistory는 riverRunState.projectToMock()이 갱신하는 일반 배열이라
-  // 이 훅으로 구독하지 않으면 시나리오가 진행돼도 이 화면이 다시 그려지지 않는다(§7-4).
-  useRiverRun()
 
   const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
     sensor: (
@@ -143,22 +138,22 @@ export function RiverHomePage() {
       </div>
 
       <Card
-        title={IS_SIMULATION_MODE ? "시나리오 분석 — 모의 강우 참고" : "AI 예측 — 돌발 강우 조기경고"}
+        title="AI 예측 — 돌발 강우 조기경고"
         subtitle={`감지 시각 ${riverSuddenRainAlert.detectedAt} · ${riverSuddenRainAlert.trendNote}`}
         dummy
       >
         <div className="flex flex-wrap items-center gap-4">
           <div>
-            <p className="text-[11px] font-medium text-white/40">{IS_SIMULATION_MODE ? "모의 기준" : "기상청 예보"}</p>
-            <p className="mt-1 text-lg font-bold text-white/70">{riverSuddenRainAlert.forecastMm}{IS_SIMULATION_MODE ? "mm/h" : "mm"}</p>
+            <p className="text-[11px] font-medium text-white/40">기상청 예보</p>
+            <p className="mt-1 text-lg font-bold text-white/70">{riverSuddenRainAlert.forecastMm}mm</p>
           </div>
           <span className="text-xl text-white/30">→</span>
           <div>
-            <p className="text-[11px] font-medium text-white/40">{IS_SIMULATION_MODE ? "모의 강우" : "실측"}</p>
-            <p className="mt-1 text-lg font-bold text-risk-warning">{riverSuddenRainAlert.observedMm}{IS_SIMULATION_MODE ? "mm/h" : "mm"}</p>
+            <p className="text-[11px] font-medium text-white/40">실측</p>
+            <p className="mt-1 text-lg font-bold text-risk-warning">{riverSuddenRainAlert.observedMm}mm</p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
-            {IS_SIMULATION_MODE ? "시나리오 참고" : "AI 조기경고"} · 강우레이더 예측 {riverRiskBasis.radar.value} ({riverRiskBasis.radar.confidence})
+            AI 조기경고 · 강우레이더 예측 {riverRiskBasis.radar.value} ({riverRiskBasis.radar.confidence})
           </span>
         </div>
         <p className="mt-3 text-xs text-white/50">{riverSuddenRainAlert.aiNote}</p>
@@ -168,22 +163,22 @@ export function RiverHomePage() {
       </Card>
 
       <Card
-        title={IS_SIMULATION_MODE ? "시나리오 분석 — Q% 변화 추세" : "AI 예측 — 수위 추이 조기경보"}
+        title="AI 예측 — 수위 추이 조기경보"
         subtitle={riverWaterLevelAiForecast.trendNote}
         dummy
       >
         <div className="flex flex-wrap items-center gap-4">
           <div>
-            <p className="text-[11px] font-medium text-white/40">{IS_SIMULATION_MODE ? "변화" : "6시간 전 수위"}</p>
+            <p className="text-[11px] font-medium text-white/40">6시간 전 수위</p>
             <p className="mt-1 text-lg font-bold text-white/70">
-              {IS_SIMULATION_MODE ? riverRiskBasis.waterLevel.trend : riverWaterLevelAiForecast.sixHourAgoM === null ? "-" : `${riverWaterLevelAiForecast.sixHourAgoM}m`}
+              {riverWaterLevelAiForecast.sixHourAgoM === null ? "-" : `${riverWaterLevelAiForecast.sixHourAgoM}m`}
             </p>
           </div>
           <span className="text-xl text-white/30">→</span>
           <div>
-            <p className="text-[11px] font-medium text-white/40">{IS_SIMULATION_MODE ? "현재 Q%" : "현재 수위"}</p>
+            <p className="text-[11px] font-medium text-white/40">현재 수위</p>
             <p className="mt-1 text-lg font-bold text-white/70">
-              {IS_SIMULATION_MODE ? riverRiskBasis.waterLevel.value : riverWaterLevelAiForecast.currentM === null ? "-" : `${riverWaterLevelAiForecast.currentM}m`}
+              {riverWaterLevelAiForecast.currentM === null ? "-" : `${riverWaterLevelAiForecast.currentM}m`}
             </p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-risk-safe bg-risk-safe-bg px-3 py-1 text-xs font-bold text-risk-safe">
