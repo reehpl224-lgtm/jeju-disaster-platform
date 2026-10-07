@@ -119,13 +119,11 @@ export interface CctvCamera {
   streamUrl?: string
 }
 
-/** CCTV 전체 규모 요약 — 목록에 있는 대표 카메라 수와 실제 운영 규모는 다르다(양식장 대표 사례 표기 방식과 동일) */
+/** 도 전체 CCTV 운영 규모 참고치 — 제주시 공공데이터 API 조회 목록과는 별개 */
 export interface CctvCoverageSummary {
-  ownOperatedTotal: number
-  includingIllegalParkingTotal: number
-  itsLinkedCount: number
-  itsTotalCount: number
-  representativeCount: number
+  ownOperatedApproxTotal: number
+  includingIllegalParkingApproxTotal: number
+  sourceDate: string
   /** 원본 영상 보관 제약 — "1차년도 사용 가능 레거시 데이터 현황" 문서(2026-09-28) 근거 */
   retentionNote: string
 }

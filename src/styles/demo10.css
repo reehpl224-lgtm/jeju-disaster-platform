@@ -1476,11 +1476,20 @@ h1, h2, h3, p { margin: 0; }
 .cam-card__screen.is-off { color: var(--risk-offline); }
 .cam-card h3 { font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .cam-card p { font-size: 12px; color: var(--foreground-subtle); }
-.coverage { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+.coverage { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
 .coverage .pbox { margin: 0; }
 .coverage small { display: block; font-size: 11px; color: var(--foreground-subtle); }
 .coverage b { font-size: 20px; }
 .coverage p { margin-top: 2px; font-size: 11px; color: var(--foreground-subtle); }
+.cctv-feed-status { margin: 0 0 12px; font-size: 12px; color: var(--foreground-subtle); }
+.cctv-feed-status--partial, .cctv-feed-status--failed, .cctv-feed-status--unconfigured { color: var(--risk-warning); }
+.cctv-legacy-context { margin-bottom: 16px; padding: 10px 12px; border: 1px solid var(--foreground-ghost); border-radius: .5rem; color: var(--foreground-subtle); font-size: 12px; }
+.cctv-legacy-context summary { cursor: pointer; font-weight: 600; }
+.cctv-legacy-context summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.cctv-legacy-context p { margin-top: 8px; line-height: 1.5; }
+.cctv-result-count { margin: 0 0 12px; font-size: 12px; color: var(--foreground-subtle); }
+@media (max-width: 1000px) { .coverage { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .coverage { grid-template-columns: 1fr; } }
 .tree > li > button[aria-pressed="true"] { color: var(--primary); }
 .content__title { font-size: 20px; font-weight: 700; }
 .content__sub { margin-top: 4px; font-size: 12px; color: var(--foreground-subtle); }

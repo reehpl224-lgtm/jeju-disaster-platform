@@ -42,7 +42,7 @@ import {
 import { useLiveWeather } from "../data/useLiveWeather"
 import { currentWeather, disasterIncidents, disasterResponseTeams, shelters } from "../data/mockIncidents"
 import { cctvCoverageSummary } from "../data/mockCctv"
-import { cctvStatusLabel, openCctvPlayer, useCctvCameras } from "../data/cctvLive"
+import { cctvStatusLabel, openCctvPlayer, useCctvCameras, useCctvLoadState } from "../data/cctvLive"
 import { overallStatus } from "../data/mockMonitoring"
 import { sequentialPropagation, simultaneousPropagationGoal } from "../data/mockPropagation"
 import {
@@ -85,8 +85,8 @@ const MAP_DOMAIN_FILTERS: { id: RiskMarker["domain"] | "all"; label: string }[] 
 const CCTV_DOMAIN_FILTERS: { id: CctvCamera["domain"] | "all"; label: string }[] = [
   { id: "all", label: "전체" },
   { id: "river", label: "하천" },
-  { id: "coast", label: "연안" },
-  { id: "snow", label: "대설" },
+  { id: "coast", label: "월파(연안)" },
+  { id: "snow", label: "적설(대설)" },
   { id: "aqua", label: "해안관측" },
   { id: "general", label: "일반" },
 ]
@@ -726,8 +726,16 @@ export function DashboardPage() {
 
 function CctvView() {
   const cctvCameras = useCctvCameras()
+  const cctvLoad = useCctvLoadState()
+  const hasCctvData = cctvLoad.phase === "ready" || cctvLoad.phase === "partial"
   const [domain, setDomain] = useState<CctvCamera["domain"] | "all">("all")
   const [query, setQuery] = useState("")
+  const riverCount = cctvCameras.filter((camera) => camera.domain === "river").length
+  const waveCount = cctvCameras.filter((camera) => camera.domain === "coast").length
+  const snowCount = cctvCameras.filter((camera) => camera.domain === "snow").length
+  const checkedAtLabel = cctvLoad.checkedAt
+    ? new Date(cctvLoad.checkedAt).toLocaleString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+    : null
   const cameras = useMemo(() => {
     const q = query.trim()
     return cctvCameras.filter((camera) => {
@@ -759,13 +767,13 @@ function CctvView() {
           <span className="tabs__static">분야</span>
         </div>
         <ul className="tree">
-          {CCTV_DOMAIN_FILTERS.map((f) => {
+          {CCTV_DOMAIN_FILTERS.filter((f) => f.id === "all" || cctvCameras.some((c) => c.domain === f.id)).map((f) => {
             const count = f.id === "all" ? cctvCameras.length : cctvCameras.filter((c) => c.domain === f.id).length
             return (
               <li key={f.id}>
                 <button type="button" aria-pressed={domain === f.id} onClick={() => setDomain(f.id)}>
                   <span>
-                    {f.label} <span className="count">({count})</span>
+                    {f.label} <span className="count">({hasCctvData ? count : "—"})</span>
                   </span>
                 </button>
               </li>
@@ -779,34 +787,54 @@ function CctvView() {
           <div>
             <h2 className="content__title">CCTV 통합 조회</h2>
             <p className="content__sub">
-              제주시 월파·하천·적설 감시 CCTV(공공데이터포털 API) — 위치·사용 여부와 영상('영상 보기', 프록시 중계)
+              제주시 월파·하천·적설 감시 CCTV(공공데이터포털 API) — 현재 조회 가능한 목록의 위치·사용 여부·영상
             </p>
-            <p className="content__sub">{cctvCoverageSummary.retentionNote}</p>
           </div>
         </div>
         <div className="coverage">
           <div className="pbox">
-            <small>도 자체관제</small>
-            <b>약 {(cctvCoverageSummary.ownOperatedTotal / 10000).toFixed(1)}만대</b>
+            <small>현재 조회 목록</small>
+            <b>{hasCctvData ? `${cctvCameras.length}대` : "—"}</b>
+            <p>제주시 공공데이터 API 3종</p>
           </div>
           <div className="pbox">
-            <small>불법주정차 포함</small>
-            <b>약 {(cctvCoverageSummary.includingIllegalParkingTotal / 10000).toFixed(1)}만대</b>
+            <small>하천 감시</small>
+            <b>{hasCctvData ? `${riverCount}대` : "—"}</b>
           </div>
           <div className="pbox">
-            <small>자치경찰단 ITS 연계</small>
-            <b>
-              {cctvCoverageSummary.itsLinkedCount} / {cctvCoverageSummary.itsTotalCount.toLocaleString()}대
-            </b>
-            <p>예산·라이선스 문제로 일부만 연계</p>
+            <small>월파 감시</small>
+            <b>{hasCctvData ? `${waveCount}대` : "—"}</b>
           </div>
           <div className="pbox">
-            <small>이 화면의 대표 카메라</small>
-            <b>{cameras.length === cctvCameras.length ? cctvCameras.length : `${cameras.length} / ${cctvCameras.length}`}대</b>
-            <p>실제 규모와 혼동하지 않도록 구분 표기</p>
+            <small>적설 감시</small>
+            <b>{hasCctvData ? `${snowCount}대` : "—"}</b>
           </div>
         </div>
-        {cameras.length === 0 ? (
+        <p className={`cctv-feed-status cctv-feed-status--${cctvLoad.phase}`} role="status">
+          {cctvLoad.phase === "ready" && `제주시 공공데이터 API 3/3종 수신${checkedAtLabel ? ` · ${checkedAtLabel} 확인` : ""} · 도 전체 CCTV 수가 아닙니다.`}
+          {cctvLoad.phase === "partial" && `일부 수신 실패 · ${cctvLoad.receivedFeeds}/3종만 반영${checkedAtLabel ? ` · ${checkedAtLabel} 확인` : ""} · 표시 대수는 전체가 아닙니다.`}
+          {cctvLoad.phase === "loading" && "제주시 CCTV 목록을 불러오는 중입니다."}
+          {cctvLoad.phase === "failed" && "CCTV 목록을 불러오지 못했습니다. 현재 대수를 확인할 수 없습니다."}
+          {cctvLoad.phase === "unconfigured" && "CCTV 조회용 프록시 주소가 설정되지 않아 현재 대수를 확인할 수 없습니다."}
+        </p>
+        <details className="cctv-legacy-context">
+          <summary>도 전체 운영 규모 · 면담 자료 참고(현재 조회 목록과 별개)</summary>
+          <p>
+            도 자체관제 약 {(cctvCoverageSummary.ownOperatedApproxTotal / 10000).toFixed(1)}만대,
+            불법주정차 CCTV 포함 약 {(cctvCoverageSummary.includingIllegalParkingApproxTotal / 10000).toFixed(1)}만대.
+            두 수치는 포함 관계로 합산하지 않습니다.
+          </p>
+          <p>출처: 레거시시스템 현황 조사 면담 결과서({cctvCoverageSummary.sourceDate}). ITS 일부 연계 언급은 있으나 확인된 연계 대수는 없습니다.</p>
+          <p>{cctvCoverageSummary.retentionNote}</p>
+        </details>
+        {hasCctvData && (
+          <p className="cctv-result-count" aria-live="polite">
+            {cameras.length === cctvCameras.length ? `목록 ${cctvCameras.length}대` : `검색 결과 ${cameras.length} / 목록 ${cctvCameras.length}대`}
+          </p>
+        )}
+        {!hasCctvData ? (
+          <p className="pempty">{cctvLoad.phase === "loading" ? "목록을 불러오는 중입니다." : "현재 CCTV 목록을 표시할 수 없습니다."}</p>
+        ) : cameras.length === 0 ? (
           <p className="pempty">검색 결과가 없습니다.</p>
         ) : (
           <div className="grid-cards">
@@ -822,7 +850,7 @@ function CctvView() {
                     ) : online ? (
                       "실시간 영상 연동 예정"
                     ) : (
-                      "오프라인 — 영상 수신 없음"
+                      "미사용 — 영상 주소 없음"
                     )}
                   </div>
                   <h3>
