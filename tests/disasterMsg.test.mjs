@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import { isJejuMsg, parseCrtDt, pickJejuRecent, toDisasterMsg } from "../vercel-proxy/kma-weather-proxy/lib/disasterMsg.ts"
+import { isJejuMsg, parseCrtDt, pickJejuRecent, toDisasterMsg } from "../scripts/fetch-disaster-msgs.mjs"
 
 // 2026-10-07 실제 응답 모양
 const jeju = { SN: 900001, MSG_CN: "[제주특별자치도] 강풍경보 발효\r\n해안가 접근 자제", RCPTN_RGN_NM: "제주특별자치도 제주시 ", CRT_DT: "2026/10/06 11:05:30", EMRG_STEP_NM: "긴급재난", DST_SE_NM: "강풍" }

@@ -12,9 +12,15 @@ import { buildSampleEvents, type SpEvent } from "./sidePanelSamples"
  * 실데이터 = 기상청 API허브 특보(최근 24시간 발표)와 태풍 현황. **데이터를 받았으면(값이 0건이어도) 그 값 그대로** 보여준다 —
  * 0건이면 "발표 없음"이다(mode "live", events가 비어 있음). **둘 다 못 받았을 때만** 디자인 확인용 샘플을 보여주고
  * (mode "sample") 화면에 "샘플" 표식이 붙는다. 실데이터와 샘플을 섞지 않는다.
- * 재난문자는 행정안전부 긴급재난문자(제주 수신분)를 프록시(/api/disaster-msg)로 받는다 — 못 받으면 그것만 비고(messagesError) 나머지는 그대로다.
+ * 재난문자는 행정안전부 긴급재난문자(제주 수신분)를 받아 둔 파일(스냅샷, scripts/fetch-disaster-msgs.mjs)에서 읽는다 — 못 읽으면 그것만 비고(messagesError) 나머지는 그대로다.
+ *
+ * 환경별 표시(2026-10-07 사용자 결정): **스테이징(vite --mode staging)은 항상 샘플**(sampleReason "staging" — 레이아웃 확인용 임의 데이터),
+ **프로토타입·로컬은 현재 데이터가 있으면 그 값**(샘플은 데이터를 못 받았을 때만).
  */
 export type EventsMode = "loading" | "live" | "sample"
+
+/** 스테이징 빌드(`npm run build:staging` = vite --mode staging)에서는 실데이터가 있어도 샘플을 보여준다 */
+const IS_STAGING = import.meta.env.MODE === "staging"
 
 export interface SidePanelEvents {
   mode: EventsMode
@@ -23,6 +29,10 @@ export interface SidePanelEvents {
   warningsError: string | null
   /** 재난문자를 못 받았을 때의 메시지(받았으면 null) */
   messagesError: string | null
+  /** 샘플을 보여주는 이유 — 스테이징 환경이라서 / 데이터를 못 받아서(mode가 sample일 때만) */
+  sampleReason: "staging" | "failed" | null
+  /** 재난문자 파일을 받아 둔 시각(ISO) — 스냅샷 기준일 표시용 */
+  messagesAsOf: string | null
   /** 마지막으로 성공 수신한 시각 */
   fetchedAt: Date | null
 }
@@ -34,13 +44,14 @@ interface Snapshot {
   warnings: WarningEntry[]
   typhoons: TyphoonNowEntry[]
   messages: DisasterMsg[]
+  messagesAsOf: string | null
   warningsError: string | null
   messagesError: string | null
   fetchedAt: Date | null
 }
 
 const REFRESH_MS = 10 * 60 * 1000
-let snapshot: Snapshot = { loaded: false, anyOk: false, warnings: [], typhoons: [], messages: [], warningsError: null, messagesError: null, fetchedAt: null }
+let snapshot: Snapshot = { loaded: false, anyOk: false, warnings: [], typhoons: [], messages: [], messagesAsOf: null, warningsError: null, messagesError: null, fetchedAt: null }
 const listeners = new Set<() => void>()
 const subscribe = (fn: () => void) => {
   listeners.add(fn)
@@ -57,7 +68,8 @@ function load(): Promise<void> {
         anyOk: w.status === "fulfilled" || t.status === "fulfilled" || m.status === "fulfilled",
         warnings: w.status === "fulfilled" ? w.value.entries : [],
         typhoons: t.status === "fulfilled" ? t.value : [],
-        messages: m.status === "fulfilled" ? m.value : [],
+        messages: m.status === "fulfilled" ? m.value.messages : [],
+        messagesAsOf: m.status === "fulfilled" ? m.value.fetchedAt || null : null,
         warningsError: w.status === "rejected" ? (w.reason instanceof Error ? w.reason.message : String(w.reason)) : null,
         messagesError: m.status === "rejected" ? (m.reason instanceof Error ? m.reason.message : String(m.reason)) : null,
         fetchedAt: w.status === "fulfilled" || t.status === "fulfilled" ? new Date() : snapshot.fetchedAt,
@@ -149,7 +161,10 @@ export function useSidePanelEvents(): SidePanelEvents {
   }, [snap])
   const sample = useMemo(() => buildSampleEvents(), [])
 
-  if (!snap.loaded) return { mode: "loading", events: [], warningsError: null, messagesError: null, fetchedAt: null }
-  if (!snap.anyOk) return { mode: "sample", events: sample, warningsError: snap.warningsError, messagesError: snap.messagesError, fetchedAt: snap.fetchedAt }
-  return { mode: "live", events: live, warningsError: snap.warningsError, messagesError: snap.messagesError, fetchedAt: snap.fetchedAt }
+  const base = { warningsError: snap.warningsError, messagesError: snap.messagesError, fetchedAt: snap.fetchedAt, messagesAsOf: snap.messagesAsOf }
+  // 스테이징은 받는 중에도, 데이터가 있어도 항상 샘플(레이아웃 확인용)
+  if (IS_STAGING) return { mode: "sample", events: sample, sampleReason: "staging", ...base, warningsError: null, messagesError: null }
+  if (!snap.loaded) return { mode: "loading", events: [], sampleReason: null, ...base, warningsError: null, messagesError: null }
+  if (!snap.anyOk) return { mode: "sample", events: sample, sampleReason: "failed", ...base }
+  return { mode: "live", events: live, sampleReason: null, ...base }
 }
