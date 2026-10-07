@@ -7,8 +7,16 @@ import { DragScrollTabs } from "../components/board/DragScrollTabs"
 import { DutyContactPanel } from "../components/ui/DutyContactPanel"
 import { JejuTileMap } from "../components/ui/JejuTileMap"
 import { JejuVectorMap } from "../components/ui/JejuVectorMap"
-import { VilageForecastPanel } from "../components/ui/VilageForecastPanel"
-import { WarningsPanel } from "../components/ui/WarningsPanel"
+import { ActiveWarningsPanel } from "../components/sidepanel/ActiveWarningsPanel"
+import { ForecastPanel } from "../components/sidepanel/ForecastPanel"
+import { LiveWarningsPanel } from "../components/sidepanel/LiveWarningsPanel"
+import { TimelinePanel } from "../components/sidepanel/TimelinePanel"
+import { SummaryRightDock, type SpDockTab } from "../components/sidepanel/SummaryRightDock"
+import { PropagationPanel } from "../components/sidepanel/PropagationPanel"
+import { SensorSummaryPanel, SensorTrendPanel } from "../components/sidepanel/SensorPanels"
+import { ResponsePanel } from "../components/sidepanel/ResponsePanel"
+import { fullySample, usePanelInput } from "../data/panelInput"
+import { AiPanel, AssetPanel, ContactPanel, FuturePanel, ReportPanel } from "../components/sidepanel/MiscPanels"
 import {
   HorizontalTabsDock,
   MessengerFab,
@@ -32,7 +40,7 @@ import {
   timeSeries,
 } from "../data/mockDashboard"
 import { useLiveWeather } from "../data/useLiveWeather"
-import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeams, shelters } from "../data/mockIncidents"
+import { currentWeather, disasterIncidents, disasterResponseTeams, shelters } from "../data/mockIncidents"
 import { cctvCoverageSummary } from "../data/mockCctv"
 import { cctvStatusLabel, openCctvPlayer, useCctvCameras } from "../data/cctvLive"
 import { overallStatus } from "../data/mockMonitoring"
@@ -86,6 +94,9 @@ const CCTV_DOMAIN_LABEL = Object.fromEntries(CCTV_DOMAIN_FILTERS.map((f) => [f.i
 
 const REGIONS = ["제주시", "서귀포시"] as const
 
+/** 종합상황 좌측 패널 제목 — 탭 이름과 같다(동네예보는 디자인대로 '동네 예보') */
+const SP_LEFT_TITLE: Record<string, string> = { timeline: "타임라인", advisory: "발효중 특보", forecast: "동네 예보", "live-warnings": "실시간 특보" }
+
 // 높은 등급부터 — 서비스 카드와 같은 4단계(관심 포함). 건수는 렌더 때마다 합산한다
 const RISK_ORDER = ["danger", "alert", "warning", "caution"] as const
 
@@ -107,43 +118,8 @@ export function DashboardPage() {
   const filteredMarkers = useMemo(() => byDomain(mapDomain), [mapDomain])
   const summaryMarkers = useMemo(() => byDomain(summaryDomain), [summaryDomain])
 
-  // 타임라인/발효중 특보 패널 필터
-  const [timelineType, setTimelineType] = useState<string>("all")
-  const [timelineQuery, setTimelineQuery] = useState("")
-  const [showIssued, setShowIssued] = useState(true)
-  const [showLifted, setShowLifted] = useState(true)
+  // 좌측 패널(종합) · 우측 패널(GIS) 탭 — 필터는 각 패널(src/components/sidepanel)이 가진다
   const [timelineTab, setTimelineTab] = useState("timeline")
-
-  const incidentTypes = useMemo(() => Array.from(new Set(disasterIncidents.map((i) => i.type))), [])
-
-  const filteredIncidents = useMemo(() => {
-    const q = timelineQuery.trim()
-    return disasterIncidents.filter((incident) => {
-      const lifted = incident.status === "종료"
-      if (lifted && !showLifted) return false
-      if (!lifted && !showIssued) return false
-      if (timelineType !== "all" && incident.type !== timelineType) return false
-      if (q && !incident.title.includes(q) && !incident.location.includes(q) && !incident.region.includes(q)) return false
-      return true
-    })
-  }, [timelineType, timelineQuery, showIssued, showLifted])
-
-  const filteredAlerts = useMemo(() => {
-    const q = timelineQuery.trim()
-    return disasterAlerts.filter((alert) => {
-      const lifted = alert.expiresAt <= currentWeather.observedAt
-      if (lifted && !showLifted) return false
-      if (!lifted && !showIssued) return false
-      if (q && !alert.title.includes(q) && !alert.message.includes(q)) return false
-      return true
-    })
-  }, [timelineQuery, showIssued, showLifted])
-
-  const timelineDateRange = useMemo(() => {
-    const dates = [...disasterIncidents.map((i) => i.reportedAt), ...disasterAlerts.map((a) => a.issuedAt)].map((s) => s.slice(0, 10))
-    if (dates.length === 0) return "기간 없음"
-    return `${dates.reduce((a, b) => (a < b ? a : b))} ~ ${dates.reduce((a, b) => (a > b ? a : b))}`
-  }, [])
 
   // 총 합계 — 기존 mock 데이터를 그대로 합산(새 수치를 만들지 않음)
   const totalActiveRisk = serviceStatusCards.reduce(
@@ -170,9 +146,8 @@ export function DashboardPage() {
   const [mapTopRef, mapTopHeight] = useElementHeight<HTMLDivElement>()
   const [stripOpen, setStripOpen] = useState(true)
   const [leftOpen, setLeftOpen] = useState(true)
-  // 요약 수치를 눌렀을 때 좌측 패널(접혀 있으면 펼침)의 해당 탭을 연다 — query를 주면 타임라인 검색어로 걸러 보여줌
-  const openLeftTab = (key: string, query?: string) => {
-    if (query !== undefined) setTimelineQuery(query)
+  // 요약 수치를 눌렀을 때 좌측 패널(접혀 있으면 펼침)의 해당 탭을 연다
+  const openLeftTab = (key: string) => {
     setTimelineTab(key)
     setLeftOpen(true)
   }
@@ -401,18 +376,20 @@ export function DashboardPage() {
     trend: trendContent,
   }
 
-  const summaryDockTabs: DockTab[] = [
-    { key: "broadcast", label: "상황전파", dummy: true },
-    { key: "sensor", label: "센서정보", dummy: true },
-    { key: "response", label: "대응현황", dummy: true },
-    { key: "contact", label: "담당자" },
-    { key: "report", label: "보고서" },
-    { key: "asset", label: "자산현황", dummy: true },
-    { key: "messenger", label: "방재메신저" },
-    { key: "news", label: "안전뉴스" },
-    { key: "ai", label: "AI 분석", dummy: true },
-    { key: "trend", label: "센서 추이", dummy: true },
-  ].map((t) => ({ ...t, content: railContent[t.key] }))
+  // 종합상황 우측 패널 — Figma 1단계 R1~R8·R00 순서(방재메신저·안전뉴스는 2단계 예정 안내)
+  const panelInput = usePanelInput()
+  const summaryTabs: SpDockTab[] = [
+    { key: "broadcast", label: "상황전파", content: <PropagationPanel /> },
+    { key: "sensor", label: "센서정보", sample: fullySample.sensor(panelInput), content: <SensorSummaryPanel /> },
+    { key: "trend", label: "센서 추이", sample: fullySample.trend(panelInput), content: <SensorTrendPanel /> },
+    { key: "response", label: "대응현황", sample: fullySample.response(panelInput), content: <ResponsePanel /> },
+    { key: "contact", label: "담당자", content: <ContactPanel /> },
+    { key: "report", label: "보고서", content: <ReportPanel /> },
+    { key: "asset", label: "자산현황", content: <AssetPanel /> },
+    { key: "ai", label: "AI 분석", sample: true, content: <AiPanel /> },
+    { key: "messenger", label: "방재메신저", headTitle: "예정 기능", content: <FuturePanel kind="messenger" /> },
+    { key: "news", label: "안전뉴스", headTitle: "예정 기능", content: <FuturePanel kind="news" /> },
+  ]
 
   const gisLeftTabs: DockTab[] = [
     { key: "timeline", label: "타임라인", dummy: true },
@@ -426,94 +403,12 @@ export function DashboardPage() {
     { key: "news", label: "안전뉴스" },
   ].map((t) => ({ ...t, content: railContent[t.key] }))
 
-  const timelineFilters = (
-    <div className="pfilters">
-      <div className="row">
-        <select className="select" value={timelineType} onChange={(e) => setTimelineType(e.target.value)} aria-label="유형">
-          <option value="all">전체 유형</option>
-          {incidentTypes.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-        <input
-          className="input"
-          value={timelineQuery}
-          onChange={(e) => setTimelineQuery(e.target.value)}
-          placeholder="검색 (제목·위치·지역)"
-        />
-      </div>
-      <p className="date">{timelineDateRange}</p>
-      <div className="checks">
-        <label className="check">
-          <input type="checkbox" checked={showIssued} onChange={(e) => setShowIssued(e.target.checked)} /> 발령
-        </label>
-        <label className="check">
-          <input type="checkbox" checked={showLifted} onChange={(e) => setShowLifted(e.target.checked)} /> 해제
-        </label>
-      </div>
-    </div>
-  )
-
+  // 좌측 패널 4탭(종합상황) · GIS 우측 패널과 같은 구성 — 필터·데이터는 각 패널 컴포넌트 안에 있다
   const timelineTabs: DockTab[] = [
-    {
-      key: "timeline",
-      label: "타임라인",
-      dummy: true,
-      content: (
-        <ul className="plist">
-          {filteredIncidents.length === 0 && <li className="pempty">조건에 맞는 항목이 없습니다.</li>}
-          {filteredIncidents.map((incident) => (
-            <li key={incident.id}>
-              <div className="row-between">
-                <span className="time">{formatHM(incident.reportedAt)}</span>
-                {incident.status === "종료" ? <Risk level="offline" label="해제" solid /> : <Risk level="safe" label="발령" solid />}
-              </div>
-              <p className="mt">
-                <Risk level={incident.severity} label={incident.type} />
-              </p>
-              <p className="t" style={{ marginTop: 4 }}>
-                {incident.title}
-              </p>
-            </li>
-          ))}
-        </ul>
-      ),
-    },
-    {
-      key: "advisory",
-      label: "발효중 특보",
-      dummy: true,
-      content: (
-        <ul className="plist" style={{ gap: 8 }}>
-          {filteredAlerts.length === 0 && <li className="pempty">조건에 맞는 항목이 없습니다.</li>}
-          {filteredAlerts.map((alert) => {
-            const lifted = alert.expiresAt <= currentWeather.observedAt
-            return (
-              <li key={alert.id}>
-                <div className="pbox">
-                  <div className="row-between">
-                    {lifted ? <Risk level="offline" label="해제" solid /> : <Risk level="safe" label="발령" solid />}
-                    <span className="s" style={{ margin: 0 }}>
-                      {formatHM(alert.issuedAt)}~{formatHM(alert.expiresAt)}
-                    </span>
-                  </div>
-                  <p className="mt">
-                    <Risk level={alert.level} label={alert.title} />
-                  </p>
-                  <p className="s" style={{ marginTop: 6 }}>
-                    {alert.target} · {alert.message}
-                  </p>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
-      ),
-    },
-    { key: "forecast", label: "동네예보", content: <VilageForecastPanel variant="dock" /> },
-    { key: "live-warnings", label: "실시간 특보", content: <WarningsPanel /> },
+    { key: "timeline", label: "타임라인", content: <TimelinePanel /> },
+    { key: "advisory", label: "발효중 특보", content: <ActiveWarningsPanel /> },
+    { key: "forecast", label: "동네예보", content: <ForecastPanel /> },
+    { key: "live-warnings", label: "실시간 특보", content: <LiveWarningsPanel /> },
   ]
 
   // 관측값이 없으면(observedAt "-") 0으로 보이지 않게 "-"로 표시한다
@@ -595,8 +490,8 @@ export function DashboardPage() {
                 </button>
                 <button
                   type="button"
-                  title={`${region.label} 피해접수만 타임라인에서 보기`}
-                  onClick={() => openLeftTab("timeline", region.label)}
+                  title="타임라인 보기"
+                  onClick={() => openLeftTab("timeline")}
                 >
                   <span className="k">피해접수(건)</span>
                   <span className="v warning">{region.incidents.length}</span>
@@ -631,7 +526,14 @@ export function DashboardPage() {
               </button>
               <section className="panel panel--left">
                 <div className="panel__head">
-                  <h2 className="panel__title">타임라인</h2>
+                  <h2 className="panel__title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {SP_LEFT_TITLE[timelineTab] ?? "타임라인"}
+                    {timelineTab !== "timeline" && (
+                      <span className="sp-live" style={{ fontWeight: 500 }}>
+                        실시간
+                      </span>
+                    )}
+                  </h2>
                   <button
                     type="button"
                     className="icon-btn"
@@ -651,7 +553,6 @@ export function DashboardPage() {
                     </button>
                   ))}
                 </DragScrollTabs>
-                {(timelineTab === "timeline" || timelineTab === "advisory") && timelineFilters}
                 <div className="panel__scroll">{(timelineTabs.find((t) => t.key === timelineTab) ?? timelineTabs[0]).content}</div>
               </section>
             </aside>
@@ -750,7 +651,7 @@ export function DashboardPage() {
                       <button
                         type="button"
                         title="타임라인 보기"
-                        onClick={() => openLeftTab("timeline", "")}
+                        onClick={() => openLeftTab("timeline")}
                       >
                         <span className="k">피해접수(건)</span>
                         <span className="v warning">{disasterIncidents.length}</span>
@@ -769,14 +670,7 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <SideTabsDock
-              tabs={summaryDockTabs}
-              rail="left"
-              activeKey={summaryDockTab}
-              onSelect={setSummaryDockTab}
-              dense
-              headExtra={<span style={{ fontSize: 11, color: "var(--foreground-subtle)" }}>대응 패널</span>}
-            />
+            <SummaryRightDock tabs={summaryTabs} activeKey={summaryDockTab} onSelect={setSummaryDockTab} />
           </div>
           <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
         </div>
@@ -816,12 +710,7 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <HorizontalTabsDock
-              tabs={timelineTabs}
-              filters={timelineTab === "timeline" || timelineTab === "advisory" ? timelineFilters : undefined}
-              activeKey={timelineTab}
-              onSelect={setTimelineTab}
-            />
+            <HorizontalTabsDock tabs={timelineTabs} activeKey={timelineTab} onSelect={setTimelineTab} />
           </div>
           <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
         </div>

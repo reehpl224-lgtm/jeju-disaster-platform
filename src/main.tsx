@@ -14,6 +14,7 @@ import '@fontsource-variable/noto-sans-kr/wght.css'
 import './index.css'
 import './styles/demo10.css'
 import './styles/subpage.css'
+import './styles/sidepanel.css'
 import App from './App.tsx'
 
 // 제주시 감시 CCTV 목록(공공데이터포털)을 한 번 받아 대표 카메라 목록에 채운다 — 실패하면 빈 목록 그대로

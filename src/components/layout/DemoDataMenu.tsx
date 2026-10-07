@@ -33,6 +33,9 @@ export function DemoDataMenu({ open, onToggle }: { open: boolean; onToggle: () =
               <span className="src-tag src-tag--dummy">*</span> 더미 — 지어낸 값(제목 앞 *)
             </li>
             <li>
+              <span className="sp-sample">샘플</span> 연동 전 임의 데이터 — 사이드패널 자리 확인용(실제 상황 아님)
+            </li>
+            <li>
               <span className="src-tag src-tag--live">실시간</span> 기상청 등 API를 조회할 때마다 호출
             </li>
             <li>

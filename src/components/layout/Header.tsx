@@ -34,6 +34,7 @@ const OPS_NAV = [
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
   { to: "/data-systems", label: "데이터 시스템 연계현황", icon: "🗄️" },
   { to: "/dummy-data", label: "더미데이터", icon: "📥" },
+  { to: "/panel-input", label: "패널 입력", icon: "✏️" },
   { to: "/reports", label: "이력·보고서", icon: "📋" },
   { to: "/demo-version", label: "데모버전", icon: "🏷️" },
 ]

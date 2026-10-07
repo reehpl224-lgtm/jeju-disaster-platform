@@ -56,6 +56,7 @@ const HazardAlertPage = lazy(() => import("./pages/hazard/HazardPages").then((m)
 const HazardClosurePage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardClosurePage })))
 const HAZARD_IDS = ["wildfire", "tsunami", "snow"] as const
 const ApprovalsPage = lazy(() => import("./pages/approvals/ApprovalsPage").then((m) => ({ default: m.ApprovalsPage })))
+const PanelInputPage = lazy(() => import("./pages/PanelInputPage").then((m) => ({ default: m.PanelInputPage })))
 const PropagationHomePage = lazy(() => import("./pages/propagation/PropagationHomePage").then((m) => ({ default: m.PropagationHomePage })))
 const PilotStatusPage = lazy(() => import("./pages/pilot/PilotStatusPage").then((m) => ({ default: m.PilotStatusPage })))
 const EsopPage = lazy(() => import("./pages/esop/EsopPage").then((m) => ({ default: m.EsopPage })))
@@ -149,6 +150,7 @@ export default function App() {
 
           <Route path="/approvals" element={<ApprovalsPage />} />
           <Route path="/propagation" element={<PropagationHomePage />} />
+          <Route path="/panel-input" element={<PanelInputPage />} />
           <Route path="/data-systems" element={<DataSystemPage />} />
           <Route path="/esop" element={<EsopPage />} />
           <Route path="/dummy-data" element={<DummyDataPage />} />
