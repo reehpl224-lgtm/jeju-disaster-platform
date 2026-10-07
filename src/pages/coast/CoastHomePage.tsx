@@ -25,13 +25,12 @@ import {
   coastSummary,
 } from "../../data/mockCoast"
 import { riskMarkers } from "../../data/mockDashboard"
-import { cctvCameras } from "../../data/mockCctv"
+import { useCctvCameras } from "../../data/cctvLive"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { MarineObservationPanel } from "../../components/ui/MarineObservationPanel"
 import { WarningsPanel } from "../../components/ui/WarningsPanel"
 import { COAST_TYPE_LABEL } from "../../types/coast"
 
-const COAST_CCTV = cctvCameras.filter((c) => c.domain === "coast")
 
 const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
   sensor: (
@@ -140,6 +139,7 @@ const TIMELINE_TABS: GisTimelineTab[] = [
 ]
 
 export function CoastHomePage() {
+  const COAST_CCTV = useCctvCameras().filter((c) => c.domain === "coast")
   const coastMarkers = riskMarkers.filter((m) => m.domain === "coast")
   const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
 

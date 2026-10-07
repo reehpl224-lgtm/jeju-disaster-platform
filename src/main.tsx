@@ -8,6 +8,7 @@ import './data/scenarioClock'
 // 그렇지 않으면 그 페이지들을 먼저 열지 않은 채 곧장 /dashboard 등으로 가면 저장된 실행 상태가 화면에
 // 투영되지 않는다(카드·마커가 갱신 안 됨). scenarioClock 뒤에 둬야 시나리오 엑셀의 절대 시각이 옮겨지지 않는다.
 import './data/riverRunState'
+import { loadJejuCctv } from './data/cctvLive'
 import { IS_SIMULATION_MODE } from './data/appEnv'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -18,6 +19,9 @@ import './index.css'
 import './styles/demo10.css'
 import './styles/subpage.css'
 import App from './App.tsx'
+
+// 제주시 감시 CCTV 목록(공공데이터포털)을 한 번 받아 대표 카메라 목록에 채운다 — 실패하면 빈 목록 그대로
+void loadJejuCctv()
 
 // 개발 서버 또는 스테이징 빌드에서: 화면 간 상태·수치 일치 검사(콘솔 · window.__jejuConsistency())
 // 배포된 스테이징은 DEV가 아니므로 VITE_DATA_MODE=simulation도 별도로 확인한다(staging-scenario-review 문서 §3).

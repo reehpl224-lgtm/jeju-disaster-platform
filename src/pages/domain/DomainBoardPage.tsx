@@ -6,7 +6,7 @@ import { HorizontalTabsDock, MessengerFab, Risk, ServiceStrip, SideTabsDock, Str
 import { MessengerNotice } from "../../components/board/ComingSoon"
 import { WarningsSummary } from "../../components/board/WarningsSummary"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
-import { cctvCameras } from "../../data/mockCctv"
+import { useCctvCameras } from "../../data/cctvLive"
 import { riskMarkers, serviceStatusCards } from "../../data/mockDashboard"
 import { useRiverRun } from "../../data/riverRunHooks"
 import { DOMAIN_CONFIGS } from "./domainConfigs"
@@ -20,6 +20,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
   const riverRunVersion = useRiverRun().version
   // eslint-disable-next-line react-hooks/exhaustive-deps -- riverRunVersion만 재계산 트리거로 씀(build 안에서 안 읽음)
   const config = useMemo(() => (build ? build() : null), [build, riverRunVersion])
+  const cctvCameras = useCctvCameras()
   const [params, setParams] = useSearchParams()
   const [rightTab, setRightTab] = useState("tl")
   const [messengerOpen, setMessengerOpen] = useState(false)

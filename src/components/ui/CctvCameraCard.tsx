@@ -1,10 +1,12 @@
 import type { CctvCamera } from "../../types/domain"
+import { cctvStatusLabel } from "../../data/cctvLive"
 import { RiskBadge } from "./RiskBadge"
 
 const DOMAIN_LABEL: Record<CctvCamera["domain"], string> = {
   aqua: "해안관측",
   coast: "연안",
   river: "하천",
+  snow: "대설",
   general: "일반",
 }
 
@@ -23,13 +25,13 @@ export function CctvCameraCard({ camera }: { camera: CctvCamera }) {
           <p className="text-sm font-semibold text-white/85">{camera.name}</p>
           <p className="mt-0.5 text-[11px] text-white/35">{camera.address}</p>
         </div>
-        <RiskBadge level={camera.status === "online" ? "info" : "offline"} label={camera.status === "online" ? "연결" : "오프라인"} />
+        <RiskBadge level={camera.status === "online" ? "info" : "offline"} label={cctvStatusLabel(camera)} />
       </div>
       <div className="flex items-center justify-between text-[11px] text-white/35">
         <span className="rounded-full border border-border-subtle px-2 py-0.5">
           {DOMAIN_LABEL[camera.domain]} · {camera.operator}
         </span>
-        <span>최종 수신 {formatHM(camera.lastFrameAt)}</span>
+        {camera.lastFrameAt && <span>최종 수신 {formatHM(camera.lastFrameAt)}</span>}
       </div>
     </div>
   )

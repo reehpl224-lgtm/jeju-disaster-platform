@@ -102,19 +102,21 @@ export interface ApiLinkStatus {
 }
 
 /** CCTV 운영 주체 — 레거시 현황 조사 면담(2026-09-07) 기준 3개 그룹 */
-export type CctvOperator = "도 자체관제" | "불법주정차" | "자치경찰단 ITS"
+export type CctvOperator = "도 자체관제" | "불법주정차" | "자치경찰단 ITS" | "제주시"
 
 export interface CctvCamera {
   id: string
   name: string
   address: string
-  domain: "aqua" | "coast" | "river" | "general"
+  domain: "aqua" | "coast" | "river" | "snow" | "general"
   operator: CctvOperator
   status: "online" | "offline"
   lastFrameAt: string
   /** 지도 CCTV/센서 레이어용 실제 위경도 */
   lat?: number
   lng?: number
+  /** 영상(HLS) 주소 — 제주시 감시 CCTV API가 준다. 아직 화면에서 재생하지 않는다 */
+  streamUrl?: string
 }
 
 /** CCTV 전체 규모 요약 — 목록에 있는 대표 카메라 수와 실제 운영 규모는 다르다(양식장 대표 사례 표기 방식과 동일) */

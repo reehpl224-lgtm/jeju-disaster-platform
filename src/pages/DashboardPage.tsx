@@ -35,8 +35,10 @@ import {
   sixHourSeries,
   timeSeries,
 } from "../data/mockDashboard"
+import { useLiveWeather } from "../data/useLiveWeather"
 import { currentWeather, disasterAlerts, disasterIncidents, disasterResponseTeams, shelters } from "../data/mockIncidents"
-import { cctvCameras, cctvCoverageSummary } from "../data/mockCctv"
+import { cctvCoverageSummary } from "../data/mockCctv"
+import { cctvStatusLabel, openCctvPlayer, useCctvCameras } from "../data/cctvLive"
 import { overallStatus } from "../data/mockMonitoring"
 import { sequentialPropagation, simultaneousPropagationGoal } from "../data/mockPropagation"
 import {
@@ -80,6 +82,7 @@ const CCTV_DOMAIN_FILTERS: { id: CctvCamera["domain"] | "all"; label: string }[]
   { id: "all", label: "전체" },
   { id: "river", label: "하천" },
   { id: "coast", label: "연안" },
+  { id: "snow", label: "대설" },
   { id: "aqua", label: "해안관측" },
   { id: "general", label: "일반" },
 ]
@@ -96,6 +99,10 @@ export function DashboardPage() {
   // 하천 시나리오가 다른 창/탭에서 바뀌어도 이 화면이 다시 그려지게 구독하고, 아래 타임라인·대응현황·센서·자산 패널에서 값도 읽는다
   const riverRun = useRiverRun()
   const riverFlowRatio = useMemo(() => riverFlowRatioAnalysis(riverRun), [riverRun])
+  // 현재 날씨는 기상청 초단기실황(실시간)을 우선 쓰고, 못 받으면 기존 mock(관측값 없음)으로 되돌린다
+  const liveWeather = useLiveWeather()
+  const cctvCameras = useCctvCameras()
+  const weather = liveWeather ?? currentWeather
   const [params, setParams] = useSearchParams()
   const raw = params.get("tab")
   const tab: TabKey = raw === "gis" || raw === "cctv" ? raw : "summary"
@@ -643,13 +650,13 @@ export function DashboardPage() {
   ]
 
   // 관측값이 없으면(observedAt "-") 0으로 보이지 않게 "-"로 표시한다
-  const hasWeather = currentWeather.observedAt !== "-"
+  const hasWeather = weather.observedAt !== "-"
   const wx = (value: number, unit = "") => (hasWeather ? `${value}${unit}` : "-")
   const weatherLine = (
     <p className="weather-line">
-      기온 <b>{wx(currentWeather.temperatureC, "℃")}</b> · 강수 <b>{wx(currentWeather.rainfallMm, "mm")}</b> · 풍속{" "}
-      <b>{wx(currentWeather.windSpeedMs, "m/s")}</b> · 습도 <b>{wx(currentWeather.humidityPercent, "%")}</b>
-      {hasWeather ? ` · 갱신 ${formatHM(currentWeather.observedAt)} / 5분 주기` : " · 관측값 없음"}
+      기온 <b>{wx(weather.temperatureC, "℃")}</b> · 강수 <b>{wx(weather.rainfallMm, "mm")}</b> · 풍속{" "}
+      <b>{wx(weather.windSpeedMs, "m/s")}</b> · 습도 <b>{wx(weather.humidityPercent, "%")}</b>
+      {hasWeather ? ` · 기상청 초단기실황 ${formatHM(weather.observedAt)} 기준(${weather.location})` : " · 관측값 없음"}
     </p>
   )
 
@@ -788,25 +795,32 @@ export function DashboardPage() {
                 <div className="region-col region-col--left">
                   <div className="region-card region-card--open">
                     <p className="region-card__label">
-                      <span title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">*</span> 제주도 · 현재 날씨
+                      {liveWeather ? (
+                        <span title="기상청 초단기실황 — 실시간 연동" style={{ color: "var(--risk-safe)" }}>
+                          ●
+                        </span>
+                      ) : (
+                        <span title="실제로 연동해서 가져올 수 없는 완전 가상 시나리오 더미데이터입니다">*</span>
+                      )}{" "}
+                      제주도 · 현재 날씨{liveWeather ? ` (${liveWeather.location} 기준)` : ""}
                     </p>
                     <div className="region-card__stats">
                       {/* 날씨 수치를 누르면 좌측 패널의 동네예보(시간별 예보)를 연다 */}
                       <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">기온</span>
-                        <span className="v">{wx(currentWeather.temperatureC, "℃")}</span>
+                        <span className="v">{wx(weather.temperatureC, "℃")}</span>
                       </button>
                       <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">강수(mm)</span>
-                        <span className="v warning">{wx(currentWeather.rainfallMm)}</span>
+                        <span className="v warning">{wx(weather.rainfallMm)}</span>
                       </button>
                       <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">풍속(m/s)</span>
-                        <span className="v">{wx(currentWeather.windSpeedMs)}</span>
+                        <span className="v">{wx(weather.windSpeedMs)}</span>
                       </button>
                       <button type="button" title="동네예보 보기" onClick={() => openLeftTab("forecast")}>
                         <span className="k">습도(%)</span>
-                        <span className="v">{wx(currentWeather.humidityPercent)}</span>
+                        <span className="v">{wx(weather.humidityPercent)}</span>
                       </button>
                     </div>
                   </div>
@@ -955,6 +969,7 @@ export function DashboardPage() {
 }
 
 function CctvView() {
+  const cctvCameras = useCctvCameras()
   const [domain, setDomain] = useState<CctvCamera["domain"] | "all">("all")
   const [query, setQuery] = useState("")
   const cameras = useMemo(() => {
@@ -964,7 +979,7 @@ function CctvView() {
       const matchesQuery = q === "" || camera.name.includes(q) || camera.address.includes(q)
       return matchesDomain && matchesQuery
     })
-  }, [domain, query])
+  }, [cctvCameras, domain, query])
 
   return (
     <div className="shell">
@@ -1008,7 +1023,7 @@ function CctvView() {
           <div>
             <h2 className="content__title">CCTV 통합 조회</h2>
             <p className="content__sub">
-              3개 실증 서비스 확정 대상지 카메라 + 도심 대표 카메라 · 영상 스트림은 백엔드 연동 전이라 표시하지 않음
+              제주시 월파·하천·적설 감시 CCTV(공공데이터포털 API) — 위치·사용 여부와 영상('영상 보기', 프록시 중계)
             </p>
             <p className="content__sub">{cctvCoverageSummary.retentionNote}</p>
           </div>
@@ -1031,7 +1046,7 @@ function CctvView() {
           </div>
           <div className="pbox">
             <small>이 화면의 대표 카메라</small>
-            <b>{cctvCoverageSummary.representativeCount}대</b>
+            <b>{cameras.length === cctvCameras.length ? cctvCameras.length : `${cameras.length} / ${cctvCameras.length}`}대</b>
             <p>실제 규모와 혼동하지 않도록 구분 표기</p>
           </div>
         </div>
@@ -1044,18 +1059,26 @@ function CctvView() {
               return (
                 <article className="card cam-card" key={camera.id}>
                   <div className={`cam-card__screen${online ? "" : " is-off"}`}>
-                    {online ? "실시간 영상 연동 예정" : "오프라인 — 영상 수신 없음"}
+                    {camera.streamUrl ? (
+                      <button type="button" className="btn btn--outline btn--pill" onClick={() => openCctvPlayer(camera)} style={{ height: 34, fontSize: 12 }}>
+                        ▶ 영상 보기
+                      </button>
+                    ) : online ? (
+                      "실시간 영상 연동 예정"
+                    ) : (
+                      "오프라인 — 영상 수신 없음"
+                    )}
                   </div>
                   <h3>
                     {camera.name}
-                    <span className={`risk ${online ? "risk--info" : "risk--offline"}`}>{online ? "연결" : "오프라인"}</span>
+                    <span className={`risk ${online ? "risk--info" : "risk--offline"}`}>{cctvStatusLabel(camera)}</span>
                   </h3>
                   <p>{camera.address}</p>
                   <div className="row-between" style={{ fontSize: 11, color: "var(--foreground-subtle)" }}>
                     <span>
                       {CCTV_DOMAIN_LABEL[camera.domain]} · {camera.operator}
                     </span>
-                    <span>최종 수신 {formatHM(camera.lastFrameAt)}</span>
+                    {camera.lastFrameAt && <span>최종 수신 {formatHM(camera.lastFrameAt)}</span>}
                   </div>
                 </article>
               )

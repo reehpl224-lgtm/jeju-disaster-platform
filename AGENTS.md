@@ -149,6 +149,10 @@ Claude 검토 응답: [더미데이터 시나리오 인계 검토 — Claude 응
 
 ---
 
+**2026-10-07 외부 연계 명세서 검토·초단기실황 부착(사용자 요청, 커밋·배포 전)**: `AX실증_외부연계대상명세서_v1.0.0_261006.pdf`(28건)를 앱 실연동과 비교해 `docs/external-api-attach-review-2026-10-07.md`에 판정했다. Vercel 프록시 환경변수는 `KMA_APIHUB_KEY`·`KMA_SERVICE_KEY` 두 개뿐이라 키가 없는 SAFETY·SAFEMAP·JEJUITS는 붙이지 못한다. 이번에 EXT-KMA-001(초단기실황)을 `vercel-proxy/kma-weather-proxy/api/ultra-ncst.ts`·`lib/ultraNcst.ts`로 추가하고, 종합상황 '제주도 · 현재 날씨'(기존에 "관측값 없음")를 `src/data/useLiveWeather.ts`로 채웠다(실패하면 기존 표시로 복귀, 시나리오 시계용 `currentWeather.observedAt`은 그대로). 실제 기상청 응답은 프록시 배포 후에야 확인되며, 로컬 화면 확인은 가짜 프록시 응답으로만 했다. 명세서 KHOA-002의 URL은 KHOA-001과 같게 적힌 오기로 보인다.
+
+**2026-10-07 제주시 감시 CCTV 3종 연동(사용자가 data.go.kr 서비스·인증키 전달, 커밋·배포 전)**: 월파 19·하천 62·적설 10대(`6510000/waveoverCctvInfoService·riverCctvService·snowfallCctvService`, 오퍼레이션 `getWaveoverCctvList·getRiverCctvList·getSnowfallCctvList`)를 `vercel-proxy/kma-weather-proxy/api/cctv.ts`(키 `DATA_GO_KR_KEY`, 없으면 `KMA_SERVICE_KEY`)로 합쳐 받아 `src/data/cctvLive.ts`가 `cctvCameras`에 채운다(기존엔 빈 목록). `CctvCamera`에 `domain: "snow"`, `operator: "제주시"`, `streamUrl?`를 추가했고, 제주시 카메라는 `useYn`만 있어 "연결/오프라인" 대신 "사용/미사용"으로 표시한다(`cctvStatusLabel`). 영상(HLS)은 `http://IP:1935` 주소라 HTTPS 화면에서 직접 재생할 수 없어, 사용자가 A안(프록시 중계)을 골라 `api/cctv-stream.ts`(허용 서버·경로를 `lib/hlsProxy.ts`에 고정, 재생목록 주소를 프록시 주소로 다시 써 줌)로 중계하고 `src/components/ui/CctvPlayerHost.tsx`가 재생 창을 띄운다(Safari는 직접, 그 밖에는 `hls.js`를 재생할 때만 내려받는 별도 청크 — 의존성 `hls.js` 추가). 재생 버튼은 CCTV 탭 카드·지도 팝업·서비스 보드 '관련 CCTV'에 있다. 프록시는 2026-10-07 사용자 승인으로 Vercel 프로젝트 `kma-weather-proxy`에 배포했고(`/api/ultra-ncst`·`/api/cctv`·`/api/cctv-stream` 실응답 확인 — CCTV 91대, 영상 조각 약 0.4MB/15초), 앱(스테이징·프로토타입)은 아직 배포하지 않았다. 열린 중계 위험은 허용 서버 고정으로 줄였지만 인증은 없다. 사용자가 채팅에 준 인증키는 저장소에 넣지 않았다. data.go.kr 키는 기상청에는 승인돼 있고 해양조사원(KHOA)은 활용신청 전이며 safetydata에는 통하지 않는다(실호출 확인).
+
 ## 1. 프로젝트 성격 — 반드시 지킬 것
 
 이 프로젝트는 **1차년도 진행을 위한 프로토타입**입니다. 실사용자 요구사항이 아직 확정되지 않은

@@ -2,6 +2,7 @@ import "leaflet/dist/leaflet.css"
 import { latLngBounds } from "leaflet"
 import { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap, ZoomControl } from "react-leaflet"
+import { cctvStatusLabel, openCctvPlayer } from "../../data/cctvLive"
 import type { CctvCamera, RiskLevel, RiskMarker } from "../../types/domain"
 import { placeTileLabels, type LabelSpot } from "./labelPlacement"
 import { riskStyles } from "./riskStyles"
@@ -126,7 +127,7 @@ const RISK_RADIO_DOMAIN: Record<string, RiskMarker["domain"]> = {
 /** CCTV 라디오 → 카메라 필터(도메인). 공공CCTV는 전체 */
 const CCTV_RADIO_DOMAINS: Record<string, CctvCamera["domain"][] | "all"> = {
   "public-cctv": "all",
-  "disaster-cctv": ["river", "aqua"],
+  "disaster-cctv": ["river", "aqua", "snow"],
   "coast-smart-cctv": ["coast"],
 }
 
@@ -351,9 +352,14 @@ export function JejuTileMap({
                   <div className="min-w-40 text-xs">
                     <p className="font-semibold text-white/90">{cam.name}</p>
                     <p className="mt-0.5 text-white/50">
-                      {cam.operator} · {cam.status === "online" ? "온라인" : "오프라인"}
+                      {cam.operator} · {cctvStatusLabel(cam)}
                     </p>
                     <p className="mt-1 text-white/40">{cam.address}</p>
+                    {cam.streamUrl && (
+                      <button type="button" onClick={() => openCctvPlayer(cam)} className="mt-2 rounded-full border border-accent px-3 py-1 text-[11px] font-bold text-accent hover:bg-accent-soft">
+                        ▶ 영상 보기
+                      </button>
+                    )}
                   </div>
                 </Popup>
               </CircleMarker>

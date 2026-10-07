@@ -22,3 +22,19 @@ export interface VilageForecastResponse {
   ny: number
   slots: VilageForecastSlot[]
 }
+
+/** kma-weather-proxy /api/ultra-ncst 응답 — 기상청 초단기실황(getUltraSrtNcst, 명세서 EXT-KMA-001) */
+export interface UltraNcstResponse {
+  region: VilageForecastRegion
+  label: string
+  baseDate: string // YYYYMMDD
+  baseTime: string // HHMM (정시)
+  values: Partial<{
+    T1H: string // 기온(℃)
+    RN1: string // 1시간 강수량(mm) — 강수 없음이면 숫자가 아닌 문구일 수 있다
+    WSD: string // 풍속(m/s)
+    REH: string // 습도(%)
+    PTY: string // 강수형태 코드
+    VEC: string // 풍향(deg)
+  }>
+}

@@ -27,11 +27,10 @@ import {
   khoaLiveObservations,
 } from "../../data/mockAqua"
 import { riskMarkers } from "../../data/mockDashboard"
-import { cctvCameras } from "../../data/mockCctv"
+import { useCctvCameras } from "../../data/cctvLive"
 import { classifyMarineRiskLevel } from "../../data/marineAlertThresholds"
 
 const AQUA_MARKERS = riskMarkers.filter((m) => m.domain === "aqua")
-const AQUA_CCTV = cctvCameras.filter((c) => c.domain === "aqua")
 
 const RAIL_CONTENT: Partial<Record<GisRailKey, ReactNode>> = {
   sensor: (
@@ -144,6 +143,7 @@ const TIMELINE_TABS: GisTimelineTab[] = [
 ]
 
 export function AquaHomePage() {
+  const AQUA_CCTV = useCctvCameras().filter((c) => c.domain === "aqua")
   const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
 
   return (

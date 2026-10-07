@@ -29,12 +29,11 @@ import {
   riverWaterLevelAiForecast,
 } from "../../data/mockRiver"
 import { riskMarkers } from "../../data/mockDashboard"
-import { cctvCameras } from "../../data/mockCctv"
+import { useCctvCameras } from "../../data/cctvLive"
 import { useRiverRun } from "../../data/riverRunHooks"
 import { IS_SIMULATION_MODE } from "../../data/appEnv"
 
 const RIVER_MARKERS = riskMarkers.filter((m) => m.domain === "river")
-const RIVER_CCTV = cctvCameras.filter((c) => c.domain === "river")
 
 const TIMELINE_EMPTY_NOTE = "시나리오를 시작하고 첫 시점을 진행하면 표시됩니다."
 
@@ -53,6 +52,7 @@ function TimelineList({ entries }: { entries: { id: string; time: string; title:
 }
 
 export function RiverHomePage() {
+  const RIVER_CCTV = useCctvCameras().filter((c) => c.domain === "river")
   const [activeRailKey, setActiveRailKey] = useState<GisRailKey | null>(null)
   // riverControlTimeline·riverApprovalHistory는 riverRunState.projectToMock()이 갱신하는 일반 배열이라
   // 이 훅으로 구독하지 않으면 시나리오가 진행돼도 이 화면이 다시 그려지지 않는다(§7-4).

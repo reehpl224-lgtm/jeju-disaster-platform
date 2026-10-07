@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react"
 import { Navigate, Route, Routes } from "react-router-dom"
 import { RequireAuth } from "./routes/RequireAuth"
+import { CctvPlayerHost } from "./components/ui/CctvPlayerHost"
 
 const LoginPage = lazy(() => import("./pages/LoginPage").then((m) => ({ default: m.LoginPage })))
 const ForbiddenPage = lazy(() => import("./pages/ForbiddenPage").then((m) => ({ default: m.ForbiddenPage })))
@@ -75,6 +76,8 @@ function RouteFallback() {
 
 export default function App() {
   return (
+    <>
+    <CctvPlayerHost />
     <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -164,5 +167,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Suspense>
+    </>
   )
 }

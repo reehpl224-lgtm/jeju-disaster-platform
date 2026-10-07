@@ -4,7 +4,7 @@ import { Risk } from "../../components/board/BoardParts"
 import { LIVE, SIMULATED } from "../../components/ui/dataSource"
 import { SourceTag } from "../../components/ui/SourceTag"
 import { Box, Checks, Group, Kv, Note, Rows, St } from "../../components/board/PanelParts"
-import { cctvCameras } from "../../data/mockCctv"
+import { cctvStatusLabel, openCctvPlayer, useCctvCameras } from "../../data/cctvLive"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { sampleBuoys } from "../../data/placeholderSamples"
 import type { ServiceDataSources } from "../../data/mockDataSourceCategories"
@@ -189,7 +189,7 @@ export function Closure({ c }: { c: ClosureLike }) {
 }
 
 export function RelatedCams({ domain }: { domain: CctvCamera["domain"] }) {
-  const items = cctvCameras.filter((c) => c.domain === domain)
+  const items = useCctvCameras().filter((c) => c.domain === domain)
   if (items.length === 0) return null
   return (
     <Group title={`관련 CCTV (${items.length})`} dummy>
@@ -199,10 +199,18 @@ export function RelatedCams({ domain }: { domain: CctvCamera["domain"] }) {
             <div>
               <p className="t">{c.name}</p>
               <p className="s">
-                {c.operator} · 최종 {c.lastFrameAt.slice(11, 16)}
+                {c.operator}
+                {c.lastFrameAt && ` · 최종 ${c.lastFrameAt.slice(11, 16)}`}
               </p>
             </div>
-            {c.status === "online" ? <Risk level="info" label="연결" /> : <Risk level="offline" label="오프라인" />}
+            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              {c.streamUrl && (
+                <button type="button" className="plink" onClick={() => openCctvPlayer(c)} style={{ background: "none", border: 0, cursor: "pointer", padding: 0 }}>
+                  ▶ 영상
+                </button>
+              )}
+              <Risk level={c.status === "online" ? "info" : "offline"} label={cctvStatusLabel(c)} />
+            </span>
           </li>
         ))}
       </ul>
