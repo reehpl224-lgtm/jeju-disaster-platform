@@ -149,7 +149,7 @@ export function DashboardPage() {
 
   // GIS 상황 좌측 패널 — Figma 2단계 T1~T4(현황 · 관측·CCTV · 영향·자산 · 대응·연락). 서비스 칩은 지도 분야 칩과 같은 상태(mapDomain)
   const gisLeftTabs: DockTab[] = [
-    { key: "status", label: "현황" },
+    { key: "status", label: "대시보드" },
     { key: "obs", label: "관측·CCTV" },
     { key: "impact", label: "영향·자산" },
     { key: "response", label: "대응·연락" },
@@ -439,7 +439,7 @@ export function DashboardPage() {
         <div className="stage__main">
           <div className="map map--dark" />
           <div className="overlay">
-            <SideTabsDock tabs={gisLeftTabs} rail="right" equal activeKey={gisDockTab} onSelect={setGisDockTab} />
+            <SideTabsDock tabs={gisLeftTabs} rail="right" activeKey={gisDockTab} onSelect={setGisDockTab} />
 
             <div className="center center--gis">
               <div className="jmap" style={{ pointerEvents: "auto" }}>

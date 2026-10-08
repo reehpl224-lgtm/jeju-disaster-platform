@@ -316,7 +316,6 @@ h1, h2, h3, p { margin: 0; }
   transition: color .2s, border-color .2s;
 }
 .rail button span { writing-mode: vertical-rl; }
-.rail--equal button { height: 8.5rem; display: flex; align-items: center; justify-content: center; }  /* 가장 긴 이름(관측·CCTV) 기준으로 모두 같은 높이 */
 .rail--right button { border-radius: 0 .5rem .5rem 0; border-left: 0; }  /* 좌측 패널 오른쪽에 붙음 */
 .rail--left  button { border-radius: .5rem 0 0 .5rem; border-right: 0; } /* 우측 패널 왼쪽에 붙음 */
 .rail button[aria-selected="true"] { border-color: var(--primary); color: var(--primary); }
