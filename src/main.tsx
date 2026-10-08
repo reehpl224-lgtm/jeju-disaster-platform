@@ -16,6 +16,10 @@ import './styles/demo10.css'
 import './styles/subpage.css'
 import './styles/sidepanel.css'
 import App from './App.tsx'
+import { IS_STAGING } from './data/appMode'
+
+// 스테이징은 브라우저 탭 이름도 다르게 — 프로토타입과 헷갈리지 않게
+if (IS_STAGING) document.title = '스테이징_제주 재난 대응 플랫폼'
 
 // 제주시 감시 CCTV 목록(공공데이터포털)을 한 번 받아 대표 카메라 목록에 채운다 — 실패하면 빈 목록 그대로
 void loadJejuCctv()

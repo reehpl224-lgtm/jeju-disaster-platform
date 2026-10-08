@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
+import { IS_STAGING } from "../../data/appMode"
 import { logout, type MockUser } from "../../data/mockAuth"
 import { serviceStatusCards } from "../../data/mockDashboard"
 import { disasterAlerts } from "../../data/mockIncidents"
@@ -103,6 +104,14 @@ export function Header({ user }: { user: MockUser }) {
         <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 700, color: "var(--foreground-subtle)", whiteSpace: "nowrap" }}>
           Demo V0.1
         </span>
+        {IS_STAGING && (
+          <span
+            title="스테이징 환경 — 임의의 값(샘플)이 보입니다"
+            style={{ marginLeft: 6, padding: "2px 8px", border: "1px solid var(--risk-caution)", borderRadius: 9999, fontSize: 12, fontWeight: 700, color: "var(--risk-caution)", whiteSpace: "nowrap" }}
+          >
+            데모 스테이징
+          </span>
+        )}
         <p className="header__clock">
           {/* 좁은 화면(1280px 미만)에선 날짜를 숨기고 시각만 — demo10.css 헤더 축소 규칙 */}
           <span className="header__clock-date">{clock.slice(0, 11)}</span>
