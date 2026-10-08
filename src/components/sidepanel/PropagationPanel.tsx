@@ -6,6 +6,7 @@ import { SAMPLE_CHANNELS, SAMPLE_REACH, SAMPLE_RECENT_ACTIONS } from "../../data
 import { SpSample } from "./primitives"
 
 const STEP_COLOR = ["var(--risk-safe)", "var(--risk-caution)", "var(--risk-warning)"]
+const STEP_BG = ["var(--risk-safe-bg)", "var(--risk-caution-bg)", "var(--risk-warning-bg)"]
 const NODES = ["도청", "시 상황실", "읍면동"]
 
 /** R1 · 우측 · 상황전파 — 전파·보고 체계(현업 면담 기준 실데이터) + 전파·경보 수단 상태(연동 전 샘플) */
@@ -59,13 +60,13 @@ export function PropagationPanel() {
 
       <div className="sp-card">
         <b className="sp-h2">재난 보고체계</b>
-        <div className="sp-chain" style={{ marginTop: 6 }}>
+        <div className="sp-chain" style={{ marginTop: 4 }}>
           {reportingChain.map((s, i) => (
             <div key={s.id}>
-              <span className="no" style={{ color: STEP_COLOR[i], borderColor: STEP_COLOR[i] }}>
+              <span className="no" style={{ color: STEP_COLOR[i], borderColor: STEP_COLOR[i], background: STEP_BG[i] }}>
                 {i + 1}
               </span>
-              <b>{s.label.replace(" (", "\n(").split("\n").map((t, k) => <span key={k} style={{ display: "block" }}>{t}</span>)}</b>
+              <b>{s.label.replace(" (", "\n(").split("\n").map((t, k) => <span key={k} style={{ display: "block" }}>{t.replace(/·/g, "·​")}</span>)}</b>
               <small>{s.role}</small>
             </div>
           ))}
