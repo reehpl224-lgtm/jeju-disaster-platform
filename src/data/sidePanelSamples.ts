@@ -226,17 +226,17 @@ export interface SpServiceStage {
   id: string
   title: string
   level: RiskLevel
-  /** 단계 이름 옆 숫자 — 자릿수 확인용 샘플(1234) */
+  /** 단계 이름 옆 숫자 — 그 단계에 해당하는 건수(경계면 경계 개수) */
   count: number | null
   done: number
   total: number
 }
 export const SAMPLE_SERVICE_STAGES: SpServiceStage[] = [
-  { id: "river", title: "하천범람", level: "alert", count: 1234, done: 2, total: 5 },
-  { id: "aqua", title: "저염분 고수온", level: "warning", count: 1234, done: 3, total: 5 },
-  { id: "coast", title: "연안 안전관리", level: "warning", count: 1234, done: 2, total: 4 },
-  { id: "heavy-rain", title: "호우", level: "caution", count: 1234, done: 1, total: 4 },
-  { id: "heat", title: "폭염 대응", level: "caution", count: 1234, done: 2, total: 4 },
+  { id: "river", title: "하천범람", level: "alert", count: 3, done: 2, total: 5 },
+  { id: "aqua", title: "저염분 고수온", level: "warning", count: 2, done: 3, total: 5 },
+  { id: "coast", title: "연안 안전관리", level: "warning", count: 4, done: 2, total: 4 },
+  { id: "heavy-rain", title: "호우", level: "caution", count: 1, done: 1, total: 4 },
+  { id: "heat", title: "폭염 대응", level: "caution", count: 2, done: 2, total: 4 },
   { id: "typhoon", title: "태풍", level: "safe", count: null, done: 0, total: 0 },
   { id: "wildfire", title: "산불", level: "safe", count: null, done: 0, total: 0 },
   { id: "snow", title: "대설", level: "safe", count: null, done: 0, total: 0 },
@@ -280,4 +280,63 @@ export const SAMPLE_INTAKES: { name: string; hours: number; level: RiskLevel; ba
   { name: "한경 취수구", hours: 31, level: "caution", badge: "관심" },
   { name: "고산 취수구", hours: 25, level: "caution", badge: "관심" },
   { name: "대정 취수구", hours: 60, level: "safe", badge: "정상" },
+]
+
+// ------------------------------------------------------------------ 2단계 GIS 상황 좌측 패널(현황·관측·CCTV·영향·자산·대응·연락)
+export type GisDomain = "river" | "coast" | "aqua"
+/** 지도 표시 대상 샘플 — 임의의 값. 프로토타입은 지도 마커(riskMarkers) 그대로 */
+export const SAMPLE_GIS_TARGETS: { id: string; name: string; domain: GisDomain; level: RiskLevel; value: string; sub: string }[] = [
+  { id: "hamdeok", name: "함덕 해수욕장", domain: "coast", level: "alert", value: "이벤트 1", sub: "연안 · 위험 이벤트 미확인" },
+  { id: "hangyeong-geumdeung", name: "한경 금등", domain: "aqua", level: "alert", value: "27.4 psu", sub: "저염분 · 수온 지속 2일" },
+  { id: "donnaeko", name: "효돈천(돈내코)", domain: "river", level: "warning", value: "61%", sub: "하천 · 계획홍수량 대비" },
+  { id: "soesokkak", name: "효돈천(쇠소깍)", domain: "river", level: "caution", value: "38%", sub: "하천 · 계획홍수량 대비" },
+  { id: "hangyeong-yongsu", name: "한경 용수", domain: "aqua", level: "caution", value: "31.0 psu", sub: "저염분" },
+  { id: "hyeopjae", name: "협재 해수욕장", domain: "coast", level: "safe", value: "파고 0.4 m", sub: "연안" },
+  { id: "daejeong-ilgwa", name: "대정 일과", domain: "aqua", level: "safe", value: "32.1 psu", sub: "저염분" },
+]
+/** 관측 수신 상태 — 지점별 수신 상태 자료가 없어 항상 샘플 */
+export type GisRecv = "ok" | "late" | "error" | "none"
+export const SAMPLE_GIS_OBS: { id: string; name: string; domain: GisDomain; recv: GisRecv; note: string; value: string }[] = [
+  { id: "donnaeko", name: "효돈천(돈내코)", domain: "river", recv: "ok", note: "관측 11:50", value: "61%" },
+  { id: "soesokkak", name: "효돈천(쇠소깍)", domain: "river", recv: "ok", note: "관측 11:50", value: "38%" },
+  { id: "hamdeok", name: "함덕 해수욕장", domain: "coast", recv: "ok", note: "관측 11:40", value: "파고 1.2 m" },
+  { id: "hyeopjae", name: "협재 해수욕장", domain: "coast", recv: "none", note: "관측 연계 전", value: "—" },
+  { id: "hangyeong-geumdeung", name: "한경 금등", domain: "aqua", recv: "ok", note: "관측 11:20", value: "27.4 psu" },
+  { id: "hangyeong-yongsu", name: "한경 용수", domain: "aqua", recv: "late", note: "마지막 11:00", value: "31.0 psu" },
+  { id: "daejeong-ilgwa", name: "대정 일과", domain: "aqua", recv: "ok", note: "관측 11:30", value: "32.1 psu" },
+]
+/** 제주시 감시 CCTV 대수 — 임의의 값(스테이징). 프로토타입은 받은 목록의 실제 대수 */
+export const SAMPLE_GIS_CCTV = { coast: 19, river: 62, snow: 10 }
+/** 개방 중 대피소 — 임의의 값(스테이징) */
+export const SAMPLE_GIS_SHELTERS: { name: string; place: string; capacity: number; current?: number }[] = [
+  { name: "한림 체육관", place: "한림읍", capacity: 300, current: 40 },
+  { name: "대정 복지관", place: "대정읍", capacity: 200, current: 12 },
+  { name: "표선 문화센터", place: "표선면", capacity: 150, current: 0 },
+]
+/** 하천 모의 시설·인력·장비 — 고정 카탈로그(실제 시설·보유량 아님) */
+export const SAMPLE_GIS_FACILITIES: { label: string; state: string }[] = [
+  { label: "돈내코 하류 진입로", state: "점검 대상" },
+  { label: "돈내코 둔치 주차장", state: "비활성" },
+  { label: "쇠소깍 산책로", state: "비활성" },
+]
+export const SAMPLE_GIS_RESOURCES: { label: string; free: number; total: number }[] = [
+  { label: "양수기", free: 3, total: 4 },
+  { label: "순찰 인력", free: 5, total: 6 },
+]
+/** 최근 조치·전파 — 임의의 값 */
+export const SAMPLE_GIS_ACTIONS: { id: string; time: string; text: string }[] = [
+  { id: "ga1", time: "11:45", text: "연안 함덕 현장 확인 지시 · 재난대응1팀" },
+  { id: "ga2", time: "11:25", text: "저염분 경계 단계 전파 · 시 상황실" },
+]
+/** 무더위쉼터 — 임의의 값(스테이징) */
+export const SAMPLE_GIS_HEAT: { name: string; place: string; capacity: number }[] = [
+  { name: "동홍7통경로당", place: "서귀포시", capacity: 20 },
+  { name: "대흘1리경로당", place: "제주시", capacity: 16 },
+  { name: "표선리마을회관", place: "서귀포시", capacity: 30 },
+]
+/** 진행 중 대응(서비스별) — 임의의 값 */
+export const SAMPLE_GIS_RESPONSES: { service: string; state: string; level: RiskLevel; n: number }[] = [
+  { service: "하천범람", state: "승인 대기", level: "warning", n: 1 },
+  { service: "연안 안전관리", state: "확인 중", level: "alert", n: 1 },
+  { service: "저염분 고수온", state: "조치 대기", level: "caution", n: 2 },
 ]

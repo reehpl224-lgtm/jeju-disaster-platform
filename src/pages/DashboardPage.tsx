@@ -1,13 +1,11 @@
-import { useMemo, useState, type ReactNode } from "react"
+import { useMemo, useState } from "react"
 import { useElementHeight } from "../hooks/useElementHeight"
-import { Link, useSearchParams } from "react-router-dom"
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { ComingSoonPanel } from "../components/board/ComingSoon"
+import { useSearchParams } from "react-router-dom"
 import { DragScrollTabs } from "../components/board/DragScrollTabs"
-import { DutyContactPanel } from "../components/ui/DutyContactPanel"
 import { JejuTileMap } from "../components/ui/JejuTileMap"
 import { JejuVectorMap } from "../components/ui/JejuVectorMap"
 import { ActiveWarningsPanel } from "../components/sidepanel/ActiveWarningsPanel"
+import { GisLeftPanel, type GisWhich } from "../components/sidepanel/GisLeftPanels"
 import { ForecastPanel } from "../components/sidepanel/ForecastPanel"
 import { LiveWarningsPanel } from "../components/sidepanel/LiveWarningsPanel"
 import { TimelinePanel } from "../components/sidepanel/TimelinePanel"
@@ -29,35 +27,14 @@ import {
 import type { CctvCamera, RiskMarker } from "../types/domain"
 import {
   agencyStatuses,
-  aiInsights,
-  dashboardSensors,
-  predictionConfidence,
-  recentActions,
   riskMarkers,
-  sensorCrossCheck,
   serviceStatusCards,
-  sixHourSeries,
-  timeSeries,
 } from "../data/mockDashboard"
 import { useLiveWeather } from "../data/useLiveWeather"
-import { currentWeather, disasterIncidents, disasterResponseTeams, shelters } from "../data/mockIncidents"
+import { currentWeather, disasterIncidents, disasterResponseTeams } from "../data/mockIncidents"
 import { cctvCoverageSummary } from "../data/mockCctv"
 import { cctvStatusLabel, openCctvPlayer, useCctvCameras, useCctvLoadState } from "../data/cctvLive"
 import { overallStatus } from "../data/mockMonitoring"
-import { sequentialPropagation, simultaneousPropagationGoal } from "../data/mockPropagation"
-import {
-  AquaChecklistBlock,
-  AquaSeriesBlock,
-  CoastChecklistBlock,
-  CoastCrowdBlock,
-  IntakeBlock,
-  PlumeHeatmapBlock,
-  PropagationInfraBlock,
-  RiverForecastBlock,
-  RiverPointsBlock,
-  TideBlock,
-  VlmBlock,
-} from "./dashboard/PilotBatchBlocks"
 import { riskStyles } from "../components/ui/riskStyles"
 
 /**
@@ -153,236 +130,15 @@ export function DashboardPage() {
   }
   const [openRegions, setOpenRegions] = useState<string[]>([])
   const [summaryDockTab, setSummaryDockTab] = useState("broadcast")
-  const [gisDockTab, setGisDockTab] = useState("timeline")
-
-  // 센서 추이 — 실증 3사 샘플 배치 차트(수위 예측·조위·이용객·염분)를 뒤에 붙인다
-  const trendContent: ReactNode = (
-      <>
-        {timeSeries.length > 0 && (
-          <div className="kv-grid">
-            {timeSeries.map((reading) => {
-              const over = reading.worseWhen === "below" ? reading.value <= reading.threshold : reading.value >= reading.threshold
-              return (
-                <div className="pbox" key={reading.label}>
-                  <small>{reading.label}</small>
-                  <b className={over ? "over" : undefined}>
-                    {reading.value}
-                    {reading.unit}
-                  </b>
-                </div>
-              )
-            })}
-          </div>
-        )}
-        {sixHourSeries.length > 0 && (
-          <div style={{ marginTop: 12, height: 160 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={sixHourSeries} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
-                <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
-                <YAxis tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
-                <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 11 }} />
-                <Legend wrapperStyle={{ fontSize: 10, color: "#ffffffaa" }} />
-                <Line type="monotone" dataKey="돈내코수위" stroke="#0054a3" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="쇠소깍수위" stroke="#8ec21f" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="함덕수온" stroke="#f2731a" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-        <RiverForecastBlock />
-        <TideBlock />
-        <CoastCrowdBlock />
-        <AquaSeriesBlock />
-      </>
-    )
-
-  // ---- 패널 안 콘텐츠 (클론의 plist / pgroup / pbox 규칙) ----
-  const railContent: Record<string, ReactNode> = {
-    timeline: (
-      <ul className="plist">
-        {disasterIncidents.length === 0 && <li className="pempty">데이터가 없습니다.</li>}
-        {disasterIncidents.map((incident) => (
-          <li key={incident.id}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <Risk level={incident.severity} />
-              <span className="t">
-                [{incident.type}] {incident.title}
-              </span>
-            </div>
-            <p className="s">
-              {incident.region} · {incident.status}
-            </p>
-          </li>
-        ))}
-      </ul>
-    ),
-    broadcast: (
-      <>
-        <div className="pgroup">
-          <p className="pnote">도청 → 시 상황실 → 읍면동 순차 전파</p>
-          <div className="steps">
-            {sequentialPropagation.map((step, i) => {
-              const next = sequentialPropagation[i + 1]
-              const lag = next
-                ? (() => {
-                    const [h1, m1] = step.time.split(":").map(Number)
-                    const [h2, m2] = next.time.split(":").map(Number)
-                    return h2 * 60 + m2 - (h1 * 60 + m1)
-                  })()
-                : null
-              return (
-                <span key={step.id} style={{ display: "contents" }}>
-                  <div className="step">
-                    <b>{step.stage}</b>
-                    <span>{step.time}</span>
-                  </div>
-                  {lag !== null && <span className="lag">→{lag}분</span>}
-                </span>
-              )
-            })}
-          </div>
-          <p className="pgoal">
-            목표: {simultaneousPropagationGoal.note} — {simultaneousPropagationGoal.status}
-          </p>
-          <Link className="plink" to="/propagation">
-            전체 보기 → (상황전파·보고체계)
-          </Link>
-        </div>
-        <div className="pgroup">
-          <p className="pnote">최근 조치 이력</p>
-          <ul className="plist">
-            {recentActions.length === 0 && <li className="pempty">데이터가 없습니다.</li>}
-            {recentActions.map((action) => (
-              <li key={action.id}>
-                <div className="row-between">
-                  <span className="t">{action.title}</span>
-                  <span className="s" style={{ margin: 0 }}>
-                    {action.time}
-                  </span>
-                </div>
-                <p className="s">
-                  {action.owner} · {action.note}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <PropagationInfraBlock />
-      </>
-    ),
-    sensor: (
-      <>
-      <ul className="plist">
-        {dashboardSensors.map((sensor) => (
-          <li key={sensor.id} className="row-between">
-            <div>
-              <p className="t">{sensor.name}</p>
-              <p className="s">{sensor.location}</p>
-            </div>
-            <Risk level={sensor.status} label={sensor.value} />
-          </li>
-        ))}
-      </ul>
-      <RiverPointsBlock />
-      </>
-    ),
-    response: (
-      <>
-        <div className="pgroup">
-          <p className="pnote">기관별 대응 상태</p>
-          <ul className="plist">
-            {agencyStatuses.length === 0 && <li className="pempty">데이터가 없습니다.</li>}
-            {agencyStatuses.map((agency) => (
-              <li key={agency.id} className="row-between">
-                <span>{agency.agency}</span>
-                <span style={{ color: agency.status === "down" ? "var(--risk-danger)" : "var(--risk-safe)", fontWeight: 700 }}>
-                  {agency.status === "down" ? "⚠ 장애" : "● 연결"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="pgroup">
-          <p className="pnote">현장 대응팀</p>
-          <ul className="plist">
-            {disasterResponseTeams.length === 0 && <li className="pempty">데이터가 없습니다.</li>}
-            {disasterResponseTeams.map((team) => (
-              <li key={team.id} className="row-between">
-                <span>{team.name}</span>
-                <Risk level={team.status === "출동중" ? "info" : "offline"} label={team.status} />
-              </li>
-            ))}
-          </ul>
-        </div>
-        <CoastChecklistBlock />
-        <AquaChecklistBlock />
-      </>
-    ),
-    contact: <DutyContactPanel />,
-    report: (
-      <>
-        <p style={{ fontSize: 12, color: "var(--foreground-muted)" }}>종료된 사건의 상세 보고서를 조회합니다.</p>
-        <Link
-          className="btn btn--outline btn--pill btn--block"
-          to="/reports"
-          style={{ marginTop: 10, height: 34, fontSize: 12 }}
-        >
-          이력·보고서 전체 조회 →
-        </Link>
-      </>
-    ),
-    asset: (
-      <>
-        {shelters.length === 0 && <p className="pempty">데이터가 없습니다.</p>}
-        {shelters.map((shelter) => (
-          <div className="pbox" key={shelter.id}>
-            <div className="row-between">
-              <span className="t">{shelter.name}</span>
-              <Risk level="safe" label={shelter.status} />
-            </div>
-            <p className="s">
-              {shelter.region} · {shelter.address}
-            </p>
-            <p style={{ marginTop: 4, color: "var(--foreground-muted)" }}>
-              수용 {shelter.currentOccupancy} / {shelter.capacity}명
-            </p>
-          </div>
-        ))}
-      </>
-    ),
-    messenger: <ComingSoonPanel kind="messenger" />,
-    news: <ComingSoonPanel kind="news" />,
-    ai: (
-      <>
-        <p className="pnote">예측 신뢰도: 고신뢰 ({predictionConfidence.percent}%)</p>
-        {aiInsights.map((insight) => (
-          <div className="pbox" key={insight.id}>
-            <p className="t">{insight.title}</p>
-            <p className="s">{insight.basis}</p>
-          </div>
-        ))}
-        <div className="pbox" style={{ marginTop: 12, background: "none" }}>
-          <p className="t">센서 이상 교차검증</p>
-          <p className="s">
-            정상 {sensorCrossCheck.normal} / 장애 {sensorCrossCheck.fault} / 누락 {sensorCrossCheck.missing}
-          </p>
-        </div>
-        <VlmBlock />
-        <IntakeBlock />
-        <PlumeHeatmapBlock />
-      </>
-    ),
-    trend: trendContent,
-  }
+  const [gisDockTab, setGisDockTab] = useState("status")
 
   // 종합상황 우측 패널 — Figma 1단계 R1~R8·R00 순서(방재메신저·안전뉴스는 2단계 예정 안내)
   const panelInput = usePanelInput()
   const summaryTabs: SpDockTab[] = [
     { key: "broadcast", label: "상황전파", content: <PropagationPanel /> },
-    { key: "sensor", label: "센서정보", sample: fullySample.sensor(panelInput), noData: true, content: <SensorSummaryPanel /> },
+    { key: "sensor", label: "센서정보", headTitle: "전체 센서 현황", sample: fullySample.sensor(panelInput), noData: true, content: <SensorSummaryPanel /> },
     { key: "trend", label: "센서 추이", sample: fullySample.trend(panelInput), noData: true, content: <SensorTrendPanel /> },
-    { key: "response", label: "대응현황", sample: fullySample.response(panelInput), noData: true, content: <ResponsePanel /> },
+    { key: "response", label: "대응현황", headTitle: "대응 단계", sample: fullySample.response(panelInput), noData: true, content: <ResponsePanel /> },
     { key: "contact", label: "담당자", content: <ContactPanel /> },
     { key: "report", label: "보고서", content: <ReportPanel /> },
     { key: "asset", label: "자산현황", content: <AssetPanel /> },
@@ -391,17 +147,13 @@ export function DashboardPage() {
     { key: "news", label: "안전뉴스", headTitle: "예정 기능", content: <FuturePanel kind="news" /> },
   ]
 
+  // GIS 상황 좌측 패널 — Figma 2단계 T1~T4(현황 · 관측·CCTV · 영향·자산 · 대응·연락). 서비스 칩은 지도 분야 칩과 같은 상태(mapDomain)
   const gisLeftTabs: DockTab[] = [
-    { key: "timeline", label: "타임라인", dummy: true },
-    { key: "broadcast", label: "상황전파", dummy: true },
-    { key: "sensor", label: "센서정보", dummy: true },
-    { key: "response", label: "대응현황", dummy: true },
-    { key: "contact", label: "담당자" },
-    { key: "report", label: "보고서" },
-    { key: "asset", label: "자산현황", dummy: true },
-    { key: "messenger", label: "방재메신저" },
-    { key: "news", label: "안전뉴스" },
-  ].map((t) => ({ ...t, content: railContent[t.key] }))
+    { key: "status", label: "현황" },
+    { key: "obs", label: "관측·CCTV" },
+    { key: "impact", label: "영향·자산" },
+    { key: "response", label: "대응·연락" },
+  ].map((t) => ({ ...t, content: <GisLeftPanel which={t.key as GisWhich} domain={mapDomain} onDomain={setMapDomain} /> }))
 
   // 좌측 패널 4탭(종합상황) · GIS 우측 패널과 같은 구성 — 필터·데이터는 각 패널 컴포넌트 안에 있다
   const timelineTabs: DockTab[] = [
@@ -687,7 +439,7 @@ export function DashboardPage() {
         <div className="stage__main">
           <div className="map map--dark" />
           <div className="overlay">
-            <SideTabsDock tabs={gisLeftTabs} rail="right" activeKey={gisDockTab} onSelect={setGisDockTab} />
+            <SideTabsDock tabs={gisLeftTabs} rail="right" equal activeKey={gisDockTab} onSelect={setGisDockTab} />
 
             <div className="center center--gis">
               <div className="jmap" style={{ pointerEvents: "auto" }}>
@@ -715,7 +467,7 @@ export function DashboardPage() {
           <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
         </div>
         {stripOpen && <ServiceStrip cards={serviceStatusCards} />}
-        <MessengerFab onClick={() => setGisDockTab("messenger")} />
+        <MessengerFab onClick={() => setGisDockTab("status")} />
       </main>
     )
   }

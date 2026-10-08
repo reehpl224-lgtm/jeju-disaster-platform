@@ -38,6 +38,7 @@ export function SideTabsDock({
   headExtra,
   topContent,
   dense,
+  equal,
 }: {
   tabs: DockTab[]
   rail: "left" | "right"
@@ -47,6 +48,8 @@ export function SideTabsDock({
   /** 탭과 무관하게 항상 보이는 영역(제목 줄 아래, 탭 콘텐츠 위) — 예: 지도 분야 필터 칩 */
   topContent?: ReactNode
   dense?: boolean
+  /** 탭 높이를 모두 같게(글자 수와 무관) */
+  equal?: boolean
 }) {
   const active = tabs.find((t) => t.key === activeKey) ?? tabs[0]
   const panelSide = rail === "right" ? "left" : "right"
@@ -68,7 +71,7 @@ export function SideTabsDock({
         {topContent}
         <div className="panel__scroll">{active?.content}</div>
       </section>
-      <div className={`rail rail--${rail}${dense ? " rail--dense" : ""}`} role="tablist" aria-orientation="vertical" aria-label="패널 탭" onKeyDown={(e) => onTabListKeyDown(e, "vertical")}>
+      <div className={`rail rail--${rail}${dense ? " rail--dense" : ""}${equal ? " rail--equal" : ""}`} role="tablist" aria-orientation="vertical" aria-label="패널 탭" onKeyDown={(e) => onTabListKeyDown(e, "vertical")}>
         {tabs.map((tab) => (
           // 세로쓰기(writing-mode) 글자는 보조기기가 이름을 못 읽는 경우가 있어 aria-label로 이름을 명시한다
           <button

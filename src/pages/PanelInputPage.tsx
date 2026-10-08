@@ -305,7 +305,7 @@ function StagesEditor({ v, set }: { v: StageInput[]; set: (v: StageInput[]) => v
       <div className="spi-tr spi-tr--head" style={{ gridTemplateColumns: cols }}>
         <span>서비스</span>
         <span>대응 단계</span>
-        <span>단계 옆 숫자</span>
+        <span>단계 건수</span>
         <span>조치 완료</span>
         <span>진행</span>
         <span>대기</span>

@@ -307,3 +307,11 @@
 .sp-ktr--head { border-top: 0; padding-top: 0; font-size: 11px; color: var(--foreground-subtle); }
 .sp-ktr span:not(:first-child), .sp-ktr b { text-align: right; }
 .sp-ktr b { font-size: 12px; }
+
+/* 2단계 GIS 상황 좌측 패널(T1~T4) — 요약 카드는 어두운 바탕, 목록 행은 등급색 테두리 */
+.spg-dark { background: var(--background-darker); }
+.spg-row { background: var(--background-darker); }
+.sp-gis-row { background: var(--background-darker); }
+.sp-gis-row--alert { border-color: var(--risk-alert); background: var(--risk-alert-bg); }
+.sp-gis-row--warning { border-color: var(--risk-warning); background: var(--risk-warning-bg); }
+.sp-gis-row--caution { border-color: var(--risk-caution); background: var(--risk-caution-bg); }
