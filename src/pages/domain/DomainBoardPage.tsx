@@ -1,8 +1,13 @@
 import { useMemo, useState } from "react"
 import { useElementHeight } from "../../hooks/useElementHeight"
 import { Navigate, useSearchParams } from "react-router-dom"
-import { DetailLink } from "../../components/board/PanelParts"
-import { HorizontalTabsDock, MessengerFab, Risk, ServiceStrip, SideTabsDock, StripToggle, type DockTab } from "../../components/board/BoardParts"
+import { DetailLink, Group } from "../../components/board/PanelParts"
+import { MessengerFab, Risk, ServiceStrip, SideTabsDock, StripToggle, type DockTab } from "../../components/board/BoardParts"
+import { BoardDashboard, BoardHistory, BoardResponsePanel } from "../../components/board/BoardPanels"
+import { SpSample } from "../../components/sidepanel/primitives"
+import { IS_STAGING } from "../../data/appMode"
+import { BOARD_SERVICES, SB_DEFAULT_STATE, boardRoute } from "../../data/boardSamples"
+import type { BoardStateId } from "../../data/boardTypes"
 import { MessengerNotice } from "../../components/board/ComingSoon"
 import { WarningsSummary } from "../../components/board/WarningsSummary"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
@@ -24,44 +29,56 @@ export function DomainBoardPage({ domain }: { domain: string }) {
   const config = useMemo(() => (build ? build() : null), [build, khoaLoaded, sheltersLoaded])
   const cctvCameras = useCctvCameras()
   const [params, setParams] = useSearchParams()
-  const [rightTab, setRightTab] = useState("tl")
+  const [boardState, setBoardState] = useState<BoardStateId>(SB_DEFAULT_STATE)
   const [messengerOpen, setMessengerOpen] = useState(false)
   const [mapTopRef, mapTopHeight] = useElementHeight<HTMLDivElement>()
   const [stripOpen, setStripOpen] = useState(true)
 
   if (!config) return <Navigate to="/dashboard" replace />
 
-  // 데이터 수집·연계 시스템·실시간 연동은 보드에서 숨기고 운영 > 데이터 시스템 연계현황에서 서비스별로 본다(2026-10-02)
-  const tabs = config.tabs.filter((t) => t.key !== "data")
-  const right = config.right.filter((t) => t.key !== "legacy" && t.key !== "live")
-  const activeKey = tabs.some((t) => t.key === params.get("tab")) ? (params.get("tab") as string) : tabs[0].key
-  const markers = riskMarkers.filter((m) => m.domain === config.mapDomain)
-
-  const leftTabs: DockTab[] = tabs.map((t) => ({
-    key: t.key,
-    label: t.label,
-    content: (
-      <>
-        {t.content}
-        {/* 모든 탭의 상세 화면은 같은 상세 창에서 열린다 — 보드 창은 그대로 유지(2026-09-28) */}
-        <DetailLink to={t.to}>{t.label} 상세 화면</DetailLink>
-      </>
-    ),
-  }))
-  const rightTabs: DockTab[] = right.map((t) => ({
-    key: t.key,
-    label: t.label,
-    // 타임라인 맨 위에 이 서비스의 특보 요약을 둔다(2026-10-02)
-    content:
-      t.key === "tl" ? (
+  // 좌측 3묶음(Figma 3단계) — 대시보드 · 관측·판단 · 이력·보고. 예전 대응·조치 탭(경보 발송·출동·통제)은 우측 대응 패널로 옮겼고,
+  // 데이터 수집·연계 시스템은 운영 > 데이터 시스템 연계현황에서 서비스별로 본다(2026-10-02)
+  const svc = BOARD_SERVICES[domain]
+  if (!svc) return <Navigate to="/dashboard" replace />
+  const NOT_OBS = new Set(["home", "data", "alert", "alerts", "dispatch", "control", "closure"])
+  const obsTabs = config.tabs.filter((t) => !NOT_OBS.has(t.key))
+  // 예보·특보·해양 관측 같은 실시간 패널은 관측·판단으로 모은다(예전 우측 "실시간 연동"·"해양 관측" 탭)
+  const obsLive = config.right.filter((t) => t.key === "live" || t.key === "buoy")
+  const leftTabs: DockTab[] = [
+    {
+      key: "home",
+      label: "대시보드",
+      content: (
+        <>
+          <BoardDashboard service={svc} state={boardState} />
+          <DetailLink to={boardRoute(svc, "home")}>대시보드 상세 화면</DetailLink>
+        </>
+      ),
+    },
+    {
+      key: "obs",
+      label: "관측·판단",
+      content: (
         <>
           <WarningsSummary {...config.wrn} />
-          {t.content}
+          {obsTabs.map((t) => (
+            <Group key={t.key} title={t.label}>
+              {t.content}
+              <DetailLink to={t.to}>{t.label} 상세 화면</DetailLink>
+            </Group>
+          ))}
+          {obsLive.map((t) => (
+            <Group key={t.key} title={t.label}>
+              {t.content}
+            </Group>
+          ))}
         </>
-      ) : (
-        t.content
       ),
-  }))
+    },
+    { key: "history", label: "이력·보고", content: <BoardHistory service={svc} state={boardState} /> },
+  ]
+  const activeKey = leftTabs.some((t) => t.key === params.get("tab")) ? (params.get("tab") as string) : leftTabs[0].key
+  const markers = riskMarkers.filter((m) => m.domain === config.mapDomain)
 
   return (
     <main className="stage" id="main-content" tabIndex={-1}>
@@ -73,8 +90,12 @@ export function DomainBoardPage({ domain }: { domain: string }) {
             rail="right"
             activeKey={activeKey}
             onSelect={(key) => setParams({ tab: key }, { replace: true })}
-            dense={leftTabs.length > 6}
-            headExtra={<span className="risk risk--offline" style={{ background: "none" }}>{config.title}</span>}
+            headExtra={
+              <>
+                <span className="risk risk--offline" style={{ background: "none" }}>{config.title}</span>
+                {IS_STAGING && boardState !== "calm" && activeKey !== "obs" && <SpSample />}
+              </>
+            }
           />
 
           <div className="center center--gis">
@@ -106,7 +127,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
             </div>
           </div>
 
-          <HorizontalTabsDock tabs={rightTabs} activeKey={rightTab} onSelect={setRightTab} />
+          <BoardResponsePanel service={svc} state={boardState} onState={setBoardState} />
         </div>
         <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
       </div>
