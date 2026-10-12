@@ -15,7 +15,7 @@ import { IS_STAGING } from "./appMode"
  * 표시 규칙(2026-10-07 사용자 결정 — 세 환경 레이아웃은 같고 값만 다르다):
  *  - 프로토타입·로컬: 출처마다 **데이터를 받았으면 그 값 그대로**(0건이면 0건). **못 받은(null) 출처만** 그 출처의 샘플로 채우고
  *    사건 카드에 "샘플 · 데이터 없음"을 붙인다(nullSources에 이름이 담긴다). 실데이터와 샘플은 출처 단위로만 바뀐다.
- *  - 스테이징(vite --mode staging): 데이터를 받았어도 **임의의 값(샘플) 전체**를 보여준다(mode "staging"). 못 받은 출처는 nullSources로 알린다.
+ *  - 스테이징(vite --mode staging): 같은 규칙이되, 받았어도 **0건이면** 그 출처를 임의의 값(샘플, "샘플" 표식)으로 채워 시연 화면이 비지 않게 한다(mode "staging").
  */
 export type EventsMode = "loading" | "live" | "staging"
 
@@ -159,11 +159,12 @@ export function useSidePanelEvents(): SidePanelEvents {
   const nullSources = snap.loaded ? ([!snap.warningsOk && "기상청 특보", !snap.typhoonOk && "태풍 현황", !snap.messagesOk && "재난문자"].filter(Boolean) as string[]) : []
   const base = { nullSources, fetchedAt: snap.fetchedAt, messagesAsOf: snap.messagesAsOf }
 
-  // 스테이징: 받는 중에도, 데이터가 있어도 항상 샘플 전체
-  if (IS_STAGING) return { mode: "staging", events: sample, ...base }
   if (!snap.loaded) return { mode: "loading", events: [], ...base }
-  // 프로토타입·로컬: 출처마다 받았으면 그 값, 못 받았으면(null) 그 출처의 샘플
-  const pick = (src: "warnings" | "typhoon" | "messages", ok: boolean) => (ok ? real[src === "typhoon" ? "typhoon" : src === "messages" ? "messages" : "warnings"] : sample.filter((e) => e.source === src))
+  // 출처마다 받았으면 그 값, 못 받았으면(null) 그 출처의 샘플. 스테이징은 받았어도 0건이면 샘플
+  const pick = (src: "warnings" | "typhoon" | "messages", ok: boolean) => {
+    const items = real[src]
+    return ok && (!IS_STAGING || items.length > 0) ? items : sample.filter((e) => e.source === src)
+  }
   const events = [...pick("warnings", snap.warningsOk), ...pick("typhoon", snap.typhoonOk), ...pick("messages", snap.messagesOk)].sort((a, b) => b.at.getTime() - a.at.getTime())
-  return { mode: "live", events, ...base }
+  return { mode: IS_STAGING ? "staging" : "live", events, ...base }
 }

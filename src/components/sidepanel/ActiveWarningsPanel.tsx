@@ -111,7 +111,7 @@ export function ActiveWarningsPanel() {
           <section key={c} className="sp" style={{ gap: 8 }}>
             <h3 className="sp-group-h">
               {CATEGORY_LABEL[c]}
-              {mode === "staging" ? <SpSample /> : items.some((e) => e.sample) ? <SpSample noData /> : null}
+              {items.some((e) => e.sample) ? <SpSample noData={mode === "live"} /> : null}
             </h3>
             {items.length === 0 ? (
               <div className="sp-dashed sp-dashed--center">
@@ -129,7 +129,7 @@ export function ActiveWarningsPanel() {
           <b>현재 발효 중인 특보가 없습니다</b>
         </div>
       )}
-      <p className="sp-note">해제 여부는 기상청 발표를 따릅니다 · 실시간 특보 탭엔 같은 카드{mode === "staging" && " · 스테이징 환경 — 임의의 값(샘플)을 보여줍니다"}{nullSources.length > 0 && ` · 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다`}</p>
+      <p className="sp-note">해제 여부는 기상청 발표를 따릅니다 · 실시간 특보 탭엔 같은 카드{mode === "staging" && " · 스테이징 환경 — 실제 값이 없는 출처는 임의의 값(샘플)입니다"}{nullSources.length > 0 && ` · 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다`}</p>
     </div>
   )
 }

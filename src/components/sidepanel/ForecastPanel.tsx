@@ -23,8 +23,8 @@ const skyIcon = (s?: VilageForecastSlot) => {
 
 /**
  * L3 · 좌측 · 동네예보 — 기상청 단기예보·초단기실황.
- * 표시 규칙(세 환경 레이아웃 동일): 프로토타입·로컬은 받은 값 그대로, 못 받은(null) 부분은 샘플 + "샘플 · 데이터 없음",
- * 스테이징은 받았어도 임의의 값(샘플). 주간 날씨는 단기예보가 닿는 날까지만 실값이고 나머지는 중기예보 미연동이라 샘플 + 데이터 없음.
+ * 표시 규칙(스테이징·프로토타입 공통): 받은 값이 있으면 그 값 그대로. 못 받은(null) 부분만 샘플 —
+ * 프로토타입·로컬은 "샘플 · 데이터 없음", 스테이징은 "샘플". 주간 날씨는 단기예보가 닿는 날까지만 실값이고 나머지는 중기예보 미연동이라 샘플.
  */
 export function ForecastPanel() {
   const [region, setRegion] = useState<VilageForecastRegion>("jeju")
@@ -50,9 +50,9 @@ export function ForecastPanel() {
   }, [region, key])
 
   const sampleFc = useMemo(() => buildSampleForecast(), [])
-  // 단기예보·현재 관측은 각각 따로 판단한다 — 스테이징이면 항상 샘플, 아니면 못 받은(null) 쪽만 샘플
-  const fcSample = IS_STAGING || (!loading && !res?.forecast)
-  const obsSample = IS_STAGING || (!loading && !res?.now)
+  // 단기예보·현재 관측은 각각 따로 판단한다 — 못 받은(null) 쪽만 샘플
+  const fcSample = !loading && !res?.forecast
+  const obsSample = !loading && !res?.now
   const fcNoData = !IS_STAGING && fcSample
   const obsNoData = !IS_STAGING && obsSample
   const slots = useMemo(() => (fcSample ? sampleFc.slots : res?.forecast?.slots ?? []), [fcSample, sampleFc, res])

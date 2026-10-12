@@ -78,9 +78,9 @@ export function TimelinePanel() {
         <h3 className="sp-h" style={{ margin: 0 }}>
           재난·기상 이력
         </h3>
-        {mode === "staging" ? <SpSample /> : <SpLive />}
+        {mode === "staging" && !events.some((e) => !e.sample) ? <SpSample /> : <SpLive />}
       </div>
-      {mode === "staging" && <p className="sp-note">스테이징 환경입니다 — 임의의 값(샘플)을 보여줍니다(실제 상황이 아닙니다).{nullSources.length > 0 ? ` 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다.` : ""}</p>}
+      {mode === "staging" && <p className="sp-note">스테이징 환경입니다 — 받은 실제 값이 있으면 그 값, 없는 출처는 임의의 값(샘플)입니다(샘플 표시는 실제 상황이 아닙니다).{nullSources.length > 0 ? ` 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다.` : ""}</p>}
       {mode === "live" && (
         <p className="sp-note">
           기상청 특보(최근 24시간 발표)·태풍 현황·긴급재난문자(제주 수신 — 받아 둔 스냅샷{messagesAsOf ? `, ${messagesAsOf.slice(0, 10).replace(/-/g, ".")} 기준` : ""})입니다.{nullSources.length > 0 ? ` 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다.` : ""}
@@ -96,7 +96,7 @@ export function TimelinePanel() {
       ) : (
         <div className="sp-tl">
           {list.slice(0, 40).map((e, i) => (
-            <TimelineRow key={e.id} e={e} latest={i === 0} chip={e.sample && mode === "live"} />
+            <TimelineRow key={e.id} e={e} latest={i === 0} chip={e.sample && (mode === "live" || events.some((x) => !x.sample))} noData={mode === "live"} />
           ))}
         </div>
       )}
@@ -105,7 +105,7 @@ export function TimelinePanel() {
   )
 }
 
-function TimelineRow({ e, latest, chip }: { e: SpEvent; latest: boolean; chip: boolean }) {
+function TimelineRow({ e, latest, chip, noData }: { e: SpEvent; latest: boolean; chip: boolean; noData: boolean }) {
   const level: RiskLevel = e.status === "해제" ? "safe" : e.level
   return (
     <div className="sp-trow">
@@ -119,7 +119,7 @@ function TimelineRow({ e, latest, chip }: { e: SpEvent; latest: boolean; chip: b
         </div>
         <span className="title">
           {e.title}
-          {chip && <> <SpSample noData /></>}
+          {chip && <> <SpSample noData={noData} /></>}
         </span>
         <span className="detail">{e.detail}</span>
         {e.meta && (

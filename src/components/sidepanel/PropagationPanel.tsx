@@ -12,9 +12,11 @@ const NODES = ["도청", "시 상황실", "읍면동"]
 /** R1 · 우측 · 상황전파 — 전파·보고 체계(현업 면담 기준 실데이터) + 전파·경보 수단 상태(연동 전 샘플) */
 export function PropagationPanel() {
   // 순차 전파 단계별 도달 시각 — 사건이 있을 때만 값이 들어온다(없으면 '-')
-  // 스테이징은 임의의 도달 시각(샘플), 그 밖의 환경은 사건이 있을 때만 값이 있고 없으면 '-'
-  const reach = (i: number) => (IS_STAGING ? SAMPLE_REACH[i] : sequentialPropagation[i]?.time ?? "-")
-  const actions = IS_STAGING ? SAMPLE_RECENT_ACTIONS : recentActions
+  // 실제 값이 있으면 그 값. 없을 때만 스테이징은 임의의 도달 시각·조치 이력(샘플), 프로토타입은 '-'·빈 상태
+  const reach = (i: number) => sequentialPropagation[i]?.time ?? (IS_STAGING ? SAMPLE_REACH[i] : "-")
+  const reachSample = IS_STAGING && sequentialPropagation.length < NODES.length
+  const actionsSample = IS_STAGING && recentActions.length === 0
+  const actions = actionsSample ? SAMPLE_RECENT_ACTIONS : recentActions
   const avail = SAMPLE_CHANNELS.filter((c) => c.state === "safe").length
   const check = SAMPLE_CHANNELS.filter((c) => c.state === "caution").length
   const none = SAMPLE_CHANNELS.filter((c) => c.state === "offline").length
@@ -24,7 +26,7 @@ export function PropagationPanel() {
       <div className="sp-card">
         <div className="sp-row">
           <b className="sp-h2">현재 전파 체계 (순차)</b>
-          {IS_STAGING && <SpSample />}
+          {reachSample && <SpSample />}
         </div>
         <div className="sp-flow" style={{ margin: "6px 0" }}>
           {NODES.map((n, i) => (
@@ -77,7 +79,7 @@ export function PropagationPanel() {
         <h3 className="sp-h" style={{ margin: 0 }}>
           전파·경보 수단 상태
         </h3>
-        <SpSample noData />
+        <SpSample noData={!IS_STAGING} />
       </div>
       <div className="sp-stats">
         <div className="sp-stat">
@@ -114,7 +116,7 @@ export function PropagationPanel() {
       <p className="sp-note">회색 점선 = 정보 없음·미연계 · 값은 연계 후 실시간 표시</p>
 
       <b className="sp-h2" style={{ color: "var(--foreground-muted)" }}>
-        최근 조치 이력{actions.length === 0 ? " · 빈 상태" : ""} {IS_STAGING && <SpSample />}
+        최근 조치 이력{actions.length === 0 ? " · 빈 상태" : ""} {actionsSample && <SpSample />}
       </b>
       {actions.length === 0 ? (
         <div className="sp-dashed sp-dashed--center">

@@ -3,12 +3,13 @@ import { useSidePanelEvents } from "../../data/useSidePanelEvents"
 import { SpLive, SpSample } from "./primitives"
 import { fmtHM, pad2, spLevel } from "./spUtils"
 
-/** L4 · 좌측 · 실시간 특보 — 기상청 API허브 특보(최근 24시간 발표 이력). 해제 여부는 이 API에 없다. 데이터를 못 받으면(null) 샘플 + "데이터 없음", 스테이징은 항상 샘플. */
+/** L4 · 좌측 · 실시간 특보 — 기상청 API허브 특보(최근 24시간 발표 이력). 해제 여부는 이 API에 없다. 받은 값이 있으면 그 값, 없으면 샘플(프로토타입 "샘플 · 데이터 없음", 스테이징 "샘플"). */
 export function LiveWarningsPanel() {
   const { mode, events, nullSources, fetchedAt } = useSidePanelEvents()
   const warningsNull = nullSources.includes("기상청 특보")
   const now = useMemo(() => new Date(), [])
   const list = events.filter((e) => e.category === "weather" && e.at.getTime() >= now.getTime() - 24 * 60 * 60 * 1000).sort((a, b) => b.at.getTime() - a.at.getTime())
+  const warningsSample = list.length > 0 ? list.every((e) => e.sample) : warningsNull
   const alerts = list.filter((e) => e.level === "alert" || e.level === "danger").length
   const cautions = list.filter((e) => e.level === "warning").length
 
@@ -44,7 +45,7 @@ export function LiveWarningsPanel() {
             <h3 className="sp-h" style={{ margin: 0, fontSize: 15 }}>
               기상특보 · 발표 이력
             </h3>
-            {mode === "staging" ? <SpSample /> : warningsNull ? <SpSample noData /> : <SpLive />}
+            {warningsSample ? <SpSample noData={mode === "live"} /> : <SpLive />}
           </div>
 
           <div className="sp-dashed">
@@ -87,7 +88,7 @@ export function LiveWarningsPanel() {
       )}
       <p className="sp-note">
         ※ 발표 이력에는 이미 해제된 특보가 섞여 있을 수 있습니다 · 기상청 API허브 실연동 — 해제 여부는 별도 확인 안 됨.
-        {mode === "staging" && " 스테이징 환경 — 임의의 값(샘플)을 보여줍니다."}
+        {mode === "staging" && warningsSample && " 스테이징 환경 — 받은 특보가 없어 임의의 값(샘플)을 보여줍니다."}
         {warningsNull && " 데이터 없음: 기상청 특보 — 샘플로 표시합니다."}
       </p>
     </div>

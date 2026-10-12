@@ -62,12 +62,12 @@ export function ReportPanel() {
 export function AssetPanel() {
   const a = SAMPLE_ASSET_SUMMARY
   const shelters = useShelters()
-  // 대피·수용 시설 표 — 스테이징은 임의의 값, 그 밖의 환경은 받아 둔 실제 파일(제주 자료가 없는 종류는 0건 그대로)
-  const kindRows = IS_STAGING
-    ? SAMPLE_SHELTER_COUNTS.map((k) => ({ label: k.label, jeju: k.jeju, seogwipo: k.seogwipo, total: k.jeju + k.seogwipo }))
-    : shelters.status === "ready"
-      ? shelters.file.kinds.map((k) => ({ label: k.label, jeju: k.items.filter((i) => i.region === "제주시").length, seogwipo: k.items.filter((i) => i.region === "서귀포시").length, total: k.items.length }))
-      : null
+  // 대피·수용 시설 표 — 받아 둔 실제 파일이 있으면 그 값(제주 자료가 없는 종류는 0건 그대로). 없을 때만 스테이징은 임의의 값(샘플), 프로토타입은 "받아 둔 목록 없음"
+  const realRows = shelters.status === "ready"
+    ? shelters.file.kinds.map((k) => ({ label: k.label, jeju: k.items.filter((i) => i.region === "제주시").length, seogwipo: k.items.filter((i) => i.region === "서귀포시").length, total: k.items.length }))
+    : null
+  const sampleRows = IS_STAGING && shelters.status !== "loading" ? SAMPLE_SHELTER_COUNTS.map((k) => ({ label: k.label, jeju: k.jeju, seogwipo: k.seogwipo, total: k.jeju + k.seogwipo })) : null
+  const kindRows = realRows ?? sampleRows
   return (
     <div className="sp">
       <div className="sp-card sp-card--open">
@@ -75,18 +75,16 @@ export function AssetPanel() {
           <b className="sp-h2" style={{ fontSize: 13 }}>
             대피·수용 시설
           </b>
-          {IS_STAGING ? (
-            <SpSample />
+          {shelters.status === "ready" ? (
+            <span className="sp-sample sp-sample--snap" title={`${shelters.file.source} — ${shelters.file.fetchedAt.slice(0, 10)}에 받아 둔 목록`}>
+              스냅샷 · {shelters.file.fetchedAt.slice(0, 10).replace(/-/g, ".")} 기준
+            </span>
           ) : (
-            shelters.status === "ready" && (
-              <span className="sp-sample sp-sample--snap" title={`${shelters.file.source} — ${shelters.file.fetchedAt.slice(0, 10)}에 받아 둔 목록`}>
-                스냅샷 · {shelters.file.fetchedAt.slice(0, 10).replace(/-/g, ".")} 기준
-              </span>
-            )
+            sampleRows && <SpSample />
           )}
         </div>
-        {!IS_STAGING && shelters.status === "loading" && <p className="sp-note">불러오는 중...</p>}
-        {!IS_STAGING && shelters.status === "missing" && (
+        {shelters.status === "loading" && <p className="sp-note">불러오는 중...</p>}
+        {shelters.status === "missing" && !sampleRows && (
           <p className="sp-note">
             받아 둔 시설 목록이 없습니다(scripts/fetch-shelters.mjs로 받습니다) <SpSample noData />
           </p>
@@ -110,7 +108,7 @@ export function AssetPanel() {
               ))}
             </div>
             <p className="sp-note">
-              {IS_STAGING ? "스테이징 환경 — 임의의 값(샘플)입니다" : `출처 ${shelters.status === "ready" ? shelters.file.source : ""}`} · 종류마다 같은 시설이 겹쳐 들어 있을 수 있어 합산하지 않았습니다 · 수용 인원은 시설별 값이라 합계를 내지 않습니다
+              {realRows ? `출처 ${shelters.status === "ready" ? shelters.file.source : ""}` : "스테이징 환경 — 받아 둔 목록이 없어 임의의 값(샘플)입니다"} · 종류마다 같은 시설이 겹쳐 들어 있을 수 있어 합산하지 않았습니다 · 수용 인원은 시설별 값이라 합계를 내지 않습니다
             </p>
           </>
         )}
@@ -120,7 +118,7 @@ export function AssetPanel() {
         <h3 className="sp-h2" style={{ fontSize: 13 }}>
           하천 인력·장비·시설
         </h3>
-        <SpSample noData />
+        <SpSample noData={!IS_STAGING} />
       </div>
       <div className="sp-stats">
         <div className="sp-stat">
