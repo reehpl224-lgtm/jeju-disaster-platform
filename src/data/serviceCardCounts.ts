@@ -42,7 +42,7 @@ export function serviceCardReading(id: string, stages: StageInput[] | undefined,
     for (const entry of warnings.entries) {
       if (!codes.includes(entry.wrn) || (entry.lvl !== "2" && entry.lvl !== "3")) continue
       // 같은 종류·등급·지역의 반복 발표를 중복 집계하지 않는다(보드 특보 요약과 같은 단위).
-      const key = `${entry.regId}:${entry.wrn}:${entry.lvl}`
+      const key = `${entry.regionLabel ?? entry.regId}:${entry.wrn}:${entry.lvl}`
       if (seen.has(key)) continue
       seen.add(key)
       // 기상청 LVL: 2=주의보, 3=경보(1=예비특보는 세지 않는다)

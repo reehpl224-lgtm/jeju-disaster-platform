@@ -6,6 +6,7 @@
  * 준다 — 그래서 이 데이터는 "최근 발표된 특보"로 표시하고 "지금 발효 중"이라고 단정하지 않는다.
  */
 import type { WarningsResponse } from "../types/warningsApi"
+import { dedupeWarnings } from "./warningLevel"
 
 const PROXY_URL = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
 
@@ -18,5 +19,7 @@ export async function fetchJejuWarnings(): Promise<WarningsResponse> {
     const body = await res.json().catch(() => null)
     throw new Error(body?.error ?? `기상청 특보 조회 실패 (HTTP ${res.status})`)
   }
-  return res.json()
+  const body = (await res.json()) as WarningsResponse
+  // 같은 시·종류·수준의 반복 발표는 가장 최근 하나만(화면 건수가 발표 횟수로 부풀지 않게)
+  return { ...body, entries: dedupeWarnings(body.entries) }
 }
