@@ -13,7 +13,7 @@ export type CardWarnings = { status: "loading" | "failed" } | { status: "ready";
 type SampleStage = { id: string; level: RiskLevel; count: number | null }
 
 // 서비스 보드의 특보 코드와 동일. 특보는 최근 24시간 발표분이며 현재 발효 여부는 알 수 없다.
-const WARNING_CODES: Record<string, string[]> = {
+export const WARNING_CODES: Record<string, string[]> = {
   "heavy-rain": ["R", "W"], typhoon: ["T"], heat: ["H", "K"],
   wildfire: ["D", "W"], tsunami: ["N", "O"], snow: ["S", "C"],
   river: ["R", "W"], coast: ["V", "O", "N"],
@@ -40,7 +40,8 @@ export function serviceCardReading(id: string, stages: StageInput[] | undefined,
     const counts = emptyCounts()
     const seen = new Set<string>()
     for (const entry of warnings.entries) {
-      if (!codes.includes(entry.wrn) || (entry.lvl !== "2" && entry.lvl !== "3")) continue
+      // 해제·변경으로 끝난 특보는 세지 않는다(state가 없는 옛 응답은 발효 중으로 본다)
+      if (!codes.includes(entry.wrn) || (entry.lvl !== "2" && entry.lvl !== "3") || (entry.state && entry.state !== "active")) continue
       // 같은 종류·등급·지역의 반복 발표를 중복 집계하지 않는다(보드 특보 요약과 같은 단위).
       const key = `${entry.regionLabel ?? entry.regId}:${entry.wrn}:${entry.lvl}`
       if (seen.has(key)) continue
@@ -48,7 +49,7 @@ export function serviceCardReading(id: string, stages: StageInput[] | undefined,
       // 기상청 LVL: 2=주의보, 3=경보(1=예비특보는 세지 않는다)
       counts[entry.lvl === "3" ? "alert" : "warning"]++
     }
-    return { counts, source: "warnings", sourceLabel: "특보 발표 · 24시간" }
+    return { counts, source: "warnings", sourceLabel: "기상청 특보 · 발효 중" }
   }
   const sample = samples.find((s) => s.id === id)
   // 샘플을 넘기지 않는 환경(프로토타입·로컬)에서 받은 값이 없으면 숫자를 비워 둔다

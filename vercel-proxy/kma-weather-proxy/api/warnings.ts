@@ -74,6 +74,10 @@ interface WarningEntry {
   wrnLabel: string
   lvl: string
   lvlLabel: string
+  /** 발표 구분 코드(CMD) — 1 발표, 2 대치, 3 해제, 4 대치해제, 5 연장, 6 변경, 7 변경해제 */
+  cmd: string
+  /** 등급(GRD) — 원본 그대로 */
+  grd: string
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -112,7 +116,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 컬럼 순서(문서): TM_FC, TM_EF, TM_IN, STN, REG_ID, WRN, LVL, CMD, GRD, CNT, RPT, ...
     const entries: WarningEntry[] = []
     for (const row of rows) {
-      const [tmFc, tmEf, , , regId, wrn, lvl] = row
+      const [tmFc, tmEf, , , regId, wrn, lvl, cmd = "", grd = ""] = row
       if (!regId) continue
       const region = JEJU_REGION_PREFIXES.find((r) => regId.startsWith(r.prefix))
       if (!region) continue
@@ -125,6 +129,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         wrnLabel: WRN_LABEL[wrn] ?? wrn,
         lvl,
         lvlLabel: LVL_LABEL[lvl] ?? lvl,
+        cmd,
+        grd,
       })
     }
     entries.sort((a, b) => b.tmFc.localeCompare(a.tmFc))

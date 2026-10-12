@@ -16,7 +16,7 @@ interface GanttRow {
   level: RiskLevel
 }
 
-/** L2 · 좌측 · 발효중 특보 — 분류별 건수 + 발효 시간 간트 + 분류별 목록. 기상청은 해제 시각을 주지 않아 막대 끝은 '미정'. */
+/** L2 · 좌측 · 발효중 특보 — 분류별 건수 + 발효 시간 간트 + 분류별 목록. 해제·변경으로 끝난 특보는 막대 끝에 해제 시각, 아직 해제 소식이 없으면 '미정'. */
 export function ActiveWarningsPanel() {
   const { mode, events, nullSources } = useSidePanelEvents()
   const f = useEventFilters()
@@ -38,7 +38,7 @@ export function ActiveWarningsPanel() {
   const rows: GanttRow[] = recent
     .filter((e) => e.category === "weather")
     .sort((a, b) => a.at.getTime() - b.at.getTime())
-    .map((e) => ({ id: e.id, title: e.title.replace(" (기상특보)", ""), where: e.detail.replace(" · 기상청 발표", "").replace(" · 해제", ""), start: e.at, end: e.status === "해제" ? e.until : undefined, level: e.status === "해제" ? "safe" : e.level }))
+    .map((e) => ({ id: e.id, title: e.title.replace(" (기상특보)", ""), where: e.detail.replace(" · 기상청 발표", "").replace(" · 해제", "").replace(" · 변경", ""), start: e.at, end: e.status === "해제" ? e.until : undefined, level: e.status === "해제" ? "safe" : e.level }))
   const rangeText = `${dayStart.getFullYear()}-${pad2(dayStart.getMonth() + 1)}-${pad2(dayStart.getDate())} ~ ${dayStart.getFullYear()}-${pad2(dayStart.getMonth() + 1)}-${pad2(dayStart.getDate())}`
   const ticks = [axisStart, axisStart + 3, axisStart + 6, axisStart + 9, axisEnd]
 

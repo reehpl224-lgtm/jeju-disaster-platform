@@ -259,6 +259,25 @@ async function load(id: string): Promise<Facts | null> {
   }
 }
 
+/** 여러 서비스의 실제 값을 한꺼번에 — GIS 상황 지도가 모든 서비스의 점을 모을 때 쓴다(서비스 id → 값, 아직 못 받았으면 키 없음·못 받으면 null) */
+export function useAllBoardFacts(ids: string[], enabled: boolean): Record<string, Facts | null> {
+  const [stored, setStored] = useState<Record<string, Facts | null>>({})
+  const key = ids.join(",")
+  useEffect(() => {
+    if (!enabled) return
+    let cancelled = false
+    for (const id of key.split(",")) {
+      load(id)
+        .then((f) => !cancelled && setStored((p) => ({ ...p, [id]: f })))
+        .catch(() => !cancelled && setStored((p) => ({ ...p, [id]: null })))
+    }
+    return () => {
+      cancelled = true
+    }
+  }, [key, enabled])
+  return stored
+}
+
 /** 서비스별 실제 값 — 받는 중이거나 못 받으면 null(평시 기본 값 그대로). 스테이징은 샘플을 쓰므로 부르는 쪽이 건너뛴다 */
 export function useBoardFacts(id: string, enabled: boolean): Facts | null {
   // 서비스를 옮겨도 화면 컴포넌트가 그대로라 이전 서비스의 값이 남지 않도록 id와 함께 저장한다

@@ -186,7 +186,7 @@ export function ServiceStrip({ cards, currentId }: { cards: StripCard[]; current
               </Link>
               <div className="strip__body">
                 {card.sourceLabel && (
-                  <p className={`strip__source strip__source--${card.source}`} title={card.source === "warnings" ? "최근 24시간 특보 발표의 종류·등급·지역별 건수입니다. 현재 발효 중인 특보나 실제 사건 건수를 의미하지 않습니다." : card.sourceLabel}>
+                  <p className={`strip__source strip__source--${card.source}`} title={card.source === "warnings" ? "최근 24시간에 발표된 기상청 특보 중 아직 해제되지 않은 종류·등급·지역별 건수입니다. 실제 사건 건수가 아니며, 24시간보다 앞서 발표된 특보는 포함되지 않을 수 있습니다." : card.sourceLabel}>
                     {card.sourceLabel}
                   </p>
                 )}

@@ -30,6 +30,7 @@ import {
   riskMarkers,
 } from "../data/mockDashboard"
 import { useServiceStatusCards } from "../data/useServiceStatusCards"
+import { useGisMarkers } from "../data/useGisMarkers"
 import { useLiveWeather } from "../data/useLiveWeather"
 import { currentWeather, disasterIncidents, disasterResponseTeams } from "../data/mockIncidents"
 import { cctvCoverageSummary } from "../data/mockCctv"
@@ -92,9 +93,11 @@ export function DashboardPage() {
   // 종합 상황과 GIS 상황의 분야 필터는 서로 독립 — 한쪽에서 '태풍'처럼 제주 밖 마커뿐인 분야를 골라도 다른 쪽 지도는 그대로
   const [mapDomain, setMapDomain] = useState<RiskMarker["domain"] | "all">("all")
   const [summaryDomain, setSummaryDomain] = useState<RiskMarker["domain"] | "all">("all")
-  const byDomain = (d: RiskMarker["domain"] | "all") => (d === "all" ? riskMarkers : riskMarkers.filter((m) => m.domain === d))
-  const filteredMarkers = useMemo(() => byDomain(mapDomain), [mapDomain])
-  const summaryMarkers = useMemo(() => byDomain(summaryDomain), [summaryDomain])
+  const byDomain = (all: RiskMarker[], d: RiskMarker["domain"] | "all") => (d === "all" ? all : all.filter((m) => m.domain === d))
+  // GIS 지도는 서비스 보드 지도와 같은 점을 모두 모은다(기본 위치 + 특보 발효 시 + 실제 관측 점 + 폭염 쉼터). 종합 상황 지도는 기본 위치 점만
+  const gisMarkers = useGisMarkers(tab === "gis")
+  const filteredMarkers = useMemo(() => byDomain(gisMarkers, mapDomain), [gisMarkers, mapDomain])
+  const summaryMarkers = useMemo(() => byDomain(riskMarkers, summaryDomain), [summaryDomain])
 
   // 좌측 패널(종합) · 우측 패널(GIS) 탭 — 필터는 각 패널(src/components/sidepanel)이 가진다
   const [timelineTab, setTimelineTab] = useState("timeline")
@@ -155,7 +158,7 @@ export function DashboardPage() {
     { key: "obs", label: "관측·CCTV" },
     { key: "impact", label: "영향·자산" },
     { key: "response", label: "대응·연락" },
-  ].map((t) => ({ ...t, content: <GisLeftPanel which={t.key as GisWhich} domain={mapDomain} onDomain={setMapDomain} /> }))
+  ].map((t) => ({ ...t, content: <GisLeftPanel which={t.key as GisWhich} domain={mapDomain} onDomain={setMapDomain} markers={gisMarkers} /> }))
 
   // 좌측 패널 4탭(종합상황) · GIS 우측 패널과 같은 구성 — 필터·데이터는 각 패널 컴포넌트 안에 있다
   const timelineTabs: DockTab[] = [

@@ -10,8 +10,10 @@ export function LiveWarningsPanel() {
   const now = useMemo(() => new Date(), [])
   const list = events.filter((e) => e.category === "weather" && e.at.getTime() >= now.getTime() - 24 * 60 * 60 * 1000).sort((a, b) => b.at.getTime() - a.at.getTime())
   const warningsSample = list.length > 0 ? list.every((e) => e.sample) : warningsNull
-  const alerts = list.filter((e) => e.level === "alert" || e.level === "danger").length
-  const cautions = list.filter((e) => e.level === "warning").length
+  // 경보·주의보 건수는 아직 해제되지 않은 것만, 발표 합계는 이력 전체
+  const live = list.filter((e) => e.status === "발령")
+  const alerts = live.filter((e) => e.level === "alert" || e.level === "danger").length
+  const cautions = live.filter((e) => e.level === "warning").length
 
   if (mode === "loading") return <p className="pempty">불러오는 중...</p>
 
@@ -49,8 +51,8 @@ export function LiveWarningsPanel() {
           </div>
 
           <div className="sp-dashed">
-            <b>발표 이력이며 해제는 반영되지 않습니다</b>
-            <span className="sp-note">현재 발효 중 여부는 "발효중 특보" 탭 · 이 탭은 최근 24시간에 발표된 특보를 시간순으로 보여줍니다</span>
+            <b>발표·변경·해제 이력입니다</b>
+            <span className="sp-note">해제·변경된 특보는 "해제"로 표시 · 이 탭은 최근 24시간에 발표된 특보를 시간순으로 보여줍니다(발효 중인 것만 보려면 "발효중 특보" 탭)</span>
           </div>
 
           {list.length === 0 ? (
@@ -77,10 +79,11 @@ export function LiveWarningsPanel() {
                     <span>{e.detail.replace(" · 기상청 발표", "")}</span>
                     <small>
                       발표 {pad2(e.at.getMonth() + 1)}/{pad2(e.at.getDate())} {fmtHM(e.at)}
+                      {e.status === "해제" && e.until && ` · ${e.detail.endsWith("변경") ? "변경" : "해제"} ${fmtHM(e.until)}`}
                     </small>
                   </div>
-                  <span className="bd" style={{ background: lv === "alert" ? "var(--risk-alert)" : "var(--risk-warning)" }}>
-                    {e.level === "alert" ? "경보" : "주의보"}
+                  <span className="bd" style={{ background: e.status === "해제" ? "var(--foreground-subtle)" : lv === "alert" ? "var(--risk-alert)" : "var(--risk-warning)" }}>
+                    {e.status === "해제" ? "해제" : e.level === "alert" ? "경보" : "주의보"}
                   </span>
                 </div>
               )
@@ -89,7 +92,7 @@ export function LiveWarningsPanel() {
         </>
       )}
       <p className="sp-note">
-        ※ 발표 이력에는 이미 해제된 특보가 섞여 있을 수 있습니다 · 기상청 API허브 실연동 — 해제 여부는 별도 확인 안 됨.
+        ※ 해제는 기상청 발표 구분(해제·변경)을 따릅니다 · 24시간보다 앞서 발표돼 지금도 유지 중인 특보는 이 창에 보이지 않을 수 있습니다.
         {mode === "staging" && warningsSample && " 스테이징 환경 — 받은 특보가 없어 임의의 값(샘플)을 보여줍니다."}
         {warningsNull && ` 데이터 없음: 기상청 특보 — ${NULL_SRC_NOTE}.`}
       </p>

@@ -47,8 +47,8 @@ export function WarningsSummary({ codes, advisories }: { codes?: string[]; advis
             .filter((e) => codes.includes(e.wrn))
             .map((e, i) => ({
               key: `${e.regId}-${e.wrn}-${e.tmFc}-${i}`,
-              level: e.lvl === "3" ? "danger" : "warning",
-              label: `${e.wrnLabel} ${warnLvlLabel(e.lvl)}`,
+              level: e.state === "released" || e.state === "changed" ? "safe" : e.lvl === "3" ? "danger" : "warning",
+              label: `${e.wrnLabel} ${warnLvlLabel(e.lvl)}${e.state === "released" ? " 해제" : e.state === "changed" ? " 변경" : ""}`,
               region: e.regionLabel,
               time: formatTm(e.tmFc),
             })),

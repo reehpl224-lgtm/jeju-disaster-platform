@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import type { WarningEntry } from "../types/warningsApi"
 import { fetchJejuWarnings } from "./warningsApi"
 import { parseKst } from "./useSidePanelEvents"
-import { warnLvlLabel } from "./warningLevel"
+import { warnIsActive, warnLvlLabel } from "./warningLevel"
 import type { RiskMarker } from "../types/domain"
 import { bd, type BoardService, type BoardStateId, type DashLeft, type RightPanel } from "./boardTypes"
 import type { Facts } from "./boardFacts"
@@ -41,8 +41,8 @@ async function entries(): Promise<WarningEntry[]> {
 
 export function groupWarnings(list: WarningEntry[], codes: string[]): WarnGroup[] {
   const map = new Map<string, WarnGroup>()
-  // lvl 2=주의보 · 3=경보만 쓴다(1=예비특보는 등급이 아니라 제외)
-  for (const e of list.filter((x) => codes.includes(x.wrn) && (x.lvl === "2" || x.lvl === "3"))) {
+  // lvl 2=주의보 · 3=경보만 쓰고(1=예비특보는 등급이 아니라 제외), 해제·변경으로 끝난 특보는 뺀다 — 지금 발효 중인 것만
+  for (const e of list.filter((x) => codes.includes(x.wrn) && (x.lvl === "2" || x.lvl === "3") && warnIsActive(x))) {
     const label = `${e.wrnLabel}${warnLvlLabel(e.lvl)}`
     const at = parseKst(e.tmFc)
     const g = map.get(label) ?? { label, level: e.lvl === "3" ? "alert" : "warning", regions: [], at }

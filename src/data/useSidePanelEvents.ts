@@ -83,21 +83,28 @@ const parseUtc = (tm: string) => new Date(`${tm.slice(0, 4)}-${tm.slice(4, 6)}-$
 
 const WEATHER_ICON: Record<string, string> = { 강풍: "💨", 호우: "☔", 풍랑: "🌊", 폭염: "🔆", 건조: "🔥", 한파: "🥶", 대설: "❄️", 태풍: "🌀", 안개: "🌫️", 황사: "🌪️", 폭풍해일: "🌊", 지진해일: "🌊" }
 
+const hmOf = (tm: string) => `${tm.slice(8, 10)}:${tm.slice(10, 12)}`
+
 export function warningToEvent(e: WarningEntry): SpEvent {
   const level: RiskLevel = warnLvlRisk(e.lvl)
+  // 해제(released)·다른 수준으로 변경(changed)돼 끝난 특보는 "해제"로 — 끝난 시각을 until·meta에 담는다
+  const ended = (e.state === "released" || e.state === "changed") && !!e.endAt
   return {
     id: `w-${e.regId}-${e.wrn}-${e.tmFc}`,
     source: "warnings",
     category: "weather",
     icon: WEATHER_ICON[e.wrnLabel] ?? "☔",
     level,
-    status: "발령",
+    status: ended ? "해제" : "발령",
     title: `${e.wrnLabel}${warnLvlLabel(e.lvl)}`,
-    detail: `${e.regionLabel} · 기상청 발표`,
+    detail: `${e.regionLabel} · 기상청 발표${ended ? (e.state === "released" ? " · 해제" : " · 변경") : ""}`,
     at: parseKst(e.tmFc),
     // 발효 시각이 있으면 간트 막대의 시작으로 쓴다(끝은 발표에 없어 '미정')
-    until: undefined,
-    meta: e.tmEf ? [{ label: "발효", value: `${e.tmEf.slice(8, 10)}:${e.tmEf.slice(10, 12)}` }] : undefined,
+    until: ended && e.endAt ? parseKst(e.endAt) : undefined,
+    meta: [
+      ...(e.tmEf ? [{ label: "발효", value: hmOf(e.tmEf) }] : []),
+      ...(ended && e.endAt ? [e.state === "released" ? { label: "해제", value: hmOf(e.endAt) } : { label: "변경", value: `${hmOf(e.endAt)} → ${warnLvlLabel(e.changedLvl ?? "")}` }] : []),
+    ],
     sample: false,
   }
 }

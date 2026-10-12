@@ -180,18 +180,25 @@ function useLabelSpots(points: { id: string; name: string; lat: number; lng: num
 
 type GeoMarker = RiskMarker & { lat: number; lng: number }
 
+/** 점이 이만큼 넘으면 이름표가 서로 겹치므로, 기본 위치 점만 이름을 고정해 두고 나머지(관측·특보·쉼터 점)는 마우스를 올릴 때 보여준다 */
+const CROWDED_MARKERS = 24
+const OUT_OF_RANGE_SHOWN = 6
+const isDetailMarker = (id: string) => /^(fact|shelter|warn)-/.test(id)
+
 function MarkerLayer({ markers }: { markers: GeoMarker[] }) {
-  const spots = useLabelSpots(markers, true)
+  const crowded = markers.length > CROWDED_MARKERS
+  const spots = useLabelSpots(crowded ? markers.filter((m) => !isDetailMarker(m.id)) : markers, true)
   return (
     <>
       {markers.map((marker) => {
         const color = MARKER_COLOR[marker.level]
         const spot = spots[marker.id] ?? { dir: "right" as const, offset: [6, -10] as [number, number] }
+        const quiet = crowded && isDetailMarker(marker.id)
         return (
           <Fragment key={marker.id}>
             <CircleMarker center={[marker.lat, marker.lng]} radius={18} interactive={false} pathOptions={{ color, fillColor: color, fillOpacity: 0.25, weight: 0 }} />
             <CircleMarker center={[marker.lat, marker.lng]} radius={9} pathOptions={{ color: "#fff", fillColor: color, fillOpacity: 1, weight: 2.5 }}>
-              <Tooltip key={spot.dir + spot.offset.join(",")} permanent direction={spot.dir} offset={spot.offset} className="jmk-label">
+              <Tooltip key={spot.dir + spot.offset.join(",") + quiet} permanent={!quiet} direction={spot.dir} offset={spot.offset} className="jmk-label">
                 {marker.name}
               </Tooltip>
               <Popup>
@@ -405,12 +412,13 @@ export function JejuTileMap({
         >
           <p className="mb-1 font-bold text-white">지도 범위 밖 (해상)</p>
           <ul>
-            {outOfRange.map((m) => (
+            {outOfRange.slice(0, OUT_OF_RANGE_SHOWN).map((m) => (
               <li key={m.id} className="flex items-center gap-1.5 leading-relaxed">
                 <span className="inline-block h-2 w-2 rounded-full" style={{ background: MARKER_COLOR[m.level] }} />
                 {m.name}
               </li>
             ))}
+            {outOfRange.length > OUT_OF_RANGE_SHOWN && <li className="leading-relaxed text-white/50">외 {outOfRange.length - OUT_OF_RANGE_SHOWN}건</li>}
           </ul>
         </div>
       )}

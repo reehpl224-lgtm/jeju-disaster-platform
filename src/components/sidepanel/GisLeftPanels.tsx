@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { IS_STAGING } from "../../data/appMode"
 import { useCctvCameras, useCctvLoadState } from "../../data/cctvLive"
-import { agencyStatuses, recentActions, riskMarkers } from "../../data/mockDashboard"
+import { agencyStatuses, recentActions } from "../../data/mockDashboard"
 import { disasterResponseTeams } from "../../data/mockIncidents"
 import { dutyContacts } from "../../data/mockContacts"
 import { heatShelters } from "../../data/mockHeat"
@@ -34,7 +34,7 @@ import { levelName, spLevel } from "./spUtils"
 export type GisWhich = "status" | "obs" | "impact" | "response"
 type Domain = RiskMarker["domain"] | "all"
 
-const DOMAIN_LABEL: Record<string, string> = { river: "하천", coast: "연안", aqua: "저염분" }
+const DOMAIN_LABEL: Record<string, string> = { river: "하천", coast: "연안", aqua: "저염분", heavyRain: "호우", typhoon: "태풍", heat: "폭염", wildfire: "산불", tsunami: "지진해일", snow: "대설" }
 const SERVICE_OPTIONS: { id: Domain; label: string }[] = [
   { id: "all", label: "서비스 전체" },
   { id: "river", label: "하천" },
@@ -103,8 +103,8 @@ interface Target {
 }
 
 /** T1 · 현황 — 지도에 표시되는 대상의 위험 요약과 목록 */
-function StatusTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) => void }) {
-  const real: Target[] = riskMarkers.map((m) => ({
+function StatusTab({ domain, onDomain, markers }: { domain: Domain; onDomain: (d: Domain) => void; markers: RiskMarker[] }) {
+  const real: Target[] = markers.map((m) => ({
     id: m.id,
     name: m.name,
     domain: m.domain,
@@ -439,9 +439,9 @@ function ResponseTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domai
   )
 }
 
-export function GisLeftPanel({ which, domain, onDomain }: { which: GisWhich; domain: Domain; onDomain: (d: Domain) => void }) {
+export function GisLeftPanel({ which, domain, onDomain, markers }: { which: GisWhich; domain: Domain; onDomain: (d: Domain) => void; /** 지도에 찍히는 점 전체 */ markers: RiskMarker[] }) {
   if (which === "obs") return <ObsTab domain={domain} onDomain={onDomain} />
   if (which === "impact") return <ImpactTab domain={domain} onDomain={onDomain} />
   if (which === "response") return <ResponseTab domain={domain} onDomain={onDomain} />
-  return <StatusTab domain={domain} onDomain={onDomain} />
+  return <StatusTab domain={domain} onDomain={onDomain} markers={markers} />
 }
