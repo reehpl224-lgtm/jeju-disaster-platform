@@ -1,5 +1,6 @@
 import type { RiskLevel } from "../types/domain"
 import { classifyMarineRiskLevel } from "./marineAlertThresholds"
+import { IS_STAGING } from "./appMode"
 
 /**
  * 저염분 고수온 "영향 대상" — 양식장(mockAqua.aquaFarms) 말고 마을어장 수산생물(소라·전복·홍해삼)·연안 생태(연산호·해조류)도
@@ -31,14 +32,15 @@ const target = (
 })
 
 /** 마을어장 — 해녀·어촌계가 채취하는 소라·전복·홍해삼 */
-export const villageFisheries: ImpactTarget[] = [
+// 샘플이라 스테이징만 보여준다(프로토타입·로컬은 자료가 없으니 빈 목록)
+export const villageFisheries: ImpactTarget[] = !IS_STAGING ? [] : [
   target({ id: "vf-1", name: "대정읍 마을어장(샘플)", region: "서귀포시 대정읍", species: "소라·전복·홍해삼", salinity: 27.1, temperature: 28.3, tempSustainedDays: 0, note: "수심 10m 이내 채취 구역 — 어촌계 확인 필요" }),
   target({ id: "vf-2", name: "안덕면 마을어장(샘플)", region: "서귀포시 안덕면", species: "소라·전복", salinity: 29.2, temperature: 26.5, tempSustainedDays: 0, note: "예찰 강화 대상" }),
   target({ id: "vf-3", name: "한경면 마을어장(샘플)", region: "제주시 한경면", species: "소라·홍해삼", salinity: 30.8, temperature: 24.8, tempSustainedDays: 0, note: "평시 감시" }),
 ]
 
 /** 연안 생태 — 연산호 군락·해조류 서식지 */
-export const coastalEcology: ImpactTarget[] = [
+export const coastalEcology: ImpactTarget[] = !IS_STAGING ? [] : [
   target({ id: "ec-1", name: "문섬 연산호 군락(샘플)", region: "서귀포시 문섬 일대", species: "연산호", salinity: 29.6, temperature: 28.6, tempSustainedDays: 1, note: "고수온·저염분 동시 노출 시 주저앉음 우려" }),
   target({ id: "ec-2", name: "범섬 연산호 군락(샘플)", region: "서귀포시 범섬 일대", species: "연산호", salinity: 30.4, temperature: 27.2, tempSustainedDays: 0, note: "수온 상승 감시" }),
   target({ id: "ec-3", name: "한경~대정 연안 해조류 서식지(샘플)", region: "제주 서남부 연안", species: "감태·우뭇가사리·미역", salinity: 31, temperature: 25.5, tempSustainedDays: 0, note: "장기 수온 상승 — 갯녹음 추이 확인" }),

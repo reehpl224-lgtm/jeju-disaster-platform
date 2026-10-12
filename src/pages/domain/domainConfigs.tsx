@@ -36,6 +36,7 @@ import { RainTrend } from "./RainTrend"
 import { aquaBrief, coastBrief, hazardBrief, heatBrief, heavyRainBrief, riverBrief, typhoonBrief } from "./leaderBriefs"
 import { HAZARDS, type HazardId } from "../../data/mockHazards"
 import { sampleShelters } from "../../data/placeholderSamples"
+import { IS_STAGING } from "../../data/appMode"
 import { aquaAdvisories, type AdvisoryItem } from "../../data/aquaAdvisories"
 import { coastalEcology, villageFisheries } from "../../data/aquaImpactTargets"
 import { hazardNav } from "../hazard/hazardNav"
@@ -395,7 +396,7 @@ export function heatConfig(): DomainConfig {
   const li = HT.heatLevelInfo
   // 쉼터 원본이 비어 있으면 임의 샘플로 레이아웃을 보여준다(샘플 안내 표시, 원본에 값이 들어오면 자동으로 사라짐)
   const sheltersSample = HT.heatShelters.length === 0
-  const shelters = sheltersSample ? sampleShelters : HT.heatShelters
+  const shelters = sheltersSample ? (IS_STAGING ? sampleShelters : []) : HT.heatShelters
   const home = (
     <LeaderBoardBrief brief={heatBrief()}>
       <Group title="무더위쉼터" dummy={sheltersSample} source={sheltersSample ? undefined : heatSheltersSource()}>
@@ -924,7 +925,8 @@ export function aquaConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
-      <Group title="마을어장 — 소라·전복·홍해삼(샘플)" dummy>
+      <Group title={`마을어장 — 소라·전복·홍해삼${IS_STAGING ? "(샘플)" : ""}`} dummy={IS_STAGING}>
+        {villageFisheries.length === 0 && <p className="s">데이터 없음 — 받은 목록이 없습니다</p>}
         <ul className="plist">
           {villageFisheries.map((t) => (
             <li key={t.id}>
@@ -942,7 +944,8 @@ export function aquaConfig(): DomainConfig {
           ))}
         </ul>
       </Group>
-      <Group title="연안 생태 — 연산호·해조류(샘플)" dummy>
+      <Group title={`연안 생태 — 연산호·해조류${IS_STAGING ? "(샘플)" : ""}`} dummy={IS_STAGING}>
+        {coastalEcology.length === 0 && <p className="s">데이터 없음 — 받은 목록이 없습니다</p>}
         <ul className="plist">
           {coastalEcology.map((t) => (
             <li key={t.id}>

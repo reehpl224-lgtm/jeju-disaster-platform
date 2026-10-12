@@ -5,6 +5,7 @@ import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaFarmTotals, aquaFarms } from "../../data/mockAqua"
 import { coastalEcology, impactReferenceCases, villageFisheries, type ImpactTarget } from "../../data/aquaImpactTargets"
 import type { RiskLevel } from "../../types/domain"
+import { IS_STAGING } from "../../data/appMode"
 
 const TABS = [
   { key: "farms", label: "양식장" },
@@ -24,11 +25,12 @@ function TargetList({ title, items }: { title: string; items: ImpactTarget[] }) 
     <>
       <StatTiles
         items={[
-          { label: title, value: `총 ${items.length}곳(샘플)` },
+          { label: title, value: `총 ${items.length}곳${IS_STAGING ? "(샘플)" : ""}` },
           ...LEVELS.map((l) => ({ label: l.label, value: `${items.filter((t) => t.level === l.level).length}곳`, tone: l.level })),
         ]}
       />
-      <Card title={`${title}별 영향 상태`} subtitle="위치·이름은 실제 자료 수령 전 임의 샘플 — 단계는 양식 기준 5단계를 그대로 적용" dummy>
+      <Card title={`${title}별 영향 상태`} subtitle={IS_STAGING ? "위치·이름은 실제 자료 수령 전 임의 샘플 — 단계는 양식 기준 5단계를 그대로 적용" : "실제 자료 수령 전 — 받은 목록이 없습니다"} dummy={IS_STAGING}>
+        {items.length === 0 && <p className="py-3 text-sm text-white/50">데이터 없음</p>}
         <ul className="flex flex-col divide-y divide-border-subtle">
           {items.map((t) => (
             <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 py-3">

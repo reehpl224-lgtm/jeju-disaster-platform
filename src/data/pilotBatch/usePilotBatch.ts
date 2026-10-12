@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { generatePilotBatch, type PilotBatch } from "./generate"
+import { IS_STAGING } from "../appMode"
 
 export interface PilotBatchState {
   batch: PilotBatch
@@ -23,13 +24,16 @@ async function load(): Promise<PilotBatchState> {
   return { batch: generatePilotBatch(), origin: "generated" }
 }
 
-/** 실증 3사 샘플 배치 데이터 — 배치 파일이 있으면 그것을, 없으면 같은 생성기로 지금 시각 기준 샘플을 만든다 */
-export function usePilotBatch(): PilotBatchState | null {
-  const [state, setState] = useState<PilotBatchState | null>(null)
+/**
+ * 실증 3사 배치 데이터 — 배치 파일이 있으면 그것을, 없으면 같은 생성기로 지금 시각 기준 샘플을 만든다.
+ * 값이 샘플(source "sample")이면 스테이징만 보여주고, 프로토타입·로컬은 null(데이터 없음)을 돌려준다. 받는 중에는 undefined.
+ */
+export function usePilotBatch(): PilotBatchState | null | undefined {
+  const [state, setState] = useState<PilotBatchState | null | undefined>(undefined)
   useEffect(() => {
     let cancelled = false
     cached ??= load()
-    cached.then((s) => !cancelled && setState(s))
+    cached.then((s) => !cancelled && setState(!IS_STAGING && s.batch.source === "sample" ? null : s))
     return () => {
       cancelled = true
     }

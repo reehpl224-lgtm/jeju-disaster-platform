@@ -27,6 +27,15 @@ function Block({ title, state, children }: { title: string; state: PilotBatchSta
   )
 }
 
+/** 실증사 배치 자료가 없을 때(프로토타입·로컬) — 샘플을 깔지 않고 없다고 알린다 */
+function NoPilotBatch() {
+  return (
+    <div className="pgroup">
+      <p className="pnote">실증사 연계 자료가 없습니다 — 데이터 없음</p>
+    </div>
+  )
+}
+
 /** 전파·경보 인프라 현황 — 상황전파 탭. 스마트폴은 샘플 배치의 상태로 가용률을 보여준다 */
 export function PropagationInfraBlock() {
   const state = usePilotBatch()
@@ -66,7 +75,7 @@ export function PropagationInfraBlock() {
 /** 하천 관측점 6개소 + 스마트폴 상태 — 센서정보 탭 */
 export function RiverPointsBlock() {
   const state = usePilotBatch()
-  if (!state) return null
+  if (!state) return state === null ? <NoPilotBatch /> : null
   const { points, smartPoles } = state.batch.river
   return (
     <>
@@ -108,7 +117,7 @@ export function RiverPointsBlock() {
 export function RiverForecastBlock() {
   const state = usePilotBatch()
   const [id, setId] = useState("donnaeko")
-  if (!state) return null
+  if (!state) return state === null ? <NoPilotBatch /> : null
   const { points, boundaryM } = state.batch.river
   const p = points.find((x) => x.id === id) ?? points[0]
   const last = p.history[p.history.length - 1]
@@ -148,7 +157,7 @@ export function RiverForecastBlock() {
 /** 쇠소깍 감조구간 수위×조위 시간 연계 — 센서 추이 탭 */
 export function TideBlock() {
   const state = usePilotBatch()
-  if (!state) return null
+  if (!state) return state === null ? <NoPilotBatch /> : null
   const { tide, boundaryM } = state.batch.river
   return (
     <Block title="수위 × 조위 시간 연계 — 쇠소깍 감조구간(샘플)" state={state}>
@@ -176,7 +185,7 @@ export function TideBlock() {
 /** 연안 이용객 밀집 추이 — 센서 추이 탭 */
 export function CoastCrowdBlock() {
   const state = usePilotBatch()
-  if (!state) return null
+  if (!state) return state === null ? <NoPilotBatch /> : null
   const { crowd } = state.batch.coast
   const data = crowd[0].series.map((row, i) => ({ t: row.t, ...Object.fromEntries(crowd.map((c) => [c.siteId, c.series[i].count])) }))
   return (
@@ -204,7 +213,7 @@ export function CoastCrowdBlock() {
 /** 저염분 표층 염분·수온 시계열 — 센서 추이 탭 */
 export function AquaSeriesBlock() {
   const state = usePilotBatch()
-  if (!state) return null
+  if (!state) return state === null ? <NoPilotBatch /> : null
   const { series } = state.batch.aqua
   return (
     <Block title="저염분·고수온 — 표층 염분·수온 시계열(샘플)" state={state}>
@@ -231,7 +240,7 @@ export function AquaSeriesBlock() {
 /** 연안 VLM 10분 상황요약 — AI 분석 탭 */
 export function VlmBlock() {
   const state = usePilotBatch()
-  if (!state) return null
+  if (!state) return state === null ? <NoPilotBatch /> : null
   return (
     <Block title="연안 VLM 10분 상황요약(샘플)" state={state}>
       <ul className="plist">
@@ -256,7 +265,7 @@ export function VlmBlock() {
 /** 저염분 취수구별 도달 예상 시간 — AI 분석 탭 */
 export function IntakeBlock() {
   const state = usePilotBatch()
-  if (!state) return null
+  if (!state) return state === null ? <NoPilotBatch /> : null
   return (
     <Block title="저염수 취수구 도달 예상(샘플)" state={state}>
       <ul className="plist">
@@ -342,7 +351,7 @@ function Heatmap({ batch, horizon }: { batch: PilotBatch; horizon: 48 | 120 }) {
 export function PlumeHeatmapBlock() {
   const state = usePilotBatch()
   const [horizon, setHorizon] = useState<48 | 120>(48)
-  if (!state) return null
+  if (!state) return state === null ? <NoPilotBatch /> : null
   return (
     <Block title="저염수 확산 히트맵 — 한경·대정 해역(샘플)" state={state}>
       <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
@@ -368,7 +377,7 @@ export function PlumeHeatmapBlock() {
 /** 대응 체크리스트 — 대응현황 탭 */
 export function CoastChecklistBlock() {
   const state = usePilotBatch()
-  if (!state) return null
+  if (!state) return state === null ? <NoPilotBatch /> : null
   const { checklist, currentStage } = state.batch.coast
   return (
     <Block title={`연안 4단계 체크리스트 — 현재 ${currentStage}(샘플)`} state={state}>
@@ -388,7 +397,7 @@ export function CoastChecklistBlock() {
 
 export function AquaChecklistBlock() {
   const state = usePilotBatch()
-  if (!state) return null
+  if (!state) return state === null ? <NoPilotBatch /> : null
   return (
     <Block title="저염분 대응 체크리스트 5항목(샘플)" state={state}>
       <ul className="plist">

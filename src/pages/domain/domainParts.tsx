@@ -8,6 +8,7 @@ import { cctvStatusLabel, openCctvPlayer, useCctvCameras } from "../../data/cctv
 import { useKhoaLive } from "../../data/khoaLive"
 import { khoaBuoyMarineConditions } from "../../data/mockKhoaBuoy"
 import { sampleBuoys } from "../../data/placeholderSamples"
+import { IS_STAGING } from "../../data/appMode"
 import type { ServiceDataSources } from "../../data/mockDataSourceCategories"
 import type { PlanItem } from "../../data/mockMeetingItems"
 import type { CctvCamera, RiskLevel } from "../../types/domain"
@@ -224,7 +225,7 @@ export function RelatedCams({ domain }: { domain: CctvCamera["domain"] }) {
 
 /** 원본 데이터가 비어 임의 샘플을 보여줄 때 목록 위에 붙이는 안내 — 실데이터가 들어오면 같이 사라진다 */
 export function SampleNote() {
-  return <p className="pnote">* 샘플 데이터 — 실데이터 연동 전 임의 값</p>
+  return <p className="pnote">{IS_STAGING ? "* 샘플 데이터 — 실데이터 연동 전 임의 값" : "데이터 없음 — 연동된 자료가 없습니다"}</p>
 }
 
 export function Buoys() {
@@ -233,7 +234,7 @@ export function Buoys() {
   return (
     <>
       {sample && <SampleNote />}
-      <BuoyRows rows={sample ? sampleBuoys : khoaBuoyMarineConditions} />
+      <BuoyRows rows={sample ? (IS_STAGING ? sampleBuoys : []) : khoaBuoyMarineConditions} />
     </>
   )
 }
