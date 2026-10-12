@@ -1,5 +1,6 @@
-import { useId, type ReactNode } from "react"
+import { useId, useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
+import { ChatbotWindow } from "./Chatbot"
 import { DragScrollTabs } from "./DragScrollTabs"
 import { onTabListKeyDown } from "./tabKeys"
 import type { RiskLevel } from "../../types/domain"
@@ -228,12 +229,23 @@ export function StripToggle({ open, onToggle }: { open: boolean; onToggle: () =>
   )
 }
 
-export function MessengerFab({ onClick }: { onClick: () => void }) {
+/** 지도 화면 오른쪽 아래 AI 챗봇 버튼 — 누르면 챗봇 창이 열리고 다시 누르면 닫힌다 */
+export function MessengerFab() {
+  const [open, setOpen] = useState(false)
   return (
-    <button type="button" className="fab" aria-label="방재메신저" title="방재메신저" onClick={onClick}>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M21 12a8 8 0 01-8 8H7l-4 3V12a8 8 0 018-8h2a8 8 0 018 8z" />
-      </svg>
-    </button>
+    <>
+      {open && <ChatbotWindow onClose={() => setOpen(false)} />}
+      <button type="button" className="fab" aria-label="AI 챗봇" title="AI 챗봇" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        {open ? (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        ) : (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 12a8 8 0 01-8 8H7l-4 3V12a8 8 0 018-8h2a8 8 0 018 8z" />
+          </svg>
+        )}
+      </button>
+    </>
   )
 }

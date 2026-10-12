@@ -430,7 +430,7 @@ export function DashboardPage() {
             <SummaryRightDock tabs={summaryTabs} activeKey={summaryDockTab} onSelect={setSummaryDockTab} />
           </div>
           <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
-          <MessengerFab onClick={() => setSummaryDockTab("messenger")} />
+          <MessengerFab />
         </div>
         {stripOpen && <ServiceStrip cards={serviceStatusCards} />}
       </main>
@@ -470,7 +470,7 @@ export function DashboardPage() {
             <HorizontalTabsDock tabs={timelineTabs} activeKey={timelineTab} onSelect={setTimelineTab} />
           </div>
           <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
-          <MessengerFab onClick={() => setGisDockTab("status")} />
+          <MessengerFab />
         </div>
         {stripOpen && <ServiceStrip cards={serviceStatusCards} />}
       </main>

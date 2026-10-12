@@ -677,6 +677,50 @@ h1, h2, h3, p { margin: 0; }
 }
 .fab:hover { background: var(--quaternary-hover); }
 
+/* ---------- AI 챗봇 창 ---------- */
+.chat {
+  /* 화면 위에 떠 있는 팝업창 — 위치·크기는 Chatbot.tsx가 인라인으로 정한다(제목줄을 끌어 옮김) */
+  position: fixed; z-index: 80;
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--background); color: var(--foreground);
+  border: 1px solid var(--foreground-faint); border-radius: 16px;
+  box-shadow: 0 12px 32px #000a;
+  pointer-events: auto;
+}
+.chat__head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--foreground-faint); cursor: grab; user-select: none; touch-action: none; }
+.chat__head.is-dragging { cursor: grabbing; }
+.chat__head:focus-visible { outline: 2px solid var(--quaternary); outline-offset: -2px; }
+.chat__title { display: flex; flex-direction: column; flex: 1 1 0; min-width: 0; }
+.chat__title b { font-size: 14px; line-height: 18px; }
+.chat__title small { font-size: 11px; color: var(--foreground-muted); }
+.chat__close { cursor: pointer; color: var(--foreground-muted); font-size: 14px; padding: 4px 6px; border-radius: 6px; }
+.chat__close:hover { background: var(--foreground-ghost); color: var(--foreground); }
+.chat__avatar { width: 32px; height: 32px; flex: 0 0 auto; border-radius: 9999px; background: var(--quaternary); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.chat__avatar--sm { width: 24px; height: 24px; font-size: 10px; }
+.chat__body { flex: 1 1 0; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.chat__row { display: flex; align-items: flex-end; gap: 6px; }
+.chat__row--me { justify-content: flex-end; }
+.chat__bubble { max-width: 80%; padding: 8px 12px; border-radius: 14px; font-size: 13px; line-height: 19px; white-space: pre-wrap; word-break: break-word; background: var(--foreground-ghost); }
+.chat__row--bot .chat__bubble { border-bottom-left-radius: 4px; }
+.chat__row--me .chat__bubble { background: var(--quaternary); color: #fff; border-bottom-right-radius: 4px; }
+.chat__tag { margin-left: 6px; vertical-align: 1px; }
+.chat__typing { display: flex; gap: 4px; padding: 12px; }
+.chat__typing i { width: 6px; height: 6px; border-radius: 9999px; background: var(--foreground-muted); animation: chat-dot 1s infinite ease-in-out; }
+.chat__typing i:nth-child(2) { animation-delay: .15s; }
+.chat__typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes chat-dot { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .chat__typing i { animation: none; opacity: .6; } }
+.chat__chips { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: 4px; padding-left: 30px; }
+.chat__chip { padding: 6px 12px; border: 1px solid var(--foreground-faint); border-radius: 9999px; font-size: 12px; color: var(--foreground); text-align: left; }
+.chat__chip:hover { background: var(--foreground-ghost); }
+.chat__form { display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--foreground-faint); }
+.chat__form textarea { flex: 1 1 0; min-width: 0; resize: none; max-height: 96px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--foreground-faint); background: var(--foreground-ghost); color: var(--foreground); font: inherit; font-size: 13px; line-height: 18px; }
+.chat__form textarea:focus { outline: 2px solid var(--quaternary); outline-offset: 0; }
+.chat__send { width: 36px; height: 36px; flex: 0 0 auto; border-radius: 9999px; background: var(--quaternary); color: #fff; display: flex; align-items: center; justify-content: center; }
+.chat__send:hover:not(:disabled) { background: var(--quaternary-hover); }
+.chat__send:disabled { opacity: .4; cursor: not-allowed; }
+.chat__foot { padding: 0 14px 10px; font-size: 10px; color: var(--foreground-subtle); }
+
 /* ==========================================================================
    아키타입 2 — 사이드바 + 콘텐츠 (CCTV 즐겨찾기 형)
    ========================================================================== */

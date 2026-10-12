@@ -13,7 +13,6 @@ import { heatShelters } from "../../data/mockHeat"
 import { liveOverlay, useServiceWarnings, warningHeadline, warningMarkers } from "../../data/boardLive"
 import { BOARD_SERVICES, SB_DEFAULT_STATE, boardRoute } from "../../data/boardSamples"
 import { BOARD_STATES, type BoardStateId } from "../../data/boardTypes"
-import { MessengerNotice } from "../../components/board/ComingSoon"
 import { WarningsSummary } from "../../components/board/WarningsSummary"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { useCctvCameras } from "../../data/cctvLive"
@@ -37,7 +36,6 @@ export function DomainBoardPage({ domain }: { domain: string }) {
   const cctvCameras = useCctvCameras()
   const [params, setParams] = useSearchParams()
   const [boardState, setBoardState] = useState<BoardStateId>(SB_DEFAULT_STATE)
-  const [messengerOpen, setMessengerOpen] = useState(false)
   const warn = useServiceWarnings(config?.wrn.codes) // 기상청 특보(최근 24시간 발표분) — 있으면 평시 값 위에 얹는다
   const facts = useBoardFacts(domain, true) // 서비스별 실제 값(우량·태풍·예보·지진·해양관측 등) — 스테이징도 샘플 위에 덮어쓴다
   const [mapTopRef, mapTopHeight] = useElementHeight<HTMLDivElement>()
@@ -158,10 +156,9 @@ export function DomainBoardPage({ domain }: { domain: string }) {
           <BoardResponsePanel service={svc} state={boardState} onState={setBoardState} live={live?.right} />
         </div>
         <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
-        <MessengerFab onClick={() => setMessengerOpen((v) => !v)} />
+        <MessengerFab />
       </div>
       {stripOpen && <ServiceStrip cards={serviceStatusCards} currentId={config.id} />}
-      {messengerOpen && <MessengerNotice onClose={() => setMessengerOpen(false)} />}
     </main>
   )
 }
