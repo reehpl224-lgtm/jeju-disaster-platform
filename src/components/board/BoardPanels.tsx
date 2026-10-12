@@ -33,13 +33,17 @@ function Card({ title, badge, children, tag }: { title: ReactNode; badge?: React
 const STEPS = ["감지", "확인", "판단", "경보", "대응", "종료"]
 
 // ================================================================== 좌측 · 대시보드
-export function BoardDashboard({ service, state }: { service: BoardService; state: BoardStateId }) {
+export function BoardDashboard({ service, state, live }: { service: BoardService; state: BoardStateId; /** 실제 특보를 얹은 값(프로토타입 평시) */ live?: DashLeft }) {
   const heatLoaded = useHeatShelters()
-  const base: DashLeft = state === "calm" || state === "closed" ? service.dash.calm : service.dash[state]
+  const base: DashLeft = live ?? (state === "calm" || state === "closed" ? service.dash.calm : service.dash[state])
   // 프로토타입 평시 — 받아 둔 무더위쉼터 자료(행안부)가 있으면 그 개수를 쓴다(자료가 있는 항목만 실값)
   const d: DashLeft =
     !IS_STAGING && service.id === "heat" && heatLoaded && heatShelters.length > 0
-      ? { ...base, tiles: base.tiles.map((t) => (t.label === "무더위쉼터" ? { ...t, value: `${heatShelters.length}개소`, sub: "행안부 스냅샷" } : t)) }
+      ? {
+          ...base,
+          tiles: base.tiles.map((t) => (t.label === "무더위쉼터" ? { ...t, value: `${heatShelters.length}개소`, sub: "행안부 스냅샷" } : t)),
+          brief: base.brief.map(([k, v]) => [k, k === "대응" ? `안내 발송 없음 · 무더위쉼터 ${heatShelters.length}곳(행안부 스냅샷)` : v] as [string, string]),
+        }
       : base
   return (
     <div className="sp">
@@ -208,8 +212,7 @@ const nowHM = () => {
 }
 const isBad = (t: string) => /오류|실패|응답 없음/.test(t)
 
-function ResponseBody({ service, state, onClose }: { service: BoardService; state: BoardStateId; onClose?: () => void }) {
-  const r: RightPanel = service.right[state]
+function ResponseBody({ service, state, r, onClose }: { service: BoardService; state: BoardStateId; r: RightPanel; onClose?: () => void }) {
   const [done, setDone] = useState<number[]>([])
   const [memos, setMemos] = useState<LogItem[]>([])
   const [memo, setMemo] = useState("")
@@ -286,7 +289,11 @@ function ResponseBody({ service, state, onClose }: { service: BoardService; stat
             ))}
           </div>
         )}
-        {r.doing.items.length === 0 && r.doing.empty && <p className="sp-sub" style={{ fontSize: 12, color: "var(--foreground)" }}>{r.doing.empty}</p>}
+        {r.doing.items.length === 0 && r.doing.empty && (
+          <p className="sp-sub" style={{ fontSize: r.doing.empty.length > 40 ? 10 : 12, lineHeight: "15px", color: r.doing.empty.length > 40 ? "var(--foreground-subtle)" : "var(--foreground)" }}>
+            {r.doing.empty}
+          </p>
+        )}
         {r.doing.items.map((d) => (
           <div className="sp-row bd-do" key={d.title}>
             <div style={{ flex: "1 1 0", minWidth: 0 }}>
@@ -345,8 +352,8 @@ function ResponseBody({ service, state, onClose }: { service: BoardService; stat
 }
 
 /** 우측 대응 패널 — 스테이징에는 상태(평시·감지·진행·종료)를 고르는 데모 스위치가 붙는다 */
-export function BoardResponsePanel({ service, state, onState }: { service: BoardService; state: BoardStateId; onState: (s: BoardStateId) => void }) {
-  const r = service.right[state]
+export function BoardResponsePanel({ service, state, onState, live }: { service: BoardService; state: BoardStateId; onState: (s: BoardStateId) => void; live?: RightPanel }) {
+  const r = live ?? service.right[state]
   return (
     <aside className="dock dock--right">
       <section className="panel panel--right" style={{ borderRadius: "1rem" }}>
@@ -369,7 +376,7 @@ export function BoardResponsePanel({ service, state, onState }: { service: Board
         )}
         <div className="panel__scroll">
           {/* 상태가 바뀌면 처리·메모 기록을 새로 시작한다 */}
-          <ResponseBody key={`${service.id}-${state}`} service={service} state={state} onClose={IS_STAGING ? () => onState("closed") : undefined} />
+          <ResponseBody key={`${service.id}-${state}-${live ? "live" : ""}`} service={service} state={state} r={r} onClose={IS_STAGING ? () => onState("closed") : undefined} />
         </div>
       </section>
     </aside>

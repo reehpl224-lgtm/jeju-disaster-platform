@@ -10,11 +10,14 @@ export interface HourlyWeather {
   windMs: number
   snowfallCm: number
   snowDepthM: number
+  /** 강수량(mm/h) — 지난 24시간은 모델 분석값, 이후는 예보 */
+  precipitationMm: number
 }
 
 export const OPEN_METEO_SITES = {
   jeju: { label: "제주시", lat: 33.5, lng: 126.53 },
   halla: { label: "한라산", lat: 33.36, lng: 126.53 },
+  seogwipo: { label: "서귀포시", lat: 33.25, lng: 126.56 },
 } as const
 export type OpenMeteoSite = keyof typeof OPEN_METEO_SITES
 
@@ -25,8 +28,8 @@ async function request(site: OpenMeteoSite): Promise<HourlyWeather[]> {
   const { lat, lng } = OPEN_METEO_SITES[site]
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}` +
-    "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,snowfall,snow_depth" +
-    "&past_days=1&forecast_days=3&timezone=Asia%2FSeoul&wind_speed_unit=ms"
+    "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,snowfall,snow_depth,precipitation" +
+    "&past_days=5&forecast_days=3&timezone=Asia%2FSeoul&wind_speed_unit=ms"
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Open-Meteo 예보 조회 실패 (HTTP ${res.status})`)
   const body = (await res.json()) as { hourly?: Record<string, (number | string | null)[]> }
@@ -40,6 +43,7 @@ async function request(site: OpenMeteoSite): Promise<HourlyWeather[]> {
     windMs: n(h.wind_speed_10m, i),
     snowfallCm: n(h.snowfall, i),
     snowDepthM: n(h.snow_depth, i),
+    precipitationMm: n(h.precipitation, i),
   }))
 }
 

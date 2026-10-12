@@ -1,13 +1,18 @@
 import { useMemo, useState } from "react"
 import { useElementHeight } from "../../hooks/useElementHeight"
 import { Navigate, useSearchParams } from "react-router-dom"
+import type { RiskMarker } from "../../types/domain"
 import { DetailLink, Group } from "../../components/board/PanelParts"
 import { MessengerFab, Risk, ServiceStrip, SideTabsDock, StripToggle, type DockTab } from "../../components/board/BoardParts"
 import { BoardDashboard, BoardHistory, BoardResponsePanel } from "../../components/board/BoardPanels"
 import { SpSample } from "../../components/sidepanel/primitives"
 import { IS_STAGING } from "../../data/appMode"
+import { useBoardFacts } from "../../data/boardFacts"
+import { shelterMarkers } from "../../data/heatMapMarkers"
+import { heatShelters } from "../../data/mockHeat"
+import { liveOverlay, useServiceWarnings, warningHeadline, warningMarkers } from "../../data/boardLive"
 import { BOARD_SERVICES, SB_DEFAULT_STATE, boardRoute } from "../../data/boardSamples"
-import type { BoardStateId } from "../../data/boardTypes"
+import { BOARD_STATES, type BoardStateId } from "../../data/boardTypes"
 import { MessengerNotice } from "../../components/board/ComingSoon"
 import { WarningsSummary } from "../../components/board/WarningsSummary"
 import { JejuTileMap } from "../../components/ui/JejuTileMap"
@@ -31,6 +36,8 @@ export function DomainBoardPage({ domain }: { domain: string }) {
   const [params, setParams] = useSearchParams()
   const [boardState, setBoardState] = useState<BoardStateId>(SB_DEFAULT_STATE)
   const [messengerOpen, setMessengerOpen] = useState(false)
+  const warn = useServiceWarnings(config?.wrn.codes) // 기상청 특보(최근 24시간 발표분) — 있으면 평시 값 위에 얹는다
+  const facts = useBoardFacts(domain, !IS_STAGING) // 서비스별 실제 값(우량·태풍·예보·지진·해양관측 등)
   const [mapTopRef, mapTopHeight] = useElementHeight<HTMLDivElement>()
   const [stripOpen, setStripOpen] = useState(true)
 
@@ -40,8 +47,11 @@ export function DomainBoardPage({ domain }: { domain: string }) {
   // 데이터 수집·연계 시스템은 운영 > 데이터 시스템 연계현황에서 서비스별로 본다(2026-10-02)
   const svc = BOARD_SERVICES[domain]
   if (!svc) return <Navigate to="/dashboard" replace />
+  const live = !IS_STAGING && boardState === "calm" ? liveOverlay(svc, warn, facts) : null
   const NOT_OBS = new Set(["home", "data", "alert", "alerts", "dispatch", "control", "closure"])
-  const obsTabs = config.tabs.filter((t) => !NOT_OBS.has(t.key))
+  // 산불·지진해일·대설은 상세 분석과 실시간 연동이 같은 특보·참고 패널을 두 번 그려서, 실시간 연동 쪽(예보까지 있음)만 보인다
+  const HAZARD = domain === "wildfire" || domain === "tsunami" || domain === "snow"
+  const obsTabs = config.tabs.filter((t) => !NOT_OBS.has(t.key) && !HAZARD)
   // 예보·특보·해양 관측 같은 실시간 패널은 관측·판단으로 모은다(예전 우측 "실시간 연동"·"해양 관측" 탭)
   const obsLive = config.right.filter((t) => t.key === "live" || t.key === "buoy")
   const leftTabs: DockTab[] = [
@@ -50,7 +60,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
       label: "대시보드",
       content: (
         <>
-          <BoardDashboard service={svc} state={boardState} />
+          <BoardDashboard service={svc} state={boardState} live={live?.dash} />
           <DetailLink to={boardRoute(svc, "home")}>대시보드 상세 화면</DetailLink>
         </>
       ),
@@ -60,7 +70,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
       label: "관측·판단",
       content: (
         <>
-          <WarningsSummary {...config.wrn} />
+          {!config.right.some((t) => t.key === "live") && <WarningsSummary {...config.wrn} />}
           {obsTabs.map((t) => (
             <Group key={t.key} title={t.label}>
               {t.content}
@@ -72,13 +82,30 @@ export function DomainBoardPage({ domain }: { domain: string }) {
               {t.content}
             </Group>
           ))}
+          {HAZARD && <DetailLink to={boardRoute(svc, "analysis")}>상세 분석 상세 화면</DetailLink>}
         </>
       ),
     },
     { key: "history", label: "이력·보고", content: <BoardHistory service={svc} state={boardState} /> },
   ]
   const activeKey = leftTabs.some((t) => t.key === params.get("tab")) ? (params.get("tab") as string) : leftTabs[0].key
-  const markers = riskMarkers.filter((m) => m.domain === config.mapDomain)
+  const baseMarkers = riskMarkers.filter((m) => m.domain === config.mapDomain)
+  // 지도 — 이 서비스에 원래 점이 없으면(호우 등) 프로토타입은 기상청 특보가 발표된 시를, 스테이징은 샘플 상태에 맞춘 샘플 점을 찍는다
+  const factMarker: RiskMarker[] = !IS_STAGING
+    ? (facts?.markers ?? []).map((m, i) => ({ id: `fact-${svc.id}-${i}`, name: m.name, x: 0, y: 0, level: m.level, domain: config.mapDomain, lat: m.lat, lng: m.lng, value: m.value }))
+    : []
+  // 폭염은 받아 둔 무더위쉼터를 읍·면 대표점에 개수로 모아 찍는다(쉼터 자료에 좌표가 없다 — heatMapMarkers.ts)
+  const shelterDots = !IS_STAGING && svc.id === "heat" && sheltersLoaded ? shelterMarkers(heatShelters, config.mapDomain) : []
+  const markers: RiskMarker[] = IS_STAGING
+    ? baseMarkers.length === 0 && boardState !== "calm"
+      ? [{ id: `sample-${svc.id}`, name: `${svc.title} 샘플 지점`, x: 0, y: 0, level: boardState === "closed" ? "safe" : boardState === "detect" ? "warning" : "alert", domain: config.mapDomain, lat: 33.4996, lng: 126.5312 }]
+      : baseMarkers
+    : [...baseMarkers, ...warningMarkers(warn, config.mapDomain), ...factMarker, ...shelterDots]
+  const headline = IS_STAGING
+    ? boardState === "calm"
+      ? config.headline
+      : `${svc.title} — 샘플 상태: ${BOARD_STATES.find((s) => s.id === boardState)?.label} (${svc.right[boardState].head.label})`
+    : (warningHeadline(warn) ?? facts?.headline ?? config.headline)
 
   return (
     <main className="stage" id="main-content" tabIndex={-1}>
@@ -113,7 +140,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
                 className="weather-line"
                 style={{ padding: "6px 14px", background: "var(--background)", border: "1px solid var(--foreground-faint)", borderRadius: 9999 }}
               >
-                {config.headline}
+                {headline}
               </p>
             </div>
             <div />
@@ -127,7 +154,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
             </div>
           </div>
 
-          <BoardResponsePanel service={svc} state={boardState} onState={setBoardState} />
+          <BoardResponsePanel service={svc} state={boardState} onState={setBoardState} live={live?.right} />
         </div>
         <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
       </div>

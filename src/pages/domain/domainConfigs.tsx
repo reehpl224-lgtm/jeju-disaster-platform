@@ -31,6 +31,8 @@ import { KHOA_BUOY_SNAPSHOT, KHOA_OBS_SNAPSHOT, KHOA_TIDE_SNAPSHOT } from "../..
 import { khoaSource } from "../../data/khoaLive"
 import { heatSheltersSource } from "../../data/heatSheltersLive"
 import { LeaderBoardBrief } from "./LeaderBrief"
+import { HeatNow, HeatTrend } from "./HeatTrend"
+import { RainTrend } from "./RainTrend"
 import { aquaBrief, coastBrief, hazardBrief, heatBrief, heavyRainBrief, riverBrief, typhoonBrief } from "./leaderBriefs"
 import { HAZARDS, type HazardId } from "../../data/mockHazards"
 import { sampleShelters } from "../../data/placeholderSamples"
@@ -149,16 +151,23 @@ export function heavyRainConfig(): DomainConfig {
   )
   const analysis = (
     <>
-      <Group title="강우 추이 (15분 간격)" dummy>
-        <MiniChart
-          data={HR.heavyRainTrend}
-          keys={["rainfallMm", "cumulativeMm"]}
-          colors={["#0054a3", "#f2731a"]}
-          names={["15분 강우(mm)", "누적(mm)"]}
-          xkey="time"
-          refLine={{ y: f.forecastMm, label: `예보 ${f.forecastMm}mm/h` }}
-        />
-      </Group>
+      {HR.heavyRainTrend.length > 0 ? (
+        <Group title="강우 추이 (15분 간격)" dummy>
+          <MiniChart
+            data={HR.heavyRainTrend}
+            keys={["rainfallMm", "cumulativeMm"]}
+            colors={["#0054a3", "#f2731a"]}
+            names={["15분 강우(mm)", "누적(mm)"]}
+            xkey="time"
+            refLine={{ y: f.forecastMm, label: `예보 ${f.forecastMm}mm/h` }}
+          />
+        </Group>
+      ) : (
+        // 15분 관측 시계열이 비어 있으면 공개 자료(Open-Meteo 시간별 강수 + 기상청 AWS 실측)로 채운다
+        <Group title="강우 추이 (1시간 간격 · 참고)">
+          <RainTrend />
+        </Group>
+      )}
       <Group title="누적 강우 순위" dummy>
         <ul className="plist">
           {HR.heavyRainTopStations.map((t) => (
@@ -196,11 +205,14 @@ export function heavyRainConfig(): DomainConfig {
     title: "호우",
     mapDomain: "heavyRain",
     wrn: { codes: ["R", "W"] },
-    headline: (
-      <>
-        ☔ 예보 <b>{f.forecastMm}mm/h</b> 초과 · 한천 침수센서 경보 발령
-      </>
-    ),
+    headline:
+      f.forecastMm > 0 ? (
+        <>
+          ☔ 예보 <b>{f.forecastMm}mm/h</b> 초과 · 한천 침수센서 경보 발령
+        </>
+      ) : (
+        <>☔ 감지된 돌발 강우 없음 — 평시 감시 중</>
+      ),
     tabs: navTabs(HEAVY_RAIN_NAV, home, {
       "/heavy-rain/data": (
         <>
@@ -420,23 +432,34 @@ export function heatConfig(): DomainConfig {
   )
   const analysis = (
     <>
-      <Kv
-        items={[
-          { k: "현재 특보", v: li.label },
-          { k: "체감온도", v: li.feelsLikeC === null ? "-" : `${li.feelsLikeC}℃` },
-        ]}
-        over={["체감온도"]}
-      />
-      <Group title="최근 5일 기온" dummy>
-        <MiniChart
-          data={HT.heatTrend}
-          keys={["maxTempC", "feelsLikeC"]}
-          colors={["#f9cd00", "#f2731a"]}
-          names={["최고기온(℃)", "체감온도(℃)"]}
-          xkey="date"
-          refLine={{ y: 33, label: "주의보 33℃" }}
+      {li.feelsLikeC === null ? (
+        <HeatNow />
+      ) : (
+        <Kv
+          items={[
+            { k: "현재 특보", v: li.label },
+            { k: "체감온도", v: `${li.feelsLikeC}℃` },
+          ]}
+          over={["체감온도"]}
         />
-      </Group>
+      )}
+      {HT.heatTrend.length > 0 ? (
+        <Group title="최근 5일 기온" dummy>
+          <MiniChart
+            data={HT.heatTrend}
+            keys={["maxTempC", "feelsLikeC"]}
+            colors={["#f9cd00", "#f2731a"]}
+            names={["최고기온(℃)", "체감온도(℃)"]}
+            xkey="date"
+            refLine={{ y: 33, label: "주의보 33℃" }}
+          />
+        </Group>
+      ) : (
+        // 일별 관측 이력이 비어 있으면 공개 자료(Open-Meteo 기온·습도 + 기상청 체감식)로 채운다
+        <Group title="최근 5일 기온 (참고)">
+          <HeatTrend />
+        </Group>
+      )}
       <p className="pbox">{li.criteria}</p>
     </>
   )

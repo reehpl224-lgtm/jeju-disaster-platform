@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
-import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { CartesianGrid, Legend, Line, LineChart, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import type { RiskLevel } from "../../types/domain"
 import { Risk } from "./BoardParts"
 import { SourceTag } from "../ui/SourceTag"
@@ -169,6 +169,9 @@ export function MiniChart({
   xkey,
   refLine,
   showDots = false,
+  nowX,
+  yMin,
+  yMax,
 }: {
   data: object[]
   keys: string[]
@@ -177,16 +180,48 @@ export function MiniChart({
   xkey: string
   refLine?: { y: number; label: string }
   showDots?: boolean
+  /** 지금 위치(xkey 값) — 세로선으로 표시하고, 그 뒤쪽(예보 구간)은 색을 깐다 */
+  nowX?: string
+  /** y축 시작값 — 생략하면 0부터. 값이 이보다 낮으면 그 값에 맞춰 내려간다 */
+  yMin?: number
+  /** y축 끝값 — yMin과 함께 쓴다. 값이 이보다 크면 그 값에 맞춰 올라간다 */
+  yMax?: number
 }) {
+  // yMin이 있으면 그 값에서 시작하는 눈금을 직접 만든다(자동 눈금은 더 낮은 값으로 내려가 버린다)
+  let yAxisProps: { domain?: [number, number]; ticks?: number[] } = {}
+  if (yMin !== undefined) {
+    const vals = data.flatMap((d) => keys.map((k) => Number((d as Record<string, unknown>)[k]))).filter((v) => Number.isFinite(v))
+    const lo = Math.min(yMin, vals.length ? Math.floor(Math.min(...vals)) : yMin)
+    if (yMax !== undefined) {
+      // 끝값이 정해져 있으면 시작값 + 5의 배수 눈금(예: 14, 20, 25 … 45)
+      const top = Math.max(yMax, vals.length ? Math.ceil(Math.max(...vals)) : yMax)
+      const ticks = [lo]
+      for (let t = Math.floor(lo / 5) * 5 + 5; t <= top; t += 5) ticks.push(t)
+      if (ticks[ticks.length - 1] !== top) ticks.push(top)
+      yAxisProps = { domain: [lo, top], ticks }
+    } else {
+      const hi = Math.max(lo + 4, vals.length ? Math.ceil(Math.max(...vals)) + 1 : lo + 4)
+      const step = hi - lo <= 16 ? 2 : hi - lo <= 32 ? 4 : 8
+      const top = lo + Math.ceil((hi - lo) / step) * step
+      yAxisProps = { domain: [lo, top], ticks: Array.from({ length: (top - lo) / step + 1 }, (_, i) => lo + i * step) }
+    }
+  }
+  const lastX = nowX !== undefined ? (data[data.length - 1] as Record<string, unknown> | undefined)?.[xkey] : undefined
   return (
     <div style={{ height: 170, marginTop: 4 }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#3a3b3c" />
           <XAxis dataKey={xkey} tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
-          <YAxis tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
+          <YAxis {...yAxisProps} tick={{ fontSize: 10, fill: "#ffffff88" }} stroke="#3a3b3c" />
           <Tooltip contentStyle={{ background: "#272727", border: "1px solid #3a3b3c", borderRadius: 8, fontSize: 11 }} />
           <Legend wrapperStyle={{ fontSize: 10, color: "#ffffffaa" }} />
+          {nowX !== undefined && lastX !== undefined && nowX !== lastX && (
+            <ReferenceArea x1={nowX} x2={String(lastX)} fill="#0054a3" fillOpacity={0.18} stroke="none" label={{ value: "예보", fill: "#7fb2e5", fontSize: 10, position: "insideTopRight" }} />
+          )}
+          {nowX !== undefined && (
+            <ReferenceLine x={nowX} stroke="#8ec21f" strokeWidth={2} label={{ value: "지금", fill: "#8ec21f", fontSize: 10, position: "insideTopLeft" }} />
+          )}
           {refLine && (
             <ReferenceLine
               y={refLine.y}
