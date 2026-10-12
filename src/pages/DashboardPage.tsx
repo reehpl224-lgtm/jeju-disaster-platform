@@ -28,8 +28,8 @@ import type { CctvCamera, RiskMarker } from "../types/domain"
 import {
   agencyStatuses,
   riskMarkers,
-  serviceStatusCards,
 } from "../data/mockDashboard"
+import { useServiceStatusCards } from "../data/useServiceStatusCards"
 import { useLiveWeather } from "../data/useLiveWeather"
 import { currentWeather, disasterIncidents, disasterResponseTeams } from "../data/mockIncidents"
 import { cctvCoverageSummary } from "../data/mockCctv"
@@ -80,6 +80,7 @@ const RISK_ORDER = ["danger", "alert", "warning", "caution"] as const
 type TabKey = "summary" | "gis" | "cctv"
 
 export function DashboardPage() {
+  const serviceStatusCards = useServiceStatusCards()
   // 현재 날씨는 기상청 초단기실황(실시간)을 우선 쓰고, 못 받으면 기존 mock(관측값 없음)으로 되돌린다
   const liveWeather = useLiveWeather()
   const cctvCameras = useCctvCameras()
@@ -98,7 +99,7 @@ export function DashboardPage() {
   // 좌측 패널(종합) · 우측 패널(GIS) 탭 — 필터는 각 패널(src/components/sidepanel)이 가진다
   const [timelineTab, setTimelineTab] = useState("timeline")
 
-  // 총 합계 — 기존 mock 데이터를 그대로 합산(새 수치를 만들지 않음)
+  // 총 합계 — 화면에 표시하는 카드와 동일한 집계(입력값·실제 특보·샘플)를 사용한다
   const totalActiveRisk = serviceStatusCards.reduce(
     (sum, card) => sum + card.counts.danger + card.counts.alert + card.counts.warning + (card.counts.caution ?? 0),
     0,
@@ -109,6 +110,7 @@ export function DashboardPage() {
   }))
   // 상황단계 = 서비스 전체에서 건수가 있는 가장 높은 등급(없으면 평시)
   const stageLevel = riskTotals.find((t) => t.count > 0)?.level
+  const hasSampleCounts = serviceStatusCards.some((card) => card.source === "sample")
   const totalDutyMembers = disasterResponseTeams.reduce((sum, team) => sum + team.members, 0)
   const dispatchedTeams = disasterResponseTeams.filter((team) => team.status === "출동중").length
   const connectedAgencies = agencyStatuses.filter((a) => a.status === "connected").length
@@ -370,7 +372,7 @@ export function DashboardPage() {
                     >
                       <Risk
                         level={stageLevel ?? "safe"}
-                        label={`상황단계 ${stageLevel ? riskStyles[stageLevel].label : "평시"}`}
+                        label={`카드 최고등급 ${stageLevel ? riskStyles[stageLevel].label : "평시"}${hasSampleCounts ? " · 샘플 포함" : ""}`}
                         solid
                       />
                       {riskTotals.map(({ level, count }) => (
@@ -396,8 +398,8 @@ export function DashboardPage() {
                         <span className="k">근무(명) · 출동 {dispatchedTeams}팀</span>
                         <span className="v">{totalDutyMembers}</span>
                       </button>
-                      <button type="button" title="GIS 상황에서 위험 위치 보기" onClick={() => setParams({ tab: "gis" })}>
-                        <span className="k">위험자산(건)</span>
+                      <button type="button" title="서비스 카드의 입력값·특보 발표·샘플 건수 합계 보기" onClick={() => setParams({ tab: "gis" })}>
+                        <span className="k">카드 집계(건){hasSampleCounts ? " · 샘플 포함" : ""}</span>
                         <span className="v danger">{totalActiveRisk}</span>
                       </button>
                       <button
@@ -425,9 +427,9 @@ export function DashboardPage() {
             <SummaryRightDock tabs={summaryTabs} activeKey={summaryDockTab} onSelect={setSummaryDockTab} />
           </div>
           <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
+          <MessengerFab onClick={() => setSummaryDockTab("messenger")} />
         </div>
         {stripOpen && <ServiceStrip cards={serviceStatusCards} />}
-        <MessengerFab onClick={() => setSummaryDockTab("messenger")} />
       </main>
     )
   }
@@ -465,9 +467,9 @@ export function DashboardPage() {
             <HorizontalTabsDock tabs={timelineTabs} activeKey={timelineTab} onSelect={setTimelineTab} />
           </div>
           <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
+          <MessengerFab onClick={() => setGisDockTab("status")} />
         </div>
         {stripOpen && <ServiceStrip cards={serviceStatusCards} />}
-        <MessengerFab onClick={() => setGisDockTab("status")} />
       </main>
     )
   }

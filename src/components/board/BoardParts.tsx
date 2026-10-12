@@ -141,6 +141,9 @@ interface StripCard {
   href: string
   kind?: "legacy" | "pilot"
   counts: { warning: number; alert: number; danger: number; caution?: number }
+  source?: "input" | "warnings" | "sample"
+  sourceLabel?: string
+  unavailable?: boolean
 }
 
 const STRIP_TIERS = [
@@ -181,17 +184,24 @@ export function ServiceStrip({ cards, currentId }: { cards: StripCard[]; current
                   ↗
                 </span>
               </Link>
-              <ul className="strip__body">
-                {tiers.map((t) => {
-                  const n = card.counts[t.key] ?? 0
-                  return (
-                    <li key={t.key}>
-                      <span>{riskStyles[t.level].label}</span>
-                      <span className={`n${n > 0 ? ` on-${t.level}` : ""}`}>{String(n).padStart(2, "0")}</span>
-                    </li>
-                  )
-                })}
-              </ul>
+              <div className="strip__body">
+                {card.sourceLabel && (
+                  <p className={`strip__source strip__source--${card.source}`} title={card.source === "warnings" ? "최근 24시간 특보 발표의 종류·등급·지역별 건수입니다. 현재 발효 중인 특보나 실제 사건 건수를 의미하지 않습니다." : card.sourceLabel}>
+                    {card.sourceLabel}
+                  </p>
+                )}
+                <ul>
+                  {tiers.map((t) => {
+                    const n = card.counts[t.key] ?? 0
+                    return (
+                      <li key={t.key}>
+                        <span>{riskStyles[t.level].label}</span>
+                        <span className={`n${n > 0 ? ` on-${t.level}` : ""}`}>{card.unavailable ? "—" : String(n).padStart(2, "0")}</span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
             </li>
           )
         })}

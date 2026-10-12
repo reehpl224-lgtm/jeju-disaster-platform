@@ -19,7 +19,8 @@ import { JejuTileMap } from "../../components/ui/JejuTileMap"
 import { useCctvCameras } from "../../data/cctvLive"
 import { useKhoaLive } from "../../data/khoaLive"
 import { useHeatShelters } from "../../data/heatSheltersLive"
-import { riskMarkers, serviceStatusCards } from "../../data/mockDashboard"
+import { riskMarkers } from "../../data/mockDashboard"
+import { useServiceStatusCards } from "../../data/useServiceStatusCards"
 import { DOMAIN_CONFIGS } from "./domainConfigs"
 
 /**
@@ -27,6 +28,7 @@ import { DOMAIN_CONFIGS } from "./domainConfigs"
  * 좌측 세로 탭은 앱 도메인 하위 메뉴 그대로이고, 각 탭 아래 "상세 화면 →"이 기존 화면(승인·발송 등 동작)으로 이어진다.
  */
 export function DomainBoardPage({ domain }: { domain: string }) {
+  const serviceStatusCards = useServiceStatusCards()
   const build = DOMAIN_CONFIGS[domain]
   const sheltersLoaded = useHeatShelters()
   const khoaLoaded = useKhoaLive() // 해양조사원 실측이 도착하면 설정(탭 내용)을 다시 만든다
@@ -156,9 +158,9 @@ export function DomainBoardPage({ domain }: { domain: string }) {
           <BoardResponsePanel service={svc} state={boardState} onState={setBoardState} live={live?.right} />
         </div>
         <StripToggle open={stripOpen} onToggle={() => setStripOpen((v) => !v)} />
+        <MessengerFab onClick={() => setMessengerOpen((v) => !v)} />
       </div>
       {stripOpen && <ServiceStrip cards={serviceStatusCards} currentId={config.id} />}
-      <MessengerFab onClick={() => setMessengerOpen((v) => !v)} />
       {messengerOpen && <MessengerNotice onClose={() => setMessengerOpen(false)} />}
     </main>
   )

@@ -556,7 +556,7 @@ h1, h2, h3, p { margin: 0; }
   border-radius: 0 0 .75rem .75rem;
   overflow: hidden;
 }
-.strip__body li { display: flex; justify-content: space-between; color: var(--foreground-faint); }
+.strip__body li { display: flex; justify-content: space-between; color: var(--foreground-muted); }
 .strip__body li span:last-child { width: 28px; text-align: center; }
 
 /* ==========================================================================
@@ -1452,7 +1452,9 @@ h1, h2, h3, p { margin: 0; }
 /* ---------- 하단 서비스 카드: 건수 색 ---------- */
 .strip > ul > li { display: flex; flex-direction: column; }
 .strip__body { flex: 1 1 auto; height: auto; min-height: 112px; padding-top: 1rem; padding-bottom: 1rem; justify-content: center; }
-.strip__body li .n { font-weight: 700; }
+.strip__body li .n { font-weight: 700; color: var(--foreground); font-variant-numeric: tabular-nums; }
+.strip__source { margin-bottom: .375rem; font-size: 10px; color: var(--foreground-muted); line-height: 1.4; }
+.strip__source--sample { color: var(--primary); }
 .strip__body li .n.on-danger { color: var(--risk-danger); }
 .strip__body li .n.on-alert { color: var(--risk-alert); }
 .strip__body li .n.on-warning { color: var(--risk-warning); }
@@ -1508,7 +1510,7 @@ h1, h2, h3, p { margin: 0; }
 /* 종합 상황: 접힌 pill은 자기 폭만 차지하고 가운데 지도를 넓게 */
 .dock--pill { width: auto; }
 .regions--wide { max-width: 1240px; grid-template-columns: minmax(150px, 308px) minmax(240px, 1fr) minmax(150px, 308px); }
-.strip__head .dot { right: 38px; top: 50%; transform: translateY(-50%); }
+.strip__head .dot { right: 8px; top: 8px; transform: none; }
 
 .region-card__stats .k { white-space: normal; text-align: center; line-height: 1.25; }
 

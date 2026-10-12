@@ -81,7 +81,7 @@ export function PanelInputPage() {
         </>
       ) : (
         <>
-          <PartCard partKey="stages" title="서비스별 대응 단계와 조치 건수" desc="대응현황의 서비스 타일 — 단계, 단계 옆 숫자(선택), 조치 완료·진행·대기 건수. 합계와 '조치 진행' 막대는 여기서 계산합니다.">
+          <PartCard partKey="stages" title="서비스별 대응 단계와 조치 건수" desc="대응현황의 서비스 타일 — 단계, 단계 옆 숫자(선택), 조치 완료·진행·대기 건수. 단계와 숫자는 종합·GIS·서비스 화면 하단 카드에도 즉시 반영됩니다. 합계와 '조치 진행' 막대는 여기서 계산합니다.">
             {(v, set) => <StagesEditor v={v} set={set} />}
           </PartCard>
           <PartCard partKey="actions" title="지금 해야 할 조치" desc="대응현황의 '지금 해야 할 조치' 목록.">

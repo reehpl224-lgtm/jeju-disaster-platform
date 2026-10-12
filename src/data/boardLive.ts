@@ -5,6 +5,7 @@ import { parseKst } from "./useSidePanelEvents"
 import type { RiskMarker } from "../types/domain"
 import { bd, type BoardService, type BoardStateId, type DashLeft, type RightPanel } from "./boardTypes"
 import type { Facts } from "./boardFacts"
+import type { CardWarnings } from "./serviceCardCounts"
 
 /**
  * 서비스 보드의 실데이터 겹치기 — 기상청 특보(최근 24시간 발표분)가 이 서비스 코드로 있으면 평시 기본 상태 위에 그 값을 얹는다.
@@ -51,23 +52,32 @@ export function groupWarnings(list: WarningEntry[], codes: string[]): WarnGroup[
   return [...map.values()].sort((a, b) => b.at.getTime() - a.at.getTime())
 }
 
-/** codes가 없으면(기상청 외 기관 특보 서비스) 받지 않는다 */
-export function useServiceWarnings(codes: string[] | undefined): ServiceWarnings {
-  const key = codes?.join(",") ?? ""
-  // 서비스를 옮겨도 화면 컴포넌트가 그대로라 이전 서비스의 특보가 남지 않도록 key와 함께 저장한다
-  const [stored, setStored] = useState<{ key: string; value: ServiceWarnings } | null>(null)
+/** 카드와 서비스 보드가 같은 캐시를 사용하며 1분마다 다시 집계한다. */
+export function useWarningEntries(enabled = true): CardWarnings {
+  const [stored, setStored] = useState<CardWarnings>({ status: "loading" })
   useEffect(() => {
-    if (!key) return
+    if (!enabled) return
     let cancelled = false
-    entries()
-      .then((list) => !cancelled && setStored({ key, value: { status: "ready", groups: groupWarnings(list, key.split(",")) } }))
-      .catch(() => !cancelled && setStored({ key, value: { status: "failed" } }))
+    const refresh = () => {
+      void entries()
+        .then((list) => !cancelled && setStored({ status: "ready", entries: list }))
+        .catch(() => !cancelled && setStored({ status: "failed" }))
+    }
+    refresh()
+    const timer = setInterval(refresh, CACHE_MS)
     return () => {
       cancelled = true
+      clearInterval(timer)
     }
-  }, [key])
-  if (!key) return { status: "idle" }
-  return stored?.key === key ? stored.value : { status: "loading" }
+  }, [enabled])
+  return stored
+}
+
+/** codes가 없으면(기상청 외 기관 특보 서비스) 받지 않는다 */
+export function useServiceWarnings(codes: string[] | undefined): ServiceWarnings {
+  const warnings = useWarningEntries(!!codes?.length)
+  if (!codes?.length) return { status: "idle" }
+  return warnings.status === "ready" ? { status: "ready", groups: groupWarnings(warnings.entries, codes) } : warnings
 }
 
 const hm = (d: Date) => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`

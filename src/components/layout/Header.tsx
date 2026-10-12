@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { IS_STAGING } from "../../data/appMode"
 import { logout, type MockUser } from "../../data/mockAuth"
-import { serviceStatusCards } from "../../data/mockDashboard"
+import { useServiceStatusCards } from "../../data/useServiceStatusCards"
 import { disasterAlerts } from "../../data/mockIncidents"
 import { RiskBadge } from "../ui/RiskBadge"
 import { getDominantRiskLevel, riskStyles } from "../ui/riskStyles"
@@ -52,6 +52,7 @@ function useClock() {
 
 /** demo-10 클론의 72px 헤더 — 로고·시계·대시보드 탭·경보 요약·사용자·탑 메뉴 */
 export function Header({ user }: { user: MockUser }) {
+  const serviceStatusCards = useServiceStatusCards()
   const location = useLocation()
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -63,7 +64,7 @@ export function Header({ user }: { user: MockUser }) {
   const activeTab = (params.get("tab") as DashboardTabKey | null) ?? "summary"
   const userLabel = `${user.org.replace("제주특별자치도 ", "")} ${user.name} 님`
   // 서비스 카드 id와 도메인 경로("/" + id)가 일치 — 도메인 메뉴 옆에 현재 최고 위험 등급 점을 붙인다.
-  // 하천 시나리오가 카드 값을 바꾸므로 모듈 로드 때 한 번이 아니라 렌더마다 계산한다
+  // 카드와 같은 구독 값을 사용해 입력·특보 갱신을 따라간다
   const domainRisk = new Map(serviceStatusCards.map((card) => [`/${card.id}`, getDominantRiskLevel(card.counts)]))
 
   // 화면이 바뀌면 열려 있던 메뉴를 닫는다 — effect 안에서 setState 하지 않고 렌더 중에 이전 경로와 비교한다
