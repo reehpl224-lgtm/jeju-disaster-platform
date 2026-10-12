@@ -3,7 +3,7 @@ import type { WarningEntry } from "../types/warningsApi"
 import { fetchJejuWarnings } from "./warningsApi"
 import { parseKst } from "./useSidePanelEvents"
 import type { RiskMarker } from "../types/domain"
-import { bd, type BoardService, type DashLeft, type RightPanel } from "./boardTypes"
+import { bd, type BoardService, type BoardStateId, type DashLeft, type RightPanel } from "./boardTypes"
 import type { Facts } from "./boardFacts"
 
 /**
@@ -80,18 +80,36 @@ const elapsed = (from: Date) => {
 function withFacts(d: DashLeft, f: Facts, hasWarn: boolean): DashLeft {
   return {
     ...d,
-    status: f.status && !hasWarn ? { ...d.status, ...f.status, rows: d.status.rows } : d.status,
-    tiles: d.tiles.map((t) => (f.tiles?.[t.label] ? { ...t, ...f.tiles[t.label] } : t)),
+    status: f.status && !hasWarn ? { ...d.status, ...f.status, rows: d.status.rows, live: true } : d.status,
+    tiles: d.tiles.map((t) => (f.tiles?.[t.label] ? { ...t, ...f.tiles[t.label], live: true } : t)),
     brief: d.brief.map(([k, v]) => [k, f.brief?.[k as "판단" | "전개" | "대응"] ?? v] as [string, string]),
   }
 }
 
 /** 실제 값이 있으면 평시 기본 상태 위에 얹은 좌·우 패널을 돌려준다(없으면 null — 평시 그대로) */
-export function liveOverlay(s: BoardService, w: ServiceWarnings, facts: Facts | null): { dash: DashLeft; right: RightPanel } | null {
+export function liveOverlay(s: BoardService, w: ServiceWarnings, facts: Facts | null, state: BoardStateId = "calm"): { dash: DashLeft; right: RightPanel } | null {
   const hasWarn = w.status === "ready" && w.groups.length > 0
   if (!hasWarn && !facts) return null
-  const calmDash = facts ? withFacts(s.dash.calm, facts, hasWarn) : s.dash.calm
-  if (!hasWarn || w.status !== "ready") return { dash: calmDash, right: s.right.calm }
+  // 스테이징은 고른 샘플 상태가 바탕이다 — 그 위에 받은 값만 덮어쓴다(평시는 프로토타입과 같이 통째로 실제 값)
+  const sampleState = state === "detect" || state === "progress"
+  const baseDash = sampleState ? s.dash[state] : s.dash.calm
+  const baseRight = s.right[state]
+  const calmDash = facts ? withFacts(baseDash, facts, hasWarn) : baseDash
+  if (!hasWarn || w.status !== "ready") return { dash: calmDash, right: baseRight }
+  if (state === "closed") return { dash: calmDash, right: baseRight }
+  const top0 = w.groups[0]
+  const names0 = w.groups.map((g) => `${g.label} · ${g.regions.join("·")}`).join(" / ")
+  if (sampleState) {
+    // 샘플 상태 + 실제 특보: 상태 카드 배지·특보 배너·조치 기록 맨 위에 실제 특보를 얹고 나머지(할 일·조치)는 샘플 그대로
+    return {
+      dash: { ...calmDash, status: { ...calmDash.status, badge: bd(top0.label, top0.level), live: true }, brief: calmDash.brief },
+      right: {
+        ...baseRight,
+        trigger: { name: `${names0} 발표`, advice: baseRight.trigger?.advice ?? s.right.detect.trigger?.advice ?? "", live: true },
+        log: [...w.groups.map((g) => ({ time: hm(g.at), tag: "감지" as const, text: `기상청 발표(실시간) · ${g.label} — ${g.regions.join("·")}` })), ...baseRight.log],
+      },
+    }
+  }
 
   const top = w.groups[0]
   const names = w.groups.map((g) => `${g.label} · ${g.regions.join("·")}`).join(" / ")

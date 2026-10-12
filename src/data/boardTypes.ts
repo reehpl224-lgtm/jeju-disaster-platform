@@ -31,12 +31,14 @@ export interface DashTile {
   sub: string
   /** 강조 색(주황 테두리 등) */
   tone?: RiskLevel
+  /** 실제로 받은 값(스테이징에서 샘플 위에 덮어쓴 값) — "실시간" 표시 */
+  live?: boolean
 }
 export interface DashLeft {
   /** 범위·출처·기준 시각 칩 */
   chips: string[]
   /** 첫 카드 — 지점 상태 / 서비스 상태 */
-  status: { title: string; badge?: Badge; heading?: string; lines?: string[]; rows?: DashRow[]; note?: string }
+  status: { title: string; badge?: Badge; heading?: string; lines?: string[]; rows?: DashRow[]; note?: string; live?: boolean }
   /** 연안 "진행 중 이벤트" 카드 */
   event?: { badge: Badge; title: string; detail?: string; item?: { name: string; badge: Badge; sub: string }; link?: string }
   /** e-SOP 6단계 — done: 완료 개수, active: 진행 중 단계 번호(0부터, 없으면 -1) */
@@ -98,7 +100,7 @@ export interface RightPanel {
   /** 헤더 칩 — 평시 / 감지 후 5분 / 종료 · 총 3시간 20분 */
   head: Badge
   /** 발효 특보 트리거(자료 없는 서비스는 생략) */
-  trigger?: { name: string; advice: string }
+  trigger?: { name: string; advice: string; live?: boolean }
   todo: { badge: Badge; items: TodoItem[] }
   doing: { badge: Badge; items: DoItem[]; empty?: string; stats?: { label: string; value: string; bad?: boolean }[] }
   /** 준비 상태 — 평시에만 */

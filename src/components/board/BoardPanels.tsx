@@ -5,7 +5,7 @@ import { useHeatShelters } from "../../data/heatSheltersLive"
 import { heatShelters } from "../../data/mockHeat"
 import { boardRoute } from "../../data/boardSamples"
 import { BOARD_STATES, bd, type Badge, type BoardService, type BoardStateId, type DashLeft, type LogItem, type RightPanel } from "../../data/boardTypes"
-import { SpRisk, SpSample } from "../sidepanel/primitives"
+import { SpLive, SpRisk, SpSample } from "../sidepanel/primitives"
 
 /**
  * 서비스 보드 좌·우 사이드패널(Figma "3단계 · {서비스} — 서비스 보드 (좌 3묶음 + 우 대응 패널)").
@@ -38,7 +38,7 @@ export function BoardDashboard({ service, state, live }: { service: BoardService
   const base: DashLeft = live ?? (state === "calm" || state === "closed" ? service.dash.calm : service.dash[state])
   // 프로토타입 평시 — 받아 둔 무더위쉼터 자료(행안부)가 있으면 그 개수를 쓴다(자료가 있는 항목만 실값)
   const d: DashLeft =
-    !IS_STAGING && service.id === "heat" && heatLoaded && heatShelters.length > 0
+    state === "calm" && service.id === "heat" && heatLoaded && heatShelters.length > 0
       ? {
           ...base,
           tiles: base.tiles.map((t) => (t.label === "무더위쉼터" ? { ...t, value: `${heatShelters.length}개소`, sub: "행안부 스냅샷" } : t)),
@@ -55,7 +55,7 @@ export function BoardDashboard({ service, state, live }: { service: BoardService
         ))}
       </div>
 
-      <Card title={d.status.title} badge={d.status.badge && <Pill b={d.status.badge} />}>
+      <Card title={d.status.title} tag={d.status.live ? <SpLive /> : undefined} badge={d.status.badge && <Pill b={d.status.badge} />}>
         {d.status.heading && <b style={{ fontSize: 13 }}>{d.status.heading}</b>}
         {d.status.lines?.map((l) => (
           <p className="sp-sub" key={l}>
@@ -111,7 +111,9 @@ export function BoardDashboard({ service, state, live }: { service: BoardService
       <div className="bd-tiles">
         {d.tiles.map((t) => (
           <div className={`bd-tile${t.tone ? ` bd-tile--${t.tone}` : ""}`} key={t.label}>
-            <small>{t.label}</small>
+            <small>
+              {t.label} {t.live && <SpLive />}
+            </small>
             <b>{t.value}</b>
             <span className="sp-sub">{t.sub || " "}</span>
           </div>
@@ -236,7 +238,7 @@ function ResponseBody({ service, state, r, onClose }: { service: BoardService; s
       {r.trigger && (
         <div className="bd-trigger">
           <p>
-            <b className="sp-c--warning">특보</b> <b>{r.trigger.name}</b>
+            <b className="sp-c--warning">특보</b> <b>{r.trigger.name}</b> {r.trigger.live && <SpLive />}
           </p>
           <p className="sp-sub">{r.trigger.advice}</p>
         </div>
