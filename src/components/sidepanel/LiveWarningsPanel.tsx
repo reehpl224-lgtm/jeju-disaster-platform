@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { useSidePanelEvents } from "../../data/useSidePanelEvents"
+import { NULL_SRC_NOTE, useSidePanelEvents } from "../../data/useSidePanelEvents"
 import { SpLive, SpSample } from "./primitives"
 import { fmtHM, pad2, spLevel } from "./spUtils"
 
@@ -55,8 +55,10 @@ export function LiveWarningsPanel() {
 
           {list.length === 0 ? (
             <div className="sp-dashed sp-dashed--center">
-              <b>최근 24시간 내 발표된 특보가 없습니다</b>
-              <span className="sp-note">"발효 특보 없음"으로 단정하지 않음 · 수신은 정상({fetchedAt ? fmtHM(fetchedAt) : `${pad2(now.getHours())}:00`})</span>
+              <b>{warningsNull ? "기상청 특보를 받지 못했습니다" : "최근 24시간 내 발표된 특보가 없습니다"}</b>
+              <span className="sp-note">
+                {warningsNull ? "데이터 없음 — 특보가 없다는 뜻이 아닙니다" : `"발효 특보 없음"으로 단정하지 않음 · 수신은 정상(${fetchedAt ? fmtHM(fetchedAt) : `${pad2(now.getHours())}:00`})`}
+              </span>
             </div>
           ) : (
             list.map((e) => {
@@ -89,7 +91,7 @@ export function LiveWarningsPanel() {
       <p className="sp-note">
         ※ 발표 이력에는 이미 해제된 특보가 섞여 있을 수 있습니다 · 기상청 API허브 실연동 — 해제 여부는 별도 확인 안 됨.
         {mode === "staging" && warningsSample && " 스테이징 환경 — 받은 특보가 없어 임의의 값(샘플)을 보여줍니다."}
-        {warningsNull && " 데이터 없음: 기상청 특보 — 샘플로 표시합니다."}
+        {warningsNull && ` 데이터 없음: 기상청 특보 — ${NULL_SRC_NOTE}.`}
       </p>
     </div>
   )

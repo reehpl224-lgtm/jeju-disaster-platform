@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { SAMPLE_SENSOR_ALERTS, SAMPLE_SENSOR_SUMMARY, SAMPLE_SERVICE_SENSORS, SAMPLE_TREND_CARDS, SAMPLE_TREND_RANK, type SpTrendCard, type SpTrendRank } from "../../data/sidePanelSamples"
 import { LEVEL_RANK, SERVICES, serviceShort, serviceTitle, trendDirection, trendPosition, usePanelInput, type InputLevel } from "../../data/panelInput"
 import type { RiskLevel } from "../../types/domain"
+import { IS_STAGING } from "../../data/appMode"
 import { PartTag, SpRisk } from "./primitives"
 import { levelName, spLevel } from "./spUtils"
 
@@ -16,7 +17,7 @@ interface SvcTile {
   level: InputLevel | null
 }
 
-/** R2 · 우측 · 센서정보 — 전체 서비스 센서 현황. 영역마다 입력값이 있으면 그 값, 없으면 샘플(표식). 서비스가 늘면 타일만 늘어난다. */
+/** R2 · 우측 · 센서정보 — 전체 서비스 센서 현황. 영역마다 입력값이 있으면 그 값, 없으면 스테이징은 샘플·프로토타입은 값 없음(—). 서비스가 늘면 타일만 늘어난다. */
 export function SensorSummaryPanel() {
   const nav = useNavigate()
   const inp = usePanelInput()
@@ -25,12 +26,14 @@ export function SensorSummaryPanel() {
   const alSample = inp.sensorAlerts === undefined
   const fully = sumSample && svcSample && alSample
 
-  const s = inp.sensorSummary ?? { normal: SAMPLE_SENSOR_SUMMARY.normal, delayed: SAMPLE_SENSOR_SUMMARY.delayed, error: SAMPLE_SENSOR_SUMMARY.error, unlinked: SAMPLE_SENSOR_SUMMARY.unlinked }
+  const sumNone = sumSample && !IS_STAGING
+  const s = inp.sensorSummary ?? (sumNone ? { normal: 0, delayed: 0, error: 0, unlinked: 0 } : { normal: SAMPLE_SENSOR_SUMMARY.normal, delayed: SAMPLE_SENSOR_SUMMARY.delayed, error: SAMPLE_SENSOR_SUMMARY.error, unlinked: SAMPLE_SENSOR_SUMMARY.unlinked })
+  const n = (v: number) => (sumNone ? "—" : v)
   const total = s.normal + s.delayed + s.error + s.unlinked
   const pct = (n: number) => (total > 0 ? `${(n / total) * 100}%` : "0%")
 
   const tiles: SvcTile[] = SERVICES.map((sv) => {
-    if (svcSample) {
+    if (svcSample && IS_STAGING) {
       const x = SAMPLE_SERVICE_SENSORS.find((v) => v.id === sv.id)
       return { id: sv.id, title: sv.title, count: x?.count ?? null, level: (x?.level as InputLevel | undefined) ?? null }
     }
@@ -39,7 +42,7 @@ export function SensorSummaryPanel() {
   }).sort((a, b) => (b.level ? LEVEL_RANK[b.level] : -1) - (a.level ? LEVEL_RANK[a.level] : -1) || (b.count ?? 0) - (a.count ?? 0))
   const sensorTotal = tiles.reduce((n, t) => n + (t.count ?? 0), 0)
 
-  const alerts = alSample
+  const alerts = alSample && IS_STAGING
     ? SAMPLE_SENSOR_ALERTS.map((a) => ({ name: a.name, service: a.service, reason: a.reason, value: a.value, level: a.level as RiskLevel, badge: a.badge }))
     : (inp.sensorAlerts ?? []).map((a) => ({ name: a.name, service: serviceTitle(a.service), reason: a.reason, value: a.value, level: a.level as RiskLevel, badge: a.badge }))
   const valueBad = alerts.filter((a) => a.reason === "값 이상").length
@@ -57,19 +60,19 @@ export function SensorSummaryPanel() {
         <div className="sp-stats sp-stats--4">
           <div className="sp-stat sp-stat--dark">
             <small>전체</small>
-            <b>{total}</b>
+            <b>{n(total)}</b>
           </div>
           <div className="sp-stat sp-stat--dark">
             <small>정상</small>
-            <b className="sp-c--safe">{s.normal}</b>
+            <b className="sp-c--safe">{n(s.normal)}</b>
           </div>
           <div className="sp-stat sp-stat--dark">
             <small>지연·오류</small>
-            <b className="sp-c--caution">{s.delayed + s.error}</b>
+            <b className="sp-c--caution">{n(s.delayed + s.error)}</b>
           </div>
           <div className="sp-stat sp-stat--dark">
             <small>미연계</small>
-            <b className="sp-c--offline">{s.unlinked}</b>
+            <b className="sp-c--offline">{n(s.unlinked)}</b>
           </div>
         </div>
         <div className="sp-segbar" role="img" aria-label="수집 상태 비율">
@@ -80,16 +83,16 @@ export function SensorSummaryPanel() {
         </div>
         <div className="sp-legend">
           <span><i className="sp-dot sp-bg--safe" />정상</span>
-          <span><i className="sp-dot sp-bg--caution" />지연 {s.delayed}</span>
-          <span><i className="sp-dot sp-bg--alert" />오류 {s.error}</span>
-          <span><i className="sp-dot" style={{ background: "var(--foreground-subtle)" }} />미연계 {s.unlinked}</span>
+          <span><i className="sp-dot sp-bg--caution" />지연 {n(s.delayed)}</span>
+          <span><i className="sp-dot sp-bg--alert" />오류 {n(s.error)}</span>
+          <span><i className="sp-dot" style={{ background: "var(--foreground-subtle)" }} />미연계 {n(s.unlinked)}</span>
         </div>
       </div>
 
       <div className="sp-card sp-card--open">
         <div className="sp-row">
           <b className="sp-h2">
-            {tiles.length} 서비스 · 센서 {sensorTotal}개
+            {tiles.length} 서비스 · 센서 {svcSample && !IS_STAGING ? "—" : sensorTotal}개
           </b>
           <PartTag sample={svcSample} fully={fully} />
           <span className="sp-spacer" />
@@ -127,7 +130,7 @@ export function SensorSummaryPanel() {
             값 이상 {valueBad} · 수집 이상 {collectBad}
           </span>
         </div>
-        {alerts.length === 0 && <p className="sp-note">확인이 필요한 센서가 없습니다</p>}
+        {alerts.length === 0 && <p className="sp-note">{alSample && !IS_STAGING ? "받은 센서 확인 자료가 없습니다" : "확인이 필요한 센서가 없습니다"}</p>}
         {alerts.map((a, i) => (
           <div className="sp-item" key={`${a.name}-${i}`}>
             <div className="l">
@@ -153,19 +156,19 @@ export function SensorSummaryPanel() {
 const TREND_ARROW = { up: "↗ 상승", flat: "→ 유지", down: "↘ 하락" } as const
 const fmtNum = (n: number | undefined) => (n === undefined ? "—" : String(Math.round(n * 100) / 100))
 
-/** R3 · 우측 · 센서 추이 — 위험 임박 순위 + 서비스별 대표 추이. 입력한 지표가 있으면 그것으로 계산하고, 없으면 샘플. */
+/** R3 · 우측 · 센서 추이 — 위험 임박 순위 + 서비스별 대표 추이. 입력한 지표가 있으면 그것으로 계산하고, 없으면 스테이징은 샘플·프로토타입은 비워 둔다. */
 export function SensorTrendPanel() {
   const inp = usePanelInput()
   const sample = inp.trends === undefined
   const [filter, setFilter] = useState<string>("전체")
   const [period, setPeriod] = useState("6시간")
 
-  const rank: SpTrendRank[] = sample
+  const rank: SpTrendRank[] = sample && IS_STAGING
     ? SAMPLE_TREND_RANK
     : (inp.trends ?? [])
         .map((t) => ({ service: serviceShort(t.service), name: t.name, value: `${fmtNum(t.observed.at(-1))}${t.unit}`, trend: trendDirection(t), level: t.level as RiskLevel, position: trendPosition(t) }))
         .sort((a, b) => LEVEL_RANK[b.level as InputLevel] - LEVEL_RANK[a.level as InputLevel] || b.position - a.position)
-  const cards: SpTrendCard[] = sample
+  const cards: SpTrendCard[] = sample && IS_STAGING
     ? SAMPLE_TREND_CARDS
     : (inp.trends ?? []).map((t) => ({
         service: serviceShort(t.service),
@@ -212,7 +215,7 @@ export function SensorTrendPanel() {
           <span className="sp-spacer" />
           <span className="sp-note">모든 지표를 같은 5단계 눈금으로</span>
         </div>
-        {shownRank.length === 0 && <p className="sp-note">{sample ? "표시할 지표가 없습니다" : "입력된 추이 지표가 없습니다 — 패널 입력에서 추가하세요"}</p>}
+        {shownRank.length === 0 && <p className="sp-note">{sample && IS_STAGING ? "표시할 지표가 없습니다" : "입력된 추이 지표가 없습니다 — 패널 입력에서 추가하세요"}</p>}
         {shownRank.map((r) => {
           const seg = SEG_INDEX[r.level]
           return (
@@ -263,7 +266,7 @@ export function SensorTrendPanel() {
         </div>
       </div>
       <p className="sp-note">
-        {sample ? "값은 모두 샘플 · " : ""}지표는 <Link to="/panel-input" className="sp-link" style={{ fontSize: 10 }}>패널 입력</Link>에서 넣습니다
+        {sample && IS_STAGING ? "값은 모두 샘플 · " : ""}지표는 <Link to="/panel-input" className="sp-link" style={{ fontSize: 10 }}>패널 입력</Link>에서 넣습니다
       </p>
     </div>
   )

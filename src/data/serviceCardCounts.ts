@@ -5,7 +5,7 @@ import type { RiskLevel } from "../types/domain"
 export type CardCounts = { caution: number; warning: number; alert: number; danger: number }
 export interface CardReading {
   counts: CardCounts
-  source: "input" | "warnings" | "sample"
+  source: "input" | "warnings" | "sample" | "none"
   sourceLabel: string
   unavailable?: boolean
 }
@@ -50,6 +50,8 @@ export function serviceCardReading(id: string, stages: StageInput[] | undefined,
     return { counts, source: "warnings", sourceLabel: "특보 발표 · 24시간" }
   }
   const sample = samples.find((s) => s.id === id)
+  // 샘플을 넘기지 않는 환경(프로토타입·로컬)에서 받은 값이 없으면 숫자를 비워 둔다
+  if (!sample) return { counts: emptyCounts(), source: "none", sourceLabel: codes && warnings.status === "loading" ? "조회 중" : "데이터 없음", unavailable: true }
   return {
     counts: stageCounts(sample?.level, sample?.count), source: "sample",
     sourceLabel: codes && warnings.status === "loading" ? "샘플 · 조회 중" : "샘플 · 데이터 없음",

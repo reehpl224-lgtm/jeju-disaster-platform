@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { useSidePanelEvents } from "../../data/useSidePanelEvents"
+import { NULL_SRC_NOTE, useSidePanelEvents } from "../../data/useSidePanelEvents"
 import { CATEGORY_LABEL, DAY, HOUR, type SpCategory, type SpEvent } from "../../data/sidePanelSamples"
 import { EventFilterBar } from "./eventFilters"
 import { useEventFilters } from "./useEventFilters"
@@ -129,7 +129,7 @@ export function ActiveWarningsPanel() {
           <b>현재 발효 중인 특보가 없습니다</b>
         </div>
       )}
-      <p className="sp-note">해제 여부는 기상청 발표를 따릅니다 · 실시간 특보 탭엔 같은 카드{mode === "staging" && " · 스테이징 환경 — 실제 값이 없는 출처는 임의의 값(샘플)입니다"}{nullSources.length > 0 && ` · 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다`}</p>
+      <p className="sp-note">해제 여부는 기상청 발표를 따릅니다 · 실시간 특보 탭엔 같은 카드{mode === "staging" && " · 스테이징 환경 — 실제 값이 없는 출처는 임의의 값(샘플)입니다"}{nullSources.length > 0 && ` · 데이터 없음: ${nullSources.join("·")} — ${NULL_SRC_NOTE}`}</p>
     </div>
   )
 }

@@ -123,15 +123,15 @@ export function AssetPanel() {
       <div className="sp-stats">
         <div className="sp-stat">
           <small>인력·장비 가용</small>
-          <b className="sp-c--safe">{a.available}</b>
+          <b className="sp-c--safe">{IS_STAGING ? a.available : "—"}</b>
         </div>
         <div className="sp-stat">
           <small>시설 활성</small>
-          <b className="sp-c--offline">{a.activeFacilities}</b>
+          <b className="sp-c--offline">{IS_STAGING ? a.activeFacilities : "—"}</b>
         </div>
         <div className="sp-stat">
           <small>등록 항목</small>
-          <b>{a.registered}</b>
+          <b>{IS_STAGING ? a.registered : "—"}</b>
         </div>
       </div>
 
@@ -140,7 +140,7 @@ export function AssetPanel() {
           하천 가상 인력·장비
         </b>
         <div className="sp-bars">
-          {SAMPLE_RIVER_RESOURCES.map((r) => (
+          {(IS_STAGING ? SAMPLE_RIVER_RESOURCES : []).map((r) => (
             <div key={r.label}>
               <div className="r">
                 <span>{r.label}</span>
@@ -154,7 +154,7 @@ export function AssetPanel() {
             </div>
           ))}
         </div>
-        <p className="sp-note">고정 카탈로그 — 실제 보유량 아님</p>
+        <p className="sp-note">{IS_STAGING ? "고정 카탈로그 — 실제 보유량 아님" : "하천 인력·장비 자료가 연계되지 않았습니다"}</p>
       </div>
 
       <div className="sp-card sp-card--open">
@@ -162,7 +162,7 @@ export function AssetPanel() {
           하천 모의 시설
         </b>
         <div className="sp-fac">
-          {SAMPLE_RIVER_FACILITIES.map((f) => (
+          {(IS_STAGING ? SAMPLE_RIVER_FACILITIES : []).map((f) => (
             <div key={f.code}>
               <small>{f.code}</small>
               <span>{f.label}</span>
@@ -170,16 +170,17 @@ export function AssetPanel() {
             </div>
           ))}
         </div>
-        <p className="sp-note">고정 카탈로그(§11-3) — 실제 시설 아님 · 점선 = 비활성</p>
+        <p className="sp-note">{IS_STAGING ? "고정 카탈로그(§11-3) — 실제 시설 아님 · 점선 = 비활성" : "하천 시설 자료가 연계되지 않았습니다"}</p>
       </div>
     </div>
   )
 }
 
-/** R8 · 우측 · AI 분석 — AI 기능 6종은 앱 목록, 예측 신뢰도·교차검증·VLM 요약·취수구 도달은 연동된 데이터가 없어(null) 샘플 + "샘플 · 데이터 없음" */
+/** R8 · 우측 · AI 분석 — AI 기능 6종은 앱 목록, 예측 신뢰도·교차검증·VLM 요약·취수구 도달은 연동된 데이터가 없어(null) 스테이징만 샘플, 프로토타입은 "데이터 없음" */
 export function AiPanel() {
   const conf = SAMPLE_AI.confidence
   const cc = SAMPLE_AI.crossCheck
+  const na = !IS_STAGING
   return (
     <div className="sp">
       <div className="sp-card sp-card--open">
@@ -188,28 +189,28 @@ export function AiPanel() {
             예측 신뢰도
           </b>
           <SpSample noData={!IS_STAGING} />
-          <SpRisk level="safe">{conf.level}</SpRisk>
+          {!na && <SpRisk level="safe">{conf.level}</SpRisk>}
         </div>
         <span className="sp-track">
-          <i className="sp-bg--safe" style={{ width: `${conf.percent}%` }} />
+          <i className="sp-bg--safe" style={{ width: `${na ? 0 : conf.percent}%` }} />
         </span>
         <p className="sp-note">
-          신뢰도 {conf.percent}% — 임의의 값(샘플) · 연계 후 실값
+          {na ? "예측 신뢰도 자료가 연계되지 않았습니다" : `신뢰도 ${conf.percent}% — 임의의 값(샘플) · 연계 후 실값`}
         </p>
       </div>
 
       <div className="sp-stats">
         <div className="sp-stat">
           <small>교차검증 정상 <SpSample noData={!IS_STAGING} /></small>
-          <b>{cc.normal}</b>
+          <b>{na ? "—" : cc.normal}</b>
         </div>
         <div className="sp-stat">
           <small>장애</small>
-          <b>{cc.fault}</b>
+          <b>{na ? "—" : cc.fault}</b>
         </div>
         <div className="sp-stat">
           <small>누락</small>
-          <b>{cc.missing}</b>
+          <b>{na ? "—" : cc.missing}</b>
         </div>
       </div>
 
@@ -232,7 +233,8 @@ export function AiPanel() {
           </b>
           <SpSample noData={!IS_STAGING} />
         </div>
-        {SAMPLE_VLM_SUMMARY.map((v) => (
+        {na && <p className="sp-note">VLM 요약 자료가 연계되지 않았습니다</p>}
+        {(na ? [] : SAMPLE_VLM_SUMMARY).map((v) => (
           <div className="sp-vlm" key={v.time}>
             <span className="tm">{v.time}</span>
             <SpRisk level={v.level}>{v.badge}</SpRisk>
@@ -248,7 +250,8 @@ export function AiPanel() {
           </b>
           <SpSample noData={!IS_STAGING} />
         </div>
-        {SAMPLE_INTAKES.map((i) => (
+        {na && <p className="sp-note">취수구 도달 예측 자료가 연계되지 않았습니다</p>}
+        {(na ? [] : SAMPLE_INTAKES).map((i) => (
           <div key={i.name}>
             <div className="sp-row" style={{ justifyContent: "space-between", margin: "4px 0 6px" }}>
               <span>{i.name}</span>
@@ -262,7 +265,7 @@ export function AiPanel() {
             </span>
           </div>
         ))}
-        <p className="sp-note">염분 30psu 미만 도달 기준 · 막대는 72시간 중 위치</p>
+        {!na && <p className="sp-note">염분 30psu 미만 도달 기준 · 막대는 72시간 중 위치</p>}
       </div>
       <div className="sp-row">
         <span className="sp-sub sp-spacer">저염수 확산 히트맵 — 이미 시각화됨</span>

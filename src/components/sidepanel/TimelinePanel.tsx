@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { useSidePanelEvents } from "../../data/useSidePanelEvents"
+import { NULL_SRC_NOTE, useSidePanelEvents } from "../../data/useSidePanelEvents"
 import { CATEGORY_ICON, CATEGORY_LABEL, DAY, type SpCategory, type SpEvent } from "../../data/sidePanelSamples"
 import { SpLive, SpRisk, SpSample } from "./primitives"
 import { WEEKDAY, fmtDateTime, fmtMD, pad2, spLevel } from "./spUtils"
@@ -80,10 +80,10 @@ export function TimelinePanel() {
         </h3>
         {mode === "staging" && !events.some((e) => !e.sample) ? <SpSample /> : <SpLive />}
       </div>
-      {mode === "staging" && <p className="sp-note">스테이징 환경입니다 — 받은 실제 값이 있으면 그 값, 없는 출처는 임의의 값(샘플)입니다(샘플 표시는 실제 상황이 아닙니다).{nullSources.length > 0 ? ` 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다.` : ""}</p>}
+      {mode === "staging" && <p className="sp-note">스테이징 환경입니다 — 받은 실제 값이 있으면 그 값, 없는 출처는 임의의 값(샘플)입니다(샘플 표시는 실제 상황이 아닙니다).{nullSources.length > 0 ? ` 데이터 없음: ${nullSources.join("·")} — ${NULL_SRC_NOTE}.` : ""}</p>}
       {mode === "live" && (
         <p className="sp-note">
-          기상청 특보(최근 24시간 발표)·태풍 현황·긴급재난문자(제주 수신 — 받아 둔 스냅샷{messagesAsOf ? `, ${messagesAsOf.slice(0, 10).replace(/-/g, ".")} 기준` : ""})입니다.{nullSources.length > 0 ? ` 데이터 없음: ${nullSources.join("·")} — 샘플로 표시합니다.` : ""}
+          기상청 특보(최근 24시간 발표)·태풍 현황·긴급재난문자(제주 수신 — 받아 둔 스냅샷{messagesAsOf ? `, ${messagesAsOf.slice(0, 10).replace(/-/g, ".")} 기준` : ""})입니다.{nullSources.length > 0 ? ` 데이터 없음: ${nullSources.join("·")} — ${NULL_SRC_NOTE}.` : ""}
           {events.length === 0 && " 지금은 발표된 특보·태풍·문자가 없습니다."}
         </p>
       )}

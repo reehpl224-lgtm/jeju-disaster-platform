@@ -17,9 +17,12 @@ export function PropagationPanel() {
   const reachSample = IS_STAGING && sequentialPropagation.length < NODES.length
   const actionsSample = IS_STAGING && recentActions.length === 0
   const actions = actionsSample ? SAMPLE_RECENT_ACTIONS : recentActions
-  const avail = SAMPLE_CHANNELS.filter((c) => c.state === "safe").length
-  const check = SAMPLE_CHANNELS.filter((c) => c.state === "caution").length
-  const none = SAMPLE_CHANNELS.filter((c) => c.state === "offline").length
+  // 전파·경보 수단 상태는 연계된 자료가 없다 — 스테이징만 임의의 값, 프로토타입은 비워 둔다
+  const channels = IS_STAGING ? SAMPLE_CHANNELS : []
+  const cnt = (state: string) => (channels.length === 0 ? "—" : String(channels.filter((c) => c.state === state).length))
+  const avail = cnt("safe")
+  const check = cnt("caution")
+  const none = cnt("offline")
 
   return (
     <div className="sp">
@@ -96,7 +99,7 @@ export function PropagationPanel() {
         </div>
       </div>
       <div className="sp-chans">
-        {SAMPLE_CHANNELS.map((c) => (
+        {channels.map((c) => (
           <div className="sp-chan" key={c.name}>
             <span className="t">
               <span className={`sp-dot sp-bg--${c.state}`} aria-hidden />
@@ -113,7 +116,7 @@ export function PropagationPanel() {
           </div>
         ))}
       </div>
-      <p className="sp-note">회색 점선 = 정보 없음·미연계 · 값은 연계 후 실시간 표시</p>
+      <p className="sp-note">{channels.length === 0 ? "연계된 전파·경보 수단 정보가 없습니다 · 값은 연계 후 실시간 표시" : "회색 점선 = 정보 없음·미연계 · 값은 연계 후 실시간 표시"}</p>
 
       <b className="sp-h2" style={{ color: "var(--foreground-muted)" }}>
         최근 조치 이력{actions.length === 0 ? " · 빈 상태" : ""} {actionsSample && <SpSample />}

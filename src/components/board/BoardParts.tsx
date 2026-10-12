@@ -141,7 +141,7 @@ interface StripCard {
   href: string
   kind?: "legacy" | "pilot"
   counts: { warning: number; alert: number; danger: number; caution?: number }
-  source?: "input" | "warnings" | "sample"
+  source?: "input" | "warnings" | "sample" | "none"
   sourceLabel?: string
   unavailable?: boolean
 }

@@ -23,8 +23,9 @@ const skyIcon = (s?: VilageForecastSlot) => {
 
 /**
  * L3 · 좌측 · 동네예보 — 기상청 단기예보·초단기실황.
- * 표시 규칙(스테이징·프로토타입 공통): 받은 값이 있으면 그 값 그대로. 못 받은(null) 부분만 샘플 —
- * 프로토타입·로컬은 "샘플 · 데이터 없음", 스테이징은 "샘플". 주간 날씨는 단기예보가 닿는 날까지만 실값이고 나머지는 중기예보 미연동이라 샘플.
+ * 표시 규칙(스테이징·프로토타입 공통): 받은 값이 있으면 그 값 그대로. 못 받은(null) 부분은 —
+ * 프로토타입·로컬은 비워 두고 "데이터 없음", 스테이징은 샘플. 주간 날씨는 단기예보가 닿는 날까지만 실값이고 나머지는 중기예보 미연동
+ * (프로토타입은 그 날을 그리지 않고, 스테이징은 샘플로 채운다).
  */
 export function ForecastPanel() {
   const [region, setRegion] = useState<VilageForecastRegion>("jeju")
@@ -55,8 +56,8 @@ export function ForecastPanel() {
   const obsSample = !loading && !res?.now
   const fcNoData = !IS_STAGING && fcSample
   const obsNoData = !IS_STAGING && obsSample
-  const slots = useMemo(() => (fcSample ? sampleFc.slots : res?.forecast?.slots ?? []), [fcSample, sampleFc, res])
-  const nowObs = obsSample ? sampleFc.now : res?.now
+  const slots = useMemo(() => (fcSample ? (IS_STAGING ? sampleFc.slots : []) : res?.forecast?.slots ?? []), [fcSample, sampleFc, res])
+  const nowObs = obsSample ? (IS_STAGING ? sampleFc.now : null) : res?.now
   const regionLabel = WEATHER_REGIONS.find((r) => r.key === region)?.label ?? ""
   const baseTime = slots[0] ? `${slots[0].time.slice(0, 2)}:${slots[0].time.slice(2, 4)}` : "-"
 
@@ -83,7 +84,7 @@ export function ForecastPanel() {
     const out = [...days]
     const last = days.at(-1)?.date ?? new Date(nowMs)
     SAMPLE_WEEKLY.forEach((w, i) => {
-      if (out.length >= 7) return
+      if (!IS_STAGING || out.length >= 7) return
       out.push({ date: new Date(last.getTime() + (i + 1) * 24 * 60 * 60 * 1000), min: w.min, max: w.max, am: w.am, pm: w.pm, popAm: w.popAm, popPm: w.popPm, sample: true })
     })
     return out
@@ -172,6 +173,7 @@ export function ForecastPanel() {
               <b className="sp-h2 sp-spacer">단기 예보 · 6개 시간대</b>
               {fcSample && <SpSample noData={fcNoData} />}
             </div>
+            {six.length === 0 && <p className="sp-note">단기 예보를 받지 못했습니다</p>}
             <div className="sp-hours">
               {six.map((s) => (
                 <span key={s.date + s.time}>
@@ -214,6 +216,7 @@ export function ForecastPanel() {
               <span>기온</span>
               <span>강수<br />오전/오후</span>
             </div>
+            {weekly.length === 0 && <p className="sp-note">주간 예보를 받지 못했습니다</p>}
             {weekly.map((d) => (
               <div className="sp-week" key={d.date.getTime()}>
                 <span className="date">
@@ -238,6 +241,7 @@ export function ForecastPanel() {
             ))}
             <p className="sp-note">
               강수확률 30% 이상은 주황 · 하늘상태 값이 없으면 '-'로 표시
+              {!IS_STAGING && weekly.length > 0 && weekly.length < 7 && <> · 단기예보가 닿는 {weekly.length}일만 표시(중기예보 미연동)</>}
               {weekly.some((d) => d.sample) && (
                 <>
                   {" "}

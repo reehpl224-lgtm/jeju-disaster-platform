@@ -29,7 +29,7 @@ import { levelName, spLevel } from "./spUtils"
 
 /**
  * 2단계 · GIS 상황 좌측 사이드패널(Figma "2단계 · GIS 상황 사이드패널" T1~T4) — 현황 · 관측·CCTV · 영향·자산 · 대응·연락.
- * 표시 규칙(스테이징·프로토타입 공통): 받은 실제 값이 있으면 그 값. 없을 때만 스테이징은 임의의 값("샘플"), 프로토타입·로컬은 "샘플 · 데이터 없음".
+ * 표시 규칙(스테이징·프로토타입 공통): 받은 실제 값이 있으면 그 값. 없을 때만 스테이징은 임의의 값("샘플"), 프로토타입·로컬은 값을 비우고 "데이터 없음".
  */
 export type GisWhich = "status" | "obs" | "impact" | "response"
 type Domain = RiskMarker["domain"] | "all"
@@ -51,7 +51,7 @@ const RANK: Record<RiskLevel, number> = { danger: 5, alert: 4, warning: 3, cauti
 const LEVELS: RiskLevel[] = ["danger", "alert", "warning", "caution", "safe"]
 const hm = (d: Date) => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`
 
-/** 실제 값이 없을 때의 표식 — 스테이징은 "샘플", 프로토타입·로컬은 "샘플 · 데이터 없음" */
+/** 실제 값이 없을 때의 표식 — 스테이징은 "샘플", 프로토타입·로컬은 "데이터 없음"(값을 비운다) */
 const MISSING: "sample" | "noData" = IS_STAGING ? "sample" : "noData"
 
 const Tag = ({ sample }: { sample: "none" | "sample" | "noData" | "input" }) =>
@@ -112,7 +112,7 @@ function StatusTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain)
     value: m.value ?? m.salinity ?? m.temperature ?? "—",
     sub: DOMAIN_LABEL[m.domain] ?? m.domain,
   }))
-  const all: Target[] = real.length === 0 ? SAMPLE_GIS_TARGETS : real
+  const all: Target[] = real.length === 0 ? (IS_STAGING ? SAMPLE_GIS_TARGETS : []) : real
   const tag = real.length === 0 ? MISSING : "none"
   const list = all.filter((t) => domain === "all" || t.domain === domain).sort((a, b) => RANK[b.level] - RANK[a.level])
   const byDomain = (d: string) => all.filter((t) => t.domain === d).length
@@ -174,17 +174,17 @@ function ObsTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) =>
   const load = useCctvLoadState()
   const cctvReal = load.phase === "ready" || load.phase === "partial"
   const cnt = (d: string) => cameras.filter((c) => c.domain === d).length
-  const cctv = cctvReal ? { coast: cnt("coast"), river: cnt("river"), snow: cnt("snow") } : SAMPLE_GIS_CCTV
+  const cctv = cctvReal ? { coast: cnt("coast"), river: cnt("river"), snow: cnt("snow") } : IS_STAGING ? SAMPLE_GIS_CCTV : null
   const cctvTag = cctvReal ? "none" : MISSING
 
   // 지점별 수신 상태 자료가 없다 — 어느 환경이든 샘플(스테이징 "샘플", 프로토타입 "샘플 · 데이터 없음")
-  const points = SAMPLE_GIS_OBS.filter((p) => domain === "all" || p.domain === domain)
+  const points = (IS_STAGING ? SAMPLE_GIS_OBS : []).filter((p) => domain === "all" || p.domain === domain)
   const recvCount = (r: GisRecv) => points.filter((p) => p.recv === r).length
 
   return (
     <div className="sp">
       <Scope domain={domain} onDomain={onDomain} />
-      <Card title={`관측 수집 현황 (지도 대상 ${points.length}곳)`} tag={<Tag sample={MISSING} />}>
+      <Card title={IS_STAGING ? `관측 수집 현황 (지도 대상 ${points.length}곳)` : "관측 수집 현황"} tag={<Tag sample={MISSING} />}>
         <div className="sp-stats sp-stats--4">
           {(["ok", "late", "error", "none"] as GisRecv[]).map((r) => (
             <div
@@ -193,11 +193,11 @@ function ObsTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) =>
               style={{ alignItems: "flex-start", textAlign: "left", padding: "10px 6px", ...(r === "late" ? { borderColor: "var(--risk-caution)", borderWidth: 1.5 } : {}) }}
             >
               <small style={{ whiteSpace: "nowrap", fontSize: 10 }}>{RECV[r].label}</small>
-              <b style={{ color: r === "late" ? "var(--risk-caution)" : r === "none" ? "var(--foreground-subtle)" : undefined }}>{recvCount(r)}</b>
+              <b style={{ color: r === "late" ? "var(--risk-caution)" : r === "none" ? "var(--foreground-subtle)" : undefined }}>{IS_STAGING ? recvCount(r) : "—"}</b>
             </div>
           ))}
         </div>
-        <p className="sp-note">수집 상태는 위험등급 색과 분리 · 지점·장비 합계 중복 제거는 종합상황 R2에서</p>
+        <p className="sp-note">{IS_STAGING ? "수집 상태는 위험등급 색과 분리 · 지점·장비 합계 중복 제거는 종합상황 R2에서" : "지점별 수신 상태 자료가 연계되지 않았습니다"}</p>
       </Card>
       {Object.entries(DOMAIN_LABEL).map(([d, label]) => {
         const rows = points.filter((p) => p.domain === d)
@@ -225,15 +225,15 @@ function ObsTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) =>
         </div>
         {(
           [
-            ["연안(월파) 감시", cctv.coast],
-            ["하천 감시", cctv.river],
-            ["대설(적설) 감시", cctv.snow],
-          ] as [string, number][]
+            ["연안(월파) 감시", cctv?.coast ?? null],
+            ["하천 감시", cctv?.river ?? null],
+            ["대설(적설) 감시", cctv?.snow ?? null],
+          ] as [string, number | null][]
         ).map(([label, n]) => (
           <div className="sp-row" key={label}>
             <span>{label}</span>
             <span className="sp-spacer" />
-            <b>{n}대</b>
+            <b>{n === null ? "—" : `${n}대`}</b>
           </div>
         ))}
         <p className="sp-note">사용 여부만 제공 · 영상은 &quot;영상 보기&quot;에서 재생 → CCTV 통합 조회</p>
@@ -262,13 +262,15 @@ function ImpactTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain)
   const shelterReal = civil !== undefined
   const shelterRows: { name: string; place: string; capacity: number | null; current?: number }[] = shelterReal
     ? civil.items.slice(0, 3).map((i) => ({ name: i.name, place: i.region || i.address, capacity: i.capacity }))
-    : SAMPLE_GIS_SHELTERS
-  const shelterTitle = shelterReal ? `대피소 (민방위 ${civil.items.length}곳)` : "대피소 (개방 중 3곳)"
+    : IS_STAGING
+      ? SAMPLE_GIS_SHELTERS
+      : []
+  const shelterTitle = shelterReal ? `대피소 (민방위 ${civil.items.length}곳)` : IS_STAGING ? "대피소 (개방 중 3곳)" : "대피소"
   const shelterTag = shelterReal ? "none" : MISSING
 
   // 무더위쉼터 — 받아 둔 행안부 쉼터 목록
   const heatReal = heatLoaded && heatShelters.length > 0
-  const heatRows = heatReal ? heatShelters.slice(0, 3).map((h) => ({ name: h.name, place: h.region, capacity: h.capacity })) : SAMPLE_GIS_HEAT
+  const heatRows = heatReal ? heatShelters.slice(0, 3).map((h) => ({ name: h.name, place: h.region, capacity: h.capacity })) : IS_STAGING ? SAMPLE_GIS_HEAT : []
   const heatTag = heatReal ? "none" : MISSING
 
   return (
@@ -286,11 +288,13 @@ function ImpactTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain)
           {shelterRows.map((s) => (
             <ShelterRow key={s.name} name={s.name} place={s.place} capacity={s.capacity} current={s.current} />
           ))}
+          {shelterRows.length === 0 && <p className="sp-note">받아 둔 대피소 목록이 없습니다</p>}
           <p className="sp-note">좌표가 없으면 목록만 표시 · 거리·최단경로를 추정하지 않음{shelterReal ? " · 현재 수용 인원 자료 없음(정원만 표시)" : ""}</p>
         </Card>
       )}
       {kind === "heat" && (
         <Card title={`무더위쉼터${heatReal ? ` (${heatShelters.length}곳)` : ""}`} tag={<Tag sample={heatTag} />}>
+          {heatRows.length === 0 && <p className="sp-note">받아 둔 무더위쉼터 목록이 없습니다</p>}
           {heatRows.map((s) => (
             <ShelterRow key={s.name} name={s.name} place={s.place} capacity={s.capacity} />
           ))}
@@ -299,7 +303,8 @@ function ImpactTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain)
       {show("mock") && (
         <>
           <Card title="하천 모의 시설 (고정 카탈로그 · 실제 시설 아님)" tag={<Tag sample={MISSING} />}>
-            {SAMPLE_GIS_FACILITIES.map((f) => (
+            {!IS_STAGING && <p className="sp-note">연계된 시설 자료가 없습니다</p>}
+            {(IS_STAGING ? SAMPLE_GIS_FACILITIES : []).map((f) => (
               <div className="sp-card spg-row" key={f.label} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
                 <SpRisk level={f.state === "점검 대상" ? "info" : "offline"}>{f.state}</SpRisk>
                 <b style={{ fontSize: 13 }}>{f.label}</b>
@@ -307,7 +312,8 @@ function ImpactTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain)
             ))}
           </Card>
           <Card title="인력·장비 (하천 가상 자원 · 실제 보유량 아님)" tag={<Tag sample={MISSING} />}>
-            {SAMPLE_GIS_RESOURCES.map((r) => (
+            {!IS_STAGING && <p className="sp-note">연계된 인력·장비 자료가 없습니다</p>}
+            {(IS_STAGING ? SAMPLE_GIS_RESOURCES : []).map((r) => (
               <div className="sp-row" key={r.label}>
                 <span>{r.label}</span>
                 <span className="sp-spacer" />
@@ -353,30 +359,32 @@ function ResponseTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domai
           return acc
         }, {}),
       )
-    : SAMPLE_GIS_RESPONSES
+    : IS_STAGING
+      ? SAMPLE_GIS_RESPONSES
+      : []
   const respTag = inputActions ? "input" : MISSING
 
   // 기관·대응팀 — 실제 목록이 있으면 그 값 → 입력값 → 샘플 (종합상황 대응현황과 같은 규칙)
   const agencyReal = agencyStatuses.length > 0
   const teamsReal = disasterResponseTeams.length > 0
   const useEx = ex !== undefined
-  const connected = agencyReal ? agencyStatuses.filter((a) => a.status === "connected").length : useEx ? ex.agenciesConnected : SAMPLE_AGENCIES.connected
-  const agencyTotal = agencyReal ? agencyStatuses.length : useEx ? ex.agenciesTotal : SAMPLE_AGENCIES.total
-  const issue = agencyReal ? agencyStatuses.filter((a) => a.status !== "connected").map((a) => a.agency).join(" · ") : useEx ? ex.agencyIssue : SAMPLE_AGENCIES.issue
-  const teamCount = teamsReal ? disasterResponseTeams.filter((t) => t.status === "출동중").length : useEx ? ex.teams : SAMPLE_TEAMS.count
-  const teamState = useEx ? ex.teamState : `${SAMPLE_TEAMS.state} 1`
+  const connected = agencyReal ? agencyStatuses.filter((a) => a.status === "connected").length : useEx ? ex.agenciesConnected : IS_STAGING ? SAMPLE_AGENCIES.connected : null
+  const agencyTotal = agencyReal ? agencyStatuses.length : useEx ? ex.agenciesTotal : IS_STAGING ? SAMPLE_AGENCIES.total : null
+  const issue = agencyReal ? agencyStatuses.filter((a) => a.status !== "connected").map((a) => a.agency).join(" · ") : useEx ? ex.agencyIssue : IS_STAGING ? SAMPLE_AGENCIES.issue : ""
+  const teamCount = teamsReal ? disasterResponseTeams.filter((t) => t.status === "출동중").length : useEx ? ex.teams : IS_STAGING ? SAMPLE_TEAMS.count : null
+  const teamState = useEx ? ex.teamState : IS_STAGING ? `${SAMPLE_TEAMS.state} 1` : ""
   const exTag = useEx ? "input" : MISSING
 
   // 최근 조치·전파
   const actionsReal = recentActions.length > 0
-  const acts = actionsReal ? recentActions.slice(0, 2).map((a) => ({ id: a.id, time: a.time, text: `${a.title} · ${a.owner}` })) : SAMPLE_GIS_ACTIONS
+  const acts = actionsReal ? recentActions.slice(0, 2).map((a) => ({ id: a.id, time: a.time, text: `${a.title} · ${a.owner}` })) : IS_STAGING ? SAMPLE_GIS_ACTIONS : []
   const actsTag = actionsReal ? "none" : MISSING
 
   return (
     <div className="sp">
       <Scope domain={domain} onDomain={onDomain} />
       <Card title="진행 중 대응 (서비스별)" tag={<Tag sample={respTag} />}>
-        {resp.length === 0 && <p className="sp-note">진행 중인 대응이 없습니다</p>}
+        {resp.length === 0 && <p className="sp-note">{inputActions || IS_STAGING ? "진행 중인 대응이 없습니다" : "받은 대응 자료가 없습니다"}</p>}
         {resp.map((r) => (
           <div className="sp-card spg-row" key={`${r.service}-${r.state}`} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <SpRisk level={r.level}>{r.state}</SpRisk>
@@ -390,19 +398,20 @@ function ResponseTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domai
         <div className="sp-card spg-dark">
           <small>기관 연결</small>
           <b>
-            {connected}/{agencyTotal}
+            {connected ?? "—"}/{agencyTotal ?? "—"}
           </b>
           {issue && <span className="sp-sub sp-c--caution">{issue}</span>}
           {!agencyReal && <Tag sample={exTag} />}
         </div>
         <div className="sp-card spg-dark">
           <small>현장 대응팀</small>
-          <b>{teamCount}팀</b>
+          <b>{teamCount ?? "—"}팀</b>
           <span className="sp-sub sp-c--caution">{teamState}</span>
           {!teamsReal && <Tag sample={exTag} />}
         </div>
       </div>
       <Card title="최근 조치·전파" tag={<Tag sample={actsTag} />}>
+        {acts.length === 0 && <p className="sp-note">최근 조치 기록이 없습니다</p>}
         {acts.map((a) => (
           <div className="sp-row" key={a.id} style={{ alignItems: "flex-start" }}>
             <b style={{ fontSize: 12 }}>{a.time}</b>

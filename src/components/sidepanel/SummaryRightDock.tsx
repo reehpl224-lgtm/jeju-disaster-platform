@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from "react"
 import { DragScrollTabs } from "../board/DragScrollTabs"
+import { IS_STAGING } from "../../data/appMode"
 import { SpSample } from "./primitives"
 
 export interface SpDockTab {
@@ -28,7 +29,7 @@ export function SummaryRightDock({ tabs, activeKey, onSelect }: { tabs: SpDockTa
         <div className="panel__head">
           <h2 className="panel__title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {active?.headTitle ?? active?.label}
-            {active?.sample && <SpSample noData={active.noData} />}
+            {active?.sample && <SpSample noData={!IS_STAGING} />}
           </h2>
         </div>
         <DragScrollTabs label="대응 패널 탭">

@@ -37,3 +37,13 @@ test("직접 입력값을 우선하고 빈 영역·빈 값은 샘플로 채우�
   assert.equal(serviceCardReading("river", [], warnings, samples).unavailable, true)
   assert.equal(serviceCardReading("aqua", [stage], warnings, samples).source, "input")
 })
+
+test("샘플을 넘기지 않으면(프로토타입) 받은 값이 없는 카드는 숫자를 비운다", () => {
+  const missing = serviceCardReading("river", undefined, { status: "failed" }, [])
+  assert.equal(missing.unavailable, true)
+  assert.equal(missing.source, "none")
+  assert.equal(missing.sourceLabel, "데이터 없음")
+  assert.equal(serviceCardReading("river", undefined, { status: "loading" }, []).sourceLabel, "조회 중")
+  // 받은 값이 0건이면 그대로 0건이다(없는 것과 다르다)
+  assert.equal(serviceCardReading("river", undefined, { status: "ready", entries: [] }, []).unavailable, undefined)
+})

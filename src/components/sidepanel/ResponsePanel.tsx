@@ -3,6 +3,7 @@ import { agencyStatuses } from "../../data/mockDashboard"
 import { disasterResponseTeams } from "../../data/mockIncidents"
 import { SAMPLE_ACTIONS, SAMPLE_ACTION_TOTALS, SAMPLE_AGENCIES, SAMPLE_SERVICE_STAGES, SAMPLE_TEAMS } from "../../data/sidePanelSamples"
 import { LEVEL_RANK, SERVICES, serviceShort, usePanelInput, type InputLevel } from "../../data/panelInput"
+import { IS_STAGING } from "../../data/appMode"
 import { PartTag, SpRisk } from "./primitives"
 import { levelName, spLevel } from "./spUtils"
 
@@ -15,7 +16,7 @@ interface Tile {
   total: number
 }
 
-/** R4 · 우측 · 대응현황 — 서비스 9칸 단계 타일 + 조치 진행. 영역마다 입력값이 있으면 그 값, 없으면 샘플(표식). */
+/** R4 · 우측 · 대응현황 — 서비스 9칸 단계 타일 + 조치 진행. 영역마다 입력값이 있으면 그 값, 없으면 스테이징은 샘플·프로토타입은 값 없음(—). */
 export function ResponsePanel() {
   const nav = useNavigate()
   const inp = usePanelInput()
@@ -26,7 +27,7 @@ export function ResponsePanel() {
 
   // 서비스 타일 — 입력에 없는 서비스는 값 없음(—)으로 둔다
   const tiles: Tile[] = SERVICES.map((sv) => {
-    if (stSample) {
+    if (stSample && IS_STAGING) {
       const x = SAMPLE_SERVICE_STAGES.find((v) => v.id === sv.id)
       return { id: sv.id, title: sv.title, level: (x?.level as InputLevel | undefined) ?? null, count: x?.count ?? null, done: x?.done ?? 0, total: x?.total ?? 0 }
     }
@@ -38,12 +39,12 @@ export function ResponsePanel() {
   const countOf = (l: InputLevel[]) => tiles.reduce((n, t) => n + (t.level && l.includes(t.level) ? (t.count ?? 0) : 0), 0)
 
   // 조치 진행 합계 — 입력이면 서비스별 합산, 샘플이면 샘플 합계
-  const sum = stSample
+  const sum = stSample && IS_STAGING
     ? SAMPLE_ACTION_TOTALS
     : { done: inp.stages?.reduce((n, s) => n + s.done, 0) ?? 0, doing: inp.stages?.reduce((n, s) => n + s.doing, 0) ?? 0, waiting: inp.stages?.reduce((n, s) => n + s.waiting, 0) ?? 0 }
   const all = sum.done + sum.doing + sum.waiting
 
-  const actions = acSample
+  const actions = acSample && IS_STAGING
     ? SAMPLE_ACTIONS
     : (inp.actions ?? []).map((a) => ({ service: serviceShort(a.service), text: a.text, state: a.state }))
 
@@ -51,11 +52,11 @@ export function ResponsePanel() {
   const agencyReal = agencyStatuses.length > 0
   const teamsReal = disasterResponseTeams.length > 0
   const ex = inp.responseExtra
-  const connected = agencyReal ? agencyStatuses.filter((a) => a.status === "connected").length : ex ? ex.agenciesConnected : SAMPLE_AGENCIES.connected
-  const agencyTotal = agencyReal ? agencyStatuses.length : ex ? ex.agenciesTotal : SAMPLE_AGENCIES.total
-  const issue = agencyReal ? agencyStatuses.filter((a) => a.status !== "connected").map((a) => a.agency).join(" · ") : ex ? ex.agencyIssue : SAMPLE_AGENCIES.issue
-  const teamCount = teamsReal ? disasterResponseTeams.filter((x) => x.status === "출동중").length : ex ? ex.teams : SAMPLE_TEAMS.count
-  const teamState = ex ? ex.teamState : SAMPLE_TEAMS.state
+  const connected = agencyReal ? agencyStatuses.filter((a) => a.status === "connected").length : ex ? ex.agenciesConnected : IS_STAGING ? SAMPLE_AGENCIES.connected : null
+  const agencyTotal = agencyReal ? agencyStatuses.length : ex ? ex.agenciesTotal : IS_STAGING ? SAMPLE_AGENCIES.total : null
+  const issue = agencyReal ? agencyStatuses.filter((a) => a.status !== "connected").map((a) => a.agency).join(" · ") : ex ? ex.agencyIssue : IS_STAGING ? SAMPLE_AGENCIES.issue : ""
+  const teamCount = teamsReal ? disasterResponseTeams.filter((x) => x.status === "출동중").length : ex ? ex.teams : IS_STAGING ? SAMPLE_TEAMS.count : null
+  const teamState = ex ? ex.teamState : IS_STAGING ? SAMPLE_TEAMS.state : ""
 
   return (
     <div className="sp">
@@ -119,7 +120,7 @@ export function ResponsePanel() {
           <b className="sp-sub">지금 해야 할 조치</b>
           <PartTag sample={acSample} fully={fully} />
         </div>
-        {actions.length === 0 && <p className="sp-note">지금 해야 할 조치가 없습니다</p>}
+        {actions.length === 0 && <p className="sp-note">{acSample && !IS_STAGING ? "받은 조치 자료가 없습니다" : "지금 해야 할 조치가 없습니다"}</p>}
         <ul className="sp-acts" style={{ margin: 0, padding: 0 }}>
           {actions.map((a, i) => (
             <li key={`${a.text}-${i}`}>
@@ -135,20 +136,20 @@ export function ResponsePanel() {
         <div className="sp-card">
           <small>기관 연결</small>
           <b>
-            {connected}/{agencyTotal}
+            {connected ?? "—"}/{agencyTotal ?? "—"}
           </b>
           {issue && <span className="sp-sub sp-c--caution">{issue}</span>}
           {!agencyReal && <PartTag sample={ex === undefined} fully={fully} />}
         </div>
         <div className="sp-card">
           <small>현장 대응팀</small>
-          <b>{teamCount}팀</b>
+          <b>{teamCount ?? "—"}팀</b>
           <span className="sp-sub">{teamState}</span>
           {!teamsReal && <PartTag sample={ex === undefined} fully={fully} />}
         </div>
       </div>
       <p className="sp-note">
-        서비스를 누르면 해당 서비스 체크리스트로 이동{fully ? " · 값은 모두 샘플" : ""} · 값은 <Link to="/panel-input" className="sp-link" style={{ fontSize: 10 }}>패널 입력</Link>에서 넣습니다
+        서비스를 누르면 해당 서비스 체크리스트로 이동{fully && IS_STAGING ? " · 값은 모두 샘플" : ""} · 값은 <Link to="/panel-input" className="sp-link" style={{ fontSize: 10 }}>패널 입력</Link>에서 넣습니다
       </p>
     </div>
   )

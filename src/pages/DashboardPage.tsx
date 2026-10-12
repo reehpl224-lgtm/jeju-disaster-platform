@@ -14,7 +14,6 @@ import { PropagationPanel } from "../components/sidepanel/PropagationPanel"
 import { SensorSummaryPanel, SensorTrendPanel } from "../components/sidepanel/SensorPanels"
 import { ResponsePanel } from "../components/sidepanel/ResponsePanel"
 import { fullySample, usePanelInput } from "../data/panelInput"
-import { IS_STAGING } from "../data/appMode"
 import { AiPanel, AssetPanel, ContactPanel, FuturePanel, ReportPanel } from "../components/sidepanel/MiscPanels"
 import {
   HorizontalTabsDock,
@@ -139,9 +138,9 @@ export function DashboardPage() {
   const panelInput = usePanelInput()
   const summaryTabs: SpDockTab[] = [
     { key: "broadcast", label: "상황전파", content: <PropagationPanel /> },
-    { key: "sensor", label: "센서정보", headTitle: "전체 센서 현황", sample: fullySample.sensor(panelInput), noData: !IS_STAGING, content: <SensorSummaryPanel /> },
-    { key: "trend", label: "센서 추이", sample: fullySample.trend(panelInput), noData: !IS_STAGING, content: <SensorTrendPanel /> },
-    { key: "response", label: "대응현황", headTitle: "대응 단계", sample: fullySample.response(panelInput), noData: !IS_STAGING, content: <ResponsePanel /> },
+    { key: "sensor", label: "센서정보", headTitle: "전체 센서 현황", sample: fullySample.sensor(panelInput), content: <SensorSummaryPanel /> },
+    { key: "trend", label: "센서 추이", sample: fullySample.trend(panelInput), content: <SensorTrendPanel /> },
+    { key: "response", label: "대응현황", headTitle: "대응 단계", sample: fullySample.response(panelInput), content: <ResponsePanel /> },
     { key: "contact", label: "담당자", content: <ContactPanel /> },
     { key: "report", label: "보고서", content: <ReportPanel /> },
     { key: "asset", label: "자산현황", content: <AssetPanel /> },

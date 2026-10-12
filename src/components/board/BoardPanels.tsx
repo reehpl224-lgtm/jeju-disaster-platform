@@ -308,8 +308,9 @@ function ResponseBody({ service, state, r, onClose }: { service: BoardService; s
       </Card>
 
       {r.ready && (
-        <Card title="준비 상태" tag={<SpSample />}>
-          {r.ready.map((x) => (
+        <Card title="준비 상태" tag={<SpSample noData={!IS_STAGING} />}>
+          {!IS_STAGING && <p className="sp-sub" style={{ fontSize: 12, color: "var(--foreground)" }}>준비 상태 자료가 연계되지 않았습니다</p>}
+          {(IS_STAGING ? r.ready : []).map((x) => (
             <div className="sp-row bd-do" key={x.title}>
               <div style={{ flex: "1 1 0", minWidth: 0 }}>
                 <b style={{ fontSize: 12, lineHeight: "18px" }}>{x.title}</b>
