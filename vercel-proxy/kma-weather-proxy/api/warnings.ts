@@ -34,10 +34,11 @@ const WRN_LABEL: Record<string, string> = {
   K: "열대야",
 }
 
-// LVL: 기상청 특보 체계의 통상적인 표기(1=주의보, 2=경보)
+// LVL: 기상청 wrn_met_data의 특보수준 — 1=예비특보, 2=주의보, 3=경보
 const LVL_LABEL: Record<string, string> = {
-  "1": "주의보",
-  "2": "경보",
+  "1": "예비특보",
+  "2": "주의보",
+  "3": "경보",
 }
 
 function applyCors(res: VercelResponse) {

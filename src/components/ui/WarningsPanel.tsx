@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { fetchJejuWarnings } from "../../data/warningsApi"
+import { warnLvlLabel } from "../../data/warningLevel"
 import type { WarningEntry } from "../../types/warningsApi"
 import { RiskBadge } from "./RiskBadge"
 
@@ -54,7 +55,7 @@ export function WarningsPanel({ wrnCodes }: { wrnCodes?: string[] }) {
         {filtered.map((e, i) => (
           <li key={`${e.regId}-${e.wrn}-${e.tmFc}-${i}`} className="flex items-center justify-between rounded-lg border border-border-subtle p-2.5 text-xs">
             <div className="flex items-center gap-2">
-              <RiskBadge level={e.lvl === "2" ? "danger" : "warning"} label={`${e.wrnLabel} ${e.lvlLabel}`} solid />
+              <RiskBadge level={e.lvl === "3" ? "danger" : "warning"} label={`${e.wrnLabel} ${warnLvlLabel(e.lvl)}`} solid />
               <p className="font-medium text-white/80">{e.regionLabel}</p>
             </div>
             <span className="text-white/35">발표 {formatTm(e.tmFc)}</span>

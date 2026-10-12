@@ -3,7 +3,7 @@ import test from "node:test"
 import { serviceCardReading } from "../src/data/serviceCardCounts.ts"
 
 const samples = [{ id: "river", level: "alert", count: 3 }, { id: "aqua", level: "warning", count: 2 }]
-const entry = (extra = {}) => ({ regId: "L10913", wrn: "R", lvl: "1", tmFc: "202610120900", ...extra })
+const entry = (extra = {}) => ({ regId: "L10913", wrn: "R", lvl: "2", tmFc: "202610120900", ...extra })
 const empty = { caution: 0, warning: 0, alert: 0, danger: 0 }
 
 test("실제 0건은 샘플로 대체하지 않고, 없는 데이터만 샘플로 표시한다", () => {
@@ -20,7 +20,7 @@ test("실제 0건은 샘플로 대체하지 않고, 없는 데이터만 샘플�
 test("특보 종류·등급·지역별로 집계하고 반복 발표와 무관한 특보를 제외한다", () => {
   const warnings = { status: "ready", entries: [
     entry(), entry({ tmFc: "202610121000" }), entry({ regId: "L10914" }),
-    entry({ wrn: "W", lvl: "2" }), entry({ wrn: "H" }), entry({ lvl: "3" }),
+    entry({ wrn: "W", lvl: "3" }), entry({ wrn: "H" }), entry({ lvl: "1" }),
   ] }
   assert.deepEqual(serviceCardReading("river", undefined, warnings, samples).counts, { ...empty, warning: 2, alert: 1 })
   assert.equal(serviceCardReading("heat", undefined, warnings, samples).counts.warning, 1)

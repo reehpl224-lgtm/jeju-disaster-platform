@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import type { WarningEntry } from "../types/warningsApi"
 import { fetchJejuWarnings } from "./warningsApi"
 import { parseKst } from "./useSidePanelEvents"
+import { warnLvlLabel } from "./warningLevel"
 import type { RiskMarker } from "../types/domain"
 import { bd, type BoardService, type BoardStateId, type DashLeft, type RightPanel } from "./boardTypes"
 import type { Facts } from "./boardFacts"
@@ -40,11 +41,11 @@ async function entries(): Promise<WarningEntry[]> {
 
 export function groupWarnings(list: WarningEntry[], codes: string[]): WarnGroup[] {
   const map = new Map<string, WarnGroup>()
-  // lvl 1=주의보 · 2=경보만 쓴다(그 밖의 값은 프록시가 이름을 못 붙인 항목 — "호우3"처럼 보이므로 제외)
-  for (const e of list.filter((x) => codes.includes(x.wrn) && (x.lvl === "1" || x.lvl === "2"))) {
-    const label = `${e.wrnLabel}${e.lvlLabel}`
+  // lvl 2=주의보 · 3=경보만 쓴다(1=예비특보는 등급이 아니라 제외)
+  for (const e of list.filter((x) => codes.includes(x.wrn) && (x.lvl === "2" || x.lvl === "3"))) {
+    const label = `${e.wrnLabel}${warnLvlLabel(e.lvl)}`
     const at = parseKst(e.tmFc)
-    const g = map.get(label) ?? { label, level: e.lvl === "2" ? "alert" : "warning", regions: [], at }
+    const g = map.get(label) ?? { label, level: e.lvl === "3" ? "alert" : "warning", regions: [], at }
     if (!g.regions.includes(e.regionLabel)) g.regions.push(e.regionLabel)
     if (at > g.at) g.at = at
     map.set(label, g)
@@ -123,7 +124,8 @@ export function liveOverlay(s: BoardService, w: ServiceWarnings, facts: Facts | 
 
   const top = w.groups[0]
   const names = w.groups.map((g) => `${g.label} · ${g.regions.join("·")}`).join(" / ")
-  const level = w.groups.some((g) => g.level === "alert") ? ("alert" as const) : ("warning" as const)
+  // 가장 최근 발표 기준 — 경보 뒤에 주의보로 내려갔으면 지금은 주의보
+  const level = top.level
   const calmRight = s.right.calm
   const sample = s.right.detect.trigger
 

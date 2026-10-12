@@ -7,6 +7,7 @@ import { fetchTyphoonNow } from "./typhoonApi"
 import { fetchDisasterMessages, type DisasterMsg } from "./disasterMsgApi"
 import { buildSampleEvents, type SpEvent } from "./sidePanelSamples"
 import { IS_STAGING } from "./appMode"
+import { warnLvlLabel, warnLvlRisk } from "./warningLevel"
 
 /**
  * 종합상황 좌측 패널(타임라인·발효중 특보·실시간 특보)이 함께 쓰는 사건 목록 — 출처 셋: 기상청 특보(최근 24시간 발표) · 태풍 현황 ·
@@ -83,7 +84,7 @@ const parseUtc = (tm: string) => new Date(`${tm.slice(0, 4)}-${tm.slice(4, 6)}-$
 const WEATHER_ICON: Record<string, string> = { 강풍: "💨", 호우: "☔", 풍랑: "🌊", 폭염: "🔆", 건조: "🔥", 한파: "🥶", 대설: "❄️", 태풍: "🌀", 안개: "🌫️", 황사: "🌪️", 폭풍해일: "🌊", 지진해일: "🌊" }
 
 export function warningToEvent(e: WarningEntry): SpEvent {
-  const level: RiskLevel = e.lvl === "2" ? "alert" : "warning"
+  const level: RiskLevel = warnLvlRisk(e.lvl)
   return {
     id: `w-${e.regId}-${e.wrn}-${e.tmFc}`,
     source: "warnings",
@@ -91,7 +92,7 @@ export function warningToEvent(e: WarningEntry): SpEvent {
     icon: WEATHER_ICON[e.wrnLabel] ?? "☔",
     level,
     status: "발령",
-    title: `${e.wrnLabel}${e.lvlLabel}`,
+    title: `${e.wrnLabel}${warnLvlLabel(e.lvl)}`,
     detail: `${e.regionLabel} · 기상청 발표`,
     at: parseKst(e.tmFc),
     // 발효 시각이 있으면 간트 막대의 시작으로 쓴다(끝은 발표에 없어 '미정')

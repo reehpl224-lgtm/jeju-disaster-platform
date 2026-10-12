@@ -7,8 +7,8 @@ export interface WarningEntry {
   regionLabel: string // "제주시" | "서귀포시"
   wrn: string // 특보종류 코드
   wrnLabel: string // 강풍/호우/폭염 등
-  lvl: string // "1"|"2"
-  lvlLabel: string // 주의보/경보
+  lvl: string // 기상청 LVL "1"예비특보|"2"주의보|"3"경보 — 이름·등급은 data/warningLevel.ts로 정한다
+  lvlLabel: string // (프록시가 붙인 이름 — 쓰지 않는다)
 }
 
 export interface WarningsResponse {
