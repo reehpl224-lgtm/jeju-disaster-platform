@@ -36,13 +36,14 @@ const STEPS = ["감지", "확인", "판단", "경보", "대응", "종료"]
 export function BoardDashboard({ service, state, live }: { service: BoardService; state: BoardStateId; /** 실제 특보를 얹은 값(프로토타입 평시) */ live?: DashLeft }) {
   const heatLoaded = useHeatShelters()
   const base: DashLeft = live ?? (state === "calm" || state === "closed" ? service.dash.calm : service.dash[state])
-  // 프로토타입 평시 — 받아 둔 무더위쉼터 자료(행안부)가 있으면 그 개수를 쓴다(자료가 있는 항목만 실값)
+  // 받아 둔 무더위쉼터 자료(행안부)가 있으면 그 개수를 쓴다(자료가 있는 항목만 실값 — 스테이징의 샘플 상태에서도 쉼터 개수는 실값).
+  // 브리핑 문구는 평시일 때만 바꾼다(샘플 상태의 문구는 샘플 그대로)
   const d: DashLeft =
-    state === "calm" && service.id === "heat" && heatLoaded && heatShelters.length > 0
+    service.id === "heat" && heatLoaded && heatShelters.length > 0
       ? {
           ...base,
           tiles: base.tiles.map((t) => (t.label === "무더위쉼터" ? { ...t, value: `${heatShelters.length}개소`, sub: "행안부 스냅샷" } : t)),
-          brief: base.brief.map(([k, v]) => [k, k === "대응" ? `안내 발송 없음 · 무더위쉼터 ${heatShelters.length}곳(행안부 스냅샷)` : v] as [string, string]),
+          brief: state === "calm" ? base.brief.map(([k, v]) => [k, k === "대응" ? `안내 발송 없음 · 무더위쉼터 ${heatShelters.length}곳(행안부 스냅샷)` : v] as [string, string]) : base.brief,
         }
       : base
   return (
