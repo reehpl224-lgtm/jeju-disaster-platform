@@ -84,8 +84,20 @@ const CHIP_ACTIVE_CLASS: Record<ToolboxChipItem["activeColor"], string> = {
 
 // 실제 서로 다른 타일/오버레이 데이터가 없는 모드(기상/재난·기상모델)는 재난위험도와 동일한 화면을 보여준다 —
 // 자세한 내용은 이 컴포넌트를 쓰는 화면의 안내 참고.
-const AERIAL_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-const STREET_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+// 바탕 지도 — 요구사항 "GIS맵 - Vworld API"에 따라 브이월드(국토교통부) WMTS를 쓴다. 인증키(VITE_VWORLD_KEY)가 없으면 이전처럼 OSM·Esri로 대신한다.
+// 브이월드 타일 주소는 {z}/{y}/{x} 순서이고 키가 주소에 들어가므로 브라우저에서 보이는 값이다 — 키는 브이월드에서 허용 도메인으로 제한한다.
+const VWORLD_KEY = import.meta.env.VITE_VWORLD_KEY as string | undefined
+const vworld = (layer: string, ext: "png" | "jpeg") => `https://api.vworld.kr/req/wmts/1.0.0/${VWORLD_KEY}/${layer}/{z}/{y}/{x}.${ext}`
+const BASE = VWORLD_KEY
+  ? { street: vworld("midnight", "png"), aerial: vworld("Satellite", "jpeg"), labels: vworld("Hybrid", "png"), streetAttr: "&copy; VWorld", aerialAttr: "&copy; VWorld", maxNative: 18 }
+  : {
+      street: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      aerial: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      labels: null,
+      streetAttr: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      aerialAttr: "&copy; Esri, Maxar, Earthstar Geographics",
+      maxNative: 19,
+    }
 
 const REGIONS: { key: string; label: string; center: [number, number]; zoom: number }[] = [
   { key: "all", label: "전체", center: JEJU_CENTER, zoom: 11 },
@@ -349,15 +361,14 @@ export function JejuTileMap({
         <ZoomControl position="bottomleft" />
         <TileLayer
           key={mode === "aerial" ? "aerial" : "street"}
-          attribution={
-            mode === "aerial"
-              ? "&copy; Esri, Maxar, Earthstar Geographics"
-              : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          }
-          url={mode === "aerial" ? AERIAL_URL : STREET_URL}
+          attribution={mode === "aerial" ? BASE.aerialAttr : BASE.streetAttr}
+          url={mode === "aerial" ? BASE.aerial : BASE.street}
           subdomains="abc"
           maxZoom={19}
+          maxNativeZoom={BASE.maxNative}
         />
+        {/* 항공지도 위에 도로·지명 글자(브이월드 Hybrid)를 얹는다 */}
+        {mode === "aerial" && BASE.labels && <TileLayer key="aerial-labels" url={BASE.labels} maxZoom={19} maxNativeZoom={BASE.maxNative} />}
 
         {safemap && SAFEMAP_PROXY && (
           <WMSTileLayer
