@@ -62,7 +62,11 @@ export function HeavyRainClosurePage() {
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-xs font-semibold text-risk-safe">모든 종료 조건 충족 · 최종 승인 완료</p>
+        {c.closureConditions.length > 0 ? (
+          <p className="mt-3 text-xs font-semibold text-risk-safe">모든 종료 조건 충족 · 최종 승인 완료</p>
+        ) : (
+          <p className="text-sm text-white/50">종료된 사건이 없어 표시할 종료 조건이 없습니다</p>
+        )}
       </Card>
 
       <Card title="최종 사건 종료 보고서" dummy>

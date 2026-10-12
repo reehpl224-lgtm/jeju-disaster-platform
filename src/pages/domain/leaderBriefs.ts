@@ -422,14 +422,19 @@ export function aquaBrief(): LeaderBrief {
       { k: "데이터 품질", v: `${s.dataQuality.percent}%`, d: s.dataQuality.detail },
     ],
     tasks: [
-      {
-        role: "결재",
-        title: `${ad.riskType} ${ad.grade} 경보 — 결재`,
-        detail: `${ad.effectiveAt} · ${steps.map((x) => x.stage).join("→")}`,
-        status: `결재 ${stepsDone}/${steps.length}단계`,
-        level: stepsDone < steps.length ? "caution" : "safe",
-        to: "/aqua/alerts",
-      },
+      // 경보 초안이 있을 때만 결재 항목이 생긴다(초안 없음이면 riskType이 "-")
+      ...(ad.riskType !== "-"
+        ? [
+            {
+              role: "결재" as const,
+              title: `${ad.riskType} ${ad.grade} 경보 — 결재`,
+              detail: `${ad.effectiveAt} · ${steps.map((x) => x.stage).join("→")}`,
+              status: `결재 ${stepsDone}/${steps.length}단계`,
+              level: (stepsDone < steps.length ? "caution" : "safe") as RiskLevel,
+              to: "/aqua/alerts",
+            },
+          ]
+        : []),
       ...(undone.length > 0
         ? [
             {

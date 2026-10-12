@@ -10,7 +10,7 @@ export function HeavyRainAnalysisPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-bold text-white">상세 분석 — 제주시 한천 침수경보</h1>
+        <h1 className="text-xl font-bold text-white">상세 분석 — 호우</h1>
         <p className="mt-1 text-sm text-white/50">강우 추이 및 관측망 근거 데이터</p>
       </div>
 

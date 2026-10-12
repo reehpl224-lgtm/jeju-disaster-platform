@@ -48,7 +48,11 @@ export function HeatClosurePage() {
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-xs font-semibold text-risk-safe">모든 해제 조건 충족 · 최종 승인 완료</p>
+        {c.closureConditions.length > 0 ? (
+          <p className="mt-3 text-xs font-semibold text-risk-safe">모든 해제 조건 충족 · 최종 승인 완료</p>
+        ) : (
+          <p className="text-sm text-white/50">해제된 특보가 없어 표시할 해제 조건이 없습니다</p>
+        )}
       </Card>
 
       <Card title="최종 해제 보고서" dummy>

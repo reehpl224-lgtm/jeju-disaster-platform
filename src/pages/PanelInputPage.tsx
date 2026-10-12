@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../components/ui/Card"
+import { IS_STAGING } from "../data/appMode"
 import {
   INPUT_LEVELS,
   SERVICES,
@@ -36,7 +37,11 @@ export function PanelInputPage() {
         <h1 className="text-xl font-bold text-white">패널 입력</h1>
         <p className="mt-1 text-sm text-white/50">
           종합상황 우측 패널(센서정보·센서 추이·대응현황)에 보일 값을 직접 넣습니다. <b>이 브라우저에만 저장</b>되고 다른 PC·브라우저에는 보이지 않습니다.
-          입력하지 않은 영역은 <span className="sp-sample">샘플</span> 표식과 함께 샘플 값이 보입니다.
+          {IS_STAGING ? (
+            <>입력하지 않은 영역은 <span className="sp-sample">샘플</span> 표식과 함께 샘플 값이 보입니다.</>
+          ) : (
+            <>입력하지 않은 영역은 <span className="sp-sample">데이터 없음</span> 표식과 함께 값이 비어(—) 보입니다.</>
+          )}
         </p>
       </div>
 
@@ -57,9 +62,9 @@ export function PanelInputPage() {
           type="button"
           className="spi-btn spi-btn--danger"
           disabled={!anyInput}
-          onClick={() => window.confirm("입력한 값을 모두 지우고 샘플로 되돌릴까요?") && resetAll()}
+          onClick={() => window.confirm(IS_STAGING ? "입력한 값을 모두 지우고 샘플로 되돌릴까요?" : "입력한 값을 모두 지울까요?") && resetAll()}
         >
-          모두 샘플로 되돌리기
+          {IS_STAGING ? "모두 샘플로 되돌리기" : "모두 지우기"}
         </button>
       </div>
       <p className="sp-note">입력하면 바로 저장됩니다(저장 버튼 없음) · 종합상황 화면은 새로고침 없이 같이 바뀝니다.</p>
@@ -118,20 +123,20 @@ function PartCard<K extends PartKey>({
       subtitle={desc}
       action={
         <div className="spi-actions">
-          <span className={isInput ? "sp-sample sp-sample--input" : "sp-sample"}>{isInput ? "직접 입력 중" : "샘플 사용 중"}</span>
+          <span className={isInput ? "sp-sample sp-sample--input" : "sp-sample"}>{isInput ? "직접 입력 중" : IS_STAGING ? "샘플 사용 중" : "입력 없음"}</span>
           {isInput ? (
-            <button type="button" className="spi-btn" onClick={() => window.confirm(`'${title}'의 입력값을 지우고 샘플로 되돌릴까요?`) && setPart(partKey, undefined)}>
-              샘플로 되돌리기
+            <button type="button" className="spi-btn" onClick={() => window.confirm(`'${title}'의 입력값을 지우고 ${IS_STAGING ? "샘플로 되돌릴까요?" : "비울까요?"}`) && setPart(partKey, undefined)}>
+              {IS_STAGING ? "샘플로 되돌리기" : "입력값 지우기"}
             </button>
           ) : (
             <button type="button" className="spi-btn spi-btn--primary" onClick={() => setPart(partKey, startFromSample[partKey]() as PanelInput[K])}>
-              직접 입력 시작 (샘플 값으로 채움)
+              직접 입력 시작 ({IS_STAGING ? "샘플" : "예시"} 값으로 채움)
             </button>
           )}
         </div>
       }
     >
-      {isInput ? children(value, (v) => setPart(partKey, v)) : <p className="sp-note">지금은 샘플이 보입니다. "직접 입력 시작"을 누르면 샘플 값이 입력칸에 채워지고, 고친 값이 패널에 그대로 보입니다.</p>}
+      {isInput ? children(value, (v) => setPart(partKey, v)) : <p className="sp-note">{IS_STAGING ? "지금은 샘플이 보입니다." : "지금은 입력한 값이 없어 패널에 '데이터 없음'으로 보입니다."} "직접 입력 시작"을 누르면 {IS_STAGING ? "샘플" : "예시"} 값이 입력칸에 채워지고, 고친 값이 패널에 그대로 보입니다.</p>}
     </Card>
   )
 }
