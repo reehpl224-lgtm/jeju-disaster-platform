@@ -18,7 +18,7 @@ export const roleLabel = (r: UserRole) => (r === "restricted" ? "권한 없음" 
 export const PERMS = [
   { key: "dashboard", label: "종합상황·GIS·CCTV·공통 이벤트 조회", paths: ["/dashboard", "/events"] },
   { key: "approvals", label: "통합 결재함", paths: ["/approvals"] },
-  { key: "esop", label: "e-SOP 대응 조회", paths: ["/esop"] },
+  { key: "esop", label: "e-SOP 대응·위험 단계 조건 조회", paths: ["/esop", "/criteria"] },
   { key: "esopEdit", label: "e-SOP 절차 정의 편집", paths: [] },
   { key: "orderIssue", label: "대응 지시 등록·전달·사건 종료 기록", paths: [] },
   { key: "orderResult", label: "조치 결과 등록(수행 시작·완료·실패)", paths: [] },
@@ -27,6 +27,8 @@ export const PERMS = [
   { key: "system", label: "시스템 상태·연계현황·실증현황", paths: ["/monitoring", "/data-systems", "/pilot-status"] },
   { key: "input", label: "패널 입력·더미데이터", paths: ["/panel-input", "/dummy-data"] },
   { key: "roles", label: "역할·권한 관리", paths: ["/roles"] },
+  { key: "audit", label: "이용 이력 조회", paths: ["/audit"] },
+  { key: "integration", label: "연계 오류·검증", paths: ["/integration"] },
 ] as const
 export type PermKey = (typeof PERMS)[number]["key"]
 
@@ -45,7 +47,7 @@ export function defaultPolicy(): RolePolicy {
   return {
     perms: {
       control: allow(["dashboard", "approvals", "esop", "orderIssue", "orderResult", "propagation", "reports", "input"]),
-      vendor: allow(["dashboard", "system", "input"]),
+      vendor: allow(["dashboard", "system", "input", "audit", "integration"]),
       field: allow(["dashboard", "esop", "orderResult", "propagation"]),
       admin: allow(PERMS.map((p) => p.key)),
     },

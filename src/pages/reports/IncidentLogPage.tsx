@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link, Navigate, useParams } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { audit } from "../../data/auditLog"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { incidentCsv, logsOf, ordersOf, type LogKind, type OrderStatus } from "../../data/responseLogic"
 import { SAMPLE_INCIDENT_IDS, useResponseView } from "../../data/sampleResponseLog"
@@ -29,6 +30,7 @@ export function IncidentLogPage() {
     a.download = `${incident.id}.csv`
     a.click()
     URL.revokeObjectURL(a.href)
+    audit("데이터 처리", "사건 이력 CSV 내려받기", incident.id)
   }
   const tiles: [string, string][] = [
     ["서비스", serviceTitle(incident.serviceId)],

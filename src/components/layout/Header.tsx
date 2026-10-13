@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { IS_STAGING } from "../../data/appMode"
+import { audit } from "../../data/auditLog"
 import { login, logout, type MockUser } from "../../data/mockAuth"
 import { useRolePolicy } from "../../data/roles"
 import { canAccess, ROLES, roleLabel } from "../../data/rolesLogic"
@@ -34,13 +35,16 @@ const OPS_NAV = [
   { to: "/events", label: "공통 이벤트", icon: "🧩" },
   { to: "/approvals", label: "통합 결재함", icon: "✅" },
   { to: "/esop", label: "e-SOP 대응", icon: "📑" },
+  { to: "/criteria", label: "위험 단계 조건", icon: "📐" },
   { to: "/pilot-status", label: "실증서비스 구현 현황", icon: "🧪" },
   { to: "/propagation", label: "상황전파·보고체계", icon: "📡" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
   { to: "/data-systems", label: "데이터 시스템 연계현황", icon: "🗄️" },
+  { to: "/integration", label: "연계 오류·검증", icon: "🛠️" },
   { to: "/dummy-data", label: "더미데이터", icon: "📥" },
   { to: "/panel-input", label: "패널 입력", icon: "✏️" },
   { to: "/roles", label: "역할·권한", icon: "🔐" },
+  { to: "/audit", label: "이용 이력", icon: "🧾" },
   { to: "/reports", label: "이력·보고서", icon: "📋" },
   { to: "/demo-version", label: "데모버전", icon: "🏷️" },
 ]
@@ -101,6 +105,7 @@ export function Header({ user }: { user: MockUser }) {
 
   // 역할 체험(데모) — 그 역할의 체험 계정으로 다시 로그인해 기본 화면으로 간다
   function switchRole(account: string, home: string) {
+    audit("접속", "역할 체험 전환", account)
     login(account)
     window.location.assign(home)
   }

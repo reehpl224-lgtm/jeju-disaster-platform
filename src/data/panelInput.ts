@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react"
+import { audit } from "./auditLog"
 import { SERVICES, type PanelInput, type PartKey, type InputLevel } from "./panelInputLogic"
 import {
   SAMPLE_ACTIONS,
@@ -74,11 +75,13 @@ export function setPart<K extends PartKey>(key: K, value: PanelInput[K] | undefi
   state = next
   persist()
   emit()
+  audit("데이터 처리", value === undefined ? "패널 입력 지움" : "패널 입력 저장", String(key))
 }
 export function resetAll() {
   state = {}
   persist()
   emit()
+  audit("데이터 처리", "패널 입력 전체 초기화")
 }
 
 

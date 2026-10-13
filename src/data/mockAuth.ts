@@ -1,4 +1,5 @@
 
+import { audit } from "./auditLog"
 import type { UserRole } from "./rolesLogic"
 export type { UserRole }
 
@@ -32,10 +33,12 @@ export const DEMO_ACCOUNTS = Object.values(DEMO_USERS).map((u) => ({ orgId: u.or
 export function login(orgId: string): MockUser {
   const user = DEMO_USERS[orgId.trim()] ?? DEMO_USERS["jeju-ax"]
   localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
+  audit("접속", "로그인", user.role, `${user.name}(${user.orgId})`)
   return user
 }
 
 export function logout() {
+  audit("접속", "로그아웃")
   localStorage.removeItem(STORAGE_KEY)
 }
 

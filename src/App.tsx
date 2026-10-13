@@ -66,6 +66,9 @@ const DemoVersionPage = lazy(() => import("./pages/DemoVersionPage").then((m) =>
 const VlmPage = lazy(() => import("./pages/VlmPage").then((m) => ({ default: m.VlmPage })))
 const IncidentLogPage = lazy(() => import("./pages/reports/IncidentLogPage").then((m) => ({ default: m.IncidentLogPage })))
 const EventsPage = lazy(() => import("./pages/events/EventsPage").then((m) => ({ default: m.EventsPage })))
+const AuditPage = lazy(() => import("./pages/audit/AuditPage").then((m) => ({ default: m.AuditPage })))
+const CriteriaPage = lazy(() => import("./pages/criteria/CriteriaPage").then((m) => ({ default: m.CriteriaPage })))
+const IntegrationPage = lazy(() => import("./pages/integration/IntegrationPage").then((m) => ({ default: m.IntegrationPage })))
 const RolesPage = lazy(() => import("./pages/roles/RolesPage").then((m) => ({ default: m.RolesPage })))
 const AxHubPage = lazy(() => import("./pages/AxHubPage").then((m) => ({ default: m.AxHubPage })))
 
@@ -157,6 +160,9 @@ export default function App() {
           <Route path="/data-systems" element={<DataSystemPage />} />
           <Route path="/esop" element={<EsopPage />} />
           <Route path="/roles" element={<RolesPage />} />
+          <Route path="/integration" element={<IntegrationPage />} />
+          <Route path="/criteria" element={<CriteriaPage />} />
+          <Route path="/audit" element={<AuditPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/dummy-data" element={<DummyDataPage />} />
           <Route path="/demo-version" element={<DemoVersionPage />} />

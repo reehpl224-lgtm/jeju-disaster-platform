@@ -1,3 +1,4 @@
+import { audit } from "./auditLog"
 import { readSheet, type SheetData } from "read-excel-file/browser"
 import { aquaDataIssues, aquaDataSources, aquaSummary } from "./mockAqua"
 import { coastSafetyAssets, coastSummary } from "./mockCoast"
@@ -144,6 +145,7 @@ export async function parseDummyWorkbook(file: File): Promise<DummyWorkbookData>
 
 export function saveDummyWorkbook(data: DummyWorkbookData) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  audit("데이터 처리", "수집데이터 엑셀 적용", "/dummy-data")
 }
 
 export function loadDummyWorkbook(): DummyWorkbookData | null {
@@ -157,6 +159,7 @@ export function loadDummyWorkbook(): DummyWorkbookData | null {
 
 export function clearDummyWorkbook() {
   localStorage.removeItem(STORAGE_KEY)
+  audit("데이터 처리", "수집데이터 엑셀 초기화", "/dummy-data")
 }
 
 export function applyStoredDummyWorkbook() {

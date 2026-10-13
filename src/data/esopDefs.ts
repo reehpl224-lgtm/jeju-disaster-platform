@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react"
+import { audit } from "./auditLog"
 import { esopKey, type EsopDefs, type EsopLevel, type EsopStep } from "./esopLogic"
 
 // e-SOP 절차 정의 저장소 — 브라우저(localStorage)에만 저장한다. 고친 (서비스:단계)만 담는다
@@ -24,8 +25,14 @@ function commit(next: EsopDefs) {
   }
   listeners.forEach((fn) => fn())
 }
-export const saveSteps = (svc: string, level: EsopLevel, steps: EsopStep[]) => commit({ ...get(), [esopKey(svc, level)]: steps })
-export const resetService = (svc: string) => commit(Object.fromEntries(Object.entries(get()).filter(([k]) => !k.startsWith(`${svc}:`))))
+export function saveSteps(svc: string, level: EsopLevel, steps: EsopStep[]) {
+  commit({ ...get(), [esopKey(svc, level)]: steps })
+  audit("시스템 변경", "e-SOP 절차 정의 수정", esopKey(svc, level))
+}
+export function resetService(svc: string) {
+  commit(Object.fromEntries(Object.entries(get()).filter(([k]) => !k.startsWith(`${svc}:`))))
+  audit("시스템 변경", "e-SOP 절차 정의 처음 값으로", svc)
+}
 const subscribe = (fn: () => void) => {
   listeners.add(fn)
   const onStorage = (e: StorageEvent) => {

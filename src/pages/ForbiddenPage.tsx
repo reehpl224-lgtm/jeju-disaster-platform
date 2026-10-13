@@ -1,4 +1,6 @@
+import { useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
+import { audit } from "../data/auditLog"
 import { getCurrentUser, logout } from "../data/mockAuth"
 import { ROLES, roleLabel } from "../data/rolesLogic"
 
@@ -7,6 +9,9 @@ export function ForbiddenPage() {
   const user = getCurrentUser()
   const denied = (useLocation().state as { denied?: string } | null)?.denied
   const role = user && user.role !== "restricted" ? user.role : null
+  useEffect(() => {
+    audit("접속", "접근 거부", denied ?? "(직접 접근)")
+  }, [denied])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-base p-4">

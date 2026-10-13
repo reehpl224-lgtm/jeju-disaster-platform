@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react"
+import { audit } from "./auditLog"
 import { getCurrentUser } from "./mockAuth"
 import { roleLabel } from "./rolesLogic"
 import {
@@ -40,11 +41,26 @@ export function actor(): string {
   return u ? `${u.name}(${roleLabel(u.role)})` : "알 수 없음"
 }
 
-export const recordLog = (svc: string, kind: LogKind, text: string, ref?: string) => commit(addLog(get(), svc, { kind, text, by: actor(), ref }, new Date()))
-export const recordOrder = (svc: string, o: { title: string; assignee: string; dept: string }) => commit(issueOrder(get(), svc, o, actor(), new Date()))
-export const moveOrder = (orderId: string, to: OrderStatus, note?: string) => commit(advanceOrder(get(), orderId, to, actor(), new Date(), note))
-export const endIncident = (svc: string) => commit(closeIncident(get(), svc, actor(), new Date()))
-export const clearResponseLog = () => commit(emptyStore())
+export function recordLog(svc: string, kind: LogKind, text: string, ref?: string) {
+  commit(addLog(get(), svc, { kind, text, by: actor(), ref }, new Date()))
+  audit("데이터 처리", `조치 기록(${kind})`, svc)
+}
+export function recordOrder(svc: string, o: { title: string; assignee: string; dept: string }) {
+  commit(issueOrder(get(), svc, o, actor(), new Date()))
+  audit("데이터 처리", "대응 지시 등록", svc)
+}
+export function moveOrder(orderId: string, to: OrderStatus, note?: string) {
+  commit(advanceOrder(get(), orderId, to, actor(), new Date(), note))
+  audit("데이터 처리", `대응 지시 ${to}`, orderId)
+}
+export function endIncident(svc: string) {
+  commit(closeIncident(get(), svc, actor(), new Date()))
+  audit("데이터 처리", "사건 종료 기록", svc)
+}
+export function clearResponseLog() {
+  commit(emptyStore())
+  audit("시스템 변경", "대응 기록 비우기")
+}
 
 const subscribe = (fn: () => void) => {
   listeners.add(fn)
