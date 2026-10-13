@@ -16,6 +16,7 @@ function load(): EsopDefs {
   }
 }
 const get = () => (cache ??= load())
+export const getEsopDefs = get
 function commit(next: EsopDefs) {
   cache = next
   try {

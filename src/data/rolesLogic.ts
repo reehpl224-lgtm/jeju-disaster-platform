@@ -29,6 +29,7 @@ export const PERMS = [
   { key: "roles", label: "역할·권한 관리", paths: ["/roles"] },
   { key: "audit", label: "이용 이력 조회", paths: ["/audit"] },
   { key: "integration", label: "연계 오류·검증", paths: ["/integration"] },
+  { key: "scenario", label: "상황판단 시나리오 구성·시험", paths: ["/scenarios"] },
 ] as const
 export type PermKey = (typeof PERMS)[number]["key"]
 
@@ -46,8 +47,8 @@ const allow = (keys: PermKey[]) => Object.fromEntries(PERMS.map((p) => [p.key, k
 export function defaultPolicy(): RolePolicy {
   return {
     perms: {
-      control: allow(["dashboard", "approvals", "esop", "orderIssue", "orderResult", "propagation", "reports", "input"]),
-      vendor: allow(["dashboard", "system", "input", "audit", "integration"]),
+      control: allow(["dashboard", "approvals", "esop", "orderIssue", "orderResult", "propagation", "reports", "input", "scenario"]),
+      vendor: allow(["dashboard", "system", "input", "audit", "integration", "scenario"]),
       field: allow(["dashboard", "esop", "orderResult", "propagation"]),
       admin: allow(PERMS.map((p) => p.key)),
     },

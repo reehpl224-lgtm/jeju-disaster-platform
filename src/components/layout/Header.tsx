@@ -36,6 +36,7 @@ const OPS_NAV = [
   { to: "/approvals", label: "통합 결재함", icon: "✅" },
   { to: "/esop", label: "e-SOP 대응", icon: "📑" },
   { to: "/criteria", label: "위험 단계 조건", icon: "📐" },
+  { to: "/scenarios", label: "상황판단 시나리오", icon: "🎬" },
   { to: "/pilot-status", label: "실증서비스 구현 현황", icon: "🧪" },
   { to: "/propagation", label: "상황전파·보고체계", icon: "📡" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
