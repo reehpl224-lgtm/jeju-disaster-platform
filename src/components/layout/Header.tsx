@@ -42,6 +42,7 @@ const OPS_NAV = [
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
   { to: "/data-systems", label: "데이터 시스템 연계현황", icon: "🗄️" },
   { to: "/integration", label: "연계 오류·검증", icon: "🛠️" },
+  { to: "/mock-api", label: "Mock API", icon: "🧪" },
   { to: "/dummy-data", label: "더미데이터", icon: "📥" },
   { to: "/panel-input", label: "패널 입력", icon: "✏️" },
   { to: "/roles", label: "역할·권한", icon: "🔐" },
@@ -75,6 +76,8 @@ export function Header({ user }: { user: MockUser }) {
   const wrapRef = useRef<HTMLDivElement>(null)
 
   const onDashboard = location.pathname === "/dashboard"
+  const did = params.get("did") === "1"
+  const didQ = did ? "&did=1" : ""
   const activeTab = (params.get("tab") as DashboardTabKey | null) ?? "summary"
   const userLabel = `${user.org.replace("제주특별자치도 ", "")} ${user.name} 님`
   // 서비스 카드 id와 도메인 경로("/" + id)가 일치 — 도메인 메뉴 옆에 현재 최고 위험 등급 점을 붙인다.
@@ -111,6 +114,22 @@ export function Header({ user }: { user: MockUser }) {
     window.location.assign(home)
   }
 
+  // DID 모드 — 종합상황 → GIS → CCTV 탭을 30초마다 돌려 보여 주고, Esc로 나간다
+  useEffect(() => {
+    if (!did) return
+    const keys = DASHBOARD_TABS.map((t) => t.key)
+    const timer = setInterval(() => {
+      const cur = keys.indexOf((new URLSearchParams(window.location.search).get("tab") as DashboardTabKey | null) ?? "summary")
+      navigate(`/dashboard?tab=${keys[(cur + 1) % keys.length]}&did=1`, { replace: true })
+    }, 30_000)
+    const onEsc = (e: KeyboardEvent) => e.key === "Escape" && navigate(`/dashboard?tab=${activeTab}`, { replace: true })
+    window.addEventListener("keydown", onEsc)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener("keydown", onEsc)
+    }
+  }, [did, navigate, activeTab])
+
   function handleLogout() {
     logout()
     navigate("/login", { replace: true })
@@ -144,7 +163,7 @@ export function Header({ user }: { user: MockUser }) {
             {(allowed("/dashboard") ? DASHBOARD_TABS : []).map((tab) => (
               <li key={tab.key}>
                 <Link
-                  to={`/dashboard?tab=${tab.key}`}
+                  to={`/dashboard?tab=${tab.key}${didQ}`}
                   aria-current={onDashboard && activeTab === tab.key ? "page" : undefined}
                 >
                   {tab.label}
@@ -156,6 +175,11 @@ export function Header({ user }: { user: MockUser }) {
       </div>
 
       <div className="header__user">
+        {did && (
+          <Link to={`/dashboard?tab=${activeTab}`} className="did-exit btn btn--ghost btn--pill" style={{ height: 32, padding: "0 .75rem", fontSize: 12 }}>
+            DID 종료 (Esc)
+          </Link>
+        )}
         <a href="/vlm" target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--pill" style={{ height: 32, padding: "0 .75rem", fontSize: 12 }}>
           VLM
         </a>
@@ -291,6 +315,15 @@ export function Header({ user }: { user: MockUser }) {
               </Link>
             </li>
           ))}
+          <li>
+            <hr />
+          </li>
+          <li>
+            <Link to="/dashboard?tab=summary&did=1">
+              <span aria-hidden>🖥️</span>
+              대형 상황판(DID) 모드
+            </Link>
+          </li>
           <li>
             <hr />
           </li>

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { PendingOrderApprovals } from "./PendingOrderApprovals"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { aquaBrief, coastBrief, heatBrief, hazardBrief, heavyRainBrief, riverBrief, typhoonBrief, type BriefRole, type BriefTask } from "../domain/leaderBriefs"
 import type { RiskLevel } from "../../types/domain"
@@ -45,6 +46,8 @@ export function ApprovalsPage() {
           9개 서비스의 결재·지시·확인 대기를 한곳에 — 급한 순서대로 정렬, 항목을 누르면 해당 서비스의 처리 화면으로 이동
         </p>
       </div>
+
+      <PendingOrderApprovals />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Tile label="전체" value={rows.length} active={role === "all"} onClick={() => setRole("all")} />

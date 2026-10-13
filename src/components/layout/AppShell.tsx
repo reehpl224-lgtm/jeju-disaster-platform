@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from "react-router-dom"
+import { Outlet, useLocation, useSearchParams } from "react-router-dom"
 import { Crumbs, DomainSidebar } from "./DomainSidebar"
 import { currentLabel, findDomain } from "./domainSidebarUtils"
 import { Header } from "./Header"
@@ -14,11 +14,13 @@ const BOARD_PATHS = ["/dashboard", "/heavy-rain", "/typhoon", "/heat", "/wildfir
  */
 export function AppShell({ user }: { user: MockUser }) {
   const { pathname } = useLocation()
+  // 대형 상황판(DID) 모드 — ?did=1. 조작 메뉴를 감추고 화면을 키워 멀리서 보게 한다(요구사항 '역할별 화면·운영환경 대응')
+  const did = useSearchParams()[0].get("did") === "1"
   const isBoard = BOARD_PATHS.includes(pathname)
   const domain = isBoard ? undefined : findDomain(pathname)
 
   return (
-    <div className="app">
+    <div className={did ? "app app--did" : "app"}>
       <a className="skip-link" href="#main-content">
         본문으로 건너뛰기
       </a>

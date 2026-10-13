@@ -45,3 +45,27 @@ test("NGSI-LD 변환: urn ID, 좌표는 [경도, 위도], 값 없는 항목은 �
   assert.equal(w.prediction, undefined)
   assert.equal(w.alert.status.value, "발령")
 })
+
+import { validateCommonEvent } from "../src/data/commonEvent.ts"
+import { readFileSync } from "node:fs"
+
+test("구조 검사: 만들어 내는 이벤트와 Mock API 파일은 모두 통과하고, 어긋난 값은 필드별로 알려 준다", () => {
+  const b = generatePilotBatch(new Date(2026, 9, 13, 10, 0))
+  for (const e of fromPilotBatch(b)) assert.deepEqual(validateCommonEvent(e), [], e.id)
+  assert.deepEqual(validateCommonEvent(fromSpEvent(sp())), [])
+  const file = JSON.parse(readFileSync(new URL("../public/mock-api/v1/events.json", import.meta.url), "utf8"))
+  assert.ok(file.events.length > 0)
+  for (const e of file.events) assert.deepEqual(validateCommonEvent(e), [], e.id)
+
+  const broken = structuredClone(fromPilotBatch(b)[0])
+  broken.risk.level = "severe"
+  delete broken.subject.kind
+  broken.observation[0].value = null
+  broken.alert = { status: "진행", title: "" }
+  const errs = validateCommonEvent(broken)
+  assert.ok(errs.some((m) => m.startsWith("risk.level")))
+  assert.ok(errs.some((m) => m.startsWith("subject.kind")))
+  assert.ok(errs.some((m) => m.startsWith("observation[0].value")))
+  assert.ok(errs.some((m) => m.startsWith("alert.status")))
+  assert.deepEqual(validateCommonEvent("문자열"), ["이벤트는 객체여야 합니다"])
+})

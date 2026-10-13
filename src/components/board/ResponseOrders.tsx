@@ -2,8 +2,8 @@ import { useState } from "react"
 import { useEsopDefs } from "../../data/esopDefs"
 import { stepsOf } from "../../data/esopLogic"
 import { getCurrentUser } from "../../data/mockAuth"
-import { endIncident, moveOrder, recordOrder, useResponseLog } from "../../data/responseLog"
-import { NEXT_STATUS, openIncidentOf, ordersOf, type OrderStatus } from "../../data/responseLogic"
+import { decide, endIncident, moveOrder, recordOrder, useResponseLog } from "../../data/responseLog"
+import { NEXT_STATUS, openIncidentOf, ordersOf, requiresApproval, type OrderStatus } from "../../data/responseLogic"
 import { useRolePolicy } from "../../data/roles"
 import { hasPerm, SERVICE_IDS, type ServiceId } from "../../data/rolesLogic"
 import { useCurrentLevels } from "../../data/useCurrentLevels"
@@ -26,6 +26,7 @@ export function ResponseOrders({ serviceId }: { serviceId: string }) {
   const role = getCurrentUser()?.role ?? "restricted"
   const canIssue = hasPerm(role, "orderIssue", policy)
   const canResult = hasPerm(role, "orderResult", policy)
+  const canApprove = hasPerm(role, "orderApprove", policy)
   const open = openIncidentOf(store, serviceId)
   const orders = open ? ordersOf(store, open.id) : []
   const active = orders.filter((o) => o.status !== "완료").length
@@ -33,12 +34,14 @@ export function ResponseOrders({ serviceId }: { serviceId: string }) {
   const [assignee, setAssignee] = useState("")
   const [dept, setDept] = useState("")
   const [notes, setNotes] = useState<Record<string, string>>({})
+  const [needs, setNeeds] = useState<boolean | null>(null)
   const steps = (SERVICE_IDS as readonly string[]).includes(serviceId) ? stepsOf(defs, serviceId as ServiceId, level) : []
 
   const allowed = (to: OrderStatus) => (to === "전달" ? canIssue : canResult)
   const submit = () => {
     if (!title.trim()) return
-    recordOrder(serviceId, { title, assignee, dept })
+    recordOrder(serviceId, { title, assignee, dept, needsApproval: needs ?? requiresApproval(title) })
+    setNeeds(null)
     setTitle("")
     setAssignee("")
     setDept("")
@@ -61,12 +64,30 @@ export function ResponseOrders({ serviceId }: { serviceId: string }) {
             <b style={{ flex: "1 1 0", minWidth: 0, fontSize: 12, lineHeight: "18px" }}>{o.title}</b>
             <SpRisk level={STATUS_LEVEL[o.status]}>{o.status}</SpRisk>
           </div>
+          {o.approval && (
+            <div className="sp-row" style={{ flexWrap: "wrap" }}>
+              <SpRisk level={o.approval.status === "승인" ? "safe" : o.approval.status === "반려" ? "alert" : "warning"}>{o.approval.status === "대기" ? "승인 대기" : o.approval.status === "승인" ? "승인됨" : "반려됨"}</SpRisk>
+              <span className="sp-sub">
+                {o.approval.status === "대기" ? "실제 조치는 승인 후 전달할 수 있습니다" : `${o.approval.by ?? ""}${o.approval.note ? ` · ${o.approval.note}` : ""}`}
+              </span>
+              {o.approval.status === "대기" && canApprove && (
+                <>
+                  <button type="button" className="bd-btn bd-btn--ok" onClick={() => decide(o.id, "승인", notes[o.id])}>
+                    승인
+                  </button>
+                  <button type="button" className="bd-btn bd-btn--no" onClick={() => decide(o.id, "반려", notes[o.id])}>
+                    반려
+                  </button>
+                </>
+              )}
+            </div>
+          )}
           <p className="sp-sub">
             {o.assignee || "담당자 미정"}
             {o.dept && ` · ${o.dept}`} · {hm(o.events[o.events.length - 1].at)}
             {o.result && ` · 결과: ${o.result}`}
           </p>
-          {NEXT_STATUS[o.status].length > 0 && (
+          {NEXT_STATUS[o.status].length > 0 && o.approval?.status !== "반려" && (
             <div className="sp-row" style={{ flexWrap: "wrap" }}>
               {o.status === "수행 중" && canResult && (
                 <input
@@ -82,8 +103,8 @@ export function ResponseOrders({ serviceId }: { serviceId: string }) {
                   key={to}
                   type="button"
                   className={`bd-btn ${to === "실패" ? "bd-btn--no" : "bd-btn--ok"}`}
-                  disabled={!allowed(to)}
-                  title={allowed(to) ? undefined : "이 역할은 권한이 없습니다"}
+                  disabled={!allowed(to) || (!!o.approval && o.approval.status !== "승인")}
+                  title={!allowed(to) ? "이 역할은 권한이 없습니다" : o.approval && o.approval.status !== "승인" ? "승인 후에 진행할 수 있습니다" : undefined}
                   onClick={() => {
                     moveOrder(o.id, to, notes[o.id])
                     setNotes({ ...notes, [o.id]: "" })
@@ -132,6 +153,10 @@ export function ResponseOrders({ serviceId }: { serviceId: string }) {
             <input className="bo-input" value={assignee} onChange={(e) => setAssignee(e.target.value)} placeholder="담당자·전파 대상" aria-label="담당자" />
             <input className="bo-input" value={dept} onChange={(e) => setDept(e.target.value)} placeholder="대응 부서" aria-label="대응 부서" />
           </div>
+          <label className="sp-sub" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <input type="checkbox" checked={needs ?? requiresApproval(title)} onChange={(e) => setNeeds(e.target.checked)} aria-label="승인 필요 조치" />
+            승인 필요 조치 (경보 발령·시설 제어·출동·대피 등)
+          </label>
           <button type="submit" className="bd-btn bd-btn--line" disabled={!title.trim()}>
             지시 등록
           </button>

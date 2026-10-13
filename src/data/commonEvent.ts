@@ -160,6 +160,71 @@ export function toNgsiLd(e: CommonEvent) {
   }
 }
 
+const LEVELS = ["normal", "caution", "warning", "alert", "danger"]
+const SUBJECT_KINDS = ["지점", "구역", "지역", "취수구", "태풍"]
+const ORIGINS = ["기상청", "행정안전부", "실증사", "샘플"]
+const SERVICES = ["heavy-rain", "typhoon", "heat", "wildfire", "tsunami", "snow", "river", "aqua", "coast", "common"]
+const isStr = (v: unknown): v is string => typeof v === "string" && v.trim() !== ""
+const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v)
+
+function checkMeasures(v: unknown, path: string, out: string[]) {
+  if (!Array.isArray(v)) return out.push(`${path}: 배열이어야 합니다`)
+  v.forEach((m, i) => {
+    if (!isObj(m)) return out.push(`${path}[${i}]: 객체여야 합니다`)
+    if (!isStr(m.name)) out.push(`${path}[${i}].name: 문자열이 필요합니다`)
+    if (typeof m.value !== "number" && typeof m.value !== "string") out.push(`${path}[${i}].value: 숫자 또는 문자열이어야 합니다`)
+  })
+}
+
+/**
+ * 공통 이벤트 한 건이 구조에 맞는지 검사해 어긋난 곳을 알려 준다(비어 있으면 통과) — public/mock-api/v1/schema/common-event.schema.json 과 같은 규칙.
+ * 실증사가 보내 줄 샘플 payload를 받았을 때 구조 정합을 확인하는 데 쓴다.
+ */
+export function validateCommonEvent(e: unknown): string[] {
+  const out: string[] = []
+  if (!isObj(e)) return ["이벤트는 객체여야 합니다"]
+  if (e.schema !== "jeju-ax.common-event/1") out.push('schema: "jeju-ax.common-event/1" 이어야 합니다')
+  if (!isStr(e.id)) out.push("id: 문자열이 필요합니다")
+  if (!SERVICES.includes(e.serviceId as string)) out.push(`serviceId: ${SERVICES.join("·")} 중 하나여야 합니다`)
+  if (!isStr(e.title)) out.push("title: 문자열이 필요합니다")
+  if (!isStr(e.occurredAt) || Number.isNaN(Date.parse(e.occurredAt))) out.push("occurredAt: 날짜·시각 문자열(ISO 8601)이어야 합니다")
+  const subject = e.subject
+  if (!isObj(subject)) out.push("subject: 객체여야 합니다")
+  else {
+    if (!isStr(subject.name)) out.push("subject.name: 문자열이 필요합니다")
+    if (!SUBJECT_KINDS.includes(subject.kind as string)) out.push(`subject.kind: ${SUBJECT_KINDS.join("·")} 중 하나여야 합니다`)
+    for (const k of ["lat", "lng"] as const) if (subject[k] !== undefined && typeof subject[k] !== "number") out.push(`subject.${k}: 숫자여야 합니다`)
+  }
+  const risk = e.risk
+  if (!isObj(risk)) out.push("risk: 객체여야 합니다")
+  else if (!LEVELS.includes(risk.level as string)) out.push(`risk.level: ${LEVELS.join("·")} 중 하나여야 합니다`)
+  checkMeasures(e.observation, "observation", out)
+  if (e.prediction !== undefined) {
+    const p = e.prediction
+    if (!isObj(p)) out.push("prediction: 객체여야 합니다")
+    else {
+      if (!isStr(p.horizon)) out.push("prediction.horizon: 문자열이 필요합니다")
+      checkMeasures(p.values, "prediction.values", out)
+    }
+  }
+  if (e.alert !== undefined) {
+    const a = e.alert
+    if (!isObj(a)) out.push("alert: 객체여야 합니다")
+    else {
+      if (a.status !== "발령" && a.status !== "해제") out.push("alert.status: 발령 또는 해제여야 합니다")
+      if (!isStr(a.title)) out.push("alert.title: 문자열이 필요합니다")
+    }
+  }
+  const src = e.source
+  if (!isObj(src)) out.push("source: 객체여야 합니다")
+  else {
+    if (!isStr(src.system)) out.push("source.system: 문자열이 필요합니다")
+    if (!ORIGINS.includes(src.origin as string)) out.push(`source.origin: ${ORIGINS.join("·")} 중 하나여야 합니다`)
+    if (typeof src.sample !== "boolean") out.push("source.sample: true/false여야 합니다")
+  }
+  return out
+}
+
 /** 구조 정의표 — 공통 필드와 원천별 대응(화면의 '구조 정의' 카드). 원천 칸은 실제 변환 코드가 읽는 항목이다 */
 export const EVENT_FIELD_MAP: { field: string; meaning: string; river: string; coast: string; aqua: string; kma: string }[] = [
   { field: "id · serviceId · title", meaning: "공통 이벤트 ID, 서비스, 제목", river: "관측점 id · 유량 %", coast: "구역 id · 연안 상황", aqua: "취수구 id · 도달 시간", kma: "발표 id · 특보명" },

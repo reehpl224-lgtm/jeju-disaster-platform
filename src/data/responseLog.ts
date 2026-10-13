@@ -3,7 +3,7 @@ import { audit } from "./auditLog"
 import { getCurrentUser } from "./mockAuth"
 import { roleLabel } from "./rolesLogic"
 import {
-  addLog, advanceOrder, closeIncident, emptyStore, issueOrder,
+  addLog, advanceOrder, closeIncident, decideOrder, emptyStore, issueOrder,
   type LogKind, type OrderStatus, type ResponseStore,
 } from "./responseLogic"
 
@@ -45,13 +45,17 @@ export function recordLog(svc: string, kind: LogKind, text: string, ref?: string
   commit(addLog(get(), svc, { kind, text, by: actor(), ref }, new Date()))
   audit("데이터 처리", `조치 기록(${kind})`, svc)
 }
-export function recordOrder(svc: string, o: { title: string; assignee: string; dept: string }) {
+export function recordOrder(svc: string, o: { title: string; assignee: string; dept: string; needsApproval?: boolean }) {
   commit(issueOrder(get(), svc, o, actor(), new Date()))
   audit("데이터 처리", "대응 지시 등록", svc)
 }
 export function moveOrder(orderId: string, to: OrderStatus, note?: string) {
   commit(advanceOrder(get(), orderId, to, actor(), new Date(), note))
   audit("데이터 처리", `대응 지시 ${to}`, orderId)
+}
+export function decide(orderId: string, decision: "승인" | "반려", note?: string) {
+  commit(decideOrder(get(), orderId, decision, actor(), new Date(), note))
+  audit("데이터 처리", `대응 지시 ${decision}`, orderId)
 }
 export function endIncident(svc: string) {
   commit(closeIncident(get(), svc, actor(), new Date()))

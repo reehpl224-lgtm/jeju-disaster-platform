@@ -19,7 +19,7 @@ test("첫 기록이 사건을 열고 같은 서비스는 같은 사건 ID를 쓰
 })
 
 test("지시는 지시→전달→수행 중→완료 순서로만 옮겨지고 결과가 이력에 남는다", () => {
-  let s = issueOrder(emptyStore(), "coast", { title: "해수욕장 출입 통제", assignee: "현장 시설 운영자", dept: "해양 소관" }, "김", t(0))
+  let s = issueOrder(emptyStore(), "coast", { title: "해수욕장 출입 통제", assignee: "현장 시설 운영자", dept: "해양 소관", needsApproval: false }, "김", t(0))
   const o = s.orders[0]
   assert.equal(o.status, "지시")
   assert.equal(advanceOrder(s, o.id, "완료", "박", t(1)), s) // 건너뛰기 불가
@@ -49,4 +49,28 @@ test("사후분석 요약과 CSV", () => {
   const csv = incidentCsv(s, s.incidents[0].id)
   assert.ok(csv.startsWith('"시각","구분","내용","기록자"'))
   assert.ok(csv.includes('"종료","상황 종료"'))
+})
+
+import { decideOrder, requiresApproval } from "../src/data/responseLogic.ts"
+
+test("승인 기반 실행: 실제 조치 지시는 승인 전 전달 불가, 반려되면 멈추고, 승인은 한 번만 적용된다", () => {
+  assert.equal(requiresApproval("하천변 출입 통제·안내 문자 발송"), true)
+  assert.equal(requiresApproval("상황 공유"), false)
+  let s = issueOrder(emptyStore(), "river", { title: "경보 발령", assignee: "상황실", dept: "" }, "김", t(0))
+  const id = s.orders[0].id
+  assert.equal(s.orders[0].approval.status, "대기")
+  assert.equal(advanceOrder(s, id, "전달", "김", t(1)), s) // 승인 전에는 전달 불가
+  s = decideOrder(s, id, "승인", "홍", t(2), "확인함")
+  assert.equal(decideOrder(s, id, "반려", "홍", t(3)), s) // 이미 결정됨
+  s = advanceOrder(s, id, "전달", "김", t(4))
+  assert.equal(s.orders[0].status, "전달")
+  assert.ok(logsOf(s, s.orders[0].incidentId).some((l) => l.text.startsWith("승인 — 경보 발령")))
+
+  let r = issueOrder(emptyStore(), "river", { title: "순찰", assignee: "a", dept: "", needsApproval: true }, "김", t(0))
+  r = decideOrder(r, r.orders[0].id, "반려", "홍", t(1), "불필요")
+  assert.equal(advanceOrder(r, r.orders[0].id, "전달", "김", t(2)), r)
+
+  const free = issueOrder(emptyStore(), "river", { title: "상황 공유", assignee: "a", dept: "" }, "김", t(0))
+  assert.equal(free.orders[0].approval, undefined)
+  assert.equal(advanceOrder(free, free.orders[0].id, "전달", "김", t(1)).orders[0].status, "전달")
 })

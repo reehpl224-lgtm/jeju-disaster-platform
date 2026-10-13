@@ -1,0 +1,564 @@
+{
+  "version": 1,
+  "kind": "mock",
+  "generatedAt": "2026-10-13T01:00:00.000Z",
+  "events": [
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-RIV-donnaeko",
+      "serviceId": "river",
+      "title": "효돈천(돈내코) 유량 56%",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "효돈천(돈내코)",
+        "kind": "지점",
+        "lat": 33.276,
+        "lng": 126.593
+      },
+      "risk": {
+        "level": "warning",
+        "basis": "계획홍수량 대비 유량비 56%"
+      },
+      "observation": [
+        {
+          "name": "수위",
+          "value": 1.82,
+          "unit": "m",
+          "at": "10:00"
+        },
+        {
+          "name": "유량비",
+          "value": 56,
+          "unit": "%",
+          "threshold": "50% 주의 · 70% 경계 · 100% 심각"
+        }
+      ],
+      "prediction": {
+        "horizon": "60분",
+        "model": "하천범람 예측 AI(실증사)",
+        "values": [
+          {
+            "name": "예측 수위",
+            "value": 1.86,
+            "unit": "m",
+            "at": "10분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 1.96,
+            "unit": "m",
+            "at": "30분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 2.08,
+            "unit": "m",
+            "at": "60분 후"
+          }
+        ]
+      },
+      "source": {
+        "system": "하천범람 실증사 배치",
+        "origin": "샘플",
+        "sample": true
+      }
+    },
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-RIV-soesokkak",
+      "serviceId": "river",
+      "title": "효돈천(쇠소깍) 유량 50%",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "효돈천(쇠소깍)",
+        "kind": "지점",
+        "lat": 33.247,
+        "lng": 126.619
+      },
+      "risk": {
+        "level": "warning",
+        "basis": "계획홍수량 대비 유량비 50%"
+      },
+      "observation": [
+        {
+          "name": "수위",
+          "value": 1.52,
+          "unit": "m",
+          "at": "10:00"
+        },
+        {
+          "name": "유량비",
+          "value": 50,
+          "unit": "%",
+          "threshold": "50% 주의 · 70% 경계 · 100% 심각"
+        }
+      ],
+      "prediction": {
+        "horizon": "60분",
+        "model": "하천범람 예측 AI(실증사)",
+        "values": [
+          {
+            "name": "예측 수위",
+            "value": 1.55,
+            "unit": "m",
+            "at": "10분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 1.63,
+            "unit": "m",
+            "at": "30분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 1.74,
+            "unit": "m",
+            "at": "60분 후"
+          }
+        ]
+      },
+      "source": {
+        "system": "하천범람 실증사 배치",
+        "origin": "샘플",
+        "sample": true
+      }
+    },
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-RIV-sample-3",
+      "serviceId": "river",
+      "title": "효돈천 관측점 3(샘플) 유량 42%",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "효돈천 관측점 3(샘플)",
+        "kind": "지점",
+        "lat": 33.3,
+        "lng": 126.58
+      },
+      "risk": {
+        "level": "caution",
+        "basis": "계획홍수량 대비 유량비 42%"
+      },
+      "observation": [
+        {
+          "name": "수위",
+          "value": 1.28,
+          "unit": "m",
+          "at": "10:00"
+        },
+        {
+          "name": "유량비",
+          "value": 42,
+          "unit": "%",
+          "threshold": "50% 주의 · 70% 경계 · 100% 심각"
+        }
+      ],
+      "prediction": {
+        "horizon": "60분",
+        "model": "하천범람 예측 AI(실증사)",
+        "values": [
+          {
+            "name": "예측 수위",
+            "value": 1.27,
+            "unit": "m",
+            "at": "10분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 1.21,
+            "unit": "m",
+            "at": "30분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 1.17,
+            "unit": "m",
+            "at": "60분 후"
+          }
+        ]
+      },
+      "source": {
+        "system": "하천범람 실증사 배치",
+        "origin": "샘플",
+        "sample": true
+      }
+    },
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-RIV-sample-4",
+      "serviceId": "river",
+      "title": "효돈천 관측점 4(샘플) 유량 21%",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "효돈천 관측점 4(샘플)",
+        "kind": "지점",
+        "lat": 33.29,
+        "lng": 126.59
+      },
+      "risk": {
+        "level": "caution",
+        "basis": "계획홍수량 대비 유량비 21%"
+      },
+      "observation": [
+        {
+          "name": "수위",
+          "value": 0.68,
+          "unit": "m",
+          "at": "10:00"
+        },
+        {
+          "name": "유량비",
+          "value": 21,
+          "unit": "%",
+          "threshold": "50% 주의 · 70% 경계 · 100% 심각"
+        }
+      ],
+      "prediction": {
+        "horizon": "60분",
+        "model": "하천범람 예측 AI(실증사)",
+        "values": [
+          {
+            "name": "예측 수위",
+            "value": 0.65,
+            "unit": "m",
+            "at": "10분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 0.59,
+            "unit": "m",
+            "at": "30분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 0.51,
+            "unit": "m",
+            "at": "60분 후"
+          }
+        ]
+      },
+      "source": {
+        "system": "하천범람 실증사 배치",
+        "origin": "샘플",
+        "sample": true
+      }
+    },
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-RIV-sample-5",
+      "serviceId": "river",
+      "title": "효돈천 관측점 5(샘플) 유량 45%",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "효돈천 관측점 5(샘플)",
+        "kind": "지점",
+        "lat": 33.28,
+        "lng": 126.6
+      },
+      "risk": {
+        "level": "caution",
+        "basis": "계획홍수량 대비 유량비 45%"
+      },
+      "observation": [
+        {
+          "name": "수위",
+          "value": 1.43,
+          "unit": "m",
+          "at": "10:00"
+        },
+        {
+          "name": "유량비",
+          "value": 45,
+          "unit": "%",
+          "threshold": "50% 주의 · 70% 경계 · 100% 심각"
+        }
+      ],
+      "prediction": {
+        "horizon": "60분",
+        "model": "하천범람 예측 AI(실증사)",
+        "values": [
+          {
+            "name": "예측 수위",
+            "value": 1.42,
+            "unit": "m",
+            "at": "10분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 1.42,
+            "unit": "m",
+            "at": "30분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 1.41,
+            "unit": "m",
+            "at": "60분 후"
+          }
+        ]
+      },
+      "source": {
+        "system": "하천범람 실증사 배치",
+        "origin": "샘플",
+        "sample": true
+      }
+    },
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-RIV-sample-6",
+      "serviceId": "river",
+      "title": "효돈천 관측점 6(샘플) 유량 22%",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "효돈천 관측점 6(샘플)",
+        "kind": "지점",
+        "lat": 33.26,
+        "lng": 126.61
+      },
+      "risk": {
+        "level": "caution",
+        "basis": "계획홍수량 대비 유량비 22%"
+      },
+      "observation": [
+        {
+          "name": "수위",
+          "value": 0.72,
+          "unit": "m",
+          "at": "10:00"
+        },
+        {
+          "name": "유량비",
+          "value": 22,
+          "unit": "%",
+          "threshold": "50% 주의 · 70% 경계 · 100% 심각"
+        }
+      ],
+      "prediction": {
+        "horizon": "60분",
+        "model": "하천범람 예측 AI(실증사)",
+        "values": [
+          {
+            "name": "예측 수위",
+            "value": 0.71,
+            "unit": "m",
+            "at": "10분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 0.68,
+            "unit": "m",
+            "at": "30분 후"
+          },
+          {
+            "name": "예측 수위",
+            "value": 0.63,
+            "unit": "m",
+            "at": "60분 후"
+          }
+        ]
+      },
+      "source": {
+        "system": "하천범람 실증사 배치",
+        "origin": "샘플",
+        "sample": true
+      }
+    },
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-CST-hamdeok",
+      "serviceId": "coast",
+      "title": "함덕 해수욕장 연안 상황",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "함덕 해수욕장",
+        "kind": "구역",
+        "lat": 33.543,
+        "lng": 126.67
+      },
+      "risk": {
+        "level": "normal",
+        "basis": "함덕 해수욕장: 이용객 약 55명, 안전선 침범 없음 · 이안류 징후 없음"
+      },
+      "observation": [
+        {
+          "name": "이용객 수",
+          "value": 48,
+          "unit": "명",
+          "at": "10시",
+          "threshold": "수용 150명"
+        }
+      ],
+      "source": {
+        "system": "연안안전 실증사 배치(VLM)",
+        "origin": "샘플",
+        "sample": true
+      }
+    },
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-CST-hyeopjae",
+      "serviceId": "coast",
+      "title": "협재 해수욕장 연안 상황",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "협재 해수욕장",
+        "kind": "구역",
+        "lat": 33.394,
+        "lng": 126.239
+      },
+      "risk": {
+        "level": "normal",
+        "basis": "협재 해수욕장: 이용객 약 40명, 안전선 침범 없음 · 이안류 징후 없음"
+      },
+      "observation": [
+        {
+          "name": "이용객 수",
+          "value": 43,
+          "unit": "명",
+          "at": "10시",
+          "threshold": "수용 150명"
+        }
+      ],
+      "source": {
+        "system": "연안안전 실증사 배치(VLM)",
+        "origin": "샘플",
+        "sample": true
+      }
+    },
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-AQU-hangyeong",
+      "serviceId": "aqua",
+      "title": "한경 취수구(샘플) 저염수 도달 62시간 후",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "한경 취수구(샘플)",
+        "kind": "취수구"
+      },
+      "risk": {
+        "level": "normal",
+        "basis": "저염수(30psu 미만) 도달 예상 시간"
+      },
+      "observation": [
+        {
+          "name": "표층 염분",
+          "value": 31.65,
+          "unit": "psu",
+          "at": "10-13 10시"
+        },
+        {
+          "name": "수온",
+          "value": 25.94,
+          "unit": "℃",
+          "at": "10-13 10시"
+        }
+      ],
+      "prediction": {
+        "horizon": "120시간",
+        "model": "저염분 확산 예측 AI(실증사)",
+        "values": [
+          {
+            "name": "저염수 도달",
+            "value": 62,
+            "unit": "시간 후"
+          }
+        ]
+      },
+      "source": {
+        "system": "저염분 고수온 실증사 배치",
+        "origin": "샘플",
+        "sample": true
+      }
+    },
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-AQU-goksan",
+      "serviceId": "aqua",
+      "title": "고산 취수구(샘플) 저염수 도달 54시간 후",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "고산 취수구(샘플)",
+        "kind": "취수구"
+      },
+      "risk": {
+        "level": "normal",
+        "basis": "저염수(30psu 미만) 도달 예상 시간"
+      },
+      "observation": [
+        {
+          "name": "표층 염분",
+          "value": 31.65,
+          "unit": "psu",
+          "at": "10-13 10시"
+        },
+        {
+          "name": "수온",
+          "value": 25.94,
+          "unit": "℃",
+          "at": "10-13 10시"
+        }
+      ],
+      "prediction": {
+        "horizon": "120시간",
+        "model": "저염분 확산 예측 AI(실증사)",
+        "values": [
+          {
+            "name": "저염수 도달",
+            "value": 54,
+            "unit": "시간 후"
+          }
+        ]
+      },
+      "source": {
+        "system": "저염분 고수온 실증사 배치",
+        "origin": "샘플",
+        "sample": true
+      }
+    },
+    {
+      "schema": "jeju-ax.common-event/1",
+      "id": "EVT-AQU-daejeong",
+      "serviceId": "aqua",
+      "title": "대정 취수구(샘플) 저염수 도달 104시간 후",
+      "occurredAt": "2026-10-13T10:00:00+09:00",
+      "subject": {
+        "name": "대정 취수구(샘플)",
+        "kind": "취수구"
+      },
+      "risk": {
+        "level": "normal",
+        "basis": "저염수(30psu 미만) 도달 예상 시간"
+      },
+      "observation": [
+        {
+          "name": "표층 염분",
+          "value": 31.65,
+          "unit": "psu",
+          "at": "10-13 10시"
+        },
+        {
+          "name": "수온",
+          "value": 25.94,
+          "unit": "℃",
+          "at": "10-13 10시"
+        }
+      ],
+      "prediction": {
+        "horizon": "120시간",
+        "model": "저염분 확산 예측 AI(실증사)",
+        "values": [
+          {
+            "name": "저염수 도달",
+            "value": 104,
+            "unit": "시간 후"
+          }
+        ]
+      },
+      "source": {
+        "system": "저염분 고수온 실증사 배치",
+        "origin": "샘플",
+        "sample": true
+      }
+    }
+  ]
+}

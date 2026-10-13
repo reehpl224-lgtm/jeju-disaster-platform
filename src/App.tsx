@@ -70,6 +70,7 @@ const AuditPage = lazy(() => import("./pages/audit/AuditPage").then((m) => ({ de
 const CriteriaPage = lazy(() => import("./pages/criteria/CriteriaPage").then((m) => ({ default: m.CriteriaPage })))
 const IntegrationPage = lazy(() => import("./pages/integration/IntegrationPage").then((m) => ({ default: m.IntegrationPage })))
 const ScenariosPage = lazy(() => import("./pages/scenarios/ScenariosPage").then((m) => ({ default: m.ScenariosPage })))
+const MockApiPage = lazy(() => import("./pages/mockapi/MockApiPage").then((m) => ({ default: m.MockApiPage })))
 const RolesPage = lazy(() => import("./pages/roles/RolesPage").then((m) => ({ default: m.RolesPage })))
 const AxHubPage = lazy(() => import("./pages/AxHubPage").then((m) => ({ default: m.AxHubPage })))
 
@@ -161,6 +162,7 @@ export default function App() {
           <Route path="/data-systems" element={<DataSystemPage />} />
           <Route path="/esop" element={<EsopPage />} />
           <Route path="/roles" element={<RolesPage />} />
+          <Route path="/mock-api" element={<MockApiPage />} />
           <Route path="/scenarios" element={<ScenariosPage />} />
           <Route path="/integration" element={<IntegrationPage />} />
           <Route path="/criteria" element={<CriteriaPage />} />

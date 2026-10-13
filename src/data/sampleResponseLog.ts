@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import { IS_STAGING } from "./appMode"
 import { useResponseLog } from "./responseLog"
-import { addLog, advanceOrder, closeIncident, emptyStore, issueOrder, type ResponseStore } from "./responseLogic"
+import { addLog, advanceOrder, closeIncident, decideOrder, emptyStore, issueOrder, type ResponseStore } from "./responseLogic"
 
 /**
  * 사건 이력 샘플 — 스테이징 전용. 기록이 하나도 없으면 이력 조회·분석 화면이 비어 보여서 구성을 확인할 수 있게 종료된 사건 하나를 둔다.
@@ -15,7 +15,8 @@ function build(): ResponseStore {
   s = addLog(s, "river", { kind: "판단", text: "상황판단 회의 — 경계 단계 대응 결정", by }, at(9, 20))
   s = issueOrder(s, "river", { title: "효돈천 하천변 출입 통제·안내 문자 발송", assignee: "행정시 상황실·읍면동", dept: "하천 소관 부서" }, by, at(9, 25))
   const id = s.orders[0].id
-  s = advanceOrder(s, id, "전달", by, at(9, 26))
+  s = decideOrder(s, id, "승인", "홍길동(관리자·의사결정자)", at(9, 26), "경계 단계 출입 통제 승인")
+  s = advanceOrder(s, id, "전달", by, at(9, 27))
   s = advanceOrder(s, id, "수행 중", "박현장(현장 시설 운영자)", at(9, 32))
   s = advanceOrder(s, id, "완료", "박현장(현장 시설 운영자)", at(9, 58), "통제선 설치, 안내 문자 발송 완료")
   s = addLog(s, "river", { kind: "메모", text: "수위 하강 확인 — 대응 인력 철수 준비", by: "박현장(현장 시설 운영자)" }, at(11, 5))

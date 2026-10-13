@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "jeju-ax.common-event/1",
+  "title": "공통 이벤트(CommonEvent) v1",
+  "description": "실증서비스별 AI 예측값·관측값·위험도·경보 결과를 하나로 묶는 구조. 규칙은 src/data/commonEvent.ts 의 validateCommonEvent 와 같다.",
+  "type": "object",
+  "required": ["schema", "id", "serviceId", "title", "occurredAt", "subject", "risk", "observation", "source"],
+  "properties": {
+    "schema": { "const": "jeju-ax.common-event/1" },
+    "id": { "type": "string", "minLength": 1, "description": "공통 이벤트 ID" },
+    "serviceId": { "enum": ["heavy-rain", "typhoon", "heat", "wildfire", "tsunami", "snow", "river", "aqua", "coast", "common"] },
+    "title": { "type": "string", "minLength": 1 },
+    "occurredAt": { "type": "string", "format": "date-time", "description": "발생·기준 시각(ISO 8601)" },
+    "subject": {
+      "type": "object",
+      "required": ["name", "kind"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["지점", "구역", "지역", "취수구", "태풍"] },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "required": ["level"],
+      "properties": { "level": { "enum": ["normal", "caution", "warning", "alert", "danger"] }, "basis": { "type": "string" } }
+    },
+    "observation": { "type": "array", "items": { "$ref": "#/definitions/measure" } },
+    "prediction": {
+      "type": "object",
+      "required": ["horizon", "values"],
+      "properties": { "horizon": { "type": "string" }, "model": { "type": "string" }, "values": { "type": "array", "items": { "$ref": "#/definitions/measure" } } }
+    },
+    "alert": {
+      "type": "object",
+      "required": ["status", "title"],
+      "properties": { "status": { "enum": ["발령", "해제"] }, "title": { "type": "string" }, "issuedAt": { "type": "string" }, "channel": { "type": "string" } }
+    },
+    "source": {
+      "type": "object",
+      "required": ["system", "origin", "sample"],
+      "properties": { "system": { "type": "string" }, "origin": { "enum": ["기상청", "행정안전부", "실증사", "샘플"] }, "sample": { "type": "boolean" } }
+    }
+  },
+  "definitions": {
+    "measure": {
+      "type": "object",
+      "required": ["name", "value"],
+      "properties": { "name": { "type": "string" }, "value": { "type": ["number", "string"] }, "unit": { "type": "string" }, "at": { "type": "string" }, "threshold": { "type": "string" } }
+    }
+  }
+}

@@ -12,6 +12,14 @@ export interface OrderEvent {
   by: string
   note?: string
 }
+export type ApprovalStatus = "대기" | "승인" | "반려"
+/** 승인 기반 실행 원칙 — 경보 발령·시설 제어·출동·대피 같은 실제 조치 지시는 권한자가 승인해야 전달·수행으로 넘어간다 */
+export interface Approval {
+  status: ApprovalStatus
+  by?: string
+  at?: string
+  note?: string
+}
 export interface Order {
   id: string
   incidentId: string
@@ -22,6 +30,8 @@ export interface Order {
   createdAt: string
   events: OrderEvent[]
   result?: string
+  /** 승인이 필요한 조치만 가진다 */
+  approval?: Approval
 }
 export interface LogEntry {
   id: string
@@ -54,6 +64,9 @@ export const NEXT_STATUS: Record<OrderStatus, OrderStatus[]> = {
   완료: [],
   실패: ["수행 중"],
 }
+
+/** 실제 재난 조치로 보이는 지시(경보·발령·대피·출동·통제·차단·제어·발송·명령)는 승인이 필요하다고 본다 — 지시를 만들 때 사람이 바꿀 수 있다 */
+export const requiresApproval = (title: string) => /경보|발령|대피|출동|통제|차단|제어|발송|명령/.test(title)
 
 const SVC_CODE: Record<string, string> = {
   "heavy-rain": "RAIN",
@@ -88,7 +101,7 @@ export function addLog(s: ResponseStore, serviceId: string, e: { kind: LogKind; 
   return { ...store, logs: [...store.logs, entry] }
 }
 
-export function issueOrder(s: ResponseStore, serviceId: string, o: { title: string; assignee: string; dept: string }, by: string, now: Date): ResponseStore {
+export function issueOrder(s: ResponseStore, serviceId: string, o: { title: string; assignee: string; dept: string; needsApproval?: boolean }, by: string, now: Date): ResponseStore {
   const { store, incident } = ensureIncident(s, serviceId, now)
   const order: Order = {
     id: uid("O", store),
@@ -99,14 +112,18 @@ export function issueOrder(s: ResponseStore, serviceId: string, o: { title: stri
     status: "지시",
     createdAt: now.toISOString(),
     events: [{ at: now.toISOString(), status: "지시", by }],
+    ...((o.needsApproval ?? requiresApproval(o.title)) ? { approval: { status: "대기" as const } } : {}),
   }
-  return addLog({ ...store, orders: [...store.orders, order] }, serviceId, { kind: "지시", text: `${order.assignee || "담당자 미정"} · ${order.title}`, by }, now)
+  const waiting = order.approval ? " (승인 대기)" : ""
+  return addLog({ ...store, orders: [...store.orders, order] }, serviceId, { kind: "지시", text: `${order.assignee || "담당자 미정"} · ${order.title}${waiting}`, by }, now)
 }
 
 /** 지시 상태를 한 단계 옮긴다 — 허용되지 않은 이동이면 그대로 돌려준다. 완료·실패는 결과 문구를 함께 남긴다 */
 export function advanceOrder(s: ResponseStore, orderId: string, to: OrderStatus, by: string, now: Date, note?: string): ResponseStore {
   const order = s.orders.find((o) => o.id === orderId)
   if (!order || !NEXT_STATUS[order.status].includes(to)) return s
+  // 승인이 필요한 조치는 승인 전에 전달할 수 없고, 반려된 조치는 더 진행하지 않는다
+  if (order.approval && order.approval.status !== "승인") return s
   const text = note?.trim()
   const finished = to === "완료" || to === "실패"
   const next: Order = {
@@ -125,6 +142,17 @@ export function advanceOrder(s: ResponseStore, orderId: string, to: OrderStatus,
     text: `${label} — ${order.title}${text ? ` (${text})` : ""}`,
     by,
   }
+  return { ...base, logs: [...base.logs, entry] }
+}
+
+/** 승인·반려 — 승인 대기인 지시에만 한 번 적용된다. 결정은 사건 이력에도 남는다 */
+export function decideOrder(s: ResponseStore, orderId: string, decision: "승인" | "반려", by: string, now: Date, note?: string): ResponseStore {
+  const order = s.orders.find((o) => o.id === orderId)
+  if (!order || order.approval?.status !== "대기") return s
+  const text = note?.trim() || undefined
+  const approval: Approval = { status: decision, by, at: now.toISOString(), note: text }
+  const base = { ...s, orders: s.orders.map((o) => (o.id === orderId ? { ...o, approval } : o)) }
+  const entry: LogEntry = { id: uid("L", base), incidentId: order.incidentId, at: now.toISOString(), kind: "지시", text: `${decision} — ${order.title}${text ? ` (${text})` : ""}`, by }
   return { ...base, logs: [...base.logs, entry] }
 }
 
