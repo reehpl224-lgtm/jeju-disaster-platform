@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { IS_STAGING } from "../../data/appMode"
-import { logout, type MockUser } from "../../data/mockAuth"
+import { login, logout, type MockUser } from "../../data/mockAuth"
+import { useRolePolicy } from "../../data/roles"
+import { canAccess, ROLES, roleLabel } from "../../data/rolesLogic"
 import { useServiceStatusCards } from "../../data/useServiceStatusCards"
 import { disasterAlerts } from "../../data/mockIncidents"
 import { useRainfallAlerts } from "../../data/useRainfallAlerts"
@@ -37,6 +39,7 @@ const OPS_NAV = [
   { to: "/data-systems", label: "데이터 시스템 연계현황", icon: "🗄️" },
   { to: "/dummy-data", label: "더미데이터", icon: "📥" },
   { to: "/panel-input", label: "패널 입력", icon: "✏️" },
+  { to: "/roles", label: "역할·권한", icon: "🔐" },
   { to: "/reports", label: "이력·보고서", icon: "📋" },
   { to: "/demo-version", label: "데모버전", icon: "🏷️" },
 ]
@@ -55,6 +58,8 @@ function useClock() {
 export function Header({ user }: { user: MockUser }) {
   const serviceStatusCards = useServiceStatusCards()
   const rainAlerts = useRainfallAlerts()
+  const policy = useRolePolicy()
+  const allowed = (to: string) => canAccess(user.role, to, policy)
   const alerts = [...disasterAlerts, ...rainAlerts]
   const location = useLocation()
   const navigate = useNavigate()
@@ -93,6 +98,12 @@ export function Header({ user }: { user: MockUser }) {
     }
   }, [])
 
+  // 역할 체험(데모) — 그 역할의 체험 계정으로 다시 로그인해 기본 화면으로 간다
+  function switchRole(account: string, home: string) {
+    login(account)
+    window.location.assign(home)
+  }
+
   function handleLogout() {
     logout()
     navigate("/login", { replace: true })
@@ -123,7 +134,7 @@ export function Header({ user }: { user: MockUser }) {
         </p>
         <nav className="header__nav">
           <ul>
-            {DASHBOARD_TABS.map((tab) => (
+            {(allowed("/dashboard") ? DASHBOARD_TABS : []).map((tab) => (
               <li key={tab.key}>
                 <Link
                   to={`/dashboard?tab=${tab.key}`}
@@ -145,7 +156,10 @@ export function Header({ user }: { user: MockUser }) {
           AX HUB
         </a>
         <DemoDataMenu open={openMenu === "demo"} onToggle={() => setOpenMenu((v) => (v === "demo" ? null : "demo"))} />
-        <p>{userLabel}</p>
+        <p title={`역할: ${roleLabel(user.role)}`}>
+          {userLabel}
+          <small style={{ marginLeft: 6, opacity: 0.6, fontWeight: 500 }}>{roleLabel(user.role)}</small>
+        </p>
         <div style={{ position: "relative" }}>
           <button
             type="button"
@@ -242,7 +256,7 @@ export function Header({ user }: { user: MockUser }) {
           <li>
             <p style={{ padding: "4px 12px", fontSize: 11, color: "var(--foreground-subtle)", fontWeight: 700 }}>서비스</p>
           </li>
-          {SERVICE_NAV.map((item) => {
+          {SERVICE_NAV.filter((item) => allowed(item.to)).map((item) => {
             const risk = domainRisk.get(item.to)
             return (
               <li key={item.to}>
@@ -262,12 +276,26 @@ export function Header({ user }: { user: MockUser }) {
           <li>
             <p style={{ padding: "4px 12px", fontSize: 11, color: "var(--foreground-subtle)", fontWeight: 700 }}>운영</p>
           </li>
-          {OPS_NAV.map((item) => (
+          {OPS_NAV.filter((item) => allowed(item.to)).map((item) => (
             <li key={item.to}>
               <Link to={item.to}>
                 <span aria-hidden>{item.icon}</span>
                 {item.label}
               </Link>
+            </li>
+          ))}
+          <li>
+            <hr />
+          </li>
+          <li>
+            <p style={{ padding: "4px 12px", fontSize: 11, color: "var(--foreground-subtle)", fontWeight: 700 }}>역할 체험(데모)</p>
+          </li>
+          {ROLES.map((r) => (
+            <li key={r.id}>
+              <button type="button" className="menu__action" aria-current={user.role === r.id ? "true" : undefined} onClick={() => switchRole(r.demoAccount, r.home)}>
+                {user.role === r.id ? "● " : "○ "}
+                {r.label}
+              </button>
             </li>
           ))}
           <li>

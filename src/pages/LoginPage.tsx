@@ -1,14 +1,18 @@
 import { type FormEvent, useState } from "react"
 import { Navigate, useLocation, useNavigate } from "react-router-dom"
 import { DEMO_ACCOUNTS, getCurrentUser, login } from "../data/mockAuth"
+import { ROLES, roleLabel } from "../data/rolesLogic"
 
 export function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   // RequireAuth가 넘긴 원래 요청 경로 — 앱 내부 경로("/..."로 시작, "//" 제외)만 허용
   const requested = (location.state as { from?: unknown } | null)?.from
-  const returnTo = typeof requested === "string" && requested.startsWith("/") && !requested.startsWith("//") ? requested : "/dashboard"
+  const requestedPath = typeof requested === "string" && requested.startsWith("/") && !requested.startsWith("//") ? requested : null
   const existing = getCurrentUser()
+  // 요청한 화면이 없으면 역할별 기본 화면으로 간다(요구사항 '역할별 화면')
+  const homeOf = (role: string) => ROLES.find((r) => r.id === role)?.home ?? "/dashboard"
+  const returnTo = requestedPath ?? homeOf(existing?.role ?? "")
   const [orgId, setOrgId] = useState("")
   const [password, setPassword] = useState("")
   const [otp, setOtp] = useState("")
@@ -22,7 +26,7 @@ export function LoginPage() {
     e.preventDefault()
     // 프로토타입 — 아무 값이나(비워도) 로그인된다. 실제 인증 없음.
     const user = login(orgId)
-    navigate(user.role === "restricted" ? "/403" : returnTo, { replace: true })
+    navigate(user.role === "restricted" ? "/403" : (requestedPath ?? homeOf(user.role)), { replace: true })
   }
 
   return (
@@ -122,11 +126,15 @@ export function LoginPage() {
                 >
                   {a.orgId}
                 </button>
-                <span>{a.role === "operator" ? `${a.name} 팀장 — 전체 화면 사용` : `${a.name} — 권한 없음 화면(403) 체험`}</span>
+                <span>
+                  {a.role === "restricted"
+                    ? `${a.name} — 권한 없음 화면(403) 체험`
+                    : `${a.name} · ${roleLabel(a.role)} — ${ROLES.find((r) => r.id === a.role)?.summary}`}
+                </span>
               </li>
             ))}
           </ul>
-          <p className="mt-1.5">사원번호·비밀번호·OTP는 검증하지 않으며 비워도 됩니다. 사원번호 guest만 권한 없음 화면을 체험하고, 그 밖의 값은 팀장 계정으로 들어갑니다.</p>
+          <p className="mt-1.5">사원번호·비밀번호·OTP는 검증하지 않으며 비워도 됩니다. 위 사원번호를 누르면 역할별 화면 범위를 체험하고, guest는 권한 없음 화면, 그 밖의 값은 팀장(관리자·의사결정자) 계정으로 들어갑니다.</p>
         </div>
       </div>
     </div>

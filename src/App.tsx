@@ -64,6 +64,7 @@ const DataSystemPage = lazy(() => import("./pages/datasystem/DataSystemPage").th
 const DummyDataPage = lazy(() => import("./pages/dummydata/DummyDataPage").then((m) => ({ default: m.DummyDataPage })))
 const DemoVersionPage = lazy(() => import("./pages/DemoVersionPage").then((m) => ({ default: m.DemoVersionPage })))
 const VlmPage = lazy(() => import("./pages/VlmPage").then((m) => ({ default: m.VlmPage })))
+const RolesPage = lazy(() => import("./pages/roles/RolesPage").then((m) => ({ default: m.RolesPage })))
 const AxHubPage = lazy(() => import("./pages/AxHubPage").then((m) => ({ default: m.AxHubPage })))
 
 const DomainBoardPage = lazy(() => import("./pages/domain/DomainBoardPage").then((m) => ({ default: m.DomainBoardPage })))
@@ -153,6 +154,7 @@ export default function App() {
           <Route path="/panel-input" element={<PanelInputPage />} />
           <Route path="/data-systems" element={<DataSystemPage />} />
           <Route path="/esop" element={<EsopPage />} />
+          <Route path="/roles" element={<RolesPage />} />
           <Route path="/dummy-data" element={<DummyDataPage />} />
           <Route path="/demo-version" element={<DemoVersionPage />} />
           <Route path="/pilot-status" element={<PilotStatusPage />} />

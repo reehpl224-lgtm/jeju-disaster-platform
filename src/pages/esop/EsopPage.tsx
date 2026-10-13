@@ -9,6 +9,12 @@ import { aquaResponseState } from "../../data/mockAqua"
 import { riverClosure, riverJointAgencies, riverSopStage, riverStageCriteria, riverStatuses, riverTarget } from "../../data/mockRiver"
 import { AquaResponsePage } from "../aqua/AquaResponsePage"
 import { EsopStatusView } from "./EsopStatusView"
+import { EsopDefEditor } from "./EsopDefEditor"
+import { useEsopDefs } from "../../data/esopDefs"
+import { ESOP_STAGES, stepsOf } from "../../data/esopLogic"
+import { getCurrentUser } from "../../data/mockAuth"
+import { useRolePolicy } from "../../data/roles"
+import { canSeeService, hasPerm, type ServiceId } from "../../data/rolesLogic"
 
 /**
  * 운영 > e-SOP 대응. e-SOP(단계·체크리스트·관리자 승인)는 실증 3서비스(저염분 고수온·하천범람·연안 안전관리)의 개념이라
@@ -82,7 +88,7 @@ function NotApplicable({ prefix, title }: { prefix: string; title: string }) {
   return (
     <Card title={`${title} — e-SOP 해당 없음`}>
       <p className="text-sm text-white/60">
-        이 서비스는 기관 발표를 받아 보여주는 레거시 상황 뷰라 e-SOP 단계·체크리스트가 없습니다. 종료 보고에 "승인 근거 e-SOP" 항목만 있습니다.
+        이 서비스는 기관 발표를 받아 보여주는 레거시 상황 뷰라 단계 진행·체크리스트 화면은 없고, 아래 단계별 절차 정의표와 종료 보고의 "승인 근거 e-SOP" 항목만 있습니다.
       </p>
       <Links items={[[`${prefix}/closure`, "종료 보고"]]} />
     </Card>
@@ -90,20 +96,27 @@ function NotApplicable({ prefix, title }: { prefix: string; title: string }) {
 }
 
 function Overview() {
+  const defs = useEsopDefs()
   const rows: Record<string, ReactNode> = {
     "/river": <RiskBadge level={riverSopStage.level} label={riverSopStage.current} />,
     "/aqua": <RiskBadge level={aquaResponseState.riskLevel} label={aquaResponseState.grade === "-" ? aquaResponseState.title : aquaResponseState.grade} />,
     "/coast": <span className="text-xs text-white/60">승인 대기 {pendingCoastEvents()}건</span>,
   }
   return (
-    <Card title="서비스별 e-SOP 적용 현황" subtitle="실증 3서비스만 e-SOP 단계가 있고, 나머지는 해당 없음" dummy>
+    <Card title="서비스별 e-SOP 적용 현황" subtitle="실증 3서비스는 단계 진행 화면이 있고, 모든 서비스에 단계별 절차 정의표가 있음" dummy>
       <ul className="flex flex-col divide-y divide-border-subtle">
         {DOMAINS.map((d) => (
           <li key={d.prefix} className="flex items-center justify-between gap-3 py-3 text-sm">
             <Link to={`/esop?system=${d.prefix.slice(1)}`} className="font-medium text-white/85 hover:underline">
               <span aria-hidden="true">{d.icon}</span> {d.title}
             </Link>
-            {rows[d.prefix] ?? <span className="text-xs text-white/35">해당 없음</span>}
+            <span className="flex items-center gap-3">
+              <span className="text-xs text-white/40">
+                절차 정의 {ESOP_STAGES.reduce((n, s) => n + stepsOf(defs, d.prefix.slice(1) as ServiceId, s.level).length, 0)}단계
+                {Object.keys(defs).some((k) => k.startsWith(`${d.prefix.slice(1)}:`)) && " · 수정됨"}
+              </span>
+              {rows[d.prefix] ?? <span className="text-xs text-white/35">단계 진행 화면 없음</span>}
+            </span>
           </li>
         ))}
       </ul>
@@ -114,6 +127,10 @@ function Overview() {
 export function EsopPage() {
   const [params] = useSearchParams()
   const service = DOMAINS.find((d) => d.prefix.slice(1) === params.get("system"))
+  const policy = useRolePolicy()
+  const role = getCurrentUser()?.role ?? "restricted"
+  const sid = service?.prefix.slice(1) as ServiceId | undefined
+  const visible = !sid || canSeeService(role, sid, policy)
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -129,6 +146,10 @@ export function EsopPage() {
       <ServicePills basePath="/esop" current={service?.prefix} />
       {!service ? (
         <Overview />
+      ) : !visible ? (
+        <Card title={`${service.title} — 접근 범위 밖`}>
+          <p className="text-sm text-white/60">현재 역할은 이 서비스의 e-SOP를 볼 수 없습니다. 역할·권한 화면에서 서비스 접근 범위를 확인하세요.</p>
+        </Card>
       ) : service.prefix === "/aqua" ? (
         <AquaResponsePage embedded />
       ) : service.prefix === "/river" ? (
@@ -138,6 +159,7 @@ export function EsopPage() {
       ) : (
         <NotApplicable prefix={service.prefix} title={service.title} />
       )}
+      {service && sid && visible && <EsopDefEditor serviceId={sid} title={service.title} editable={hasPerm(role, "esopEdit", policy)} />}
     </div>
   )
 }

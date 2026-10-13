@@ -1,5 +1,6 @@
 
-export type UserRole = "operator" | "restricted"
+import type { UserRole } from "./rolesLogic"
+export type { UserRole }
 
 export interface MockUser {
   orgId: string
@@ -13,7 +14,11 @@ export interface MockUser {
 const STORAGE_KEY = "jeju-ax-session"
 
 const DEMO_USERS: Record<string, MockUser> = {
-  "jeju-ax": { orgId: "jeju-ax", name: "홍길동", org: "제주특별자치도 재난대응1팀", role: "operator" },
+  // 역할 4종(요구사항 '사용자·역할 관리') — 사원번호가 곧 역할 체험 계정이다. 팀장 계정(jeju-ax)은 관리자·의사결정자
+  "jeju-ax": { orgId: "jeju-ax", name: "홍길동", org: "제주특별자치도 재난대응1팀", role: "admin" },
+  control: { orgId: "control", name: "김상황", org: "제주특별자치도 재난상황실", role: "control" },
+  vendor: { orgId: "vendor", name: "이운영", org: "시스템 운영업체", role: "vendor" },
+  field: { orgId: "field", name: "박현장", org: "현장 시설 운영팀", role: "field" },
   "guest": { orgId: "guest", name: "체험 계정", org: "권한 미승인", role: "restricted" },
 }
 
@@ -38,7 +43,9 @@ export function getCurrentUser(): MockUser | null {
   const raw = localStorage.getItem(STORAGE_KEY)
   if (!raw) return null
   try {
-    return JSON.parse(raw) as MockUser
+    const user = JSON.parse(raw) as MockUser
+    // 역할이 하나였던 때(operator)에 저장된 세션은 팀장 = 관리자·의사결정자로 읽는다
+    return (user.role as string) === "operator" ? { ...user, role: "admin" } : user
   } catch {
     return null
   }
