@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { ResponseRecords } from "./ResponseRecords"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { incidentRecords, reportsSummary } from "../../data/mockReports"
 import { DUMMY_NOW } from "../../data/dummyClock"
@@ -90,6 +91,8 @@ export function ReportsListPage() {
           총 {reportsSummary.total}건 · 최종 갱신 {reportsSummary.lastUpdated} · 표시 대상 {incidentRecords.length}건(대표 사례)
         </p>
       </div>
+
+      <ResponseRecords />
 
       <Card>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">

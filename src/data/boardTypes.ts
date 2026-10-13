@@ -93,7 +93,7 @@ export interface ReadyItem {
 }
 export interface LogItem {
   time: string
-  tag: "감지" | "판단" | "조치" | "종료" | "메모"
+  tag: "감지" | "판단" | "조치" | "종료" | "메모" | "지시" | "결과" | "전파"
   text: string
 }
 export interface RightPanel {

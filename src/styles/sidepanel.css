@@ -366,3 +366,8 @@
 .bd-switch small { font-size: 11px; color: var(--foreground-subtle); margin-right: 2px; }
 .bd-switch button { padding: 3px 10px; border: 1px solid var(--foreground-faint); border-radius: 9999px; background: transparent; color: var(--foreground-muted); font-size: 11px; cursor: pointer; }
 .bd-switch button[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #1d1d1d; font-weight: 700; }
+.bo-order { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--foreground-ghost); border-radius: 8px; background: var(--background-lighter); }
+.bo-form { display: flex; flex-direction: column; gap: 6px; }
+.bo-input { flex: 1 1 0; min-width: 0; padding: 6px 10px; border: 1px solid var(--foreground-ghost); border-radius: 8px; background: transparent; color: var(--foreground); font: inherit; font-size: 12px; outline: 0; }
+.bo-input:focus { border-color: var(--primary); }
+.bd-btn:disabled { opacity: .4; cursor: not-allowed; }

@@ -64,6 +64,7 @@ const DataSystemPage = lazy(() => import("./pages/datasystem/DataSystemPage").th
 const DummyDataPage = lazy(() => import("./pages/dummydata/DummyDataPage").then((m) => ({ default: m.DummyDataPage })))
 const DemoVersionPage = lazy(() => import("./pages/DemoVersionPage").then((m) => ({ default: m.DemoVersionPage })))
 const VlmPage = lazy(() => import("./pages/VlmPage").then((m) => ({ default: m.VlmPage })))
+const IncidentLogPage = lazy(() => import("./pages/reports/IncidentLogPage").then((m) => ({ default: m.IncidentLogPage })))
 const RolesPage = lazy(() => import("./pages/roles/RolesPage").then((m) => ({ default: m.RolesPage })))
 const AxHubPage = lazy(() => import("./pages/AxHubPage").then((m) => ({ default: m.AxHubPage })))
 
@@ -162,6 +163,7 @@ export default function App() {
           <Route path="/ax-hub" element={<AxHubPage />} />
 
           <Route path="/reports" element={<ReportsListPage />} />
+          <Route path="/reports/records/:incidentId" element={<IncidentLogPage />} />
           <Route path="/reports/:incidentId" element={<ReportDetailPage />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Route>

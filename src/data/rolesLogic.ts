@@ -20,6 +20,8 @@ export const PERMS = [
   { key: "approvals", label: "통합 결재함", paths: ["/approvals"] },
   { key: "esop", label: "e-SOP 대응 조회", paths: ["/esop"] },
   { key: "esopEdit", label: "e-SOP 절차 정의 편집", paths: [] },
+  { key: "orderIssue", label: "대응 지시 등록·전달·사건 종료 기록", paths: [] },
+  { key: "orderResult", label: "조치 결과 등록(수행 시작·완료·실패)", paths: [] },
   { key: "propagation", label: "상황전파·보고체계", paths: ["/propagation"] },
   { key: "reports", label: "이력·보고서", paths: ["/reports"] },
   { key: "system", label: "시스템 상태·연계현황·실증현황", paths: ["/monitoring", "/data-systems", "/pilot-status"] },
@@ -42,9 +44,9 @@ const allow = (keys: PermKey[]) => Object.fromEntries(PERMS.map((p) => [p.key, k
 export function defaultPolicy(): RolePolicy {
   return {
     perms: {
-      control: allow(["dashboard", "approvals", "esop", "propagation", "reports", "input"]),
+      control: allow(["dashboard", "approvals", "esop", "orderIssue", "orderResult", "propagation", "reports", "input"]),
       vendor: allow(["dashboard", "system", "input"]),
-      field: allow(["dashboard", "esop", "propagation"]),
+      field: allow(["dashboard", "esop", "orderResult", "propagation"]),
       admin: allow(PERMS.map((p) => p.key)),
     },
     services: {

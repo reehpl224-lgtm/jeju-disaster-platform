@@ -1,4 +1,7 @@
 import { useState, type ReactNode } from "react"
+import { endIncident, recordLog, useResponseLog } from "../../data/responseLog"
+import { logsOf, openIncidentOf } from "../../data/responseLogic"
+import { ResponseOrders } from "./ResponseOrders"
 import { Link } from "react-router-dom"
 import { IS_STAGING } from "../../data/appMode"
 import { useHeatShelters } from "../../data/heatSheltersLive"
@@ -209,30 +212,34 @@ export function BoardHistory({ service, state }: { service: BoardService; state:
 }
 
 // ================================================================== 우측 · 대응 패널
-const nowHM = () => {
-  const d = new Date()
+const hmOf = (iso: string) => {
+  const d = new Date(iso)
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`
 }
 const isBad = (t: string) => /오류|실패|응답 없음/.test(t)
 
 function ResponseBody({ service, state, r, onClose }: { service: BoardService; state: BoardStateId; r: RightPanel; onClose?: () => void }) {
-  const [done, setDone] = useState<number[]>([])
-  const [memos, setMemos] = useState<LogItem[]>([])
+  // 조치·메모는 사건 이력(브라우저 저장)에 남아 새로고침·상태 전환 뒤에도 유지된다 — 요구사항 '조치 이력 기록·조회'
+  const store = useResponseLog()
   const [memo, setMemo] = useState("")
-  const [acts, setActs] = useState<LogItem[]>([])
-  const left = r.todo.items.length - done.length
-  const logAll = [...memos, ...acts, ...r.log]
+  const open = openIncidentOf(store, service.id)
+  const mine = open ? logsOf(store, open.id) : []
+  const doneTitles = new Set(mine.filter((l) => l.ref).map((l) => l.ref))
+  const left = r.todo.items.filter((t) => !doneTitles.has(t.title)).length
+  const stored: LogItem[] = [...mine].reverse().map((l) => ({ time: hmOf(l.at), tag: l.kind, text: l.text }))
+  const logAll = [...stored, ...r.log]
 
-  const handle = (i: number, label: string, title: string) => {
-    setDone((d) => (d.includes(i) ? d : [...d, i]))
-    setActs((a) => [{ time: nowHM(), tag: "조치", text: `${label} — ${title}` }, ...a])
-  }
+  const handle = (label: string, title: string) => recordLog(service.id, "조치", `${label} — ${title}`, title)
   const addMemo = () => {
     const text = memo.trim()
     if (!text) return
-    setMemos((m) => [{ time: nowHM(), tag: "메모", text }, ...m])
+    recordLog(service.id, "메모", text)
     setMemo("")
   }
+  const close = onClose && (() => {
+    endIncident(service.id)
+    onClose()
+  })
 
   return (
     <div className="sp">
@@ -252,21 +259,21 @@ function ResponseBody({ service, state, r, onClose }: { service: BoardService; s
             <p className="sp-note">결재 대기 · 수신 실패 · 현장 조치가 생기면 이곳에 표시됩니다</p>
           </>
         )}
-        {r.todo.items.map((t, i) => (
-          <div className={`bd-todo${t.fail ? " is-fail" : ""}${done.includes(i) ? " is-done" : ""}`} key={t.title}>
+        {r.todo.items.map((t) => (
+          <div className={`bd-todo${t.fail ? " is-fail" : ""}${doneTitles.has(t.title) ? " is-done" : ""}`} key={t.title}>
             <div className="sp-row" style={{ alignItems: "flex-start" }}>
               <span className={`bd-tag${t.fail ? " is-fail" : ""}`}>{t.tag}</span>
               <b style={{ fontSize: 13, lineHeight: "18px" }}>{t.title}</b>
             </div>
             {t.detail && <p className="sp-sub">{t.detail}</p>}
             <div className="sp-row" style={{ flexWrap: "wrap" }}>
-              {done.includes(i) ? (
+              {doneTitles.has(t.title) ? (
                 <span className="sp-c--safe" style={{ fontWeight: 700 }}>
                   ✓ 처리됨
                 </span>
               ) : (
                 t.actions?.map((a) => (
-                  <button key={a.label} type="button" className={`bd-btn bd-btn--${a.kind}`} onClick={() => handle(i, a.label, t.title)}>
+                  <button key={a.label} type="button" className={`bd-btn bd-btn--${a.kind}`} onClick={() => handle(a.label, t.title)}>
                     {a.label}
                   </button>
                 ))
@@ -323,7 +330,9 @@ function ResponseBody({ service, state, r, onClose }: { service: BoardService; s
         </Card>
       )}
 
-      <Card title="조치 기록">
+      <ResponseOrders serviceId={service.id} />
+
+      <Card title="조치 기록" tag={open ? <span className="sp-tag">사건 {open.id}</span> : undefined}>
         {logAll.length === 0 && <p className="sp-sub" style={{ fontSize: 12, color: "var(--foreground)" }}>기록된 조치가 없습니다. 감지·판단·조치가 시각과 함께 쌓입니다.</p>}
         {logAll.map((l, i) => (
           <div className="bd-log" key={`${l.time}-${l.text}-${i}`}>
@@ -347,7 +356,7 @@ function ResponseBody({ service, state, r, onClose }: { service: BoardService; s
       </Card>
 
       {state === "progress" && (
-        <button type="button" className="bd-end" disabled={left > 0 || !onClose} onClick={onClose}>
+        <button type="button" className="bd-end" disabled={left > 0 || !onClose} onClick={close}>
           {left > 0 ? `상황 종료 처리 → · 조치 필요 ${left}건이 남아 있습니다` : "상황 종료 처리 →"}
         </button>
       )}
