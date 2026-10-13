@@ -15,6 +15,23 @@ import { apiLinks } from "../../data/mockMonitoring"
 import { aquaDataSources } from "../../data/mockAqua"
 import { coastSafetyAssets } from "../../data/mockCoast"
 import { riverSensorCheck } from "../../data/mockRiver"
+import { IS_STAGING } from "../../data/appMode"
+
+/**
+ * 연계 자료 수령 예정 — 2026년 10월 중순 도착 예정인 자료와, 도착 전 화면에서 어떻게 보이는지.
+ * 요구사항 '행정시 전용 시스템 연계'·'제주도청 시스템 연계'·'서귀포시 CCTV 연계 대상 목록'·'실증서비스 3종 연계'·'AX Hub 연계' 대응.
+ */
+const PENDING_INPUTS: { name: string; detail: string; shownAt: string }[] = [
+  { name: "서귀포시 CCTV 목록", detail: "하천 34 · 월파 25 · 물놀이 14 · 적설 7대 — 서귀포시 안전총괄과", shownAt: "CCTV 탭·지도 CCTV 레이어" },
+  { name: "서귀포시 자동우량경보 · 제주시 자동경보시스템", detail: "행정시 전용 시스템 — 섬엔지니어링 연계 협조 진행", shownAt: "호우 서비스·알림(우량·수위 임계치)" },
+  { name: "제주도청 시스템 3종", detail: "CCTV 시스템 · 조기경보 통합 상황 관리 연계시스템 · 강우량 연동 자동 경보 발령 시스템", shownAt: "데이터 시스템 연계현황" },
+  { name: "실증서비스 3종 API·파일 규격", detail: "저염분·고수온 / 연안 안전관리 / 하천 범람 예측 — 출력 규격 확정 후 항목 매핑", shownAt: "서비스 보드·서비스 카드" },
+  { name: "유관기관 위치 자료", detail: "소방·경찰·해경·병원·대피소 등", shownAt: "지도 유관기관 레이어" },
+  { name: "AX Hub sLLM·VLM 연계 자료", detail: "API·이벤트 수신 규격, 레거시 데이터 대시보드", shownAt: "헤더 AX HUB·VLM 화면" },
+]
+
+/** 레거시시스템 데이터 연계 지원 — 연계 대상 자산 최소 3건 후보(현황조사 완료 후 확정). 후보는 연계 상태 표의 시스템에서 골랐다 */
+const LINK_CANDIDATES = ["ls-ews", "ls-flood-mgmt", "ls-rain-alert"] as const
 
 const LEGACY_STATUS_LEVEL: Record<(typeof legacySystems)[number]["linkStatus"], "safe" | "caution" | "offline"> = {
   "연계 진행중": "safe",
@@ -219,6 +236,7 @@ export function DataSystemPage() {
 }
 
 function AllSystemsView() {
+  const candidates = legacySystems.filter((s) => (LINK_CANDIDATES as readonly string[]).includes(s.id))
   return (
     <div className="flex flex-col gap-6">
       <StatTiles
@@ -228,6 +246,34 @@ function AllSystemsView() {
           { label: "실증 데이터 소스", value: `정상 ${pilotNormalCount}`, sub: `총 ${pilotTotalCount}건` },
         ]}
       />
+
+      <Card title="연계 자료 수령 예정 — 2026년 10월 중순" subtitle={IS_STAGING ? "도착 전이라 스테이징은 샘플 값으로 화면 구성을 보여줍니다" : "도착 전이라 프로토타입은 값 없이 '연계 전'으로 표시합니다"}>
+        <ul className="flex flex-col divide-y divide-border-subtle">
+          {PENDING_INPUTS.map((item) => (
+            <li key={item.name} className="flex items-start justify-between gap-3 py-3 text-sm">
+              <div>
+                <p className="font-medium text-white/85">{item.name}</p>
+                <p className="mt-0.5 text-xs text-white/35">
+                  {item.detail} · 화면: {item.shownAt}
+                </p>
+              </div>
+              <RiskBadge level="caution" label={IS_STAGING ? "수령 예정 · 샘플" : "수령 예정"} />
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-[11px] text-white/35">
+          제주시 월파 감시 CCTV는 공공데이터 API가 19대를 주지만 면담 문서에는 9대로 적혀 있어 수령 자료와 대조해 확정합니다.
+        </p>
+        <h3 className="mt-4 text-xs font-bold text-white/70">연계 대상 자산 후보 — 현황조사 완료 후 3건 이상 확정</h3>
+        <ul className="mt-1 flex flex-col divide-y divide-border-subtle">
+          {candidates.map((s) => (
+            <li key={s.id} className="flex items-start justify-between gap-3 py-2 text-sm">
+              <p className="text-white/80">{s.name}</p>
+              <RiskBadge level={LEGACY_STATUS_LEVEL[s.linkStatus]} label={`후보 · ${s.linkStatus}`} />
+            </li>
+          ))}
+        </ul>
+      </Card>
 
       <Card
         title="레거시 시스템 연계 현황"

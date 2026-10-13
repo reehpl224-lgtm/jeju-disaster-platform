@@ -4,6 +4,7 @@ import { IS_STAGING } from "../../data/appMode"
 import { logout, type MockUser } from "../../data/mockAuth"
 import { useServiceStatusCards } from "../../data/useServiceStatusCards"
 import { disasterAlerts } from "../../data/mockIncidents"
+import { useRainfallAlerts } from "../../data/useRainfallAlerts"
 import { RiskBadge } from "../ui/RiskBadge"
 import { getDominantRiskLevel, riskStyles } from "../ui/riskStyles"
 import { DemoDataMenu } from "./DemoDataMenu"
@@ -53,6 +54,8 @@ function useClock() {
 /** demo-10 클론의 72px 헤더 — 로고·시계·대시보드 탭·경보 요약·사용자·탑 메뉴 */
 export function Header({ user }: { user: MockUser }) {
   const serviceStatusCards = useServiceStatusCards()
+  const rainAlerts = useRainfallAlerts()
+  const alerts = [...disasterAlerts, ...rainAlerts]
   const location = useLocation()
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -154,7 +157,7 @@ export function Header({ user }: { user: MockUser }) {
             style={{ position: "relative" }}
           >
             <span aria-hidden>🔔</span>
-            {disasterAlerts.length > 0 && (
+            {alerts.length > 0 && (
               <span
                 style={{
                   position: "absolute",
@@ -172,7 +175,7 @@ export function Header({ user }: { user: MockUser }) {
                   justifyContent: "center",
                 }}
               >
-                {disasterAlerts.length}
+                {alerts.length}
               </span>
             )}
           </button>
@@ -181,13 +184,13 @@ export function Header({ user }: { user: MockUser }) {
               <p style={{ padding: "4px 12px 8px", fontSize: 12, color: "var(--foreground-subtle)", fontWeight: 700 }}>
                 발효중 특보 · 알림
               </p>
-              {disasterAlerts.length === 0 ? (
+              {alerts.length === 0 ? (
                 <p style={{ padding: 16, textAlign: "center", color: "var(--foreground-subtle)", fontSize: 12 }}>
                   새 알림이 없습니다.
                 </p>
               ) : (
                 <ul>
-                  {disasterAlerts.map((alert) => {
+                  {alerts.map((alert) => {
                     const body = (
                       <span style={{ display: "block", width: "100%" }}>
                         <span style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>

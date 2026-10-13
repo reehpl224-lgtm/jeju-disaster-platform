@@ -3,6 +3,8 @@ import { latLngBounds } from "leaflet"
 import { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap, WMSTileLayer, ZoomControl } from "react-leaflet"
 import { cctvStatusLabel, openCctvPlayer } from "../../data/cctvLive"
+import { IS_STAGING } from "../../data/appMode"
+import { AGENCY_SAMPLE_POINTS } from "../../data/sampleAgencies"
 import type { CctvCamera, RiskLevel, RiskMarker } from "../../types/domain"
 import { placeTileLabels, type LabelSpot } from "./labelPlacement"
 import { riskStyles } from "./riskStyles"
@@ -311,11 +313,17 @@ export function JejuTileMap({
   const cctvDomains = cctvSel ? CCTV_RADIO_DOMAINS[cctvSel] : undefined
   const shownCctv = !cctvDomains ? [] : cctvDomains === "all" ? geoCctv : geoCctv.filter((c) => cctvDomains.includes(c.domain))
   const agencyChecked = TOOLBOX_PANELS.find((p) => p.id === "agency")?.sections.flatMap((s) => s.items).filter((i) => toolboxChecked[i.id]) ?? []
+  // 스테이징만: 유관기관 위치 자료 수령 전이라 샘플 위치를 그린다
+  const agencyPoints = IS_STAGING && activePanelId === "agency" ? agencyChecked.flatMap((i) => (AGENCY_SAMPLE_POINTS[i.id] ?? []).map((p) => ({ ...p, kind: i.label }))) : []
 
   // 선택한 레이어를 지도에 그릴 수 있는지 안내 — 위치 데이터가 없는 항목은 '표기 기준 확정 전(TBD)'으로 표시
   let layerNotice: string | null = null
   if (activePanelId === "agency") {
-    layerNotice = agencyChecked.length ? `유관기관 ${agencyChecked.length}종 선택 — 표기 기준 확정 전(TBD), 위치 데이터 준비 중` : null
+    layerNotice = !agencyChecked.length
+      ? null
+      : IS_STAGING
+        ? `유관기관 ${agencyChecked.length}종 선택 — 샘플 위치 ${agencyPoints.length}곳 표출 중(위치 자료 10월 중순 수령 예정)`
+        : `유관기관 ${agencyChecked.length}종 선택 — 표기 기준 확정 전(TBD), 위치 데이터 준비 중`
   } else if (mode === "riskLevel" && riskSel) {
     layerNotice = safemap
       ? SAFEMAP_PROXY
@@ -381,6 +389,14 @@ export function JejuTileMap({
             attribution="&copy; 행정안전부 생활안전지도"
           />
         )}
+
+        {agencyPoints.map((p) => (
+          <CircleMarker key={`${p.kind}-${p.name}`} center={[p.lat, p.lng]} radius={7} pathOptions={{ color: "#0054a3", fillColor: "#3b8ee0", fillOpacity: 0.85, weight: 2 }}>
+            <Tooltip direction="top" offset={[0, -6]}>
+              {p.name} · {p.kind} (샘플)
+            </Tooltip>
+          </CircleMarker>
+        ))}
 
         {mode === "cctv"
           ? shownCctv.map((cam) => (

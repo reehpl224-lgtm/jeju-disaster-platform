@@ -1,6 +1,8 @@
 import { useMemo, useSyncExternalStore } from "react"
 import type { CctvCamera } from "../types/domain"
 import { cctvCameras } from "./mockCctv"
+import { IS_STAGING } from "./appMode"
+import { seogwipoSampleCctv } from "./sampleSeogwipoCctv"
 
 /**
  * 제주시 감시 CCTV(월파·하천·적설) 실연동 — kma-weather-proxy의 /api/cctv가 data.go.kr 6510000 세 서비스를 합쳐 준다.
@@ -51,7 +53,7 @@ export function toCctvCamera(c: ApiCamera): CctvCamera {
  * 그래서 이 카메라들은 "연결/오프라인"이라고 쓰면 실시간 수신 상태로 오해돼 "사용/미사용"으로 쓴다.
  */
 export function cctvStatusLabel(c: Pick<CctvCamera, "operator" | "status">): string {
-  if (c.operator === "제주시") return c.status === "online" ? "사용" : "미사용"
+  if (c.operator === "제주시" || c.operator === "서귀포시") return c.status === "online" ? "사용" : "미사용"
   return c.status === "online" ? "연결" : "오프라인"
 }
 
@@ -74,6 +76,11 @@ const notifyChange = () => {
 let loading: Promise<void> | null = null
 /** 앱 시작 때 호출 — 일부/전체 실패 여부를 목록과 별도로 공개한다. */
 export function loadJejuCctv(): Promise<void> {
+  // 스테이징만: 서귀포시 CCTV 목록은 10월 중순 도착 예정이라 같은 대수의 샘플을 먼저 둔다(제주시 실연동 목록은 그대로)
+  if (IS_STAGING && !cctvCameras.some((c) => c.operator === "서귀포시")) {
+    cctvCameras.push(...seogwipoSampleCctv())
+    notifyChange()
+  }
   if (!PROXY_URL) return Promise.resolve()
   if (loading) return loading
   loadState = { ...loadState, phase: "loading" }
@@ -82,7 +89,7 @@ export function loadJejuCctv(): Promise<void> {
     .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
     .then((body: { cameras: ApiCamera[]; errors?: unknown[] }) => {
       const live = body.cameras.map(toCctvCamera)
-      cctvCameras.splice(0, cctvCameras.length, ...cctvCameras.filter((c) => !c.id.startsWith("jejusi-")), ...live)
+      cctvCameras.splice(0, cctvCameras.length, ...live, ...cctvCameras.filter((c) => !c.id.startsWith("jejusi-")))
       const failedFeeds = Array.isArray(body.errors) ? Math.min(FEED_COUNT, body.errors.length) : 0
       loadState = {
         phase: failedFeeds === FEED_COUNT ? "failed" : failedFeeds > 0 ? "partial" : "ready",

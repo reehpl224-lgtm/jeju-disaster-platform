@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react"
+import { IS_STAGING } from "../data/appMode"
 import { useElementHeight } from "../hooks/useElementHeight"
 import { useSearchParams } from "react-router-dom"
 import { DragScrollTabs } from "../components/board/DragScrollTabs"
@@ -545,6 +546,7 @@ function CctvView() {
             <h2 className="content__title">CCTV 통합 조회</h2>
             <p className="content__sub">
               제주시 월파·하천·적설 감시 CCTV(공공데이터포털 API) — 현재 조회 가능한 목록의 위치·사용 여부·영상
+              {IS_STAGING && " · 서귀포시 CCTV는 목록 수령 전이라 샘플로 표시"}
             </p>
           </div>
         </div>
@@ -552,7 +554,7 @@ function CctvView() {
           <div className="pbox">
             <small>현재 조회 목록</small>
             <b>{hasCctvData ? `${cctvCameras.length}대` : "—"}</b>
-            <p>제주시 공공데이터 API 3종</p>
+            <p>{IS_STAGING ? "제주시 API 3종 + 서귀포시 샘플" : "제주시 공공데이터 API 3종"}</p>
           </div>
           <div className="pbox">
             <small>하천 감시</small>
@@ -568,7 +570,7 @@ function CctvView() {
           </div>
         </div>
         <p className={`cctv-feed-status cctv-feed-status--${cctvLoad.phase}`} role="status">
-          {cctvLoad.phase === "ready" && `제주시 공공데이터 API 3/3종 수신${checkedAtLabel ? ` · ${checkedAtLabel} 확인` : ""} · 도 전체 CCTV 수가 아닙니다.`}
+          {cctvLoad.phase === "ready" && `제주시 공공데이터 API 3/3종 수신${checkedAtLabel ? ` · ${checkedAtLabel} 확인` : ""} · 도 전체 CCTV 수가 아닙니다.${IS_STAGING ? " 서귀포시 80대(하천 34·월파 25·물놀이 14·적설 7)는 샘플이며 영상은 없습니다." : ""}`}
           {cctvLoad.phase === "partial" && `일부 수신 실패 · ${cctvLoad.receivedFeeds}/3종만 반영${checkedAtLabel ? ` · ${checkedAtLabel} 확인` : ""} · 표시 대수는 전체가 아닙니다.`}
           {cctvLoad.phase === "loading" && "제주시 CCTV 목록을 불러오는 중입니다."}
           {cctvLoad.phase === "failed" && "CCTV 목록을 불러오지 못했습니다. 현재 대수를 확인할 수 없습니다."}

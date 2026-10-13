@@ -102,7 +102,7 @@ export interface ApiLinkStatus {
 }
 
 /** CCTV 운영 주체 — 레거시 현황 조사 면담(2026-09-07) 기준 3개 그룹 */
-export type CctvOperator = "도 자체관제" | "불법주정차" | "자치경찰단 ITS" | "제주시"
+export type CctvOperator = "도 자체관제" | "불법주정차" | "자치경찰단 ITS" | "제주시" | "서귀포시"
 
 export interface CctvCamera {
   id: string
