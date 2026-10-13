@@ -16,7 +16,7 @@ export const roleLabel = (r: UserRole) => (r === "restricted" ? "권한 없음" 
 
 /** 화면(메뉴) 단위 권한 — paths가 비어 있으면 화면이 아니라 화면 안의 기능(편집 버튼 등)에 쓰는 권한 */
 export const PERMS = [
-  { key: "dashboard", label: "종합상황·GIS·CCTV 조회", paths: ["/dashboard"] },
+  { key: "dashboard", label: "종합상황·GIS·CCTV·공통 이벤트 조회", paths: ["/dashboard", "/events"] },
   { key: "approvals", label: "통합 결재함", paths: ["/approvals"] },
   { key: "esop", label: "e-SOP 대응 조회", paths: ["/esop"] },
   { key: "esopEdit", label: "e-SOP 절차 정의 편집", paths: [] },

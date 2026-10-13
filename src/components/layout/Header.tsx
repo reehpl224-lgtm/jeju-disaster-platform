@@ -31,6 +31,7 @@ const SERVICE_NAV = [
   { to: "/coast", label: "연안 안전관리", icon: "🌊" },
 ]
 const OPS_NAV = [
+  { to: "/events", label: "공통 이벤트", icon: "🧩" },
   { to: "/approvals", label: "통합 결재함", icon: "✅" },
   { to: "/esop", label: "e-SOP 대응", icon: "📑" },
   { to: "/pilot-status", label: "실증서비스 구현 현황", icon: "🧪" },
