@@ -22,7 +22,8 @@ export function EsopPropagationCard() {
   const policy = useRolePolicy()
   const levels = useCurrentLevels()
   const role = getCurrentUser()?.role ?? "restricted"
-  const services = SERVICE_IDS.filter((id) => canSeeService(role, id, policy))
+  // 화면에서 뺀 서비스(폭염·산불 등)는 DOMAINS에 없으므로 칩에서도 뺀다
+  const services = SERVICE_IDS.filter((id) => DOMAINS.some((d) => d.prefix === `/${id}`) && canSeeService(role, id, policy))
   const [picked, setPicked] = useState<ServiceId | null>(null)
   const [pickedLevel, setPickedLevel] = useState<EsopLevel | null>(null)
   const svc = picked && services.includes(picked) ? picked : (services.find((id) => levels[id]) ?? services[0])
