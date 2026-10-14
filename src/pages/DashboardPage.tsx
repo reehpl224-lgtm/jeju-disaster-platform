@@ -487,7 +487,9 @@ function CctvView() {
   const cctvCameras = useCctvCameras()
   const cctvLoad = useCctvLoadState()
   const hasCctvData = cctvLoad.phase === "ready" || cctvLoad.phase === "partial"
-  const [domain, setDomain] = useState<CctvCamera["domain"] | "all">("all")
+  const [cctvParams] = useSearchParams()
+  const initialDomain = CCTV_DOMAIN_FILTERS.find((f) => f.id === cctvParams.get("cctv"))?.id ?? "all"
+  const [domain, setDomain] = useState<CctvCamera["domain"] | "all">(initialDomain)
   const [query, setQuery] = useState("")
   const riverCount = cctvCameras.filter((camera) => camera.domain === "river").length
   const waveCount = cctvCameras.filter((camera) => camera.domain === "coast").length

@@ -1098,3 +1098,5 @@ src/
 `기상/재난` 패널에 `해양 관측점(파고·풍속·수온)` 선택 항목을 더했다 — 켜면 기상청 해양 관측(`marineMarkers`, 실제 값)을 찍고, 이 모드에서는 서비스 마커에 섞여 있던 해양 관측 점을 빼 중복을 막는다.
 
 **브이월드 인증키는 주소(도메인)마다 하나씩**(2026-10-14 사용자 확인 + 호출 검증): GitHub Pages(`reehpl224-lgtm.github.io`, 프로토타입)는 키 `A7F5…CFFC`, Vercel(`jeju-disaster-platform-staging.vercel.app`, 스테이징)은 키 `B00C…AEA2`에서만 데이터·WMS가 응답한다(WMTS 바탕지도는 어느 키·도메인이든 된다). 각 키는 해당 배포의 `VITE_VWORLD_KEY`(프로토타입=GitHub Secrets, 스테이징=Vercel 환경변수 Preview·Production)로만 넣고 저장소에는 쓰지 않는다. 로컬은 `.env.local`의 키와 `VITE_VWORLD_DOMAIN`을 맞춰 쓴다.
+
+**2026-10-14 GIS 관측·CCTV 제주시 감시 CCTV 카드**: 분야별(연안 월파·하천·대설 적설) 카드 — 수신 상태 배지·이름·사용/미사용 건수(없으면 "사용 여부만 제공")·대수를 관측 지점 카드와 같은 모양으로 보이고, 대수가 3대 이상이면 `상세보기` 버튼이 CCTV 통합 조회(`/dashboard?tab=cctv&cctv=<분야>`)의 해당 분야를 연다(`DashboardPage`가 `cctv` 파라미터로 처음 분야를 고른다). 집계는 제주시 공공데이터 카메라만 센다(스테이징 서귀포 샘플이 섞이지 않게).
