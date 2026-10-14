@@ -4,6 +4,8 @@
  * 스테이징은 샘플 행을 보여주고, 프로토타입은 컬럼(수신 예정 항목)만 보여 주며 값은 '연계 전'으로 비워 둔다. 실제 값이 오면 rows만 교체한다.
  * 시스템 id는 mockHeavyRain.ts의 legacySystems와 같다.
  */
+import { LEVEL_SAMPLE, levelStageOf, type LevelPoint } from "./levelAlerts"
+
 export interface LegacyFeed {
   /** 수신 항목 설명(문서 기준) */
   items: string
@@ -16,6 +18,15 @@ export interface LegacyFeed {
 }
 
 const AS_OF = "2026-10-13 09:40"
+const hm = (at: string) => at.slice(11, 16)
+/** 수위 표 — 값·기준은 levelAlerts.ts의 임의 샘플이고, 헤더 알림과 같은 값을 쓴다 */
+const levelFeed = (system: LevelPoint["system"], items: string, cycle: string, nameCol: string): LegacyFeed => ({
+  items,
+  cycle,
+  columns: [nameCol, "위치", "수위(m)", "주의 기준(m)", "판정", "관측 시각"],
+  rows: LEVEL_SAMPLE.filter((p) => p.system === system).map((p) => [p.group, p.place, p.levelM.toFixed(2), p.steps.주의.toFixed(2), levelStageOf(p) ?? "—", hm(p.at)]),
+  asOf: AS_OF,
+})
 
 export const LEGACY_FEEDS: Record<string, LegacyFeed> = {
   "ls-ews": {
@@ -53,28 +64,8 @@ export const LEGACY_FEEDS: Record<string, LegacyFeed> = {
     ],
     asOf: AS_OF,
   },
-  "ls-flood-warn": {
-    items: "수위 측정 데이터 · 침수 경보 이력",
-    cycle: "5분 가안",
-    columns: ["센서", "위치", "수위(cm)", "경보 기준(cm)", "상태"],
-    rows: [
-      ["침수센서 J-014", "제주시 한천 인근", "12", "30", "정상"],
-      ["침수센서 J-037", "제주시 건입동", "34", "30", "경보"],
-      ["침수센서 J-052", "제주시 화북", "5", "30", "정상"],
-    ],
-    asOf: AS_OF,
-  },
-  "ls-river-mon": {
-    items: "하천 수위 데이터",
-    cycle: "10분 가안",
-    columns: ["하천", "지점", "수위(m)", "10분 전 대비", "관측 시각"],
-    rows: [
-      ["한천", "용연", "0.62", "+0.03", "09:40"],
-      ["산지천", "동문교", "0.48", "+0.01", "09:40"],
-      ["화북천", "화북교", "0.35", "0.00", "09:40"],
-    ],
-    asOf: AS_OF,
-  },
+  "ls-flood-warn": levelFeed("ls-flood-warn", "수위 측정 데이터 · 침수 경보 이력", "5분 가안", "센서"),
+  "ls-river-mon": levelFeed("ls-river-mon", "하천 수위 데이터", "10분 가안", "하천"),
   "ls-river-flow": {
     items: "유속 수치 데이터",
     cycle: "10분 가안",

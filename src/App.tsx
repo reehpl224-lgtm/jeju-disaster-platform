@@ -70,6 +70,7 @@ const IncidentLogPage = lazy(() => import("./pages/reports/IncidentLogPage").the
 const EventsPage = lazy(() => import("./pages/events/EventsPage").then((m) => ({ default: m.EventsPage })))
 const AuditPage = lazy(() => import("./pages/audit/AuditPage").then((m) => ({ default: m.AuditPage })))
 const CriteriaPage = lazy(() => import("./pages/criteria/CriteriaPage").then((m) => ({ default: m.CriteriaPage })))
+const CitySystemsPage = lazy(() => import("./pages/citysystems/CitySystemsPage").then((m) => ({ default: m.CitySystemsPage })))
 const DataUsagePage = lazy(() => import("./pages/datausage/DataUsagePage").then((m) => ({ default: m.DataUsagePage })))
 const IntegrationPage = lazy(() => import("./pages/integration/IntegrationPage").then((m) => ({ default: m.IntegrationPage })))
 const ScenariosPage = lazy(() => import("./pages/scenarios/ScenariosPage").then((m) => ({ default: m.ScenariosPage })))
@@ -169,6 +170,7 @@ export default function App() {
           <Route path="/roles" element={<RolesPage />} />
           <Route path="/mock-api" element={<MockApiPage />} />
           <Route path="/scenarios" element={<ScenariosPage />} />
+          <Route path="/city-systems" element={<CitySystemsPage />} />
           <Route path="/data-usage" element={<DataUsagePage />} />
           <Route path="/integration" element={<IntegrationPage />} />
           <Route path="/criteria" element={<CriteriaPage />} />

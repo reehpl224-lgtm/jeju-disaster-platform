@@ -153,8 +153,10 @@ function StatusTab({ domain, onDomain, markers }: { domain: Domain; onDomain: (d
           <div style={{ flex: "1 1 0", minWidth: 0 }}>
             <b style={{ display: "block", fontSize: 13 }}>{t.name}</b>
             <span className="sp-sub">{t.sub}</span>
+            {/* 값이 긴 문장이면 이름 칸을 좁히지 않도록 아래 줄로 내린다 */}
+            {t.value.length > 12 && <span className="sp-sub" style={{ display: "block", color: "var(--foreground)" }}>{t.value}</span>}
           </div>
-          <b style={{ fontSize: 12 }}>{t.value}</b>
+          {t.value.length <= 12 && <b style={{ fontSize: 12, flex: "none" }}>{t.value}</b>}
         </div>
       ))}
       <p className="sp-note">높은 단계 순</p>

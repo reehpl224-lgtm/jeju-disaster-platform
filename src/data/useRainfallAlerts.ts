@@ -2,12 +2,13 @@ import { useEffect, useState } from "react"
 import type { DisasterAlert } from "../types/incident"
 import type { RainfallStation } from "../types/rainfallApi"
 import { IS_STAGING } from "./appMode"
+import { LEVEL_SAMPLE, levelAlertsOf } from "./levelAlerts"
 import { fetchJejuCityRainfall, fetchRiverReferenceRainfall } from "./rainfallApi"
 
 /**
  * 우량 임계치 알림 — 요구사항 '통합상황판 우선 확인 내용'(임계치 초과 시 알람). 기상청 AWS 우량(1시간·12시간 누적)이 기준을 넘으면 알림 목록에 올린다.
  * 기준값은 표시용 잠정치(1시간 30/50/70mm = 주의/경계/심각, 12시간 110mm 이상 경계)이며 확정 기준이 오면 아래 표만 고친다.
- * 수위는 센서 연계 전이라 값이 없다 — 스테이징은 값이 없을 때 샘플 알림 2건(우량·수위)을 보여 알림 구성을 확인하게 한다.
+ * 수위 알림은 levelAlerts.ts(레거시 수위 임의 샘플, 스테이징만) — 프로토타입은 수위 값이 없어 만들지 않는다. 스테이징은 우량 값이 없을 때 우량 샘플 알림 1건도 보여 준다.
  */
 const HOUR_STEPS: [number, DisasterAlert["level"]][] = [[70, "danger"], [50, "alert"], [30, "warning"]]
 const TWELVE_HOUR_WARNING_MM = 110
@@ -34,8 +35,9 @@ export function rainfallAlertsOf(stations: RainfallStation[]): DisasterAlert[] {
 
 const SAMPLE_ALERTS: DisasterAlert[] = [
   { id: "sample-rain", level: "alert", title: "우량 임계치 초과 · 서귀포(샘플)", issuedAt: "2026-10-13T09:40:00", expiresAt: "2026-10-13T10:40:00", target: "기상청 AWS 우량 · 샘플", message: "1시간 누적 강우 52mm — 임계치 50mm 이상", href: "/heavy-rain" },
-  { id: "sample-level", level: "warning", title: "수위 임계치 초과 · 효돈천 돈내코(샘플)", issuedAt: "2026-10-13T09:35:00", expiresAt: "2026-10-13T10:35:00", target: "하천 수위 센서 · 샘플", message: "수위 1.8m — 주의 기준 1.5m 이상(센서 연계 전 샘플)", href: "/river" },
 ]
+
+const LEVEL_ALERTS = levelAlertsOf(LEVEL_SAMPLE)
 
 /** 알림 목록용 — 값이 있으면 그 값, 없고 스테이징이면 샘플 */
 export function useRainfallAlerts(): DisasterAlert[] {
@@ -53,5 +55,6 @@ export function useRainfallAlerts(): DisasterAlert[] {
       clearInterval(t)
     }
   }, [])
-  return alerts.length === 0 && IS_STAGING ? SAMPLE_ALERTS : alerts
+  const rain = alerts.length === 0 && IS_STAGING ? SAMPLE_ALERTS : alerts
+  return IS_STAGING ? [...rain, ...LEVEL_ALERTS] : rain
 }
