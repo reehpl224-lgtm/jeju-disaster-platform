@@ -173,12 +173,20 @@ const RECV: Record<GisRecv, { label: string; level: RiskLevel }> = {
   none: { label: "미연계", level: "offline" },
 }
 
+/** 제주시 감시 CCTV 카드 — 분야 id와 이름 */
+const CCTV_ROWS: [("coast" | "river" | "snow"), string][] = [
+  ["coast", "연안(월파) 감시"],
+  ["river", "하천 감시"],
+  ["snow", "대설(적설) 감시"],
+]
+
 /** T2 · 관측·CCTV — 수집 상태 요약과 지점 목록, 제주시 감시 CCTV */
 function ObsTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) => void }) {
   const cameras = useCctvCameras()
   const load = useCctvLoadState()
   const cctvReal = load.phase === "ready" || load.phase === "partial"
-  const cnt = (d: string) => cameras.filter((c) => c.domain === d).length
+  const jejuCams = cameras.filter((c) => c.operator === "제주시")
+  const cnt = (d: string) => jejuCams.filter((c) => c.domain === d).length
   const cctv = cctvReal ? { coast: cnt("coast"), river: cnt("river"), snow: cnt("snow") } : IS_STAGING ? SAMPLE_GIS_CCTV : null
   const cctvTag = cctvReal ? "none" : MISSING
 
@@ -223,24 +231,38 @@ function ObsTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) =>
           </div>
         )
       })}
-      <div className="sp-dashed" style={{ gap: 8 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <div className="sp-row">
-          <b className="sp-h2" style={{ fontSize: 13 }}>제주시 감시 CCTV (공공데이터 API)</b>
+          <b className="sp-sub">제주시 감시 CCTV (공공데이터 API)</b>
+          <span className="sp-spacer" />
           <Tag sample={cctvTag} />
         </div>
-        {(
-          [
-            ["연안(월파) 감시", cctv?.coast ?? null],
-            ["하천 감시", cctv?.river ?? null],
-            ["대설(적설) 감시", cctv?.snow ?? null],
-          ] as [string, number | null][]
-        ).map(([label, n]) => (
-          <div className="sp-row" key={label}>
-            <span>{label}</span>
-            <span className="sp-spacer" />
-            <b>{n === null ? "—" : `${n}대`}</b>
-          </div>
-        ))}
+        {CCTV_ROWS.map(([d, label]) => {
+          const n = cctv ? cctv[d] : null
+          const used = cctvReal ? jejuCams.filter((c) => c.domain === d && c.status === "online").length : null
+          const names = cctvReal && n !== null && n > 0 && n < 3 ? jejuCams.filter((c) => c.domain === d).map((c) => c.name).join(", ") : null
+          const recv = n === null || n === 0 ? RECV.none : RECV.ok
+          return (
+            <div className="sp-card" key={d} style={{ background: "var(--background-darker)", flexDirection: "row", alignItems: "center", gap: 10 }}>
+              <SpRisk level={recv.level}>{recv.label}</SpRisk>
+              <div style={{ flex: "1 1 0", minWidth: 0 }}>
+                <b style={{ display: "block", fontSize: 13 }}>{label}</b>
+                <span className="sp-sub">{names ?? (used !== null && n !== null ? `사용 ${used} · 미사용 ${n - used}` : n === null ? "연계 전" : "사용 여부만 제공")}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flex: "none" }}>
+                <b style={{ fontSize: 12 }}>{n === null ? "—" : `${n}대`}</b>
+                {n !== null && n >= 3 && (
+                  <Link
+                    to={`/dashboard?tab=cctv&cctv=${d}`}
+                    style={{ fontSize: 11, fontWeight: 700, color: "var(--primary)", border: "1px solid var(--border-subtle)", borderRadius: 6, padding: "2px 8px", textDecoration: "none" }}
+                  >
+                    상세보기
+                  </Link>
+                )}
+              </div>
+            </div>
+          )
+        })}
         <p className="sp-note">사용 여부만 제공 · 영상은 &quot;영상 보기&quot;에서 재생 → CCTV 통합 조회</p>
       </div>
     </div>
