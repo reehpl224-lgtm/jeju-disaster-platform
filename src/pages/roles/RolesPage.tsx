@@ -107,7 +107,8 @@ export function RolesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border-subtle">
-              {SERVICE_IDS.map((id) => {
+              {/* [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖 — 복원하려면 filter 제거 */}
+              {SERVICE_IDS.filter((id) => id !== "heat" && id !== "wildfire").map((id) => {
                 const d = DOMAINS.find((x) => x.prefix === `/${id}`)
                 return (
                   <tr key={id}>

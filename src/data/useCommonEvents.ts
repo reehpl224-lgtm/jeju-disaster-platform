@@ -14,7 +14,8 @@ export function useCommonEvents(): { events: CommonEvent[]; pilot: "loading" | "
     const fromSp = sp.events.map(fromSpEvent)
     const fromPilot = pilot ? fromPilotBatch(pilot.batch) : []
     return {
-      events: [...fromSp, ...fromPilot].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt)),
+      // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 이벤트 목록에서 뺌 — 복원하려면 filter 제거
+      events: [...fromSp, ...fromPilot].filter((e) => e.serviceId !== "heat" && e.serviceId !== "wildfire").sort((a, b) => b.occurredAt.localeCompare(a.occurredAt)),
       pilot: (pilot === undefined ? "loading" : pilot === null ? "none" : "ok") as "loading" | "none" | "ok",
       spNullSources: sp.nullSources,
     }
