@@ -35,6 +35,8 @@ export type GisWhich = "status" | "obs" | "impact" | "response"
 type Domain = RiskMarker["domain"] | "all"
 
 const DOMAIN_LABEL: Record<string, string> = { river: "하천", coast: "연안", aqua: "저염분", heavyRain: "호우", typhoon: "태풍", heat: "폭염", wildfire: "산불", tsunami: "지진해일", snow: "대설" }
+// [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면 목록에서 뺌 — 복원하려면 filter 제거
+const VISIBLE_DOMAINS = Object.entries(DOMAIN_LABEL).filter(([d]) => d !== "heat" && d !== "wildfire")
 const SERVICE_OPTIONS: { id: Domain; label: string }[] = [
   { id: "all", label: "서비스 전체" },
   { id: "river", label: "하천" },
@@ -131,7 +133,7 @@ function StatusTab({ domain, onDomain, markers }: { domain: Domain; onDomain: (d
           ))}
         </div>
         <div className="sp-pills">
-          {Object.entries(DOMAIN_LABEL).map(([d, label]) => (
+          {VISIBLE_DOMAINS.map(([d, label]) => (
             <button
               key={d}
               type="button"
@@ -202,7 +204,7 @@ function ObsTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) =>
         </div>
         <p className="sp-note">{IS_STAGING ? "수집 상태는 위험등급 색과 분리 · 지점·장비 합계 중복 제거는 종합상황 R2에서" : "지점별 수신 상태 자료가 연계되지 않았습니다"}</p>
       </Card>
-      {Object.entries(DOMAIN_LABEL).map(([d, label]) => {
+      {VISIBLE_DOMAINS.map(([d, label]) => {
         const rows = points.filter((p) => p.domain === d)
         if (rows.length === 0) return null
         return (

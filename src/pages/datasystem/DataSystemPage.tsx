@@ -16,6 +16,7 @@ import { aquaDataSources } from "../../data/mockAqua"
 import { coastSafetyAssets } from "../../data/mockCoast"
 import { riverSensorCheck } from "../../data/mockRiver"
 import { IS_STAGING } from "../../data/appMode"
+import { LegacyContactLine } from "../../components/ui/LegacyContactLine"
 import { LegacyFeedTable } from "../../components/ui/LegacyFeedTable"
 
 /**
@@ -71,15 +72,18 @@ const LEGACY_TARGETS: Record<(typeof legacySystems)[number]["id"], TargetTag[]> 
   "ls-flood-mgmt": [{ label: "호우", href: "/heavy-rain" }],
   "ls-rain-alert": [{ label: "호우", href: "/heavy-rain" }],
   "ls-flood-warn": [{ label: "호우", href: "/heavy-rain" }],
-  "ls-river-mon": [{ label: "하천범람", href: "/river" }],
-  "ls-river-flow": [{ label: "하천범람", href: "/river" }],
+  // 하천 수위·유속은 풍수해(레거시) 서비스의 데이터라 호우에 둔다 — 실증 서비스 하천범람과는 별개(실증이 보완하는 관계는 이후 단계)
+  "ls-river-mon": [{ label: "호우(하천 수위)", href: "/heavy-rain" }],
+  "ls-river-flow": [{ label: "호우(하천 유속)", href: "/heavy-rain" }],
   "ls-sgp-rain": [{ label: "호우", href: "/heavy-rain" }],
-  "ls-2": [{ label: "공통(총괄)", href: "/dashboard" }],
+  "ls-2": [{ label: "공통(총괄)", href: "/dashboard" }, { label: "태풍(피해 이력)", href: "/typhoon" }],
   "ls-3": [{ label: "상황전파·보고체계", href: "/propagation" }],
   "ls-5": [{ label: "상황전파·보고체계", href: "/propagation" }],
   "ls-6": [{ label: "기타" }],
   "ls-7": [{ label: "통합 대시보드(CCTV 통합조회)", href: "/dashboard" }],
   "ls-snow": [{ label: "대설", href: "/snow" }],
+  "ls-prov-cctv": [{ label: "통합 대시보드(CCTV)", href: "/dashboard" }],
+  "ls-alert-dispatch": [{ label: "상황전파·보고체계", href: "/propagation" }],
   "ls-quake": [{ label: "지진해일", href: "/tsunami" }],
 }
 
@@ -177,6 +181,7 @@ function ServiceView({ prefix, title }: { prefix: string; title: string }) {
                   <p className="mt-0.5 text-xs text-white/35">
                     운영 주체 {s.operator} · {s.note}
                   </p>
+                  <LegacyContactLine id={s.id} />
                   <LegacyFeedTable id={s.id} />
                 </div>
                 <RiskBadge level={LEGACY_STATUS_LEVEL[s.linkStatus]} label={s.linkStatus} />
@@ -293,6 +298,7 @@ function AllSystemsView() {
                   운영 주체 {system.operator} · {system.note}
                 </p>
                 <TargetTags tags={LEGACY_TARGETS[system.id]} />
+                <LegacyContactLine id={system.id} />
                 <LegacyFeedTable id={system.id} />
               </div>
               <RiskBadge level={LEGACY_STATUS_LEVEL[system.linkStatus]} label={system.linkStatus} />

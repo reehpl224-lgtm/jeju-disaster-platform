@@ -1,14 +1,12 @@
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
-import { LegacyFeedTable } from "../../components/ui/LegacyFeedTable"
+import { LegacySystemList } from "../../components/ui/LegacySystemList"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { IS_STAGING } from "../../data/appMode"
 import { useCctvCameras } from "../../data/cctvLive"
 import { LEVEL_SAMPLE, levelAlertsOf, levelStageOf } from "../../data/levelAlerts"
-import { legacySystems } from "../../data/mockHeavyRain"
 import type { CctvCamera } from "../../types/domain"
 
-const LINK_LEVEL = { "연계 진행중": "safe", "협의 중": "caution", 미연계: "offline" } as const
 const DOMAIN_LABEL: Record<CctvCamera["domain"], string> = { river: "하천", coast: "월파", aqua: "물놀이", snow: "적설", general: "기타" }
 const STAGE_LEVEL = { 관심: "caution", 주의: "warning", 경계: "alert", 심각: "danger" } as const
 
@@ -65,26 +63,7 @@ export function CitySystemsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {CITIES.map(({ city, systems, cctvNote }) => (
           <Card key={city} title={city} subtitle="행정시 전용 시스템 + CCTV">
-            <ul className="flex flex-col divide-y divide-border-subtle">
-              {systems.map((id) => {
-                const s = legacySystems.find((x) => x.id === id)
-                if (!s) return null
-                return (
-                  <li key={id} className="py-3 text-sm">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-medium text-white/85">{s.name}</p>
-                        <p className="mt-0.5 text-xs text-white/35">
-                          운영 주체 {s.operator} · {s.note}
-                        </p>
-                      </div>
-                      <RiskBadge level={LINK_LEVEL[s.linkStatus]} label={s.linkStatus} />
-                    </div>
-                    <LegacyFeedTable id={id} open />
-                  </li>
-                )
-              })}
-            </ul>
+            <LegacySystemList ids={systems} />
             <div className="mt-3">
               <CctvBox city={city} note={cctvNote} />
             </div>

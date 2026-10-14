@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
+import { LegacyAlertHistoryCard } from "../../components/ui/LegacyDataCards"
 import { ResponseRecords } from "./ResponseRecords"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { incidentRecords, reportsSummary } from "../../data/mockReports"
@@ -93,6 +94,8 @@ export function ReportsListPage() {
       </div>
 
       <ResponseRecords />
+
+      <LegacyAlertHistoryCard />
 
       <Card>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">

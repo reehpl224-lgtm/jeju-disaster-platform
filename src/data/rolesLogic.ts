@@ -25,7 +25,7 @@ export const PERMS = [
   { key: "orderResult", label: "조치 결과 등록(수행 시작·완료·실패)", paths: [] },
   { key: "propagation", label: "상황전파·보고체계", paths: ["/propagation"] },
   { key: "reports", label: "이력·보고서", paths: ["/reports"] },
-  { key: "system", label: "시스템 상태·연계현황·실증현황", paths: ["/monitoring", "/data-systems", "/city-systems", "/data-usage", "/pilot-status", "/mock-api"] },
+  { key: "system", label: "시스템 상태·연계현황·실증현황", paths: ["/monitoring", "/data-systems", "/province-systems", "/city-systems", "/data-usage", "/pilot-status", "/mock-api"] },
   { key: "input", label: "패널 입력·더미데이터", paths: ["/panel-input", "/dummy-data"] },
   { key: "roles", label: "역할·권한 관리", paths: ["/roles"] },
   { key: "audit", label: "이용 이력 조회", paths: ["/audit"] },

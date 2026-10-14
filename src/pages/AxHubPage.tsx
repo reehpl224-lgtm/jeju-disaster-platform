@@ -1,4 +1,6 @@
 import { Card } from "../components/ui/Card"
+import { IS_STAGING } from "../data/appMode"
+import { LEGACY_FEEDS } from "../data/legacyFeed"
 import { legacySystems } from "../data/mockHeavyRain"
 import { HubLinkPage } from "./HubLinkPage"
 
@@ -32,6 +34,21 @@ export function AxHubPage() {
             </div>
           ))}
         </div>
+        <h3 className="mt-4 text-xs font-bold text-white/70">레거시 수신 데이터 {IS_STAGING ? "(샘플)" : "(연계 전)"}</h3>
+        <ul className="mt-1 grid gap-2 sm:grid-cols-2">
+          {legacySystems
+            .filter((s) => LEGACY_FEEDS[s.id])
+            .map((s) => {
+              const f = LEGACY_FEEDS[s.id]
+              return (
+                <li key={s.id} className="rounded-lg border border-white/15 p-2 text-xs">
+                  <p className="font-semibold text-white/85">{s.name}</p>
+                  <p className="mt-0.5 text-white/45">{f.items}</p>
+                  <p className="mt-0.5 text-white/60">{IS_STAGING ? `${f.rows.length}건 · 기준 ${f.asOf} · 임의 값` : "연계 전 — 수신된 데이터가 없습니다"}</p>
+                </li>
+              )
+            })}
+        </ul>
         <p className="mt-3 text-xs text-white/40">시스템별 상세 현황은 데이터 시스템 연계현황(/data-systems)에서 확인합니다.</p>
       </Card>
     </HubLinkPage>

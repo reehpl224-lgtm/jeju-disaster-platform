@@ -14,6 +14,9 @@ export interface LevelPoint {
   /** 하천명 또는 센서 번호 */
   group: string
   place: string
+  /** 지도 표시용 근사 위치(임의) */
+  lat: number
+  lng: number
   levelM: number
   /** "YYYY-MM-DDTHH:mm:ss" */
   at: string
@@ -22,12 +25,12 @@ export interface LevelPoint {
 }
 
 export const LEVEL_SAMPLE: LevelPoint[] = [
-  { id: "lv-hancheon", system: "ls-river-mon", group: "한천", place: "용연", levelM: 1.12, at: "2026-10-13T09:40:00", steps: { 관심: 0.6, 주의: 1.0, 경계: 1.5, 심각: 2.0 } },
-  { id: "lv-sanjicheon", system: "ls-river-mon", group: "산지천", place: "동문교", levelM: 0.48, at: "2026-10-13T09:40:00", steps: { 관심: 0.6, 주의: 1.0, 경계: 1.5, 심각: 2.0 } },
-  { id: "lv-hwabukcheon", system: "ls-river-mon", group: "화북천", place: "화북교", levelM: 0.35, at: "2026-10-13T09:40:00", steps: { 관심: 0.5, 주의: 0.9, 경계: 1.3, 심각: 1.8 } },
-  { id: "lv-j014", system: "ls-flood-warn", group: "침수센서 J-014", place: "제주시 한천 인근", levelM: 0.12, at: "2026-10-13T09:40:00", steps: { 관심: 0.15, 주의: 0.3, 경계: 0.45, 심각: 0.6 } },
-  { id: "lv-j037", system: "ls-flood-warn", group: "침수센서 J-037", place: "제주시 건입동", levelM: 0.47, at: "2026-10-13T09:40:00", steps: { 관심: 0.15, 주의: 0.3, 경계: 0.45, 심각: 0.6 } },
-  { id: "lv-j052", system: "ls-flood-warn", group: "침수센서 J-052", place: "제주시 화북", levelM: 0.05, at: "2026-10-13T09:40:00", steps: { 관심: 0.15, 주의: 0.3, 경계: 0.45, 심각: 0.6 } },
+  { id: "lv-hancheon", system: "ls-river-mon", group: "한천", place: "용연", lat: 33.5139, lng: 126.5106, levelM: 1.12, at: "2026-10-13T09:40:00", steps: { 관심: 0.6, 주의: 1.0, 경계: 1.5, 심각: 2.0 } },
+  { id: "lv-sanjicheon", system: "ls-river-mon", group: "산지천", place: "동문교", lat: 33.5128, lng: 126.529, levelM: 0.48, at: "2026-10-13T09:40:00", steps: { 관심: 0.6, 주의: 1.0, 경계: 1.5, 심각: 2.0 } },
+  { id: "lv-hwabukcheon", system: "ls-river-mon", group: "화북천", place: "화북교", lat: 33.5258, lng: 126.5775, levelM: 0.35, at: "2026-10-13T09:40:00", steps: { 관심: 0.5, 주의: 0.9, 경계: 1.3, 심각: 1.8 } },
+  { id: "lv-j014", system: "ls-flood-warn", group: "침수센서 J-014", place: "제주시 한천 인근", lat: 33.509, lng: 126.5135, levelM: 0.12, at: "2026-10-13T09:40:00", steps: { 관심: 0.15, 주의: 0.3, 경계: 0.45, 심각: 0.6 } },
+  { id: "lv-j037", system: "ls-flood-warn", group: "침수센서 J-037", place: "제주시 건입동", lat: 33.519, lng: 126.5385, levelM: 0.47, at: "2026-10-13T09:40:00", steps: { 관심: 0.15, 주의: 0.3, 경계: 0.45, 심각: 0.6 } },
+  { id: "lv-j052", system: "ls-flood-warn", group: "침수센서 J-052", place: "제주시 화북", lat: 33.5245, lng: 126.575, levelM: 0.05, at: "2026-10-13T09:40:00", steps: { 관심: 0.15, 주의: 0.3, 경계: 0.45, 심각: 0.6 } },
 ]
 
 const ORDER: LevelStage[] = ["심각", "경계", "주의", "관심"]

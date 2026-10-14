@@ -4,6 +4,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap, WMSTileLayer, ZoomControl } from "react-leaflet"
 import { cctvStatusLabel, openCctvPlayer } from "../../data/cctvLive"
 import { IS_STAGING } from "../../data/appMode"
+import { LEVEL_SAMPLE, levelStageOf, type LevelPoint } from "../../data/levelAlerts"
 import { AGENCY_SAMPLE_POINTS } from "../../data/sampleAgencies"
 import type { CctvCamera, RiskLevel, RiskMarker } from "../../types/domain"
 import { placeTileLabels, type LabelSpot } from "./labelPlacement"
@@ -35,6 +36,9 @@ const MARKER_COLOR: Record<RiskLevel, string> = {
 const JEJU_CENTER: [number, number] = [33.38, 126.53]
 
 type MapMode = "general" | "weather" | "weatherModel" | "riskLevel" | "cctv" | "aerial"
+
+/** 센서 라디오 → 값을 주는 레거시 시스템 */
+const SENSOR_RADIO_SYSTEM: Record<string, LevelPoint["system"]> = { "river-level-gauge": "ls-river-mon", "river-flood-sensor-center": "ls-flood-warn" }
 
 const MODE_BUTTONS: { key: MapMode; label: string }[] = [
   { key: "weather", label: "기상/재난" },
@@ -312,6 +316,9 @@ export function JejuTileMap({
   const cctvSel = radioSel["cctv"]
   const cctvDomains = cctvSel ? CCTV_RADIO_DOMAINS[cctvSel] : undefined
   const shownCctv = !cctvDomains ? [] : cctvDomains === "all" ? geoCctv : geoCctv.filter((c) => cctvDomains.includes(c.domain))
+  // 스테이징만: 센서 라디오(하천 수위계·침수정보센터)는 레거시 수위 연계 전이라 임의 샘플 지점을 그린다
+  const sensorSystem = cctvSel ? SENSOR_RADIO_SYSTEM[cctvSel] : undefined
+  const sensorPoints = IS_STAGING && mode === "cctv" && sensorSystem ? LEVEL_SAMPLE.filter((p) => p.system === sensorSystem) : []
   const agencyChecked = TOOLBOX_PANELS.find((p) => p.id === "agency")?.sections.flatMap((s) => s.items).filter((i) => toolboxChecked[i.id]) ?? []
   // 스테이징만: 유관기관 위치 자료 수령 전이라 샘플 위치를 그린다
   const agencyPoints = IS_STAGING && activePanelId === "agency" ? agencyChecked.flatMap((i) => (AGENCY_SAMPLE_POINTS[i.id] ?? []).map((p) => ({ ...p, kind: i.label }))) : []
@@ -333,7 +340,11 @@ export function JejuTileMap({
         ? `${labelOf(riskSel)} — 위험 마커 ${shownMarkers.length}건 표출 중`
         : `${labelOf(riskSel)} — 표기 기준 확정 전(TBD)`
   } else if (mode === "cctv" && cctvSel) {
-    layerNotice = cctvDomains ? `${labelOf(cctvSel)} — ${shownCctv.length}대 표출 중` : `${labelOf(cctvSel)} — 표기 기준 확정 전(TBD)`
+    layerNotice = cctvDomains
+      ? `${labelOf(cctvSel)} — ${shownCctv.length}대 표출 중`
+      : sensorPoints.length
+        ? `${labelOf(cctvSel)} — 레거시 수위 샘플 ${sensorPoints.length}곳 표출 중(연계 전 임의 값, 10월 중순 수령 예정)`
+        : `${labelOf(cctvSel)} — 표기 기준 확정 전(TBD)`
   }
 
   function toggleToolboxItem(id: string) {
@@ -397,6 +408,18 @@ export function JejuTileMap({
             </Tooltip>
           </CircleMarker>
         ))}
+
+        {sensorPoints.map((p) => {
+          const stage = levelStageOf(p)
+          const color = stage === "심각" ? "#e5484d" : stage === "경계" ? "#f08a24" : stage === "주의" ? "#e5c339" : stage === "관심" ? "#8ec21f" : "#3b8ee0"
+          return (
+            <CircleMarker key={p.id} center={[p.lat, p.lng]} radius={7} pathOptions={{ color, fillColor: color, fillOpacity: 0.85, weight: 2 }}>
+              <Tooltip direction="top" offset={[0, -6]}>
+                {p.group} {p.place} · 수위 {p.levelM.toFixed(2)}m · {stage ?? "기준 미만"} (샘플)
+              </Tooltip>
+            </CircleMarker>
+          )
+        })}
 
         {mode === "cctv"
           ? shownCctv.map((cam) => (

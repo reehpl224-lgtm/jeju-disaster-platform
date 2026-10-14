@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { dummyTime } from "../data/dummyClock"
 import { Card } from "../components/ui/Card"
+import { LegacyCollectionCard } from "../components/ui/LegacyDataCards"
 import { StatTiles } from "../components/ui/StatTiles"
 import { RiskBadge } from "../components/ui/RiskBadge"
 import {
@@ -98,6 +99,8 @@ export function MonitoringPage() {
           ))}
         </ul>
       </Card>
+
+      <LegacyCollectionCard />
 
       <Card title="데이터 수집원 및 센서 연결 상태" dummy>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

@@ -108,6 +108,20 @@ export const legacySystems: LegacySystemStatus[] = [
     note: "ITS센터 CCTV는 예산·라이선스 문제로 일부만 연계 검토",
   },
   {
+    id: "ls-prov-cctv",
+    name: "CCTV 시스템(통합 관제 센터)",
+    operator: "제주특별자치도 · 섬엔지니어링(유지보수)",
+    linkStatus: "협의 중",
+    note: "도 자체 관제 약 12,000대(불법주정차 포함 약 18,000대) — 영상은 저장하지 않고 실시간 스트리밍 링크로만 표출, 30일 순환 삭제. 풍수해 관제용만 연계 검토",
+  },
+  {
+    id: "ls-alert-dispatch",
+    name: "경보 전파 시스템",
+    operator: "제주특별자치도",
+    linkStatus: "미연계",
+    note: "현황 정보 요청표(2026-09-20)에 시스템명만 있고 담당·관리기업 정보가 비어 있음 — 담당 확인 필요(문자·전광판·음성 전파 이력 대상)",
+  },
+  {
     id: "ls-snow",
     name: "적설계(도 자체 운영 장비)",
     operator: "제주특별자치도 자연재난과",

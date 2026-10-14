@@ -42,6 +42,7 @@ const OPS_NAV = [
   { to: "/propagation", label: "상황전파·보고체계", icon: "📡" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
   { to: "/data-systems", label: "데이터 시스템 연계현황", icon: "🗄️" },
+  { to: "/province-systems", label: "제주도청 시스템", icon: "🏛️" },
   { to: "/city-systems", label: "행정시 전용 시스템", icon: "🏙️" },
   { to: "/data-usage", label: "데이터 사용 명세", icon: "🗂️" },
   { to: "/integration", label: "연계 오류·검증", icon: "🛠️" },

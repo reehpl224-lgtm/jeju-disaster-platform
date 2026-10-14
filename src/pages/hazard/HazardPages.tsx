@@ -1,5 +1,7 @@
 import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
+import { LegacyContactLine } from "../../components/ui/LegacyContactLine"
+import { LegacyFeedTable } from "../../components/ui/LegacyFeedTable"
 import { Card } from "../../components/ui/Card"
 import { DataSourceCategoryPanel } from "../../components/ui/DataSourceCategoryPanel"
 import { LIVE } from "../../components/ui/dataSource"
@@ -56,6 +58,8 @@ function LegacyCard({ h }: { h: HazardDef }) {
               <p className="mt-0.5 text-xs text-white/40">
                 {s.operator} · {s.note}
               </p>
+              <LegacyContactLine id={s.id} />
+              <LegacyFeedTable id={s.id} />
             </li>
           ))}
         </ul>
