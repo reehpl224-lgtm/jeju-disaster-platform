@@ -59,7 +59,8 @@ export const TOOLBOX_PANELS: ToolboxPanel[] = [
         items: [
           { id: "flood", label: "홍수", defaultChecked: false },
           { id: "earthquake", label: "지진", defaultChecked: false },
-          { id: "wildfire", label: "산불", defaultChecked: false },
+          // [숨김 2026-10-14] 산불은 1차년도 범위(풍수해) 밖 — 복원하려면 주석 해제
+          // { id: "wildfire", label: "산불", defaultChecked: false },
           { id: "landslide", label: "산사태", defaultChecked: false },
         ],
       },

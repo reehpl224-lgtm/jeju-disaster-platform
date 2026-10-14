@@ -44,17 +44,19 @@ const TyphoonDataPage = lazy(() => import("./pages/typhoon/TyphoonDataPage").the
 const TyphoonAnalysisPage = lazy(() => import("./pages/typhoon/TyphoonAnalysisPage").then((m) => ({ default: m.TyphoonAnalysisPage })))
 const TyphoonAlertPage = lazy(() => import("./pages/typhoon/TyphoonAlertPage").then((m) => ({ default: m.TyphoonAlertPage })))
 const TyphoonClosurePage = lazy(() => import("./pages/typhoon/TyphoonClosurePage").then((m) => ({ default: m.TyphoonClosurePage })))
-const HeatHomePage = lazy(() => import("./pages/heat/HeatHomePage").then((m) => ({ default: m.HeatHomePage })))
-const HeatDataPage = lazy(() => import("./pages/heat/HeatDataPage").then((m) => ({ default: m.HeatDataPage })))
-const HeatAnalysisPage = lazy(() => import("./pages/heat/HeatAnalysisPage").then((m) => ({ default: m.HeatAnalysisPage })))
-const HeatAlertPage = lazy(() => import("./pages/heat/HeatAlertPage").then((m) => ({ default: m.HeatAlertPage })))
-const HeatClosurePage = lazy(() => import("./pages/heat/HeatClosurePage").then((m) => ({ default: m.HeatClosurePage })))
+// [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 주석을 해제
+// const HeatHomePage = lazy(() => import("./pages/heat/HeatHomePage").then((m) => ({ default: m.HeatHomePage })))
+// const HeatDataPage = lazy(() => import("./pages/heat/HeatDataPage").then((m) => ({ default: m.HeatDataPage })))
+// const HeatAnalysisPage = lazy(() => import("./pages/heat/HeatAnalysisPage").then((m) => ({ default: m.HeatAnalysisPage })))
+// const HeatAlertPage = lazy(() => import("./pages/heat/HeatAlertPage").then((m) => ({ default: m.HeatAlertPage })))
+// const HeatClosurePage = lazy(() => import("./pages/heat/HeatClosurePage").then((m) => ({ default: m.HeatClosurePage })))
 const HazardHomePage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardHomePage })))
 const HazardDataPage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardDataPage })))
 const HazardAnalysisPage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardAnalysisPage })))
 const HazardAlertPage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardAlertPage })))
 const HazardClosurePage = lazy(() => import("./pages/hazard/HazardPages").then((m) => ({ default: m.HazardClosurePage })))
-const HAZARD_IDS = ["wildfire", "tsunami", "snow"] as const
+// [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 주석을 해제(산불)
+const HAZARD_IDS = [/* "wildfire", */ "tsunami", "snow"] as const
 const ApprovalsPage = lazy(() => import("./pages/approvals/ApprovalsPage").then((m) => ({ default: m.ApprovalsPage })))
 const PanelInputPage = lazy(() => import("./pages/PanelInputPage").then((m) => ({ default: m.PanelInputPage })))
 const PropagationHomePage = lazy(() => import("./pages/propagation/PropagationHomePage").then((m) => ({ default: m.PropagationHomePage })))
@@ -68,6 +70,7 @@ const IncidentLogPage = lazy(() => import("./pages/reports/IncidentLogPage").the
 const EventsPage = lazy(() => import("./pages/events/EventsPage").then((m) => ({ default: m.EventsPage })))
 const AuditPage = lazy(() => import("./pages/audit/AuditPage").then((m) => ({ default: m.AuditPage })))
 const CriteriaPage = lazy(() => import("./pages/criteria/CriteriaPage").then((m) => ({ default: m.CriteriaPage })))
+const DataUsagePage = lazy(() => import("./pages/datausage/DataUsagePage").then((m) => ({ default: m.DataUsagePage })))
 const IntegrationPage = lazy(() => import("./pages/integration/IntegrationPage").then((m) => ({ default: m.IntegrationPage })))
 const ScenariosPage = lazy(() => import("./pages/scenarios/ScenariosPage").then((m) => ({ default: m.ScenariosPage })))
 const MockApiPage = lazy(() => import("./pages/mockapi/MockApiPage").then((m) => ({ default: m.MockApiPage })))
@@ -140,12 +143,14 @@ export default function App() {
           <Route path="/typhoon/alert" element={<TyphoonAlertPage />} />
           <Route path="/typhoon/closure" element={<TyphoonClosurePage />} />
 
+          {/* [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 주석을 해제
           <Route path="/heat" element={<DomainBoardPage domain="heat" />} />
           <Route path="/heat/dashboard" element={<HeatHomePage />} />
           <Route path="/heat/data" element={<HeatDataPage />} />
           <Route path="/heat/analysis" element={<HeatAnalysisPage />} />
           <Route path="/heat/alert" element={<HeatAlertPage />} />
           <Route path="/heat/closure" element={<HeatClosurePage />} />
+          */}
 
           {HAZARD_IDS.flatMap((id) => [
             <Route key={`${id}`} path={`/${id}`} element={<DomainBoardPage domain={id} />} />,
@@ -164,6 +169,7 @@ export default function App() {
           <Route path="/roles" element={<RolesPage />} />
           <Route path="/mock-api" element={<MockApiPage />} />
           <Route path="/scenarios" element={<ScenariosPage />} />
+          <Route path="/data-usage" element={<DataUsagePage />} />
           <Route path="/integration" element={<IntegrationPage />} />
           <Route path="/criteria" element={<CriteriaPage />} />
           <Route path="/audit" element={<AuditPage />} />

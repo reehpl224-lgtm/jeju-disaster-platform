@@ -166,10 +166,11 @@ export const SAMPLE_SERVICE_SENSORS: SpServiceSensors[] = [
   { id: "aqua", title: "저염분 고수온", count: 4, level: "warning" },
   { id: "coast", title: "연안 안전관리", count: 13, level: "caution" },
   { id: "typhoon", title: "태풍", count: 20, level: "caution" },
-  { id: "heat", title: "폭염 대응", count: 20, level: "caution" },
+  // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
+  // { id: "heat", title: "폭염 대응", count: 20, level: "caution" },
   { id: "heavy-rain", title: "호우", count: 26, level: "safe" },
   { id: "snow", title: "대설", count: 12, level: "safe" },
-  { id: "wildfire", title: "산불", count: 15, level: "safe" },
+  // { id: "wildfire", title: "산불", count: 15, level: "safe" },
   { id: "tsunami", title: "지진해일", count: 3, level: "safe" },
 ]
 export const SAMPLE_SENSOR_ALERTS: { name: string; service: string; reason: string; value: string; level: RiskLevel; badge: string }[] = [
@@ -236,9 +237,9 @@ export const SAMPLE_SERVICE_STAGES: SpServiceStage[] = [
   { id: "aqua", title: "저염분 고수온", level: "warning", count: 2, done: 3, total: 5 },
   { id: "coast", title: "연안 안전관리", level: "warning", count: 4, done: 2, total: 4 },
   { id: "heavy-rain", title: "호우", level: "caution", count: 1, done: 1, total: 4 },
-  { id: "heat", title: "폭염 대응", level: "caution", count: 2, done: 2, total: 4 },
+  // { id: "heat", title: "폭염 대응", level: "caution", count: 2, done: 2, total: 4 },
   { id: "typhoon", title: "태풍", level: "safe", count: null, done: 0, total: 0 },
-  { id: "wildfire", title: "산불", level: "safe", count: null, done: 0, total: 0 },
+  // { id: "wildfire", title: "산불", level: "safe", count: null, done: 0, total: 0 },
   { id: "snow", title: "대설", level: "safe", count: null, done: 0, total: 0 },
   { id: "tsunami", title: "지진해일", level: "safe", count: null, done: 0, total: 0 },
 ]

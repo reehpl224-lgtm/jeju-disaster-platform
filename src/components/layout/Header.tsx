@@ -23,8 +23,9 @@ type DashboardTabKey = (typeof DASHBOARD_TABS)[number]["key"]
 const SERVICE_NAV = [
   { to: "/heavy-rain", label: "호우", icon: "☔" },
   { to: "/typhoon", label: "태풍", icon: "🌀" },
-  { to: "/heat", label: "폭염 대응", icon: "🔆" },
-  { to: "/wildfire", label: "산불", icon: "🔥" },
+  // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
+  // { to: "/heat", label: "폭염 대응", icon: "🔆" },
+  // { to: "/wildfire", label: "산불", icon: "🔥" },
   { to: "/tsunami", label: "지진해일", icon: "🛟" },
   { to: "/snow", label: "대설", icon: "❄️" },
   { to: "/river", label: "하천범람", icon: "🏞️" },
@@ -41,6 +42,7 @@ const OPS_NAV = [
   { to: "/propagation", label: "상황전파·보고체계", icon: "📡" },
   { to: "/monitoring", label: "시스템 상태", icon: "🖥️" },
   { to: "/data-systems", label: "데이터 시스템 연계현황", icon: "🗄️" },
+  { to: "/data-usage", label: "데이터 사용 명세", icon: "🗂️" },
   { to: "/integration", label: "연계 오류·검증", icon: "🛠️" },
   { to: "/mock-api", label: "Mock API", icon: "🧪" },
   { to: "/dummy-data", label: "더미데이터", icon: "📥" },

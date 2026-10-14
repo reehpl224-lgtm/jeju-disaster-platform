@@ -24,7 +24,8 @@ test("영역이 하나라도 입력되면 그 탭은 '전체 샘플'이 아니�
   assert.equal(fullySample.sensor({ sensorAlerts: [] }), false)
 })
 
-test("서비스 목록은 중복 없는 9개", () => {
+// 폭염·산불은 1차년도 범위 밖이라 화면에서 뺐다(2026-10-14) — 9개 → 7개
+test("서비스 목록은 중복 없는 7개", () => {
   assert.equal(new Set(SERVICES.map((s) => s.id)).size, SERVICES.length)
-  assert.equal(SERVICES.length, 9)
+  assert.equal(SERVICES.length, 7)
 })

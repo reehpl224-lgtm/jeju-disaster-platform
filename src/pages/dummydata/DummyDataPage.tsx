@@ -95,7 +95,7 @@ export function DummyDataPage() {
           )}
         </div>
         <p className="mt-3 text-xs text-white/45">
-          대상: 호우 자체 관측망, 효돈천 수위센서, 양식장 수집소스 상태, 연안 스마트폴. 태풍·폭염은 자체 비실측 관측망이 없어 제외합니다.
+          대상: 호우 자체 관측망, 효돈천 수위센서, 양식장 수집소스 상태, 연안 스마트폴. 태풍은 자체 비실측 관측망이 없어 제외합니다.
         </p>
         {error && (
           <p role="alert" className="mt-3 text-sm text-red-200">

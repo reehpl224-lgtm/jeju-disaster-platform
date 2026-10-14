@@ -1,8 +1,8 @@
 import { AQUA_NAV } from "../../pages/aqua/aquaNav"
 import { COAST_NAV } from "../../pages/coast/coastNav"
-import { HEAT_NAV } from "../../pages/heat/heatNav"
+// import { HEAT_NAV } from "../../pages/heat/heatNav" // [숨김] 폭염
 import { HEAVY_RAIN_NAV } from "../../pages/heavyrain/heavyRainNav"
-import { SNOW_NAV, TSUNAMI_NAV, WILDFIRE_NAV } from "../../pages/hazard/hazardNav"
+import { SNOW_NAV, TSUNAMI_NAV /* , WILDFIRE_NAV */ } from "../../pages/hazard/hazardNav"
 import { RIVER_NAV } from "../../pages/river/riverNav"
 import { TYPHOON_NAV } from "../../pages/typhoon/typhoonNav"
 
@@ -21,8 +21,9 @@ export const underPath = (pathname: string, path: string) => pathname === path |
 export const DOMAINS: { prefix: string; title: string; icon: string; items: NavItem[] }[] = [
   { prefix: "/heavy-rain", title: "호우", icon: "☔", items: HEAVY_RAIN_NAV },
   { prefix: "/typhoon", title: "태풍", icon: "🌀", items: TYPHOON_NAV },
-  { prefix: "/heat", title: "폭염 대응", icon: "🔆", items: HEAT_NAV },
-  { prefix: "/wildfire", title: "산불", icon: "🔥", items: WILDFIRE_NAV },
+  // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
+  // { prefix: "/heat", title: "폭염 대응", icon: "🔆", items: HEAT_NAV },
+  // { prefix: "/wildfire", title: "산불", icon: "🔥", items: WILDFIRE_NAV },
   { prefix: "/tsunami", title: "지진해일", icon: "🛟", items: TSUNAMI_NAV },
   { prefix: "/snow", title: "대설", icon: "❄️", items: SNOW_NAV },
   { prefix: "/river", title: "하천범람", icon: "🏞️", items: RIVER_NAV },

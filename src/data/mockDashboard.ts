@@ -29,8 +29,9 @@ export const serviceStatusCards: {
   // counts는 각 서비스 원본(weatherStations·typhoonReports·heatLevelInfo·riverStatuses·aquaFarmTotals·coastEvents)과 반드시 같은 수치를 쓸 것
   { id: "heavy-rain", kind: "legacy", title: "호우", icon: "☔", href: "/heavy-rain", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
   { id: "typhoon", kind: "legacy", title: "태풍", icon: "🌀", href: "/typhoon", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
-  { id: "heat", kind: "legacy", title: "폭염 대응", icon: "🔆", href: "/heat", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
-  { id: "wildfire", kind: "legacy", title: "산불", icon: "🔥", href: "/wildfire", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
+  // { id: "heat", kind: "legacy", title: "폭염 대응", icon: "🔆", href: "/heat", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
+  // { id: "wildfire", kind: "legacy", title: "산불", icon: "🔥", href: "/wildfire", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
   { id: "tsunami", kind: "legacy", title: "지진해일", icon: "🛟", href: "/tsunami", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
   { id: "snow", kind: "legacy", title: "대설", icon: "❄️", href: "/snow", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
   { id: "river", kind: "pilot", title: "하천범람", icon: "🏞️", href: "/river", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
@@ -60,7 +61,8 @@ export const aiInsights: AiInsight[] = [
   { id: "aqua", title: "해양 위험 예측", basis: "다중모델 + 위성 + 현장관측" },
   { id: "heavy-rain", title: "돌발 강우 조기경보", basis: "우량계 실측 추이 vs 기상청 예보 비교" },
   { id: "typhoon", title: "태풍 경로 안내", basis: "기상청 발표 자료 수신 (자체 관측 없음)" },
-  { id: "heat", title: "폭염 특보 및 열섬 안내", basis: "체감온도 관측 + 열섬 구간(시원한 길·더운 길) 분석" },
+  // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
+  // { id: "heat", title: "폭염 특보 및 열섬 안내", basis: "체감온도 관측 + 열섬 구간(시원한 길·더운 길) 분석" },
 ]
 
 export const agencyStatuses: AgencyStatus[] = []

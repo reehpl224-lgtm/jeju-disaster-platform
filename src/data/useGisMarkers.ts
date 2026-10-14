@@ -14,8 +14,9 @@ const SERVICES: { id: string; domain: RiskMarker["domain"] }[] = [
   { id: "aqua", domain: "aqua" },
   { id: "heavy-rain", domain: "heavyRain" },
   { id: "typhoon", domain: "typhoon" },
-  { id: "heat", domain: "heat" },
-  { id: "wildfire", domain: "wildfire" },
+  // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
+  // { id: "heat", domain: "heat" },
+  // { id: "wildfire", domain: "wildfire" },
   { id: "tsunami", domain: "tsunami" },
   { id: "snow", domain: "snow" },
 ]

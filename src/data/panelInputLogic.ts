@@ -17,9 +17,10 @@ export const SERVICES: { id: string; title: string; short: string }[] = [
   { id: "aqua", title: "저염분 고수온", short: "저염분" },
   { id: "coast", title: "연안 안전관리", short: "연안" },
   { id: "heavy-rain", title: "호우", short: "호우" },
-  { id: "heat", title: "폭염 대응", short: "폭염" },
+  // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
+  // { id: "heat", title: "폭염 대응", short: "폭염" },
   { id: "typhoon", title: "태풍", short: "태풍" },
-  { id: "wildfire", title: "산불", short: "산불" },
+  // { id: "wildfire", title: "산불", short: "산불" },
   { id: "snow", title: "대설", short: "대설" },
   { id: "tsunami", title: "지진해일", short: "지진해일" },
 ]

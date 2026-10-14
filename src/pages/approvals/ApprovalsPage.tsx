@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { Card } from "../../components/ui/Card"
 import { PendingOrderApprovals } from "./PendingOrderApprovals"
 import { RiskBadge } from "../../components/ui/RiskBadge"
-import { aquaBrief, coastBrief, heatBrief, hazardBrief, heavyRainBrief, riverBrief, typhoonBrief, type BriefRole, type BriefTask } from "../domain/leaderBriefs"
+import { aquaBrief, coastBrief, /* heatBrief, */ hazardBrief, heavyRainBrief, riverBrief, typhoonBrief, type BriefRole, type BriefTask } from "../domain/leaderBriefs"
 import type { RiskLevel } from "../../types/domain"
 
 /**
@@ -15,8 +15,9 @@ import type { RiskLevel } from "../../types/domain"
 const SERVICES = [
   { id: "heavy-rain", label: "호우", icon: "☔", brief: heavyRainBrief },
   { id: "typhoon", label: "태풍", icon: "🌀", brief: typhoonBrief },
-  { id: "heat", label: "폭염 대응", icon: "🔆", brief: heatBrief },
-  { id: "wildfire", label: "산불", icon: "🔥", brief: () => hazardBrief("wildfire") },
+  // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
+  // { id: "heat", label: "폭염 대응", icon: "🔆", brief: heatBrief },
+  // { id: "wildfire", label: "산불", icon: "🔥", brief: () => hazardBrief("wildfire") },
   { id: "tsunami", label: "지진해일", icon: "🛟", brief: () => hazardBrief("tsunami") },
   { id: "snow", label: "대설", icon: "❄️", brief: () => hazardBrief("snow") },
   { id: "river", label: "하천범람", icon: "🏞️", brief: riverBrief },

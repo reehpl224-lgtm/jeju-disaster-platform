@@ -95,7 +95,8 @@ const API_TARGETS: Record<(typeof apiLinks)[number]["id"], TargetTag[]> = {
     { label: "대시보드", href: "/dashboard" },
     { label: "하천범람", href: "/river" },
     { label: "연안 안전관리", href: "/coast" },
-    { label: "폭염", href: "/heat" },
+    // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
+    // { label: "폭염", href: "/heat" },
     { label: "호우", href: "/heavy-rain" },
     { label: "태풍", href: "/typhoon" },
     { label: "저염분 고수온", href: "/aqua" },

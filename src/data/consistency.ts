@@ -16,7 +16,7 @@ import * as AQ from "./mockAqua"
 import * as CO from "./mockCoast"
 import * as DB from "./mockDashboard"
 import * as HR from "./mockHeavyRain"
-import * as HT from "./mockHeat"
+// [숨김 2026-10-14] 폭염 — import * as HT from "./mockHeat"
 import * as RV from "./mockRiver"
 import * as TY from "./mockTyphoon"
 
@@ -55,7 +55,8 @@ export function checkConsistency(): ConsistencyIssue[] {
   const ty0 = TY.typhoonReports[0]
   const tyLevel: RiskLevel = !ty0 ? "safe" : ty0.status === "태풍경보" ? "alert" : ty0.status === "태풍주의보" ? "warning" : "caution"
   cardVsLevels("태풍", "typhoon", [tyLevel])
-  cardVsLevels("폭염", "heat", [HT.heatLevelInfo.level])
+  // [숨김 2026-10-14] 폭염은 1차년도 범위(풍수해) 밖이라 서비스 카드에서 뺌
+  // cardVsLevels("폭염", "heat", [HT.heatLevelInfo.level])
 
   // 2. 지도 마커 ↔ 원본 (확정 대상지 마커: 하천 2곳·연안 협재. 다른 마커를 추가하면 여기에 검사를 더한다)
   for (const s of RV.riverStatuses) eq("하천", `마커 ${s.id} 등급`, marker(s.id)?.level, s.level)

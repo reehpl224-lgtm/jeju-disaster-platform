@@ -52,8 +52,9 @@ const MAP_DOMAIN_FILTERS: { id: RiskMarker["domain"] | "all"; label: string }[] 
   { id: "all", label: "전체" },
   { id: "heavyRain", label: "호우" },
   { id: "typhoon", label: "태풍" },
-  { id: "heat", label: "폭염" },
-  { id: "wildfire", label: "산불" },
+  // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
+  // { id: "heat", label: "폭염" },
+  // { id: "wildfire", label: "산불" },
   { id: "tsunami", label: "지진해일" },
   { id: "snow", label: "대설" },
   { id: "river", label: "하천" },
