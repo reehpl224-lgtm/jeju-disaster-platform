@@ -107,6 +107,20 @@ export const legacySystems: LegacySystemStatus[] = [
     linkStatus: "미연계",
     note: "ITS센터 CCTV는 예산·라이선스 문제로 일부만 연계 검토",
   },
+  {
+    id: "ls-snow",
+    name: "적설계(도 자체 운영 장비)",
+    operator: "제주특별자치도 자연재난과",
+    linkStatus: "미연계",
+    note: "도 자체 운영 장비(강우량계·적설계·자동음성통보·CCTV) 중 하나 — 면담(2026-09-07)에서 확인, 데이터 연계 방식은 유지보수 업체와 협의 필요",
+  },
+  {
+    id: "ls-quake",
+    name: "지진가속도계측기",
+    operator: "제주특별자치도 · 제주시청·서귀포시청·도청 3곳",
+    linkStatus: "미연계",
+    note: "법정 의무 설치 장비 — 면담(2026-09-07)에서 확인, 데이터 연계 방식은 유지보수 업체와 협의 필요",
+  },
 ]
 
 /**
