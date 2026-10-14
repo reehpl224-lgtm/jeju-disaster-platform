@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { IS_STAGING } from "../../data/appMode"
-import { useCctvCameras, useCctvLoadState } from "../../data/cctvLive"
+import { cctvStatusLabel, useCctvCameras, useCctvLoadState } from "../../data/cctvLive"
 import { agencyStatuses, recentActions } from "../../data/mockDashboard"
 import { disasterResponseTeams } from "../../data/mockIncidents"
 import { dutyContacts } from "../../data/mockContacts"
@@ -12,7 +12,6 @@ import { useShelters } from "../../data/sheltersJeju"
 import {
   SAMPLE_AGENCIES,
   SAMPLE_GIS_ACTIONS,
-  SAMPLE_GIS_CCTV,
   SAMPLE_GIS_FACILITIES,
   SAMPLE_GIS_HEAT,
   SAMPLE_GIS_OBS,
@@ -24,6 +23,7 @@ import {
   type GisRecv,
 } from "../../data/sidePanelSamples"
 import type { RiskLevel, RiskMarker } from "../../types/domain"
+import { ObsMoreDialog, type ObsItem } from "./ObsMoreDialog"
 import { SpInputTag, SpRisk, SpSample } from "./primitives"
 import { levelName, spLevel } from "./spUtils"
 
@@ -173,26 +173,41 @@ const RECV: Record<GisRecv, { label: string; level: RiskLevel }> = {
   none: { label: "미연계", level: "offline" },
 }
 
-/** 제주시 감시 CCTV 카드 — 분야 id와 이름 */
-const CCTV_ROWS: [("coast" | "river" | "snow"), string][] = [
-  ["coast", "연안(월파) 감시"],
-  ["river", "하천 감시"],
-  ["snow", "대설(적설) 감시"],
-]
+/** CCTV 분야 이름 — CCTV 통합 조회의 '분야' 목록과 같다. 관측 목록에서는 이 분야가 항목 구분값(하천·연안·저염분·대설)으로 들어간다 */
+const CCTV_FIELD_LABEL: Record<string, string> = { river: "하천", coast: "월파(연안)", snow: "적설(대설)", aqua: "해안관측", general: "일반" }
+/** 항목 목록이 이 건수를 넘으면 5건만 보이고 '더보기'로 상세 페이지를 연다 */
+const LIST_LIMIT = 5
+/** 관측·CCTV 목록의 항목 — 서비스 항목에 CCTV 분야 '일반'(도심·관광지 관제용, 서비스 항목에 속하지 않음)을 더한다 */
+const OBS_GROUPS: [string, string][] = [...VISIBLE_DOMAINS, ["general", "일반"]]
 
 /** T2 · 관측·CCTV — 수집 상태 요약과 지점 목록, 제주시 감시 CCTV */
 function ObsTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) => void }) {
   const cameras = useCctvCameras()
   const load = useCctvLoadState()
   const cctvReal = load.phase === "ready" || load.phase === "partial"
-  const jejuCams = cameras.filter((c) => c.operator === "제주시")
-  const cnt = (d: string) => jejuCams.filter((c) => c.domain === d).length
-  const cctv = cctvReal ? { coast: cnt("coast"), river: cnt("river"), snow: cnt("snow") } : IS_STAGING ? SAMPLE_GIS_CCTV : null
-  const cctvTag = cctvReal ? "none" : MISSING
+  // '더보기'로 연 항목 — 팝업이 그 항목의 관측 지점과 CCTV를 모두 보여 준다
+  const [moreOf, setMoreOf] = useState<string | null>(null)
 
   // 지점별 수신 상태 자료가 없다 — 어느 환경이든 샘플(스테이징 "샘플", 프로토타입 "샘플 · 데이터 없음")
   const points = (IS_STAGING ? SAMPLE_GIS_OBS : []).filter((p) => domain === "all" || p.domain === domain)
   const recvCount = (r: GisRecv) => points.filter((p) => p.recv === r).length
+  // 한 항목의 목록 — 관측 지점을 먼저, 같은 분야의 CCTV를 뒤에(CCTV 분야 이름이 구분값)
+  const obsItems = (d: string): ObsItem[] => [
+    ...points
+      .filter((p) => p.domain === d)
+      .map((p) => ({ key: p.id, level: RECV[p.recv].level, tag: RECV[p.recv].label, name: p.name, sub: p.note, value: p.value })),
+    ...cameras
+      .filter((c) => c.domain === d)
+      .map((c) => ({
+        key: c.id,
+        level: (c.status === "online" ? "safe" : "offline") as RiskLevel,
+        tag: cctvStatusLabel(c),
+        name: c.name,
+        sub: `${CCTV_FIELD_LABEL[c.domain]} · CCTV · ${c.operator}`,
+        value: "CCTV",
+        cam: c,
+      })),
+  ]
 
   return (
     <div className="sp">
@@ -212,59 +227,48 @@ function ObsTab({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) =>
         </div>
         <p className="sp-note">{IS_STAGING ? "수집 상태는 위험등급 색과 분리 · 지점·장비 합계 중복 제거는 종합상황 R2에서" : "지점별 수신 상태 자료가 연계되지 않았습니다"}</p>
       </Card>
-      {VISIBLE_DOMAINS.map(([d, label]) => {
-        const rows = points.filter((p) => p.domain === d)
-        if (rows.length === 0) return null
+      {OBS_GROUPS.map(([d, label]) => {
+        if (domain !== "all" && d !== domain) return null
+        const items = obsItems(d)
+        if (items.length === 0 && d !== "general") return null
+        const rest = items.length - LIST_LIMIT
         return (
           <div key={d} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <b className="sp-sub">{label}</b>
-            {rows.map((p) => (
-              <div className="sp-card" key={p.id} style={{ background: "var(--background-darker)", flexDirection: "row", alignItems: "center", gap: 10 }}>
-                <SpRisk level={RECV[p.recv].level}>{RECV[p.recv].label}</SpRisk>
+            {items.length === 0 && <p className="sp-note">{IS_STAGING || cctvReal ? "해당 CCTV 없음" : "CCTV 목록 연계 전"}</p>}
+            {items.slice(0, LIST_LIMIT).map((it) => (
+              <div className="sp-card" key={it.key} style={{ background: "var(--background-darker)", flexDirection: "row", alignItems: "center", gap: 10 }}>
+                <SpRisk level={it.level}>{it.tag}</SpRisk>
                 <div style={{ flex: "1 1 0", minWidth: 0 }}>
-                  <b style={{ display: "block", fontSize: 13 }}>{p.name}</b>
-                  <span className="sp-sub">{p.note}</span>
+                  <b style={{ display: "block", fontSize: 13 }}>{it.name}</b>
+                  <span className="sp-sub">{it.sub}</span>
                 </div>
-                <b style={{ fontSize: 12 }}>{p.value}</b>
+                <b style={{ fontSize: 12 }}>{it.value}</b>
               </div>
             ))}
+            {rest > 0 && (
+              <button
+                type="button"
+                onClick={() => setMoreOf(d)}
+                style={{ alignSelf: "center", fontSize: 12, fontWeight: 700, color: "var(--primary)", background: "none", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "4px 14px", cursor: "pointer" }}
+              >
+                더보기 (+{rest}건)
+              </button>
+            )}
           </div>
         )
       })}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <div className="sp-row">
-          <b className="sp-sub">제주시 감시 CCTV (공공데이터 API)</b>
-          <span className="sp-spacer" />
-          <Tag sample={cctvTag} />
-        </div>
-        {CCTV_ROWS.map(([d, label]) => {
-          const n = cctv ? cctv[d] : null
-          const used = cctvReal ? jejuCams.filter((c) => c.domain === d && c.status === "online").length : null
-          const names = cctvReal && n !== null && n > 0 && n < 3 ? jejuCams.filter((c) => c.domain === d).map((c) => c.name).join(", ") : null
-          const recv = n === null || n === 0 ? RECV.none : RECV.ok
-          return (
-            <div className="sp-card" key={d} style={{ background: "var(--background-darker)", flexDirection: "row", alignItems: "center", gap: 10 }}>
-              <SpRisk level={recv.level}>{recv.label}</SpRisk>
-              <div style={{ flex: "1 1 0", minWidth: 0 }}>
-                <b style={{ display: "block", fontSize: 13 }}>{label}</b>
-                <span className="sp-sub">{names ?? (used !== null && n !== null ? `사용 ${used} · 미사용 ${n - used}` : n === null ? "연계 전" : "사용 여부만 제공")}</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flex: "none" }}>
-                <b style={{ fontSize: 12 }}>{n === null ? "—" : `${n}대`}</b>
-                {n !== null && n >= 3 && (
-                  <Link
-                    to={`/dashboard?tab=cctv&cctv=${d}`}
-                    style={{ fontSize: 11, fontWeight: 700, color: "var(--primary)", border: "1px solid var(--border-subtle)", borderRadius: 6, padding: "2px 8px", textDecoration: "none" }}
-                  >
-                    상세보기
-                  </Link>
-                )}
-              </div>
-            </div>
-          )
-        })}
-        <p className="sp-note">사용 여부만 제공 · 영상은 &quot;영상 보기&quot;에서 재생 → CCTV 통합 조회</p>
-      </div>
+      <p className="sp-note">
+        {cctvReal ? "CCTV는 제주시 공공데이터 API 목록 — " : "CCTV 목록을 받는 중이거나 연계 전 — "}사용 여부만 제공 · 영상은 &quot;영상 보기&quot;에서 재생 → CCTV 통합 조회
+      </p>
+      {moreOf && (
+        <ObsMoreDialog
+          title={OBS_GROUPS.find(([d]) => d === moreOf)?.[1] ?? ""}
+          items={obsItems(moreOf)}
+          cctvTo={cameras.some((c) => c.domain === moreOf) ? `/dashboard?tab=cctv&cctv=${moreOf}` : undefined}
+          onClose={() => setMoreOf(null)}
+        />
+      )}
     </div>
   )
 }

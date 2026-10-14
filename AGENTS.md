@@ -1099,4 +1099,9 @@ src/
 
 **브이월드 인증키는 주소(도메인)마다 하나씩**(2026-10-14 사용자 확인 + 호출 검증): GitHub Pages(`reehpl224-lgtm.github.io`, 프로토타입)는 키 `A7F5…CFFC`, Vercel(`jeju-disaster-platform-staging.vercel.app`, 스테이징)은 키 `B00C…AEA2`에서만 데이터·WMS가 응답한다(WMTS 바탕지도는 어느 키·도메인이든 된다). 각 키는 해당 배포의 `VITE_VWORLD_KEY`(프로토타입=GitHub Secrets, 스테이징=Vercel 환경변수 Preview·Production)로만 넣고 저장소에는 쓰지 않는다. 로컬은 `.env.local`의 키와 `VITE_VWORLD_DOMAIN`을 맞춰 쓴다.
 
-**2026-10-14 GIS 관측·CCTV 제주시 감시 CCTV 카드**: 분야별(연안 월파·하천·대설 적설) 카드 — 수신 상태 배지·이름·사용/미사용 건수(없으면 "사용 여부만 제공")·대수를 관측 지점 카드와 같은 모양으로 보이고, 대수가 3대 이상이면 `상세보기` 버튼이 CCTV 통합 조회(`/dashboard?tab=cctv&cctv=<분야>`)의 해당 분야를 연다(`DashboardPage`가 `cctv` 파라미터로 처음 분야를 고른다). 집계는 제주시 공공데이터 카메라만 센다(스테이징 서귀포 샘플이 섞이지 않게).
+**2026-10-14 GIS 관측·CCTV 항목별 목록(사용자 결정으로 바뀜)**: 관측·CCTV 패널은 항목(하천·연안·저염분·대설 …)마다 구분 제목 아래에 관측 지점과 같은 분야의 CCTV를 같은 카드 모양(수신/사용 배지·이름·구분값·오른쪽 값)으로 함께 넣는다. CCTV 분야 이름(하천·월파(연안)·적설(대설)·해안관측)이 카드 구분값이고, CCTV 분야 → 항목은 river→하천·coast→연안·aqua→저염분·snow→대설이다. 항목 목록이 5건(`LIST_LIMIT`)을 넘으면 5건만 보이고 `더보기 (+N건)`이 **팝업**(`ObsMoreDialog`)으로 그 항목의 관측 지점·CCTV 전체를 보여 준다(전체·관측 지점·CCTV 구분, 영상이 있는 CCTV는 `영상 보기`, CCTV가 있는 항목은 팝업 아래 `CCTV 통합 조회에서 보기` 링크 — 센서 관측과 CCTV가 섞여 있어 상세를 CCTV 화면으로 보내지 않는다). CCTV 분야 `일반`은 항목으로 더했고 CCTV 통합 조회의 분야 목록도 해당 CCTV가 없어도 모두 보인다. 스테이징에는 도 통합관제(도 자체 관제) 샘플 7대(`sampleProvinceCctv.ts`)를 둔다. `DashboardPage`가 `cctv` 파라미터로 처음 분야를 고른다. 이전의 "제주시 감시 CCTV 분야 카드 + 3대 이상 상세보기"는 이 구조로 대체했다.
+
+**2026-10-14 종합상황 우측 패널 탭**: `대응현황`을 맨 앞으로 옮기고 처음 열 때도 대응현황이 선택된다(`DashboardPage.summaryTabs`, 기본 `summaryDockTab="response"`). 탭이 넘쳐 숨은 쪽에는 `‹ ›` 버튼과 가장자리 그라데이션이 나온다(`DragScrollTabs`가 스크롤 위치·크기를 재서 표시, 누르면 한 뼘(너비의 60
+**2026-10-14 종합상황 우측 패널 탭**: `대응현황`을 맨 앞으로 옮기고 처음 열 때도 대응현황이 선택된다(`DashboardPage.summaryTabs`, 기본 `summaryDockTab="response"`). 탭이 넘쳐 숨은 쪽에는 `‹ ›` 버튼과 가장자리 그라데이션이 나온다(`DragScrollTabs`가 스크롤 위치·크기를 재서 표시, 누르면 한 뼘(너비의 60퍼센트) 이동) — 같은 컴포넌트를 쓰는 GIS 우측 패널·타임라인 탭에도 똑같이 적용된다.
+
+**2026-10-14 방재메신저 숨김(사용자 요청, 나중에 넣을 예정)**: 종합상황 우측 패널 탭(`DashboardPage.summaryTabs`)·GIS 아이콘 레일(`gisRailItems.ts`)의 방재메신저를 `[숨김 2026-10-14]` 표식으로 주석 처리했다. 복원하려면 두 곳의 주석과 `GisSidePanel.tsx`의 `/* "messenger" || */`를 풀면 된다. 안전뉴스(예정 기능 안내)는 그대로다.

@@ -306,8 +306,6 @@ export const SAMPLE_GIS_OBS: { id: string; name: string; domain: GisDomain; recv
   { id: "hangyeong-yongsu", name: "한경 용수", domain: "aqua", recv: "late", note: "마지막 11:00", value: "31.0 psu" },
   { id: "daejeong-ilgwa", name: "대정 일과", domain: "aqua", recv: "ok", note: "관측 11:30", value: "32.1 psu" },
 ]
-/** 제주시 감시 CCTV 대수 — 임의의 값(스테이징). 프로토타입은 받은 목록의 실제 대수 */
-export const SAMPLE_GIS_CCTV = { coast: 19, river: 62, snow: 10 }
 /** 개방 중 대피소 — 임의의 값(스테이징) */
 export const SAMPLE_GIS_SHELTERS: { name: string; place: string; capacity: number; current?: number }[] = [
   { name: "한림 체육관", place: "한림읍", capacity: 300, current: 40 },

@@ -2,6 +2,7 @@ import { useMemo, useSyncExternalStore } from "react"
 import type { CctvCamera } from "../types/domain"
 import { cctvCameras } from "./mockCctv"
 import { IS_STAGING } from "./appMode"
+import { provinceSampleCctv } from "./sampleProvinceCctv"
 import { seogwipoSampleCctv } from "./sampleSeogwipoCctv"
 
 /**
@@ -79,6 +80,11 @@ export function loadJejuCctv(): Promise<void> {
   // 스테이징만: 서귀포시 CCTV 목록은 10월 중순 도착 예정이라 같은 대수의 샘플을 먼저 둔다(제주시 실연동 목록은 그대로)
   if (IS_STAGING && !cctvCameras.some((c) => c.operator === "서귀포시")) {
     cctvCameras.push(...seogwipoSampleCctv())
+    notifyChange()
+  }
+  // 스테이징만: 도 통합관제센터(도 자체 관제) CCTV 목록도 수령 전이라 '일반' 분야 샘플을 둔다
+  if (IS_STAGING && !cctvCameras.some((c) => c.operator === "도 자체관제")) {
+    cctvCameras.push(...provinceSampleCctv())
     notifyChange()
   }
   if (!PROXY_URL) return Promise.resolve()
