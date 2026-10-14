@@ -19,6 +19,10 @@ const DASHBOARD_TABS = [
 ] as const
 type DashboardTabKey = (typeof DASHBOARD_TABS)[number]["key"]
 
+/** AX HUB 화면은 다른 회사가 만든다 — 주소(VITE_AX_HUB_URL, http/https)가 있으면 그 화면을 새 창으로 열고, 없으면 연계 전 안내 화면(/ax-hub)을 연다 */
+const AX_HUB_URL = (import.meta.env.VITE_AX_HUB_URL as string | undefined)?.trim()
+const AX_HUB_HREF = AX_HUB_URL && /^https?:\/\//.test(AX_HUB_URL) ? AX_HUB_URL : "/ax-hub"
+
 // 서비스 도메인 메뉴 — 순서는 통합 대시보드 하단 서비스 카드(mockDashboard.serviceStatusCards)와 동일
 const SERVICE_NAV = [
   { to: "/heavy-rain", label: "호우", icon: "☔" },
@@ -187,7 +191,7 @@ export function Header({ user }: { user: MockUser }) {
         <a href="/vlm" target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--pill" style={{ height: 32, padding: "0 .75rem", fontSize: 12 }}>
           VLM
         </a>
-        <a href="/ax-hub" target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--pill" style={{ height: 32, padding: "0 .75rem", fontSize: 12 }}>
+        <a href={AX_HUB_HREF} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--pill" style={{ height: 32, padding: "0 .75rem", fontSize: 12 }}>
           AX HUB
         </a>
         <DemoDataMenu open={openMenu === "demo"} onToggle={() => setOpenMenu((v) => (v === "demo" ? null : "demo"))} />

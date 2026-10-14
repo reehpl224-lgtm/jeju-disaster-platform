@@ -1,9 +1,27 @@
 import "leaflet/dist/leaflet.css"
 import { latLngBounds } from "leaflet"
 import { Fragment, useCallback, useEffect, useRef, useState } from "react"
-import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap, WMSTileLayer, ZoomControl } from "react-leaflet"
+import { Circle, CircleMarker, MapContainer, Popup, Rectangle, TileLayer, Tooltip, useMap, WMSTileLayer, ZoomControl } from "react-leaflet"
 import { cctvStatusLabel, openCctvPlayer } from "../../data/cctvLive"
 import { IS_STAGING } from "../../data/appMode"
+import { marineMarkers } from "../../data/boardFacts"
+import { useWarningEntries } from "../../data/boardLive"
+import { warnIsActive } from "../../data/warningLevel"
+import {
+  DISASTER_INFO_SAMPLES,
+  ELEMENT_LABEL,
+  MODEL_CELL,
+  MODEL_GRID,
+  MODEL_LABEL,
+  SAMPLE_WARNING_ENTRIES,
+  WARNING_CHIP_CODES,
+  WATCH_ZONE_CENTER,
+  WATCH_ZONE_SAMPLES,
+  modelCellColor,
+  modelCellValue,
+  parseModelLayer,
+  warningLayerPoints,
+} from "../../data/weatherLayers"
 import { LEVEL_SAMPLE, levelStageOf, type LevelPoint } from "../../data/levelAlerts"
 import { AGENCY_SAMPLE_POINTS } from "../../data/sampleAgencies"
 import type { CctvCamera, RiskLevel, RiskMarker } from "../../types/domain"
@@ -54,7 +72,17 @@ const MODE_TO_PANEL: Partial<Record<MapMode, string>> = {
   weatherModel: "model",
   riskLevel: "flood-risk",
   cctv: "cctv",
+  aerial: "vworld",
 }
+
+/** 브이월드 WMS 레이어 — 체크박스 id → 레이어 이름(행정구역·연속지적도). 확대 단계가 낮으면 지적도는 그리지 않는다 */
+const VWORLD_WMS: Record<string, { layer: string; minZoom?: number }> = {
+  "vw-sigg": { layer: "lt_c_adsigg" },
+  "vw-emd": { layer: "lt_c_ademd" },
+  "vw-cadastral": { layer: "lp_pa_cbnd_bubun", minZoom: 15 },
+}
+/** 키가 등록된 도메인 — 비워 두면 접속한 주소를 쓴다(로컬 확인용으로 바꿀 수 있다) */
+const VWORLD_DOMAIN = (import.meta.env.VITE_VWORLD_DOMAIN as string | undefined) || (typeof window !== "undefined" ? window.location.hostname : "")
 
 function initialToolboxChecked() {
   const state: Record<string, boolean> = {}
@@ -312,13 +340,39 @@ export function JejuTileMap({
   const riskSel = radioSel["flood-risk"]
   const riskDomain = riskSel ? RISK_RADIO_DOMAIN[riskSel] : undefined
   const safemap = mode === "riskLevel" && riskSel ? SAFEMAP_RADIO[riskSel] : undefined
-  const shownMarkers = mode === "riskLevel" && riskDomain ? geoMarkers.filter((m) => m.domain === riskDomain) : geoMarkers
+  const byRisk = mode === "riskLevel" && riskDomain ? geoMarkers.filter((m) => m.domain === riskDomain) : geoMarkers
+  // 기상/재난 모드: 서비스별로 모아 둔 특보 점(warn-)은 빼고, 패널의 특보 칩이 고른 특보 점으로 바꾼다
+  const shownMarkers = mode === "weather" ? byRisk.filter((m) => !m.id.startsWith("warn-") && !m.value?.includes("기상청 해양관측")) : byRisk
   const cctvSel = radioSel["cctv"]
   const cctvDomains = cctvSel ? CCTV_RADIO_DOMAINS[cctvSel] : undefined
   const shownCctv = !cctvDomains ? [] : cctvDomains === "all" ? geoCctv : geoCctv.filter((c) => cctvDomains.includes(c.domain))
   // 스테이징만: 센서 라디오(하천 수위계·침수정보센터)는 레거시 수위 연계 전이라 임의 샘플 지점을 그린다
   const sensorSystem = cctvSel ? SENSOR_RADIO_SYSTEM[cctvSel] : undefined
   const sensorPoints = IS_STAGING && mode === "cctv" && sensorSystem ? LEVEL_SAMPLE.filter((p) => p.system === sensorSystem) : []
+  // 기상/재난·기상모델 패널의 체크 항목 → 지도. 기상특보는 기상청 값(스테이징은 발효 특보가 없으면 샘플), 재난정보·감시구역·모델 격자는 자사 보유 항목 수령 전이라 스테이징만 임의 샘플
+  const weatherMode = mode === "weather"
+  const modelMode = mode === "weatherModel"
+  const warningState = useWarningEntries(weatherMode)
+  const liveEntries = warningState.status === "ready" ? warningState.entries : []
+  const hasLiveActive = liveEntries.some((e) => warnIsActive(e) && (e.lvl === "2" || e.lvl === "3"))
+  const chipIds = Object.keys(WARNING_CHIP_CODES).filter((id) => toolboxChecked[id])
+  const warnPoints = weatherMode ? warningLayerPoints(IS_STAGING && !hasLiveActive ? SAMPLE_WARNING_ENTRIES : liveEntries, chipIds) : []
+  const disasterPoints = weatherMode && IS_STAGING ? Object.entries(DISASTER_INFO_SAMPLES).filter(([id]) => toolboxChecked[id]).flatMap(([, pts]) => pts) : []
+  const watchZones = weatherMode && IS_STAGING && toolboxChecked["typhoon-zone"] ? WATCH_ZONE_SAMPLES : []
+  const modelLayers = modelMode && IS_STAGING ? TOOLBOX_PANELS.find((x) => x.id === "model")?.sections.flatMap((s) => s.items).filter((i) => toolboxChecked[i.id]).map((i) => parseModelLayer(i.id)).filter((m): m is NonNullable<typeof m> => m !== null) ?? [] : []
+  // 해양 관측점(기상청 sea_obs, 실제 값) — 켠 뒤 처음 한 번 받아 둔다
+  const marineOn = weatherMode && !!toolboxChecked["marine-obs"]
+  const [marineRaw, setMarineRaw] = useState<Awaited<ReturnType<typeof marineMarkers>> | null>(null)
+  useEffect(() => {
+    if (!marineOn || marineRaw) return
+    let alive = true
+    void marineMarkers().then((m) => alive && setMarineRaw(m))
+    return () => {
+      alive = false
+    }
+  }, [marineOn, marineRaw])
+  const marinePoints = marineOn ? (marineRaw ?? []).map((m, i) => ({ id: `marine-${i}`, name: m.name, lat: m.lat, lng: m.lng, level: m.level, value: m.value })) : []
+  const vworldLayers = VWORLD_KEY ? Object.entries(VWORLD_WMS).filter(([id]) => toolboxChecked[id]) : []
   const agencyChecked = TOOLBOX_PANELS.find((p) => p.id === "agency")?.sections.flatMap((s) => s.items).filter((i) => toolboxChecked[i.id]) ?? []
   // 스테이징만: 유관기관 위치 자료 수령 전이라 샘플 위치를 그린다
   const agencyPoints = IS_STAGING && activePanelId === "agency" ? agencyChecked.flatMap((i) => (AGENCY_SAMPLE_POINTS[i.id] ?? []).map((p) => ({ ...p, kind: i.label }))) : []
@@ -331,6 +385,21 @@ export function JejuTileMap({
       : IS_STAGING
         ? `유관기관 ${agencyChecked.length}종 선택 — 샘플 위치 ${agencyPoints.length}곳 표출 중(위치 자료 10월 중순 수령 예정)`
         : `유관기관 ${agencyChecked.length}종 선택 — 표기 기준 확정 전(TBD), 위치 데이터 준비 중`
+  } else if (activePanelId === "vworld") {
+    layerNotice = !VWORLD_KEY
+      ? "브이월드 인증키가 없어 행정·지적 레이어를 표시할 수 없음"
+      : vworldLayers.length
+        ? `브이월드 ${vworldLayers.length}개 레이어 표출 중 — 인증키에 등록된 도메인에서만 보입니다`
+        : null
+  } else if (weatherMode) {
+    const n = warnPoints.length + disasterPoints.length
+    layerNotice = `기상특보 ${warnPoints.length}건${IS_STAGING && !hasLiveActive && warnPoints.length ? "(발효 특보 없음 — 샘플)" : ""}${disasterPoints.length ? ` · 재난정보 ${disasterPoints.length}곳(샘플)` : ""}${marineOn ? ` · 해양 관측점 ${marinePoints.length}곳` : ""}${watchZones.length ? " · 감시구역(샘플)" : ""} 표출 중${n === 0 && !watchZones.length && !IS_STAGING ? " — 재난정보·감시구역은 자료 연계 전" : ""}`
+  } else if (modelMode) {
+    layerNotice = IS_STAGING
+      ? modelLayers.length
+        ? `기상모델 ${modelLayers.length}개 레이어 임의 샘플 표출 중 — 자사 기상모델 자료 수령 전`
+        : null
+      : "기상모델 레이어는 자료 연계 전 — 표시할 값 없음"
   } else if (mode === "riskLevel" && riskSel) {
     layerNotice = safemap
       ? SAFEMAP_PROXY
@@ -373,6 +442,47 @@ export function JejuTileMap({
         zoomControl={false}
         style={{ height: "100%", width: "100%", background: "var(--color-inset)" }}
       >
+        {modelLayers.map((m, i) => (
+          <Fragment key={`${m.model}-${m.element}`}>
+            {MODEL_GRID.map((c) => {
+              const v = modelCellValue(c.lat, c.lng, m.model, m.element)
+              return (
+                <Rectangle
+                  key={`${c.lat}-${c.lng}`}
+                  bounds={[[c.lat, c.lng], [c.lat + MODEL_CELL, c.lng + MODEL_CELL]]}
+                  interactive={i === modelLayers.length - 1}
+                  pathOptions={{ stroke: false, fillColor: modelCellColor(m.element, v), fillOpacity: 1 }}
+                >
+                  <Tooltip sticky>
+                    {MODEL_LABEL[m.model]} {ELEMENT_LABEL[m.element].name} {v}
+                    {ELEMENT_LABEL[m.element].unit} (샘플)
+                  </Tooltip>
+                </Rectangle>
+              )
+            })}
+          </Fragment>
+        ))}
+
+        {watchZones.map((z) => (
+          <Circle key={z.id} center={WATCH_ZONE_CENTER} radius={z.radiusM} pathOptions={{ color: z.color, weight: 2, dashArray: "8 6", fillOpacity: 0.03 }}>
+            <Tooltip sticky>{z.name}</Tooltip>
+          </Circle>
+        ))}
+
+        {[...warnPoints, ...disasterPoints, ...marinePoints].map((pt) => (
+          <CircleMarker key={pt.id} center={[pt.lat, pt.lng]} radius={9} pathOptions={{ color: "#fff", fillColor: MARKER_COLOR[pt.level], fillOpacity: 0.95, weight: 2.5 }}>
+            <Tooltip direction="top" offset={[0, -8]}>
+              {pt.name}
+            </Tooltip>
+            <Popup>
+              <div className="min-w-40 text-xs">
+                <p className="font-semibold text-white/90">{pt.name}</p>
+                <p className="mt-1 text-white/60">{pt.value}</p>
+              </div>
+            </Popup>
+          </CircleMarker>
+        ))}
+
         {mode !== "cctv" && <MarkerLayer markers={shownMarkers} />}
         {fitMarkers && <FitToMarkers points={geoMarkers.map((m) => [m.lat, m.lng])} />}
         <FlyToRegion center={region.center} zoom={region.zoom} skipInitial={fitMarkers} />
@@ -388,6 +498,22 @@ export function JejuTileMap({
         />
         {/* 항공지도 위에 도로·지명 글자(브이월드 Hybrid)를 얹는다 */}
         {mode === "aerial" && BASE.labels && <TileLayer key="aerial-labels" url={BASE.labels} maxZoom={19} maxNativeZoom={BASE.maxNative} />}
+
+        {vworldLayers.map(([id, { layer, minZoom }]) => (
+          <WMSTileLayer
+            key={id}
+            url="https://api.vworld.kr/req/wms"
+            layers={layer}
+            styles={layer}
+            version="1.3.0"
+            format="image/png"
+            transparent
+            opacity={0.9}
+            minZoom={minZoom}
+            params={{ key: VWORLD_KEY, domain: VWORLD_DOMAIN } as never}
+            attribution="&copy; VWorld"
+          />
+        ))}
 
         {safemap && SAFEMAP_PROXY && (
           <WMSTileLayer

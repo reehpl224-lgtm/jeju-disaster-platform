@@ -47,7 +47,7 @@ export function feelsLike(ta: number, rh: number): number | null {
 type FactMarker = NonNullable<Facts["markers"]>[number]
 
 /** 해양관측(기상청 sea_obs) 지점 — 좌표가 응답에 있다. 파고로 색을 낸다(참고 기준: 2m 관심 · 3m 주의 · 5m 경계) */
-async function marineMarkers(): Promise<FactMarker[]> {
+export async function marineMarkers(): Promise<FactMarker[]> {
   const list = await fetchMarineStations().catch(() => [])
   return list
     .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lon))

@@ -1088,3 +1088,13 @@ src/
 **2026-10-14 도청 시스템·레거시 수신 데이터 확대**: 레거시 시스템이 16종이 됐다(요청표의 `ls-alert-dispatch` 경보 전파 시스템·`ls-prov-cctv` CCTV 시스템 추가). 운영 > `제주도청 시스템`(`/province-systems`)에서 도청 5종의 연계 상태와 수신 항목 표(`LegacySystemList` 공용 — 행정시 화면도 같은 컴포넌트)를 보여 주고, GIS 지도 CCTV/센서 > 하천 수위계·침수정보센터는 스테이징에서 `LEVEL_SAMPLE` 지점(근사 좌표)을 단계 색으로 찍는다. AX Hub 레거시 대시보드에 수신 데이터 요약을 더했다. 모두 임의 샘플(스테이징), 프로토타입은 연계 전. 요청표의 담당자 이름·전화번호는 공개 저장소·사이트라 데모에 넣지 않았다.
 
 **2026-10-14 레거시 데이터를 레거시(풍수해) 서비스에 넣는 작업(사용자 결정)**: 하천 수위·유속(`ls-river-mon`·`ls-river-flow`)은 풍수해(호우) 서비스의 레거시 데이터로 보고 하천범람(실증)과 분리했다(`LEGACY_TARGETS`). 태풍은 재난관리시스템 피해 이력(`ls-2`)을 본다. 이력·보고서에 `LegacyAlertHistoryCard`(경보 발령 이력 8건), 시스템 상태에 `LegacyCollectionCard`(수집 상태 12건)를 두었고 값은 `legacyFeed.ts`의 임의 샘플이다. 시스템 담당자(`legacyContacts.ts`)는 요청표 칸 모양의 **가상 이름·가상 번호(064-000-)** 이며 실명·실제 번호는 넣지 않는다. 대설·지진해일 연계 현황에도 수신 항목 표가 나온다(`HazardPages.LegacyCard`). 서비스 보드(스토리 샘플)에는 넣지 않았다.
+
+**2026-10-14 AX HUB 새 창 연결(사용자 결정)**: AX HUB 화면은 다른 회사가 만들고 우리는 헤더 "AX HUB" 버튼으로 새 창 연결만 한다. `VITE_AX_HUB_URL`(http/https)이 있으면 그 주소를 새 창으로 열고, 비어 있으면 연계 전 안내 화면(`/ax-hub`)을 연다(`Header.tsx` AX_HUB_HREF, `.env.example`). 배포에서 쓰려면 GitHub Actions 빌드 환경변수·Vercel 환경변수에 주소를 넣어야 한다(주소는 사용자가 정함). 안내 화면(`AxHubPage`)은 주소가 생기면 지워도 된다.
+
+**2026-10-14 브이월드 기능 점검·행정/지적 레이어**: 키(.env.local)로 확인한 결과 WMTS 바탕지도(Base·midnight·Satellite·Hybrid·white)와 장소검색·주소→좌표 API는 도메인 상관없이 응답하고, **데이터 API(행정경계·지적도 JSON)와 WMS는 키에 등록된 도메인에서만** 응답한다(2026-10-14 기준 스테이징 도메인만 등록 — 프로토타입 github.io·localhost는 '인증키 오류'). 데이터 API는 CORS 헤더가 없고 시군구 1.3MB·읍면동 3.3MB라 브라우저 직접 호출·번들에는 부적합 → WMS 겹침으로 구현했다(`JejuTileMap.tsx` VWORLD_WMS, 패널 `mapToolboxData.ts`의 `vworld`, 항공지도 버튼과 연결). 로컬 확인은 `VITE_VWORLD_DOMAIN=<등록 도메인>`. 지도 패널의 기상/재난·기상모델 체크 항목은 아직 지도에 연결되지 않았다(UI만).
+
+**2026-10-14 GIS 기상 패널 연결**: 지도 `기상/재난`·`기상모델` 패널의 체크 항목이 지도에 반영된다(`weatherLayers.ts` + `JejuTileMap.tsx`). 기상특보 칩(태풍·호우·강풍·건조·대설·폭염·황사·한파·해일)은 발효 중 주의보·경보를 시·종류별 점으로, 재난정보(홍수·지진·산사태)·태풍 감시구역·기상모델 격자(기상청·독일·미국 강수·바람·기온·구름)는 우리 회사 보유 항목이라 **스테이징 임의 샘플**(프로토타입은 '연계 전' 안내). 기상/재난 모드에서는 서비스별 특보 점(`warn-`)을 빼고 칩이 고른 점만 보인다. 해양 관측 전용 선택 항목은 아직 없다.
+
+`기상/재난` 패널에 `해양 관측점(파고·풍속·수온)` 선택 항목을 더했다 — 켜면 기상청 해양 관측(`marineMarkers`, 실제 값)을 찍고, 이 모드에서는 서비스 마커에 섞여 있던 해양 관측 점을 빼 중복을 막는다.
+
+**브이월드 인증키는 주소(도메인)마다 하나씩**(2026-10-14 사용자 확인 + 호출 검증): GitHub Pages(`reehpl224-lgtm.github.io`, 프로토타입)는 키 `A7F5…CFFC`, Vercel(`jeju-disaster-platform-staging.vercel.app`, 스테이징)은 키 `B00C…AEA2`에서만 데이터·WMS가 응답한다(WMTS 바탕지도는 어느 키·도메인이든 된다). 각 키는 해당 배포의 `VITE_VWORLD_KEY`(프로토타입=GitHub Secrets, 스테이징=Vercel 환경변수 Preview·Production)로만 넣고 저장소에는 쓰지 않는다. 로컬은 `.env.local`의 키와 `VITE_VWORLD_DOMAIN`을 맞춰 쓴다.

@@ -65,6 +65,13 @@ export const TOOLBOX_PANELS: ToolboxPanel[] = [
         ],
       },
       {
+        id: "marine",
+        heading: "해양",
+        headingChecked: false,
+        kind: "checkbox",
+        items: [{ id: "marine-obs", label: "해양 관측점(파고·풍속·수온)", defaultChecked: false }],
+      },
+      {
         id: "watch-zone",
         heading: "감시구역",
         headingChecked: false,
@@ -193,6 +200,30 @@ export const TOOLBOX_PANELS: ToolboxPanel[] = [
         heading: "도로교통",
         kind: "radio",
         items: [{ id: "traffic-control", label: "교통 통제 정보", defaultChecked: false }],
+      },
+    ],
+  },
+  {
+    // 브이월드(국토교통부) 행정·지적 레이어 — WMS를 바탕지도 위에 겹친다. 인증키에 등록된 도메인에서만 보인다
+    id: "vworld",
+    icon: "🗺️",
+    buttonLabel: "행정·지적",
+    panelTitle: "행정·지적(브이월드)",
+    sections: [
+      {
+        id: "vworld-admin",
+        heading: "행정구역",
+        kind: "checkbox",
+        items: [
+          { id: "vw-sigg", label: "시군구 경계", defaultChecked: false },
+          { id: "vw-emd", label: "읍·면·동 경계", defaultChecked: false },
+        ],
+      },
+      {
+        id: "vworld-land",
+        heading: "지적",
+        kind: "checkbox",
+        items: [{ id: "vw-cadastral", label: "연속지적도 (확대 15 이상에서 표시)", defaultChecked: false }],
       },
     ],
   },
