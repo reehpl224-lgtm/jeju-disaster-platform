@@ -21,7 +21,7 @@ export function GisSidePanel({ activeKey, onClose, content }: GisSidePanelProps)
       </div>
 
       {content[activeKey] ??
-        (activeKey === "messenger" || activeKey === "news" ? (
+        (activeKey === /* "messenger" || */ "news" ? (
           <ComingSoonPanel kind={activeKey} />
         ) : (
           <p className="py-6 text-center text-xs text-white/30">표시할 데이터가 없습니다.</p>

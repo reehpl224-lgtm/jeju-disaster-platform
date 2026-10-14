@@ -136,21 +136,22 @@ export function DashboardPage() {
     setLeftOpen(true)
   }
   const [openRegions, setOpenRegions] = useState<string[]>([])
-  const [summaryDockTab, setSummaryDockTab] = useState("broadcast")
+  const [summaryDockTab, setSummaryDockTab] = useState("response")
   const [gisDockTab, setGisDockTab] = useState("status")
 
-  // 종합상황 우측 패널 — Figma 1단계 R1~R8·R00 순서(방재메신저·안전뉴스는 2단계 예정 안내)
+  // 종합상황 우측 패널 — Figma 1단계 R1~R8·R00 순서에서 사용자 요청(2026-10-14)으로 대응현황을 맨 앞으로 옮김(방재메신저·안전뉴스는 2단계 예정 안내)
   const panelInput = usePanelInput()
   const summaryTabs: SpDockTab[] = [
+    { key: "response", label: "대응현황", headTitle: "대응 단계", sample: fullySample.response(panelInput), content: <ResponsePanel /> },
     { key: "broadcast", label: "상황전파", content: <PropagationPanel /> },
     { key: "sensor", label: "센서정보", headTitle: "전체 센서 현황", sample: fullySample.sensor(panelInput), content: <SensorSummaryPanel /> },
     { key: "trend", label: "센서 추이", sample: fullySample.trend(panelInput), content: <SensorTrendPanel /> },
-    { key: "response", label: "대응현황", headTitle: "대응 단계", sample: fullySample.response(panelInput), content: <ResponsePanel /> },
     { key: "contact", label: "담당자", content: <ContactPanel /> },
     { key: "report", label: "보고서", content: <ReportPanel /> },
     { key: "asset", label: "자산현황", content: <AssetPanel /> },
     { key: "ai", label: "AI 분석", content: <AiPanel /> },
-    { key: "messenger", label: "방재메신저", headTitle: "예정 기능", content: <FuturePanel kind="messenger" /> },
+    // [숨김 2026-10-14] 방재메신저는 나중에 넣을 예정 — 복원하려면 주석 해제
+    // { key: "messenger", label: "방재메신저", headTitle: "예정 기능", content: <FuturePanel kind="messenger" /> },
     { key: "news", label: "안전뉴스", headTitle: "예정 기능", content: <FuturePanel kind="news" /> },
   ]
 
@@ -528,7 +529,7 @@ function CctvView() {
           <span className="tabs__static">분야</span>
         </div>
         <ul className="tree">
-          {CCTV_DOMAIN_FILTERS.filter((f) => f.id === "all" || cctvCameras.some((c) => c.domain === f.id)).map((f) => {
+          {CCTV_DOMAIN_FILTERS.map((f) => {
             const count = f.id === "all" ? cctvCameras.length : cctvCameras.filter((c) => c.domain === f.id).length
             return (
               <li key={f.id}>

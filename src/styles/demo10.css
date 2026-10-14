@@ -1431,6 +1431,15 @@ h1, h2, h3, p { margin: 0; }
 }
 .panel .tabs::-webkit-scrollbar { display: none; }
 .panel .tabs button { flex: 0 0 auto; white-space: nowrap; }
+/* 숨은 탭이 있다는 표시 — 가려진 쪽 끝에 그라데이션과 ‹ › 버튼(DragScrollTabs) */
+.tabs-wrap { position: relative; flex: none; }
+.tabs-arrow {
+  position: absolute; top: 0; bottom: 1px; z-index: 2; width: 34px; border: 0; padding: 0;
+  display: flex; align-items: center; color: var(--primary); font-size: 22px; font-weight: 700; line-height: 1; cursor: pointer;
+}
+.tabs-arrow--right { right: 0; justify-content: flex-end; padding-right: 4px; background: linear-gradient(to right, transparent, var(--background) 65%); }
+.tabs-arrow--left { left: 0; justify-content: flex-start; padding-left: 4px; background: linear-gradient(to left, transparent, var(--background) 65%); }
+.tabs-arrow:hover { color: #fff; }
 /* 마우스로 눌러 좌우로 끄는 스와이프(useDragScroll)가 있다는 표시 */
 .panel .tabs { cursor: grab; }
 .panel .tabs:active { cursor: grabbing; }
