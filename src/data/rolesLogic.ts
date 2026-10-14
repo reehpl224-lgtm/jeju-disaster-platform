@@ -10,7 +10,7 @@ export const ROLES: { id: RoleId; label: string; summary: string; home: string; 
   { id: "control", label: "재난상황실 운영자", summary: "상황 감시·전파·보고, 대응 진행", home: "/dashboard?tab=summary", demoAccount: "control" },
   { id: "vendor", label: "시스템·운영업체 담당자", summary: "연계·모니터링 등 시스템 운영", home: "/monitoring", demoAccount: "vendor" },
   { id: "field", label: "현장 시설 운영자", summary: "담당 현장 서비스 확인·절차 이행", home: "/dashboard?tab=gis", demoAccount: "field" },
-  { id: "admin", label: "관리자·의사결정자", summary: "결재·판단, 권한·e-SOP 정의", home: "/approvals", demoAccount: "jeju-ax" },
+  { id: "admin", label: "관리자·의사결정자", summary: "결재·판단, 권한·e-SOP 정의", home: "/dashboard?tab=summary", demoAccount: "jeju-ax" },
 ]
 export const roleLabel = (r: UserRole) => (r === "restricted" ? "권한 없음" : (ROLES.find((x) => x.id === r)?.label ?? r))
 
