@@ -15,10 +15,10 @@ import type { FlowProgress } from "../types/flow"
 
 /**
  * 2026-09-22 리셋 — 사용자 요청으로 더미 "진행 중 사건" 데이터를 초기화하고, 파트별 케이스
- * 프로토타입의 첫 사례로 "저염분수 관심(1단계) 단계 — 확인→대응→조치→처리" 흐름을 새로 구성함.
+ * 프로토타입의 첫 사례로 "저염분수 징후 감시 → 주의(1단계) — 확인→대응→조치→처리" 흐름을 새로 구성함(2026-10-15 4단계 개편 반영).
  * 실제 API 연동 데이터(khoaLiveObservations)는 그대로 두고 건드리지 않음.
- * 케이스: 한경 용수 인근 관측지점에서 염분이 관심 구간(28.0~30.0psu)까지 하락 — 아직 경보 발령
- * 전 단계로, TP-P22_002 데이터 리스트의 관심 단계 행동요령("비상 대응 장비 점검 및 어장 예찰
+ * 케이스: 한경 용수 인근 관측지점에서 염분이 징후 감시 구간(28.0 초과 ~ 31.0psu 미만)까지 하락 — 아직 경보 발령
+ * 전 단계로, 데이터 리스트의 징후 감시 행동요령("비상 대응 장비 점검 및 어장 예찰
  * 활동 강화")에 맞춰 "내부 점검·예찰" 중심으로 구성했고, 아직 대외 경보는 발송하지 않았다.
  */
 export const aquaSummary = {
@@ -26,23 +26,21 @@ export const aquaSummary = {
   targetArea: "제주 서남부 한경·대정 육상양식장",
   spatialResolution: "1km 이하",
   aiLabels: ["Low_Salinity_Plume", "High_Temp_Water"],
-  /** 염분 단독 기준 5단계 — marineAlertThresholds.ts classifySalinity()와 반드시 일치시킬 것 */
+  /** 염분 단독 기준 4단계 — marineAlertThresholds.ts classifySalinity()와 반드시 일치시킬 것 */
   salinityLevels: [
-    { level: "safe", label: "정상", range: "30.0 psu 이상" },
-    { level: "caution", label: "관심", range: "28.0 이상 ~ 30.0 psu 미만" },
-    { level: "warning", label: "주의", range: "26.0 이상 ~ 28.0 psu 미만" },
-    { level: "alert", label: "경계(경보)", range: "24.0 이상 ~ 26.0 psu 미만" },
-    { level: "danger", label: "심각", range: "24.0 psu 미만" },
+    { level: "safe", label: "정상", range: "28.0 psu 초과 (28.0 초과 ~ 31.0 미만은 징후 감시)" },
+    { level: "warning", label: "주의", range: "26.0 초과 ~ 28.0 psu 이하" },
+    { level: "alert", label: "경계(경보)", range: "24.0 초과 ~ 26.0 psu 이하" },
+    { level: "danger", label: "심각", range: "24.0 psu 이하" },
   ] as { level: RiskLevel; label: string; range: string }[],
   /** 복합(수온+염분) 승격 규칙 — 단순 "한 단계 승격"이 아니라 조건별로 도달 단계가 다르므로 정확히 표기.
    *  marineAlertThresholds.ts의 combinedOverride()와 반드시 일치시킬 것 */
   combinedRuleNote:
     "수온 28.0℃ 이상 동반 시: 염분 26.0 이하→심각 / 염분 28.0 이하→경계 이상. 수온 26.0~28.0℃면 염분 28.0 이하→주의 이상으로 승격",
-  /** 수온 단독 기준 5단계 — marineAlertThresholds.ts classifyTemperature()와 반드시 일치시킬 것.
+  /** 수온 단독 기준 4단계 — marineAlertThresholds.ts classifyTemperature()와 반드시 일치시킬 것.
    *  28.0℃ 이상 구간은 값 자체가 아니라 지속일수로 주의/경계/심각이 갈리므로 range에 지속일수를 함께 표기 */
   temperatureLevels: [
-    { level: "safe", label: "정상", range: "25.0℃ 이하" },
-    { level: "caution", label: "관심", range: "25.1 ~ 27.9℃" },
+    { level: "safe", label: "정상", range: "28.0℃ 미만 (25.1 ~ 27.9℃는 징후 감시)" },
     { level: "warning", label: "주의", range: "28.0℃ 이상 (당일 도달)" },
     { level: "alert", label: "경계", range: "28.0℃ 이상 1~2일 지속" },
     { level: "danger", label: "심각", range: "28.0℃ 이상 3일 이상 지속" },
@@ -111,7 +109,7 @@ export const aquaModelConfidence: AquaModelConfidence[] = []
 /**
  * KHOA 실측 기반 AI 보강 가능성 검토(2026-09-28) — 사용자 요청으로 khoaLiveObservations(수온·염분·
  * 유속)을 ROMS/NEMO 예측 모델 보정에 더 쓸 수 있는지 점검. 유속·유향(currentDirDeg/currentSpeedCms)이
- * 있는 지점은 제주남부(KG_0021)·제주해협(KG_0028) 2곳뿐인데, 이번 관심 단계 발생 지점(한경 용수)과는
+ * 있는 지점은 제주남부(KG_0021)·제주해협(KG_0028) 2곳뿐인데, 이번 징후 감시 발생 지점(한경 용수)과는
  * 각각 약 155km·59km 떨어져 있어 확산 방향 추정에 직접 쓰기엔 무리가 있다. 반대로 한경 용수에 가장
  * 가까운 관측점(모슬포 약 13km·중문 약 24km)은 유속 데이터 자체가 없다 — 지점 배치의 구조적 한계.
  * 수온·염분 실측(4개소 모두 보유)은 위치와 무관하게 모델 보정 입력으로 바로 쓸 수 있어 구분함.
@@ -133,7 +131,7 @@ export const aquaQualityMetrics: AquaQualityMetric[] = []
 /** 영향 양식장 — 2026-09-29 초기화로 비움. 시나리오가 채울 때 aquaFarmTotals와 반드시 같은 수치를 쓰고, 등급은 classifyMarineRiskLevel()로 계산할 것 */
 export const aquaFarms: AquaFarm[] = []
 
-export const aquaFarmTotals = { total: 0, danger: 0, alert: 0, warning: 0, caution: 0 }
+export const aquaFarmTotals = { total: 0, danger: 0, alert: 0, warning: 0 }
 
 /** 경보 초안(/aqua/alerts) — 초안 없음. 승인 단계 owner "-"는 아직 착수 전을 뜻한다 */
 export const aquaAlertDraft = {
@@ -183,11 +181,10 @@ export const aquaResponseState = {
 
 // aquaResponseState.grade와 항상 같은 현재 단계를 가리켜야 함 — 사건이 없으면 전부 대기
 export const aquaStages: AquaStage[] = [
-  { step: 1, label: "관심", status: "대기" },
-  { step: 2, label: "주의", status: "대기" },
-  { step: 3, label: "경계", status: "대기" },
-  { step: 4, label: "심각", status: "대기" },
-  { step: 5, label: "해제", status: "대기" },
+  { step: 1, label: "주의", status: "대기" },
+  { step: 2, label: "경계", status: "대기" },
+  { step: 3, label: "심각", status: "대기" },
+  { step: 4, label: "해제", status: "대기" },
 ]
 
 export const aquaChecklist: AquaChecklistItem[] = []

@@ -1,13 +1,12 @@
 import type { ServiceId } from "./rolesLogic"
 
 /**
- * e-SOP 절차 정의 — 요구사항 'e-SOP 절차 정의'. 재난 유형(서비스 9종) × 위험 단계(관심·주의·경계·심각)마다
+ * e-SOP 절차 정의 — 요구사항 'e-SOP 절차 정의'. 재난 유형(서비스 9종) × 위험 단계(주의·경계·심각 — 정상은 발령 없음)마다
  * 상황 전파 대상·대응 부서·현장 조치를 처리 순서대로 적은 표. 초기값은 임의의 샘플이고, 권한자가 고쳐 쓴다(이 브라우저에만 저장).
  * 절차 정의표는 단계 진행 화면(실증 3종)과 별개로 모든 서비스에 있다.
  */
-export type EsopLevel = "caution" | "warning" | "alert" | "danger"
+export type EsopLevel = "warning" | "alert" | "danger"
 export const ESOP_STAGES: { level: EsopLevel; label: string }[] = [
-  { level: "caution", label: "관심" },
   { level: "warning", label: "주의" },
   { level: "alert", label: "경계" },
   { level: "danger", label: "심각" },
@@ -45,7 +44,6 @@ const AGENCY = "유관기관"
 export function defaultSteps(svc: ServiceId, level: EsopLevel): EsopStep[] {
   const s = SCOPE[svc]
   const rows: Record<EsopLevel, [string, string, string][]> = {
-    caution: [["재난상황실 운영자", OPS, `${s.watch} 감시 강화, 변동 시 즉시 보고`]],
     warning: [
       ["재난상황실 운영자", OPS, `${s.watch} 변동 확인, 관련 부서에 상황 공유`],
       ["현장 시설 운영자", s.dept, `${s.scope} 현장 점검, 담당자 대기`],

@@ -148,7 +148,6 @@ interface StripCard {
 }
 
 const STRIP_TIERS = [
-  { key: "caution", level: "caution" },
   { key: "warning", level: "warning" },
   { key: "alert", level: "alert" },
   { key: "danger", level: "danger" },
@@ -158,7 +157,6 @@ function dominant(counts: StripCard["counts"]): RiskLevel {
   if (counts.danger > 0) return "danger"
   if (counts.alert > 0) return "alert"
   if (counts.warning > 0) return "warning"
-  if ((counts.caution ?? 0) > 0) return "caution"
   return "safe"
 }
 
@@ -169,8 +167,7 @@ export function ServiceStrip({ cards, currentId }: { cards: StripCard[]; current
       <ul>
         {cards.map((card) => {
           const top = dominant(card.counts)
-          // 관심 등급은 카드가 실제로 그 값을 가진(양식장 등) 경우에만 줄을 만든다
-          const tiers = STRIP_TIERS.filter((t) => t.key !== "caution" || card.counts.caution !== undefined)
+          const tiers = STRIP_TIERS
           return (
             <li key={card.id} className={card.id === currentId ? "is-current" : undefined}>
               <Link className="strip__head" to={card.href} title={`${card.title} 화면`}>

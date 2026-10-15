@@ -239,7 +239,7 @@ export function SensorTrendPanel() {
           {(["safe", "caution", "warning", "alert", "alert"] as RiskLevel[]).map((l, i) => (
             <span key={i}>
               <i className={`sp-dot sp-bg--${l}`} />
-              {["평시", "관심", "주의", "경계", "심각"][i]}
+              {["평시", "징후", "주의", "경계", "심각"][i]}
             </span>
           ))}
         </div>

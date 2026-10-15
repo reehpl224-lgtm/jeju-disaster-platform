@@ -47,9 +47,9 @@ test("프리셋 시나리오는 정의표 기준으로 기대 단계와 같고, 
 
 test("단계 시각은 앞 단계로부터의 경과 분을 더해 간다", () => {
   const run = runScenario(presetScenarios()[0], {}, start)
-  assert.deepEqual(run.phases.map((p) => new Date(p.at).getMinutes() + new Date(p.at).getHours() * 60), [600, 620, 635, 650])
-  assert.equal(run.phases[3].level, "danger")
-  assert.match(run.phases[2].alert.title, /^\[시험\] 하천범람 경계/)
+  assert.deepEqual(run.phases.map((p) => new Date(p.at).getMinutes() + new Date(p.at).getHours() * 60), [600, 620, 635])
+  assert.equal(run.phases[2].level, "danger")
+  assert.match(run.phases[1].alert.title, /^\[시험\] 하천범람 경계/)
 })
 
 test("기대와 다른 값, 전파 대상이 비게 고친 e-SOP, 승인자가 빠진 심각 단계를 시험이 잡는다", () => {
@@ -66,7 +66,7 @@ test("기대와 다른 값, 전파 대상이 비게 고친 e-SOP, 승인자가 �
 
 test("값 → 단계: 기상청 특보 서비스는 1·2·3·4, 지표 서비스는 정의표", () => {
   const rain = presetScenarios()[3]
-  assert.deepEqual([0, 1, 2, 3, 4].map((v) => phaseLevel(rain, v)), ["normal", "caution", "warning", "alert", "danger"])
+  assert.deepEqual([0, 1, 2, 3, 4].map((v) => phaseLevel(rain, v)), ["normal", "warning", "warning", "alert", "danger"])
   const coast = presetScenarios()[1]
   assert.equal(phaseLevel(coast, 0.5), "normal")
   assert.equal(phaseLevel(coast, 4.01), "danger")

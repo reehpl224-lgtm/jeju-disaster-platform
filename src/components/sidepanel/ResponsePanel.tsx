@@ -75,7 +75,7 @@ export function ResponsePanel() {
           <span><i className="sp-dot sp-bg--alert" />심각 {countOf(["danger"])}</span>
           <span><i className="sp-dot sp-bg--alert" />경계 {countOf(["alert"])}</span>
           <span><i className="sp-dot sp-bg--warning" />주의 {countOf(["warning"])}</span>
-          <span><i className="sp-dot sp-bg--caution" />관심 {countOf(["caution"])}</span>
+          <span><i className="sp-dot sp-bg--caution" />징후 {countOf(["caution"])}</span>
           <span><i className="sp-dot sp-bg--safe" />평시 {countOf(["safe"])}</span>
         </div>
         <div className="sp-stages">

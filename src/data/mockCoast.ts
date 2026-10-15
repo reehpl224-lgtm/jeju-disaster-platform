@@ -2,13 +2,13 @@ import type { CoastAgencyStatus, CoastEvent, CoastFieldAlert, TimelineEntry } fr
 import type { FlowProgress } from "../types/flow"
 
 /**
- * 연안 위험단계 상태 구간 — "TP-P22_002_플랫폼 데이터 리스트.xlsx" 연안 안전관리시스템 시트 "상태 구간 설정" 그대로(2026-09-22 사용자 확정).
+ * 연안 위험단계 상태 구간 — "플랫폼 데이터 리스트.xlsx" 연안 안전관리시스템 시트 "상태 구간 설정"(2026-10-15 4단계 개편본).
+ * 정상·주의·경계·심각 4단계 — 원본의 '관심'(파고 1.0~1.5m·풍속 6~10m/s·만조 상승·위험구역 진입 1~2건)은 정상에 합쳐 '징후 감시'로만 표시한다.
  * 원본 단계명 '경보'는 앱 공통 라벨 '경계'(alert)로 표기. 세 지표(파고·풍속·조위) 중 몇 개 충족 시 상향인지는 원본에 없어 2026-09-22
- * classifyCoastRisk()(coastAlertThresholds.ts)로 임의 결합 규칙을 설정함 — 공식 기준 확정 시 수정.
+ * classifyCoastRisk()(coastAlertThresholds.ts)로 임의 결합 규칙을 설정함 — 공식 기준 확정 시 수정. 1차년도 임계값은 실증으로 보정한다.
  */
-export const coastStageCriteria: { level: "safe" | "caution" | "warning" | "alert" | "danger"; label: string; waveHeight: string; windSpeed: string; tide: string; riskRange: string; action: string }[] = [
-  { level: "safe", label: "정상", waveHeight: "1.0m 미만", windSpeed: "6m/s 미만", tide: "평시 평균 수위 유지", riskRange: "위험구역 잔류 인원 0명", action: "시스템 정상 작동·상시 모니터링, CCTV 이상 감지 자동 운영" },
-  { level: "caution", label: "관심", waveHeight: "1.0 ~ 1.5m", windSpeed: "6 ~ 10m/s", tide: "만조 시 수위 상승 시작", riskRange: "위험구역 진입 AI 객체 감지 1~2건", action: "위험 지역 집중 모니터링 전환, 현장 전광판 주의 문구" },
+export const coastStageCriteria: { level: "safe" | "warning" | "alert" | "danger"; label: string; waveHeight: string; windSpeed: string; tide: string; riskRange: string; action: string }[] = [
+  { level: "safe", label: "정상", waveHeight: "1.5m 미만 (1.0~1.5m 징후 감시)", windSpeed: "10m/s 미만 (6~10m/s 징후 감시)", tide: "평시 평균 수위 유지 (징후: 만조 시 수위 상승 시작)", riskRange: "위험구역 잔류 인원 0명 (징후: 위험구역 진입 AI 객체 감지 1~2건)", action: "시스템 정상 작동·상시 모니터링, CCTV 이상 감지 자동 운영 · 징후 감시 시 집중 모니터링 전환, 현장 전광판 주의 문구" },
   { level: "warning", label: "주의", waveHeight: "1.5 ~ 2.5m", windSpeed: "10 ~ 14m/s", tide: "고조(High Tide) 수위 도달", riskRange: "너울성 파도·간헐적 주기 파랑", action: "갯바위·방파제 자동 경보 방송, AI CCTV 너울 감지 알림" },
   { level: "alert", label: "경계(경보)", waveHeight: "2.5 ~ 4.0m", windSpeed: "14 ~ 20m/s", tide: "대조기·폭풍해일 주의 수위", riskRange: "방파제·해안도로 월파 시작", action: "위험구역 출입 전면 통제, 순찰 강화·대피 방송 연속 송출" },
   { level: "danger", label: "심각", waveHeight: "4.0m 초과", windSpeed: "20m/s 초과", tide: "범람·침수 위험 수위 초과", riskRange: "인명 고립·추락·내습 즉시 감지", action: "즉각 대피 명령, 해경·119·지자체 상황실 공유 및 구조대 출동" },

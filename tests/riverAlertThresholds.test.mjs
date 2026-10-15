@@ -35,8 +35,8 @@ const { riverStageCriteria } = await import("../src/data/mockRiver.ts")
 test("riverStageCriteria 경계값과 정확히 일치한다", () => {
   assert.equal(classifyRiverRisk(0), "safe")
   assert.equal(classifyRiverRisk(19.9), "safe")
-  assert.equal(classifyRiverRisk(20), "caution")
-  assert.equal(classifyRiverRisk(49.9), "caution")
+  assert.equal(classifyRiverRisk(20), "safe") // 20~50%는 징후 감시(정상 안)
+  assert.equal(classifyRiverRisk(49.9), "safe")
   assert.equal(classifyRiverRisk(50), "warning")
   assert.equal(classifyRiverRisk(69.9), "warning")
   assert.equal(classifyRiverRisk(70), "alert")
@@ -45,6 +45,8 @@ test("riverStageCriteria 경계값과 정확히 일치한다", () => {
   assert.equal(classifyRiverRisk(150), "danger")
 })
 
-test("riverStageCriteria에 정의된 5단계와 순서가 같다", () => {
-  assert.deepEqual(riverStageCriteria.map((c) => c.level), ["safe", "caution", "warning", "alert", "danger"])
+test("riverStageCriteria에 정의된 4단계와 순서가 같고, 징후 감시 구간은 20~50%다", async () => {
+  assert.deepEqual(riverStageCriteria.map((c) => c.level), ["safe", "warning", "alert", "danger"])
+  const { isRiverWatch } = await import("../src/data/riverAlertThresholds.ts")
+  assert.deepEqual([19.9, 20, 49.9, 50].map(isRiverWatch), [false, true, true, false])
 })

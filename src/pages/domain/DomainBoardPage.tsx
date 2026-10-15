@@ -146,7 +146,7 @@ export function DomainBoardPage({ domain }: { domain: string }) {
             <div className="timebar">
               <div className="risk-legend">
                 범례{" "}
-                {(["danger", "alert", "warning", "caution", "safe"] as const).map((level) => (
+                {(["danger", "alert", "warning", "safe"] as const).map((level) => (
                   <Risk key={level} level={level} />
                 ))}
               </div>

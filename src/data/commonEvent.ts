@@ -46,7 +46,7 @@ export interface CommonEvent {
 
 const LEVEL_OF_RISK: Record<string, EventLevel> = { caution: "caution", warning: "warning", alert: "alert", danger: "danger" }
 const levelOf = (l: string): EventLevel => LEVEL_OF_RISK[l] ?? "normal"
-const SAMPLE_LEVEL: Record<SampleLevel, EventLevel> = { safe: "normal", caution: "caution", warning: "warning", alert: "alert", danger: "danger" }
+const SAMPLE_LEVEL: Record<SampleLevel, EventLevel> = { safe: "normal", warning: "warning", alert: "alert", danger: "danger" }
 
 /** 특보·재난문자 제목·내용에서 서비스를 추정한다 — 어디에도 안 맞으면 common */
 export function serviceOfText(text: string): ServiceId | "common" {
@@ -103,7 +103,7 @@ export function fromPilotBatch(b: PilotBatch): CommonEvent[] {
     })
   }
 
-  const stage: Record<PilotBatch["coast"]["currentStage"], EventLevel> = { 평시: "normal", 관심: "caution", 주의: "warning", 경계: "alert", 심각: "danger" }
+  const stage: Record<PilotBatch["coast"]["currentStage"], EventLevel> = { 평시: "normal", 주의: "warning", 경계: "alert", 심각: "danger" }
   for (const s of b.coast.sites) {
     const crowd = b.coast.crowd.find((c) => c.siteId === s.id)
     const last = crowd?.series[crowd.series.length - 1]
@@ -230,9 +230,31 @@ export const EVENT_FIELD_MAP: { field: string; meaning: string; river: string; c
   { field: "id · serviceId · title", meaning: "공통 이벤트 ID, 서비스, 제목", river: "관측점 id · 유량 %", coast: "구역 id · 연안 상황", aqua: "취수구 id · 도달 시간", kma: "발표 id · 특보명" },
   { field: "occurredAt", meaning: "발생·기준 시각", river: "배치 기준 시각", coast: "배치 기준 시각", aqua: "배치 기준 시각", kma: "발표·수신 시각" },
   { field: "subject", meaning: "발생 위치(이름·종류·좌표)", river: "관측점 이름·좌표", coast: "구역 이름·좌표", aqua: "취수구 이름", kma: "발효 지역·태풍 위치" },
-  { field: "risk", meaning: "위험도(평시·관심·주의·경계·심각)와 근거", river: "유량비 단계", coast: "VLM 요약 등급", aqua: "저염수 도달 단계", kma: "특보 등급(예비·주의보·경보)" },
+  { field: "risk", meaning: "위험도(평시·주의·경계·심각)와 근거", river: "유량비 단계", coast: "VLM 요약 등급", aqua: "저염수 도달 단계", kma: "특보 등급(예비·주의보·경보)" },
   { field: "observation[]", meaning: "관측값(근거 수치)", river: "수위 · 유량비", coast: "이용객 수", aqua: "표층 염분 · 수온", kma: "태풍 속도·기압·풍속" },
   { field: "prediction", meaning: "AI 예측값(시점별)", river: "10·30·60분 후 수위", coast: "—", aqua: "저염수 도달 예상 시간", kma: "—" },
   { field: "alert", meaning: "경보 결과(발령·해제)", river: "—(연계 전)", coast: "—(연계 전)", aqua: "—(연계 전)", kma: "특보·재난문자 발령·해제" },
   { field: "source", meaning: "출처 시스템·구분(기상청·행안부·실증사·샘플)", river: "하천범람 실증사", coast: "연안안전 실증사", aqua: "저염분 실증사", kma: "기상청·행정안전부" },
 ]
+
+/**
+ * 스테이징 전용 — 실증사 이벤트가 실시간으로 들어오는 모습을 보이려고 임의 이벤트를 만든다.
+ * 실증사 이벤트 하나(templates)를 골라 n번째 수신분으로 복제하고, 위험 단계와 관측값을 조금씩 바꾼다. 실제 수신이 붙으면 이 함수와 호출을 지운다.
+ */
+export function simulateLiveEvent(templates: CommonEvent[], n: number, now: Date): CommonEvent | null {
+  if (templates.length === 0) return null
+  const t = templates[n % templates.length]
+  const level = (["caution", "warning", "alert", "danger"] as const)[n % 4]
+  const k = 1 + ((n % 5) - 2) * 0.04
+  const bump = (m: Measure): Measure => (typeof m.value === "number" ? { ...m, value: Math.round(m.value * k * 100) / 100 } : m)
+  return {
+    ...t,
+    id: `EVT-LIVE-${n}-${t.id.replace("EVT-", "")}`,
+    title: `${t.subject.name} 이벤트 수신 · ${EVENT_LEVEL_LABEL[level]}`,
+    occurredAt: now.toISOString(),
+    risk: { level, basis: "실증사 수신 값 기준(샘플)" },
+    observation: t.observation.map(bump),
+    prediction: t.prediction && { ...t.prediction, values: t.prediction.values.map(bump) },
+    source: { ...t.source, system: `${t.source.system} · 실시간 수신` },
+  }
+}

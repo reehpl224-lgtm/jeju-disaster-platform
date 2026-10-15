@@ -1,4 +1,4 @@
-/** 위험등급 5단계(정상<관심<주의<경계<위험) + 비위험 상태(info/offline). 순서: safe < caution < warning < alert < danger */
+/** 위험등급: 4단계(정상<주의<경계<심각) + 징후 감시(caution — 단계 아님, 도청 레거시 시스템의 '관심'에만 단계로 쓴다) + 비위험 상태(info/offline). 순서: safe < caution < warning < alert < danger */
 export type RiskLevel = "danger" | "alert" | "warning" | "caution" | "safe" | "info" | "offline"
 
 export interface RiskLevelMeta {

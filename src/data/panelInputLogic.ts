@@ -4,7 +4,6 @@
 export type InputLevel = "safe" | "caution" | "warning" | "alert" | "danger"
 export const INPUT_LEVELS: { value: InputLevel; label: string }[] = [
   { value: "safe", label: "평시(정상)" },
-  { value: "caution", label: "관심" },
   { value: "warning", label: "주의" },
   { value: "alert", label: "경계" },
   { value: "danger", label: "심각" },

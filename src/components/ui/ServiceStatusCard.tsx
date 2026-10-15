@@ -3,11 +3,10 @@ import type { RiskLevel } from "../../types/domain"
 import type { serviceStatusCards } from "../../data/mockDashboard"
 import { getDominantRiskLevel, riskStyles } from "./riskStyles"
 
-const TIERS: { level: RiskLevel; key: "danger" | "alert" | "warning" | "caution" }[] = [
+const TIERS: { level: RiskLevel; key: "danger" | "alert" | "warning" }[] = [
   { level: "danger", key: "danger" },
   { level: "alert", key: "alert" },
   { level: "warning", key: "warning" },
-  { level: "caution", key: "caution" },
 ]
 
 // 위험색 글로우 — Tailwind는 동적으로 조합한 클래스명을 빌드 시점에 인식하지 못하므로
@@ -24,7 +23,7 @@ const GLOW_VAR: Record<RiskLevel, string | null> = {
 
 export function ServiceStatusCard({ card }: { card: (typeof serviceStatusCards)[number] }) {
   const counts = card.counts
-  const total = counts.danger + counts.alert + counts.warning + (counts.caution ?? 0)
+  const total = counts.danger + counts.alert + counts.warning
   const dominant = getDominantRiskLevel(counts)
   const dominantStyle = riskStyles[dominant]
   const glow = GLOW_VAR[dominant]

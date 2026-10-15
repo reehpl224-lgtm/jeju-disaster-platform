@@ -32,7 +32,7 @@ export interface Scenario {
 export const SERVICE_TITLE: Record<ServiceId, string> = {
   "heavy-rain": "호우", typhoon: "태풍", heat: "폭염 대응", wildfire: "산불", tsunami: "지진해일", snow: "대설", river: "하천범람", aqua: "저염분 고수온", coast: "연안 안전관리",
 }
-export const LEVEL_LABEL: Record<EsopLevel | "normal", string> = { normal: "정상", caution: "관심", warning: "주의", alert: "경계", danger: "심각" }
+export const LEVEL_LABEL: Record<EsopLevel | "normal", string> = { normal: "정상", warning: "주의", alert: "경계", danger: "심각" }
 
 export const isKmaService = (id: ServiceId) => (KMA_SERVICES as string[]).includes(id)
 export function metricOf(s: Pick<Scenario, "serviceId" | "metricId">): MetricSpec | undefined {
@@ -60,10 +60,10 @@ export const newPhase = ph
 /** 처음 제공하는 시나리오(샘플) — 값은 임의이고 기대 단계는 정의표 기준으로 맞춰 둔다 */
 export function presetScenarios(): Scenario[] {
   return [
-    { id: "sc-river", name: "효돈천 집중호우 — 유량 상승", serviceId: "river", subject: "효돈천(돈내코)", metricId: "flow", phases: [ph(25, 0, "caution"), ph(55, 20, "warning"), ph(75, 15, "alert"), ph(105, 15, "danger")] },
-    { id: "sc-coast", name: "함덕 너울성 파도 — 파고 상승", serviceId: "coast", subject: "함덕 해수욕장", metricId: "wave", phases: [ph(1.2, 0, "caution"), ph(2.0, 30, "warning"), ph(3.0, 30, "alert"), ph(4.5, 20, "danger")] },
-    { id: "sc-aqua", name: "한경 해역 저염수 유입 — 염분 하락", serviceId: "aqua", subject: "한경 해역", metricId: "salinity", phases: [ph(29, 0, "caution"), ph(27, 120, "warning"), ph(25, 120, "alert"), ph(23, 180, "danger")] },
-    { id: "sc-rain", name: "제주 호우 특보 단계 진행", serviceId: "heavy-rain", subject: "서귀포시 남부", metricId: "kma", phases: [ph(1, 0, "caution"), ph(2, 60, "warning"), ph(3, 90, "alert")] },
+    { id: "sc-river", name: "효돈천 집중호우 — 유량 상승", serviceId: "river", subject: "효돈천(돈내코)", metricId: "flow", phases: [ph(55, 0, "warning"), ph(75, 20, "alert"), ph(105, 15, "danger")] },
+    { id: "sc-coast", name: "함덕 너울성 파도 — 파고 상승", serviceId: "coast", subject: "함덕 해수욕장", metricId: "wave", phases: [ph(2.0, 0, "warning"), ph(3.0, 30, "alert"), ph(4.5, 20, "danger")] },
+    { id: "sc-aqua", name: "한경 해역 저염수 유입 — 염분 하락", serviceId: "aqua", subject: "한경 해역", metricId: "salinity", phases: [ph(27, 0, "warning"), ph(25, 120, "alert"), ph(23, 120, "danger")] },
+    { id: "sc-rain", name: "제주 호우 특보 단계 진행", serviceId: "heavy-rain", subject: "서귀포시 남부", metricId: "kma", phases: [ph(1, 0, "warning"), ph(2, 60, "warning"), ph(3, 90, "alert")] },
   ]
 }
 
@@ -145,5 +145,5 @@ export const EXPECT_OPTIONS = ESOP_STAGES
 /** 시나리오 한 건 새로 만들 때의 시작값 */
 export function blankScenario(serviceId: ServiceId): Scenario {
   const metricId = defaultMetricId(serviceId)
-  return { id: `sc-${Date.now().toString(36)}`, name: `${SERVICE_TITLE[serviceId]} 새 시나리오`, serviceId, subject: "", metricId, phases: [ph(isKmaService(serviceId) ? 1 : 0, 0, "caution")] }
+  return { id: `sc-${Date.now().toString(36)}`, name: `${SERVICE_TITLE[serviceId]} 새 시나리오`, serviceId, subject: "", metricId, phases: [ph(isKmaService(serviceId) ? 1 : 0, 0, "warning")] }
 }

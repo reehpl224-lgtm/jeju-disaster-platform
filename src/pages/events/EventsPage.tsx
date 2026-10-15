@@ -4,11 +4,12 @@ import { DOMAINS } from "../../components/layout/domainSidebarUtils"
 import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { EVENT_FIELD_MAP, EVENT_LEVEL_LABEL, toNgsiLd, type CommonEvent, type EventLevel } from "../../data/commonEvent"
+import { IS_STAGING } from "../../data/appMode"
 import { useCommonEvents } from "../../data/useCommonEvents"
 import type { RiskLevel } from "../../types/domain"
 
 const LEVEL_RISK: Record<EventLevel, RiskLevel> = { normal: "safe", caution: "caution", warning: "warning", alert: "alert", danger: "danger" }
-const LEVELS: EventLevel[] = ["danger", "alert", "warning", "caution", "normal"]
+const LEVELS: EventLevel[] = ["danger", "alert", "warning", "normal"]
 const sel = "rounded-lg border border-border-subtle bg-inset px-3 py-2 text-sm text-white/85"
 const svcTitle = (id: string) => (id === "common" ? "공통·기타" : (DOMAINS.find((d) => d.prefix === `/${id}`)?.title ?? id))
 const at = (iso: string) => new Date(iso).toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false })
@@ -19,7 +20,7 @@ const at = (iso: string) => new Date(iso).toLocaleString("ko-KR", { month: "2-di
  * 표준 데이터 모델(NGSI-LD) 변환 결과를 확인한다. 특보·태풍·재난문자는 실제 수신, 실증사 값은 연계 전이라 스테이징에서만 샘플이다.
  */
 export function EventsPage() {
-  const { events, pilot, spNullSources } = useCommonEvents()
+  const { events, pilot, spNullSources, liveAt } = useCommonEvents()
   const [svc, setSvc] = useState("all")
   const [level, setLevel] = useState<EventLevel | "all">("all")
   const [origin, setOrigin] = useState("all")
@@ -69,6 +70,12 @@ export function EventsPage() {
             ))}
           </select>
         </div>
+        {IS_STAGING && pilot === "ok" && (
+          <p className="mb-2 rounded-lg bg-inset px-3 py-2 text-xs text-white/50">
+            <span className="mr-1 inline-block size-1.5 rounded-full bg-accent align-middle" aria-hidden /> 실증사 이벤트 실시간 수신 중(샘플 · 20초마다 1건) · 마지막 수신{" "}
+            {liveAt ? liveAt.toLocaleTimeString("ko-KR", { hour12: false }) : "대기 중"}
+          </p>
+        )}
         {pilot === "none" && <p className="mb-2 rounded-lg bg-inset px-3 py-2 text-xs text-white/50">실증사 자료가 연계되지 않아 하천·연안·저염분 이벤트는 없습니다 — 데이터 없음</p>}
         {spNullSources.length > 0 && <p className="mb-2 rounded-lg bg-inset px-3 py-2 text-xs text-white/50">받지 못한 출처: {spNullSources.join(" · ")} — 데이터 없음</p>}
 
@@ -86,6 +93,7 @@ export function EventsPage() {
                     <RiskBadge level={LEVEL_RISK[e.risk.level]} label={EVENT_LEVEL_LABEL[e.risk.level]} />
                     <span className="text-xs font-semibold text-white/40">{svcTitle(e.serviceId)}</span>
                     {e.source.sample && <span className="rounded-full border border-white/20 px-2 text-[10px] text-white/50">샘플</span>}
+                    {liveAt && e.occurredAt === liveAt.toISOString() && <span className="rounded-full bg-accent px-2 text-[10px] font-bold text-black">방금 수신</span>}
                     <span className="ml-auto text-xs text-white/30">{at(e.occurredAt)}</span>
                   </span>
                   <span className="text-sm font-medium text-white/85">{e.title}</span>

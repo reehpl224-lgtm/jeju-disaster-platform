@@ -61,9 +61,9 @@ export function buildSampleEvents(now = new Date()): SpEvent[] {
   const sourceOf = (id: string, category: SpCategory): SpSource => (id.startsWith("s-ty") ? "typhoon" : category === "message" ? "messages" : id === "s-landslide" || id === "s-flood" ? "other" : "warnings")
   const ev = (e: Omit<SpEvent, "sample" | "source">): SpEvent => ({ ...e, source: sourceOf(e.id, e.category), sample: true })
   return [
-    ev({ id: "s-ty27", category: "disaster", icon: "🌀", level: "caution", status: "발령", title: "제27호 초이완", detail: "일본 도쿄 동북동쪽 약 1220 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "65km/h" }, { label: "중심기압", value: "965hPa" }, { label: "최대풍속", value: "37m/s" }] }),
-    ev({ id: "s-ty28", category: "disaster", icon: "🌀", level: "caution", status: "발령", title: "제28호 놀루", detail: "괌 북동쪽 약 2450 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "41km/h" }, { label: "중심기압", value: "965hPa" }, { label: "최대풍속", value: "37m/s" }] }),
-    ev({ id: "s-ty29", category: "disaster", icon: "🌀", level: "caution", status: "발령", title: "제29호 고구마", detail: "괌 동쪽 약 2330 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "15km/h" }, { label: "중심기압", value: "992hPa" }, { label: "최대풍속", value: "23m/s" }] }),
+    ev({ id: "s-ty27", category: "disaster", icon: "🌀", level: "info", status: "발령", title: "제27호 초이완", detail: "일본 도쿄 동북동쪽 약 1220 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "65km/h" }, { label: "중심기압", value: "965hPa" }, { label: "최대풍속", value: "37m/s" }] }),
+    ev({ id: "s-ty28", category: "disaster", icon: "🌀", level: "info", status: "발령", title: "제28호 놀루", detail: "괌 북동쪽 약 2450 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "41km/h" }, { label: "중심기압", value: "965hPa" }, { label: "최대풍속", value: "37m/s" }] }),
+    ev({ id: "s-ty29", category: "disaster", icon: "🌀", level: "info", status: "발령", title: "제29호 고구마", detail: "괌 동쪽 약 2330 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "15km/h" }, { label: "중심기압", value: "992hPa" }, { label: "최대풍속", value: "23m/s" }] }),
     // 최근 24시간 기상특보 4건 — 발효중 특보(간트)·실시간 특보가 같이 쓴다. 건조주의보는 해제(발효 구간 끝이 있음).
     ev({ id: "s-wind-w", category: "weather", icon: "💨", level: "alert", status: "발령", title: "강풍경보 (기상특보)", detail: "제주시 북부 · 기상청 발표", at: t(40) }),
     ev({ id: "s-rain-w", category: "weather", icon: "☔", level: "warning", status: "발령", title: "호우주의보 (기상특보)", detail: "서귀포시 남부·중산간 · 기상청 발표", at: t(200) }),
@@ -76,11 +76,11 @@ export function buildSampleEvents(now = new Date()): SpEvent[] {
     ev({ id: "s-dry", category: "weather", icon: "🔥", level: "warning", status: "해제", title: "건조주의보 (기상특보)", detail: "제주시 중산간 · 해제", at: t(2 * DAY / MIN + 9 * 60) }),
     ev({ id: "s-wave", category: "weather", icon: "🌊", level: "warning", status: "발령", title: "풍랑주의보 (기상특보)", detail: "제주도 앞바다 · 기상청 발표", at: t(3 * DAY / MIN + 2 * 60) }),
     ev({ id: "s-rain-a", category: "weather", icon: "☔", level: "warning", status: "해제", title: "호우주의보 (기상특보)", detail: "제주시 · 해제", at: t(3 * DAY / MIN + 8 * 60) }),
-    ev({ id: "s-wind-a", category: "weather", icon: "💨", level: "caution", status: "발령", title: "강풍주의보 (기상특보)", detail: "제주시 북부 · 기상청 발표", at: t(4 * DAY / MIN + 3 * 60) }),
+    ev({ id: "s-wind-a", category: "weather", icon: "💨", level: "warning", status: "발령", title: "강풍주의보 (기상특보)", detail: "제주시 북부 · 기상청 발표", at: t(4 * DAY / MIN + 3 * 60) }),
     ev({ id: "s-flood", category: "disaster", icon: "🌊", level: "warning", status: "해제", title: "홍수주의보", detail: "효돈천 · 해제", at: t(4 * DAY / MIN + 10 * 60) }),
-    ev({ id: "s-wave-b", category: "weather", icon: "🌊", level: "caution", status: "해제", title: "풍랑주의보 (기상특보)", detail: "제주도 남쪽 먼바다 · 해제", at: t(5 * DAY / MIN + 4 * 60) }),
-    ev({ id: "s-fog", category: "weather", icon: "🌫️", level: "caution", status: "발령", title: "안개 (기상특보)", detail: "제주시 · 기상청 발표", at: t(5 * DAY / MIN + 12 * 60) }),
-    ev({ id: "s-wind-b", category: "weather", icon: "💨", level: "caution", status: "해제", title: "강풍주의보 (기상특보)", detail: "서귀포시 · 해제", at: t(6 * DAY / MIN + 6 * 60) }),
+    ev({ id: "s-wave-b", category: "weather", icon: "🌊", level: "warning", status: "해제", title: "풍랑주의보 (기상특보)", detail: "제주도 남쪽 먼바다 · 해제", at: t(5 * DAY / MIN + 4 * 60) }),
+    ev({ id: "s-fog", category: "weather", icon: "🌫️", level: "warning", status: "발령", title: "안개 (기상특보)", detail: "제주시 · 기상청 발표", at: t(5 * DAY / MIN + 12 * 60) }),
+    ev({ id: "s-wind-b", category: "weather", icon: "💨", level: "warning", status: "해제", title: "강풍주의보 (기상특보)", detail: "서귀포시 · 해제", at: t(6 * DAY / MIN + 6 * 60) }),
   ]
 }
 
@@ -164,8 +164,8 @@ export interface SpServiceSensors {
 export const SAMPLE_SERVICE_SENSORS: SpServiceSensors[] = [
   { id: "river", title: "하천범람", count: 18, level: "warning" },
   { id: "aqua", title: "저염분 고수온", count: 4, level: "warning" },
-  { id: "coast", title: "연안 안전관리", count: 13, level: "caution" },
-  { id: "typhoon", title: "태풍", count: 20, level: "caution" },
+  { id: "coast", title: "연안 안전관리", count: 13, level: "warning" },
+  { id: "typhoon", title: "태풍", count: 20, level: "warning" },
   // [숨김 2026-10-14] 폭염·산불은 1차년도 범위(풍수해) 밖이라 화면에서 뺌 — 복원하려면 아래 주석을 해제
   // { id: "heat", title: "폭염 대응", count: 20, level: "caution" },
   { id: "heavy-rain", title: "호우", count: 26, level: "safe" },
@@ -236,7 +236,7 @@ export const SAMPLE_SERVICE_STAGES: SpServiceStage[] = [
   { id: "river", title: "하천범람", level: "alert", count: 3, done: 2, total: 5 },
   { id: "aqua", title: "저염분 고수온", level: "warning", count: 2, done: 3, total: 5 },
   { id: "coast", title: "연안 안전관리", level: "warning", count: 4, done: 2, total: 4 },
-  { id: "heavy-rain", title: "호우", level: "caution", count: 1, done: 1, total: 4 },
+  { id: "heavy-rain", title: "호우", level: "warning", count: 1, done: 1, total: 4 },
   // { id: "heat", title: "폭염 대응", level: "caution", count: 2, done: 2, total: 4 },
   { id: "typhoon", title: "태풍", level: "safe", count: null, done: 0, total: 0 },
   // { id: "wildfire", title: "산불", level: "safe", count: null, done: 0, total: 0 },
@@ -278,8 +278,8 @@ export const SAMPLE_VLM_SUMMARY: { time: string; level: RiskLevel; badge: string
   { time: "17:50", level: "safe", badge: "정상", text: "함덕 해수욕장 · 이용객 약 52명 · 이안류 징후 없음" },
 ]
 export const SAMPLE_INTAKES: { name: string; hours: number; level: RiskLevel; badge: string }[] = [
-  { name: "한경 취수구", hours: 31, level: "caution", badge: "관심" },
-  { name: "고산 취수구", hours: 25, level: "caution", badge: "관심" },
+  { name: "한경 취수구", hours: 31, level: "caution", badge: "징후" },
+  { name: "고산 취수구", hours: 25, level: "caution", badge: "징후" },
   { name: "대정 취수구", hours: 60, level: "safe", badge: "정상" },
 ]
 
