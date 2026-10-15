@@ -236,3 +236,25 @@ export const EVENT_FIELD_MAP: { field: string; meaning: string; river: string; c
   { field: "alert", meaning: "경보 결과(발령·해제)", river: "—(연계 전)", coast: "—(연계 전)", aqua: "—(연계 전)", kma: "특보·재난문자 발령·해제" },
   { field: "source", meaning: "출처 시스템·구분(기상청·행안부·실증사·샘플)", river: "하천범람 실증사", coast: "연안안전 실증사", aqua: "저염분 실증사", kma: "기상청·행정안전부" },
 ]
+
+/**
+ * 스테이징 전용 — 실증사 이벤트가 실시간으로 들어오는 모습을 보이려고 임의 이벤트를 만든다.
+ * 실증사 이벤트 하나(templates)를 골라 n번째 수신분으로 복제하고, 위험 단계와 관측값을 조금씩 바꾼다. 실제 수신이 붙으면 이 함수와 호출을 지운다.
+ */
+export function simulateLiveEvent(templates: CommonEvent[], n: number, now: Date): CommonEvent | null {
+  if (templates.length === 0) return null
+  const t = templates[n % templates.length]
+  const level = (["caution", "warning", "alert", "danger"] as const)[n % 4]
+  const k = 1 + ((n % 5) - 2) * 0.04
+  const bump = (m: Measure): Measure => (typeof m.value === "number" ? { ...m, value: Math.round(m.value * k * 100) / 100 } : m)
+  return {
+    ...t,
+    id: `EVT-LIVE-${n}-${t.id.replace("EVT-", "")}`,
+    title: `${t.subject.name} 이벤트 수신 · ${EVENT_LEVEL_LABEL[level]}`,
+    occurredAt: now.toISOString(),
+    risk: { level, basis: "실증사 수신 값 기준(샘플)" },
+    observation: t.observation.map(bump),
+    prediction: t.prediction && { ...t.prediction, values: t.prediction.values.map(bump) },
+    source: { ...t.source, system: `${t.source.system} · 실시간 수신` },
+  }
+}

@@ -69,3 +69,16 @@ test("구조 검사: 만들어 내는 이벤트와 Mock API 파일은 모두 통
   assert.ok(errs.some((m) => m.startsWith("alert.status")))
   assert.deepEqual(validateCommonEvent("문자열"), ["이벤트는 객체여야 합니다"])
 })
+
+import { simulateLiveEvent } from "../src/data/commonEvent.ts"
+
+test("수신 시뮬레이션: 매번 새 ID·수신 시각으로 구조 검사를 통과하고, 템플릿이 없으면 만들지 않는다", () => {
+  const t = fromPilotBatch(generatePilotBatch(new Date(2026, 9, 13, 10, 0)))
+  const now = new Date(2026, 9, 13, 10, 5)
+  const a = simulateLiveEvent(t, 1, now)
+  const b = simulateLiveEvent(t, 2, now)
+  assert.notEqual(a.id, b.id)
+  assert.equal(a.occurredAt, now.toISOString())
+  assert.deepEqual(validateCommonEvent(a), [])
+  assert.equal(simulateLiveEvent([], 1, now), null)
+})
