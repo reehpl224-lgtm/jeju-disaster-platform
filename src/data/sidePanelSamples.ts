@@ -278,8 +278,8 @@ export const SAMPLE_VLM_SUMMARY: { time: string; level: RiskLevel; badge: string
   { time: "17:50", level: "safe", badge: "정상", text: "함덕 해수욕장 · 이용객 약 52명 · 이안류 징후 없음" },
 ]
 export const SAMPLE_INTAKES: { name: string; hours: number; level: RiskLevel; badge: string }[] = [
-  { name: "한경 취수구", hours: 31, level: "caution", badge: "징후" },
-  { name: "고산 취수구", hours: 25, level: "caution", badge: "징후" },
+  { name: "한경 취수구", hours: 31, level: "safe", badge: "정상" },
+  { name: "고산 취수구", hours: 25, level: "safe", badge: "정상" },
   { name: "대정 취수구", hours: 60, level: "safe", badge: "정상" },
 ]
 

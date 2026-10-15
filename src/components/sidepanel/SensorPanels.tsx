@@ -7,8 +7,9 @@ import { IS_STAGING } from "../../data/appMode"
 import { PartTag, SpRisk } from "./primitives"
 import { levelName, spLevel } from "./spUtils"
 
-const SEG_INDEX: Record<string, number> = { safe: 0, caution: 1, warning: 2, alert: 3, danger: 3 }
-const SEG_COLOR = ["var(--risk-safe)", "var(--risk-caution)", "var(--risk-warning)", "var(--risk-alert)", "var(--risk-alert)"]
+// 눈금은 정상·주의·경계·심각 4칸 — 징후(관심)는 정상 칸에 둔다
+const SEG_INDEX: Record<string, number> = { safe: 0, caution: 0, warning: 1, alert: 2, danger: 3 }
+const SEG_COLOR = ["var(--risk-safe)", "var(--risk-warning)", "var(--risk-alert)", "var(--risk-alert)"]
 
 interface SvcTile {
   id: string
@@ -236,10 +237,10 @@ export function SensorTrendPanel() {
           )
         })}
         <div className="sp-legend">
-          {(["safe", "caution", "warning", "alert", "alert"] as RiskLevel[]).map((l, i) => (
+          {(["safe", "warning", "alert", "alert"] as RiskLevel[]).map((l, i) => (
             <span key={i}>
               <i className={`sp-dot sp-bg--${l}`} />
-              {["평시", "징후", "주의", "경계", "심각"][i]}
+              {["정상", "주의", "경계", "심각"][i]}
             </span>
           ))}
         </div>

@@ -81,10 +81,10 @@ export function trendDirection(t: TrendInput): "up" | "flat" | "down" {
   const eps = Math.max(1e-9, Math.abs(o[o.length - 1]) * 0.005)
   return d > eps ? "up" : d < -eps ? "down" : "flat"
 }
-/** 기준값까지 얼마나 왔는지(0~1) — 5단계 눈금 위 위치로 쓴다 */
+/** 기준값까지 얼마나 왔는지(0~1) — 4단계(정상·주의·경계·심각) 눈금 위 위치로 쓴다 */
 export function trendPosition(t: TrendInput): number {
   const v = t.observed[t.observed.length - 1]
-  if (v === undefined || !t.threshold) return LEVEL_RANK[t.level] / 5 + 0.1
+  if (v === undefined || !t.threshold) return Math.max(0, LEVEL_RANK[t.level] - 1) / 4 + 0.125
   const ratio = t.worse === "above" ? v / t.threshold : t.threshold / v
   return Math.min(0.98, Math.max(0.02, ratio * 0.85))
 }

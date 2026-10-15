@@ -204,7 +204,7 @@
 .sp-rank .top b { flex: 1 1 0; min-width: 0; font-size: 13px; }
 .sp-rank .top span { font-size: 13px; font-weight: 700; }
 .sp-rank .top em { font-style: normal; font-size: 11px; color: var(--foreground-muted); min-width: 36px; text-align: right; }
-.sp-gauge { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 6px; }
+.sp-gauge { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 6px; }
 .sp-gauge i { height: 6px; border-radius: 3px; background: var(--foreground-ghost); }
 .sp-gauge i.on { opacity: 1; }
 .sp-gauge .pos { position: absolute; top: -3px; width: 4px; height: 12px; border-radius: 2px; background: #fff; transform: translateX(-2px); }
@@ -371,3 +371,5 @@
 .bo-input { flex: 1 1 0; min-width: 0; padding: 6px 10px; border: 1px solid var(--foreground-ghost); border-radius: 8px; background: transparent; color: var(--foreground); font: inherit; font-size: 12px; outline: 0; }
 .bo-input:focus { border-color: var(--primary); }
 .bd-btn:disabled { opacity: .4; cursor: not-allowed; }
+.sp-more { align-self: stretch; padding: 9px 12px; border: 1px solid var(--foreground-faint); border-radius: 10px; background: transparent; color: var(--foreground); font-size: 12px; font-weight: 600; cursor: pointer; }
+.sp-more:hover { background: var(--foreground-ghost); }
