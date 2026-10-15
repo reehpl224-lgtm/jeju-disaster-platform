@@ -33,7 +33,7 @@ export function ResponsePanel() {
     }
     const x = inp.stages?.find((v) => v.id === sv.id)
     return { id: sv.id, title: sv.title, level: x?.level ?? null, count: x?.count ?? null, done: x?.done ?? 0, total: (x?.done ?? 0) + (x?.doing ?? 0) + (x?.waiting ?? 0) }
-  }).sort((a, b) => (b.level ? LEVEL_RANK[b.level] : -1) - (a.level ? LEVEL_RANK[a.level] : -1))
+  }).sort((a, b) => (b.level ? LEVEL_RANK[b.level] : -1) - (a.level ? LEVEL_RANK[a.level] : -1)).map((t) => (t.level === "caution" ? { ...t, level: "safe" as InputLevel } : t)) // 징후는 단계가 아니라 평시로 표시
   const top = tiles[0]
   // 범례 = 전체 서비스의 단계별 건수 합(타일 숫자의 합). 숫자가 없는 서비스는 0건
   const countOf = (l: InputLevel[]) => tiles.reduce((n, t) => n + (t.level && l.includes(t.level) ? (t.count ?? 0) : 0), 0)
@@ -75,8 +75,7 @@ export function ResponsePanel() {
           <span><i className="sp-dot sp-bg--alert" />심각 {countOf(["danger"])}</span>
           <span><i className="sp-dot sp-bg--alert" />경계 {countOf(["alert"])}</span>
           <span><i className="sp-dot sp-bg--warning" />주의 {countOf(["warning"])}</span>
-          <span><i className="sp-dot sp-bg--caution" />징후 {countOf(["caution"])}</span>
-          <span><i className="sp-dot sp-bg--safe" />평시 {countOf(["safe"])}</span>
+          <span><i className="sp-dot sp-bg--safe" />평시 {countOf(["safe", "caution"])}</span>
         </div>
         <div className="sp-stages">
           {tiles.map((s) => (

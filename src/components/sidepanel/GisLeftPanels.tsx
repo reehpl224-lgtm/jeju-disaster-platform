@@ -51,7 +51,11 @@ const SERVICE_OPTIONS: { id: Domain; label: string }[] = [
   { id: "snow", label: "대설" },
 ]
 const RANK: Record<RiskLevel, number> = { danger: 5, alert: 4, warning: 3, caution: 2, safe: 1, info: 0, offline: -1 }
-const LEVELS: RiskLevel[] = ["danger", "alert", "warning", "caution", "safe"]
+// 위험 단계 태그는 심각·경계·주의·정상 4단계만 — 징후(관심)는 단계가 아니라 정상 안의 참고 표시라 정상으로 센다
+const LEVELS: RiskLevel[] = ["danger", "alert", "warning", "safe"]
+/** 정상은 처음 이만큼만 보이고, "더보기"를 누를 때마다 이만큼씩 더 보인다 */
+const SAFE_FIRST = 3
+const SAFE_MORE = 5
 const hm = (d: Date) => `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`
 
 /** 실제 값이 없을 때의 표식 — 스테이징은 "샘플", 프로토타입·로컬은 "데이터 없음"(값을 비운다) */
@@ -111,13 +115,20 @@ function StatusTab({ domain, onDomain, markers }: { domain: Domain; onDomain: (d
     id: m.id,
     name: m.name,
     domain: m.domain,
-    level: m.level,
+    level: m.level === "caution" ? "safe" : m.level,
     value: m.value ?? m.salinity ?? m.temperature ?? "—",
     sub: DOMAIN_LABEL[m.domain] ?? m.domain,
   }))
   const all: Target[] = real.length === 0 ? (IS_STAGING ? SAMPLE_GIS_TARGETS : []) : real
   const tag = real.length === 0 ? MISSING : "none"
   const list = all.filter((t) => domain === "all" || t.domain === domain).sort((a, b) => RANK[b.level] - RANK[a.level])
+  // 심각 > 경계 > 주의 > 정상 순. 정상은 3건까지만 먼저 보여주고 "더보기"를 누르면 5건씩 늘린다(서비스를 바꾸면 처음으로)
+  const [more, setMore] = useState({ domain, shown: SAFE_FIRST })
+  const safeShown = more.domain === domain ? more.shown : SAFE_FIRST
+  const staged = list.filter((t) => t.level !== "safe")
+  const safe = list.filter((t) => t.level === "safe")
+  const rows = [...staged, ...safe.slice(0, safeShown)]
+  const safeLeft = safe.length - safeShown
   const byDomain = (d: string) => all.filter((t) => t.domain === d).length
 
   return (
@@ -149,7 +160,7 @@ function StatusTab({ domain, onDomain, markers }: { domain: Domain; onDomain: (d
         <p className="sp-note">서비스 칩 = 지도 분야 칩 · 누르면 서비스 선택 상태</p>
       </Card>
       {list.length === 0 && <p className="sp-note">이 서비스는 지도에 표시되는 대상이 없습니다</p>}
-      {list.map((t) => (
+      {rows.map((t) => (
         <div className={`sp-card sp-gis-row sp-gis-row--${spLevel(t.level)}`} key={t.id} style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
           <SpRisk level={t.level}>{levelName(t.level, "정상")}</SpRisk>
           <div style={{ flex: "1 1 0", minWidth: 0 }}>
@@ -161,7 +172,12 @@ function StatusTab({ domain, onDomain, markers }: { domain: Domain; onDomain: (d
           {t.value.length <= 12 && <b style={{ fontSize: 12, flex: "none" }}>{t.value}</b>}
         </div>
       ))}
-      <p className="sp-note">높은 단계 순</p>
+      {safeLeft > 0 && (
+        <button type="button" className="sp-more" onClick={() => setMore({ domain, shown: safeShown + SAFE_MORE })}>
+          더보기 (정상 {Math.min(SAFE_MORE, safeLeft)}건 더 · 남은 {safeLeft}건)
+        </button>
+      )}
+      <p className="sp-note">높은 단계 순 · 정상은 {SAFE_FIRST}건씩 먼저 보이고 더보기를 누르면 {SAFE_MORE}건씩 늘어납니다</p>
     </div>
   )
 }
