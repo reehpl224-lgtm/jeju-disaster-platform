@@ -8,6 +8,13 @@ import type { WarningEntry } from "../types/warningsApi"
 export const warnLvlLabel = (lvl: string) => ({ "1": "예비특보", "2": "주의보", "3": "경보" })[lvl] ?? lvl
 // 4단계(정상·주의·경계·심각): 예비특보는 행안부 매뉴얼 기준으로 주의에 포함한다(관심 단계 없음, 2026-10-15)
 export const warnLvlRisk = (lvl: string): RiskLevel => (lvl === "3" ? "alert" : "warning")
+/**
+ * 제주도 「재난대응 단계 및 요령」(위기관리 단계별 재난경보 판단기준) 기준 단계 — 특보 종류(wrn)를 함께 본다.
+ * 태풍: 예비특보 주의 · 주의보·경보 경계. 그 밖(호우·대설·해일 등): 예비특보·주의보 주의 · 경보 경계.
+ * 심각은 경보 + 대규모 재난 가능성 확실 — 상황판단회의가 수동으로 발령하므로 여기서 만들지 않는다.
+ * (도 전역/일부 지역 경보 구분은 구역 명단 확인 후 반영 — 지금은 경보를 경계로 본다)
+ */
+export const warnRisk = (lvl: string, wrn?: string): RiskLevel => (wrn === "T" && (lvl === "2" || lvl === "3") ? "alert" : warnLvlRisk(lvl))
 
 const RELEASE_CMD = new Set(["3", "4", "7"]) // 해제 · 대치해제 · 변경해제
 const isActive = (e: WarningEntry) => !e.state || e.state === "active"

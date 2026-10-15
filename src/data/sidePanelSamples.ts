@@ -236,9 +236,9 @@ export const SAMPLE_SERVICE_STAGES: SpServiceStage[] = [
   { id: "river", title: "하천범람", level: "alert", count: 3, done: 2, total: 5 },
   { id: "aqua", title: "저염분 고수온", level: "warning", count: 2, done: 3, total: 5 },
   { id: "coast", title: "연안 안전관리", level: "warning", count: 4, done: 2, total: 4 },
-  { id: "heavy-rain", title: "호우", level: "warning", count: 1, done: 1, total: 4 },
+  { id: "heavy-rain", title: "호우", level: "danger", count: 1, done: 1, total: 4 }, // 심각 표시 확인용 임의 샘플(자동 판정 규칙 논의중)
   // { id: "heat", title: "폭염 대응", level: "caution", count: 2, done: 2, total: 4 },
-  { id: "typhoon", title: "태풍", level: "safe", count: null, done: 0, total: 0 },
+  { id: "typhoon", title: "태풍", level: "danger", count: 1, done: 0, total: 5 }, // 심각 표시 확인용 임의 샘플
   // { id: "wildfire", title: "산불", level: "safe", count: null, done: 0, total: 0 },
   { id: "snow", title: "대설", level: "safe", count: null, done: 0, total: 0 },
   { id: "tsunami", title: "지진해일", level: "safe", count: null, done: 0, total: 0 },

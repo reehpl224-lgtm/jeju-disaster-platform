@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import type { AdvisoryItem } from "../../data/aquaAdvisories"
 import { fetchJejuWarnings } from "../../data/warningsApi"
-import { warnLvlLabel } from "../../data/warningLevel"
+import { warnLvlLabel, warnRisk } from "../../data/warningLevel"
 import { LIVE } from "../ui/dataSource"
 import { Risk } from "./BoardParts"
 import { Group } from "./PanelParts"
@@ -47,7 +47,7 @@ export function WarningsSummary({ codes, advisories }: { codes?: string[]; advis
             .filter((e) => codes.includes(e.wrn))
             .map((e, i) => ({
               key: `${e.regId}-${e.wrn}-${e.tmFc}-${i}`,
-              level: e.state === "released" || e.state === "changed" ? "safe" : e.lvl === "3" ? "danger" : "warning",
+              level: e.state === "released" || e.state === "changed" ? "safe" : warnRisk(e.lvl, e.wrn),
               label: `${e.wrnLabel} ${warnLvlLabel(e.lvl)}${e.state === "released" ? " 해제" : e.state === "changed" ? " 변경" : ""}`,
               region: e.regionLabel,
               time: formatTm(e.tmFc),

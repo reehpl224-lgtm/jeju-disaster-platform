@@ -28,7 +28,8 @@ function load(): State {
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) ?? "null") as Partial<State> | null
     return {
-      scenarios: Array.isArray(raw?.scenarios) && raw.scenarios.length > 0 ? raw.scenarios : presetScenarios(),
+      // 4단계 개편(2026-10-15) 전에 저장된 시나리오는 기대 단계에 '관심'(caution)이 있어 새 판정과 어긋나므로 처음 제공한 시나리오로 되돌린다(시험 기록·개선사항은 유지)
+      scenarios: Array.isArray(raw?.scenarios) && raw.scenarios.length > 0 && !raw.scenarios.some((sc) => sc.phases?.some((p) => (p.expect as string) === "caution")) ? raw.scenarios : presetScenarios(),
       runs: Array.isArray(raw?.runs) ? raw.runs : [],
       notes: Array.isArray(raw?.notes) ? raw.notes : [],
     }

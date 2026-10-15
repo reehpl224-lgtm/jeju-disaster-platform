@@ -47,6 +47,7 @@ test("문구와 기상청 등급·수온 지속 규칙", () => {
   assert.equal(stepText(wave, "danger"), "유의파고 4m 초과")
   assert.equal(stepText(METRICS.aqua[0], "alert"), "표층 염분 26psu 이하")
   assert.equal(kmaStageOf("1"), "warning") // 예비특보는 주의(행안부 매뉴얼, 관심 단계 없음)
+  assert.equal(kmaStageOf("2", "T"), "alert") // 태풍주의보는 경계(제주도 재난대응 단계 및 요령)
   assert.equal(kmaStageOf("2"), "warning")
   assert.equal(kmaStageOf("3"), "alert")
   assert.equal(aquaTempLevel(28.5, 0), "warning")
@@ -67,4 +68,24 @@ test("4단계: 관심 구간은 정상에 합쳐지고, 경계값은 높은 단�
   assert.equal(classifyMetric(sal, 26.0), "alert")
   assert.equal(classifyMetric(sal, 24.0), "danger")
   assert.equal(classifyMetric(sal, 24.1), "alert")
+})
+
+test("심각 자동 판정 — 호우: 경계 3시간 + 극한호우, 해제는 30분 유지", async () => {
+  const { isSevere, severeCriteriaText } = await import("../src/data/severeRule.ts")
+  const m = { rain1h: 75 }
+  assert.equal(isSevere("heavy-rain", { alertMin: 179, metrics: m }), false)
+  assert.equal(isSevere("heavy-rain", { alertMin: 180, metrics: m }), true)
+  assert.equal(isSevere("heavy-rain", { alertMin: 200, metrics: { rain1h: 50, rain3h: 90 } }), true)
+  assert.equal(isSevere("heavy-rain", { alertMin: 200, metrics: { rain1h: 50, rain3h: 80 } }), false)
+  assert.equal(isSevere("heavy-rain", { alertMin: 200, metrics: { rain1h: 10 }, wasSevere: true, belowMin: 20 }), true)
+  assert.equal(isSevere("heavy-rain", { alertMin: 200, metrics: { rain1h: 10 }, wasSevere: true, belowMin: 31 }), false)
+  assert.equal(isSevere("snow", { alertMin: 999, metrics: { rain1h: 999 } }), false)
+  assert.match(severeCriteriaText("typhoon"), /6시간/)
+})
+
+test("심각 자동 판정 — 태풍: 경계 6시간 + 44m/s", async () => {
+  const { isSevere } = await import("../src/data/severeRule.ts")
+  assert.equal(isSevere("typhoon", { alertMin: 360, metrics: { windMs: 44 } }), true)
+  assert.equal(isSevere("typhoon", { alertMin: 359, metrics: { windMs: 50 } }), false)
+  assert.equal(isSevere("typhoon", { alertMin: 400, metrics: { windMs: 43.9 } }), false)
 })

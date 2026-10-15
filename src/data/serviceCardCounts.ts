@@ -1,6 +1,7 @@
 import type { WarningEntry } from "../types/warningsApi"
 import type { StageInput } from "./panelInputLogic"
 import type { RiskLevel } from "../types/domain"
+import { warnRisk } from "./warningLevel"
 
 export type CardCounts = { caution: number; warning: number; alert: number; danger: number }
 export interface CardReading {
@@ -47,7 +48,7 @@ export function serviceCardReading(id: string, stages: StageInput[] | undefined,
       if (seen.has(key)) continue
       seen.add(key)
       // 기상청 LVL: 2=주의보, 3=경보(1=예비특보는 세지 않는다)
-      counts[entry.lvl === "3" ? "alert" : "warning"]++
+      counts[warnRisk(entry.lvl, entry.wrn) === "alert" ? "alert" : "warning"]++
     }
     return { counts, source: "warnings", sourceLabel: "기상청 특보 · 발효 중" }
   }

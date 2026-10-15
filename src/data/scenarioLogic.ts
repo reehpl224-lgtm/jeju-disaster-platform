@@ -1,5 +1,5 @@
 import { ESOP_STAGES, stepsOf, type EsopDefs, type EsopLevel } from "./esopLogic"
-import { METRICS, classifyMetric, kmaStageOf, KMA_SERVICES, type MetricSpec } from "./riskCriteria"
+import { METRICS, classifyMetric, kmaStageOf, KMA_SERVICES, KMA_WRN, type MetricSpec } from "./riskCriteria"
 import type { ServiceId } from "./rolesLogic"
 
 /**
@@ -44,7 +44,7 @@ export const defaultMetricId = (id: ServiceId) => (isKmaService(id) ? "kma" : (M
 export function phaseLevel(s: Pick<Scenario, "serviceId" | "metricId">, value: number): EsopLevel | "normal" {
   if (s.metricId === "kma") {
     if (value >= 4) return "danger"
-    if (value >= 1 && value <= 3) return kmaStageOf(String(Math.floor(value)) as "1" | "2" | "3") as EsopLevel
+    if (value >= 1 && value <= 3) return kmaStageOf(String(Math.floor(value)) as "1" | "2" | "3", KMA_WRN[s.serviceId]) as EsopLevel
     return "normal"
   }
   const spec = metricOf(s)

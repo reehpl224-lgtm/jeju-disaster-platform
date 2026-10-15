@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import type { WarningEntry } from "../types/warningsApi"
 import { fetchJejuWarnings } from "./warningsApi"
 import { parseKst } from "./useSidePanelEvents"
-import { warnIsActive, warnLvlLabel } from "./warningLevel"
+import { warnIsActive, warnLvlLabel, warnRisk } from "./warningLevel"
 import type { RiskMarker } from "../types/domain"
 import { bd, type BoardService, type BoardStateId, type DashLeft, type RightPanel } from "./boardTypes"
 import type { Facts } from "./boardFacts"
@@ -45,7 +45,7 @@ export function groupWarnings(list: WarningEntry[], codes: string[]): WarnGroup[
   for (const e of list.filter((x) => codes.includes(x.wrn) && (x.lvl === "2" || x.lvl === "3") && warnIsActive(x))) {
     const label = `${e.wrnLabel}${warnLvlLabel(e.lvl)}`
     const at = parseKst(e.tmFc)
-    const g = map.get(label) ?? { label, level: e.lvl === "3" ? "alert" : "warning", regions: [], at }
+    const g = map.get(label) ?? { label, level: warnRisk(e.lvl, e.wrn) as "alert" | "warning", regions: [], at }
     if (!g.regions.includes(e.regionLabel)) g.regions.push(e.regionLabel)
     if (at > g.at) g.at = at
     map.set(label, g)
