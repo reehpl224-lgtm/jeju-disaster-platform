@@ -1,3 +1,4 @@
+import { persistence } from "./persistence"
 import { useSyncExternalStore } from "react"
 import { audit } from "./auditLog"
 import { getCurrentUser } from "./mockAuth"
@@ -14,7 +15,7 @@ let cache: ResponseStore | null = null
 
 function load(): ResponseStore {
   try {
-    const raw = JSON.parse(localStorage.getItem(KEY) ?? "null") as Partial<ResponseStore> | null
+    const raw = JSON.parse(persistence.getItem(KEY) ?? "null") as Partial<ResponseStore> | null
     return {
       incidents: Array.isArray(raw?.incidents) ? raw.incidents : [],
       orders: Array.isArray(raw?.orders) ? raw.orders : [],
@@ -28,7 +29,7 @@ const get = () => (cache ??= load())
 function commit(next: ResponseStore) {
   cache = next
   try {
-    localStorage.setItem(KEY, JSON.stringify(next))
+    persistence.setItem(KEY, JSON.stringify(next))
   } catch {
     /* 저장 공간이 막힌 브라우저 — 이번 접속 동안만 유지 */
   }

@@ -1,3 +1,4 @@
+import { persistence } from "./persistence"
 import { useSyncExternalStore } from "react"
 import { audit } from "./auditLog"
 import { mergePolicy, type RolePolicy } from "./rolesLogic"
@@ -9,7 +10,7 @@ let cache: RolePolicy | null = null
 
 function load(): RolePolicy {
   try {
-    const raw = localStorage.getItem(KEY)
+    const raw = persistence.getItem(KEY)
     return mergePolicy(raw ? JSON.parse(raw) : null)
   } catch {
     return mergePolicy(null)
@@ -21,7 +22,7 @@ export function getPolicy(): RolePolicy {
 export function savePolicy(next: RolePolicy) {
   cache = mergePolicy(next)
   try {
-    localStorage.setItem(KEY, JSON.stringify(cache))
+    persistence.setItem(KEY, JSON.stringify(cache))
   } catch {
     /* 저장 공간이 막힌 브라우저 — 이번 접속 동안만 유지 */
   }
@@ -31,7 +32,7 @@ export function savePolicy(next: RolePolicy) {
 export function resetPolicy() {
   cache = mergePolicy(null)
   try {
-    localStorage.removeItem(KEY)
+    persistence.removeItem(KEY)
   } catch {
     /* 위와 같음 */
   }

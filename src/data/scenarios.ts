@@ -1,3 +1,4 @@
+import { persistence } from "./persistence"
 import { useSyncExternalStore } from "react"
 import { audit } from "./auditLog"
 import { getEsopDefs } from "./esopDefs"
@@ -26,7 +27,7 @@ let cache: State | null = null
 
 function load(): State {
   try {
-    const raw = JSON.parse(localStorage.getItem(KEY) ?? "null") as Partial<State> | null
+    const raw = JSON.parse(persistence.getItem(KEY) ?? "null") as Partial<State> | null
     return {
       // 4단계 개편(2026-10-15) 전에 저장된 시나리오는 기대 단계에 '관심'(caution)이 있어 새 판정과 어긋나므로 처음 제공한 시나리오로 되돌린다(시험 기록·개선사항은 유지)
       scenarios: Array.isArray(raw?.scenarios) && raw.scenarios.length > 0 && !raw.scenarios.some((sc) => sc.phases?.some((p) => (p.expect as string) === "caution")) ? raw.scenarios : presetScenarios(),
@@ -41,7 +42,7 @@ const get = () => (cache ??= load())
 function commit(next: State) {
   cache = next
   try {
-    localStorage.setItem(KEY, JSON.stringify(next))
+    persistence.setItem(KEY, JSON.stringify(next))
   } catch {
     /* 저장 공간이 막힌 브라우저 — 이번 접속 동안만 유지 */
   }

@@ -1,3 +1,4 @@
+import { persistence } from "./persistence"
 import { useSyncExternalStore } from "react"
 import { appendAudit, type AuditCategory, type AuditEntry } from "./auditLogic"
 
@@ -9,7 +10,7 @@ let cache: AuditEntry[] | null = null
 
 function load(): AuditEntry[] {
   try {
-    const raw = JSON.parse(localStorage.getItem(KEY) ?? "[]")
+    const raw = JSON.parse(persistence.getItem(KEY) ?? "[]")
     return Array.isArray(raw) ? (raw as AuditEntry[]) : []
   } catch {
     return []
@@ -19,7 +20,7 @@ const get = () => (cache ??= load())
 function commit(next: AuditEntry[]) {
   cache = next
   try {
-    localStorage.setItem(KEY, JSON.stringify(next))
+    persistence.setItem(KEY, JSON.stringify(next))
   } catch {
     /* 저장 공간이 막힌 브라우저 — 이번 접속 동안만 유지 */
   }

@@ -1,3 +1,4 @@
+import { persistence } from "./persistence"
 import { useSyncExternalStore } from "react"
 import { audit } from "./auditLog"
 import { esopKey, type EsopDefs, type EsopLevel, type EsopStep } from "./esopLogic"
@@ -9,7 +10,7 @@ let cache: EsopDefs | null = null
 
 function load(): EsopDefs {
   try {
-    const raw = JSON.parse(localStorage.getItem(KEY) ?? "{}")
+    const raw = JSON.parse(persistence.getItem(KEY) ?? "{}")
     return raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as EsopDefs) : {}
   } catch {
     return {}
@@ -20,7 +21,7 @@ export const getEsopDefs = get
 function commit(next: EsopDefs) {
   cache = next
   try {
-    localStorage.setItem(KEY, JSON.stringify(next))
+    persistence.setItem(KEY, JSON.stringify(next))
   } catch {
     /* 저장 공간이 막힌 브라우저 — 이번 접속 동안만 유지 */
   }
