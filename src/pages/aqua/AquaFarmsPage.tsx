@@ -17,7 +17,6 @@ const LEVELS: { level: RiskLevel; label: string }[] = [
   { level: "danger", label: "심각" },
   { level: "alert", label: "경계" },
   { level: "warning", label: "주의" },
-  { level: "caution", label: "관심" },
 ]
 
 function TargetList({ title, items }: { title: string; items: ImpactTarget[] }) {
@@ -89,7 +88,6 @@ export function AquaFarmsPage() {
               { label: "심각", value: `${aquaFarmTotals.danger}개소`, tone: "danger" },
               { label: "경계", value: `${aquaFarmTotals.alert}개소`, tone: "alert" },
               { label: "주의", value: `${aquaFarmTotals.warning}개소`, tone: "warning" },
-              { label: "관심", value: `${aquaFarmTotals.caution}개소`, tone: "caution" },
             ]}
           />
 

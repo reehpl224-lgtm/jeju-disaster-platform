@@ -103,8 +103,8 @@ export const PILOT_SERVICES: PilotService[] = [
       { id: "rl5", name: "조기경보시스템", use: "범람 경보의 현장 전파 채널", status: "협의 중", level: "caution" },
     ],
     decisions: [
-      "계획홍수량 30~50% 공백은 관심(20~50%)으로 임의 설정 — 공식 기준 확정 필요, Q%·수위 상태 결합 규칙",
-      "실증사(발표자료) 4단계(안전·경계·대피·중대피)와 플랫폼 5단계의 대응 관계 — 연계 시 매핑 필요",
+      "관심 구간(20~50%)은 정상에 합쳐 징후 감시로 처리(4단계) — Q%와 수위(cm) 환산·결합 규칙은 확정 필요",
+      "실증사(발표자료) 4단계(안전·경계·대피·중대피)와 플랫폼 4단계(정상·주의·경계·심각)의 대응 — 순서대로 대응(연계 시 단계명 매핑 필요)",
     ],
   },
   {
@@ -123,7 +123,7 @@ export const PILOT_SERVICES: PilotService[] = [
     ],
     features: [
       { id: "a1", title: "해양관측부이 수온·염분 실측", status: "demo", sources: ["live-api"], basis: "KHOA 공공API 실연동(확인 시점 스냅샷)", href: "/aqua/monitoring" },
-      { id: "a2", title: "위험등급 자동 판정", status: "demo", sources: ["dummy"], basis: "TP-P22_002 데이터 리스트 5단계(정상·관심·주의·경보·심각)", note: "염분 정상 30.0 vs 31.0 등 원본 표기 확인 필요", href: "/aqua" },
+      { id: "a2", title: "위험등급 자동 판정", status: "demo", sources: ["dummy"], basis: "플랫폼 데이터 리스트 4단계(정상·주의·경보→경계·심각, 관심은 정상에 합침)", note: "염분 정상 30.0 vs 31.0 등 원본 표기 확인 필요", href: "/aqua" },
       { id: "a3", title: "AI 하이브리드 예측(정밀 48시간·경향 120시간, 정합도 85%)", status: "year1", sources: ["partner", "live-api"], basis: "발표자료 — ROMS·NEMO 앙상블 + U-Net 계열, 1차년도 12월 초기모델", href: "/aqua/prediction" },
       { id: "a4", title: "1km 이하 초해상화 예측", status: "later", sources: ["partner"], basis: "발표자료 — 1차년도는 8km 재현, 1km 고도화는 2차년도", note: "화면의 '공간해상도 1km 이하'는 최종 목표" },
       { id: "a5", title: "위성 수괴 탐지·독립 검증(GOCI-II 일 4회 · SMAP)", status: "year1", sources: ["partner", "live-api"], basis: "발표자료 — 26 psu 미만·26~28·28~30 구간 분류, 학습에 쓰지 않는 독립 검증", href: "/aqua/data" },

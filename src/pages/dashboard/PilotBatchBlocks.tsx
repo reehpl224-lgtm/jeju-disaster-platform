@@ -296,7 +296,6 @@ const px = (lng: number) => (lng - MAP.minLng) * K * SCALE
 const py = (lat: number) => (MAP.maxLat - lat) * SCALE
 const LEVEL_FILL: Record<SampleLevel, string> = {
   safe: "var(--risk-safe)",
-  caution: "var(--risk-caution)",
   warning: "var(--risk-warning)",
   alert: "var(--risk-alert)",
   danger: "var(--risk-danger)",
@@ -364,8 +363,7 @@ export function PlumeHeatmapBlock() {
       <Heatmap batch={state.batch} horizon={horizon} />
       <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 6, alignItems: "center" }}>
         <span className="s" style={{ margin: 0, fontSize: 10 }}>염분</span>
-        <Risk level="safe" label="30↑" />
-        <Risk level="caution" label="28~30" />
+        <Risk level="safe" label="28↑" />
         <Risk level="warning" label="26~28" />
         <Risk level="alert" label="24~26" />
         <Risk level="danger" label="24↓" />

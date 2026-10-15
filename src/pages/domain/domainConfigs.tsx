@@ -901,7 +901,7 @@ export function aquaConfig(): DomainConfig {
           { k: "위험권 전체", v: `${ft.total}개소` },
           { k: "심각", v: ft.danger },
           { k: "경계", v: ft.alert },
-          { k: "주의 · 관심", v: `${ft.warning} · ${ft.caution}` },
+          { k: "주의", v: ft.warning },
         ]}
         over={["심각"]}
       />

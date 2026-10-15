@@ -85,7 +85,7 @@ export function RiverAnalysisPage() {
             ))}
           </tbody>
         </table>
-        <p className="mt-2 text-[11px] text-white/35">원본은 관심 20~30% 다음이 주의 50%로 30~50%가 비어 있어, 관심을 50% 미만까지 연장해 임의로 이었습니다(공식 기준 확정 시 수정).</p>
+        <p className="mt-2 text-[11px] text-white/35">관심 구간(20~50%)은 정상에 합쳐 징후 감시로만 봅니다(2026-10-15 4단계). 수위(cm)는 서귀포시 효돈천 기존 경보 기준을 참고로 병기했으며 Q%와의 환산은 자료 수령 후 확정합니다.</p>
       </Card>
 
       <Card title="위험 근거 데이터" dummy>

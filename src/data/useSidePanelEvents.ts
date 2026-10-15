@@ -109,9 +109,9 @@ export function warningToEvent(e: WarningEntry): SpEvent {
   }
 }
 
-/** 안전안내=관심 · 긴급재난=주의 · 위급재난=경계(디자인 4색에 맞춘 환산) */
+/** 안전안내=정보 · 긴급재난=주의 · 위급재난=경계(4단계 — 관심 없음) */
 export function messageToEvent(m: DisasterMsg): SpEvent {
-  const level: RiskLevel = m.step === "위급재난" ? "alert" : m.step === "긴급재난" ? "warning" : "caution"
+  const level: RiskLevel = m.step === "위급재난" ? "alert" : m.step === "긴급재난" ? "warning" : "info"
   const text = m.text.length > 90 ? `${m.text.slice(0, 90)}…` : m.text
   // 여러 시도에 한꺼번에 보낸 문자는 "제주 포함 N개 시도"로 줄여 보인다
   const regions = m.region.split(",").map((r) => r.trim()).filter(Boolean)
@@ -136,7 +136,7 @@ export function typhoonToEvent(t: TyphoonNowEntry): SpEvent {
     source: "typhoon",
     category: "disaster",
     icon: "🌀",
-    level: "caution",
+    level: "info",
     status: "발령",
     title: `제${Number(t.typ)}호 태풍`,
     detail: `위도 ${t.lat}°N · 경도 ${t.lon}°E 부근`,

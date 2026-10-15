@@ -25,7 +25,7 @@ export const serviceStatusCards: {
   kind: "legacy" | "pilot"
   counts: { warning: number; alert: number; danger: number; caution?: number }
 }[] = [
-  // 카드 순서: 사용자 지정(2026-09-08) — 호우·태풍·폭염 대응·하천범람·저염분 고수온·연안 안전. 4단계(관심·주의·경계·심각) 통일.
+  // 카드 순서: 사용자 지정(2026-09-08) — 호우·태풍·폭염 대응·하천범람·저염분 고수온·연안 안전. 4단계(정상·주의·경계·심각) 통일(2026-10-15, 관심은 정상에 합침).
   // counts는 각 서비스 원본(weatherStations·typhoonReports·heatLevelInfo·riverStatuses·aquaFarmTotals·coastEvents)과 반드시 같은 수치를 쓸 것
   { id: "heavy-rain", kind: "legacy", title: "호우", icon: "☔", href: "/heavy-rain", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },
   { id: "typhoon", kind: "legacy", title: "태풍", icon: "🌀", href: "/typhoon", counts: { warning: 0, alert: 0, danger: 0, caution: 0 } },

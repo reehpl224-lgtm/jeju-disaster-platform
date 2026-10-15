@@ -9,7 +9,7 @@ import { useCommonEvents } from "../../data/useCommonEvents"
 import type { RiskLevel } from "../../types/domain"
 
 const LEVEL_RISK: Record<EventLevel, RiskLevel> = { normal: "safe", caution: "caution", warning: "warning", alert: "alert", danger: "danger" }
-const LEVELS: EventLevel[] = ["danger", "alert", "warning", "caution", "normal"]
+const LEVELS: EventLevel[] = ["danger", "alert", "warning", "normal"]
 const sel = "rounded-lg border border-border-subtle bg-inset px-3 py-2 text-sm text-white/85"
 const svcTitle = (id: string) => (id === "common" ? "공통·기타" : (DOMAINS.find((d) => d.prefix === `/${id}`)?.title ?? id))
 const at = (iso: string) => new Date(iso).toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false })

@@ -6,7 +6,7 @@ const e = (tmFc, lvl, extra = {}) => ({ tmFc, tmEf: tmFc, regId: "L1091440", reg
 
 test("기상청 특보 수준 이름·등급: 1 예비특보, 2 주의보, 3 경보", () => {
   assert.deepEqual([warnLvlLabel("1"), warnLvlLabel("2"), warnLvlLabel("3")], ["예비특보", "주의보", "경보"])
-  assert.deepEqual([warnLvlRisk("1"), warnLvlRisk("2"), warnLvlRisk("3")], ["caution", "warning", "alert"])
+  assert.deepEqual([warnLvlRisk("1"), warnLvlRisk("2"), warnLvlRisk("3")], ["warning", "warning", "alert"])
 })
 
 test("발표·변경·해제 이력을 구간으로 풀어 해제를 반영하고, 같은 시·종류·수준은 하나만 남긴다", () => {

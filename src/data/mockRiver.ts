@@ -20,16 +20,17 @@ export const riverInfra = {
 }
 
 /**
- * 하천 위험단계 상태 구간 — "TP-P22_002_플랫폼 데이터 리스트.xlsx" 하천 범람예측·경보 시스템 시트 "상태 구간 설정" 그대로(2026-09-22 사용자 확정).
- * 원본 단계명 '경보'는 앱 공통 라벨 '경계'(alert)로 표기한다. 원본은 20~30% 다음이 50%로 30~50% 구간이 비어 있어, 원본의 50%·70%·100%를 각 단계 '도달' 기준으로 보고
- * 관심을 다음 단계(주의 50%) 직전까지 연장해 빈 구간 없이 이어지게 임의 설정함(2026-09-22 사용자 요청) — 공식 기준 확정 시 수정.
+ * 하천 위험단계 상태 구간 — "플랫폼 데이터 리스트.xlsx" 하천 범람예측·경보 시스템 시트 "상태 구간 설정"(2026-10-15 4단계 개편본).
+ * 정상·주의·경계·심각 4단계 — 원본의 '관심'(20~50%)은 정상에 합쳐 '징후 감시'로만 표시한다(2026-10-15 사용자 결정).
+ * 원본 단계명 '경보'는 앱 공통 라벨 '경계'(alert)로 표기한다. 판정은 계획홍수량 Q%로 하고, 수위(cm)는 서귀포시 효돈천 기존
+ * 자동우량경보시스템 기준(안전 0~80 · 경계 80~150 · 대피 150~300 · 중대피 300cm 이상 — 소다시스템 계획서)을 참고로 병기한다
+ * (Q%와 수위 cm 환산은 자료 수령 후 확정). 기존 4단계 명칭은 정상·주의·경계·심각에 차례로 대응한다.
  */
-export const riverStageCriteria: { level: "safe" | "caution" | "warning" | "alert" | "danger"; label: string; flowRatio: string; waterState: string; meaning: string; action: string }[] = [
-  { level: "safe", label: "정상", flowRatio: "20% 미만", waterState: "평시 수위 유지", meaning: "통상적인 하천 흐름 유지(침수 위험 없음)", action: "상시 모니터링, 시설물 정기 점검, 시스템 상태 확인" },
-  { level: "caution", label: "관심", flowRatio: "20% 이상 ~ 50% 미만", waterState: "유의 수위 도달", meaning: "강우에 의한 하천 수위 상승 시작", action: "모니터링 강화, 통제 지점·연락망 점검, 산책로 예비 통제" },
-  { level: "warning", label: "주의", flowRatio: "50% 이상 ~ 70% 미만", waterState: "주의보 수위 도달", meaning: "수위 급상승으로 홍수주의보 수준 도달", action: "하천변 출입 통제, 하상도로 차단, 주민 안내 방송" },
-  { level: "alert", label: "경계(경보)", flowRatio: "70% 이상 ~ 100% 미만", waterState: "경보 수위 도달", meaning: "제방 유실 위험에 근접한 경계 상태", action: "제방 점검, 저지대 대피 준비, 비상근무 체계 전환" },
-  { level: "danger", label: "심각", flowRatio: "100% 이상", waterState: "계획홍수위 도달", meaning: "계획홍수위 도달로 범람 임박·발생", action: "즉시 주민 대피 명령, 재난문자(CBS) 발송, 긴급 차단" },
+export const riverStageCriteria: { level: "safe" | "warning" | "alert" | "danger"; label: string; flowRatio: string; waterState: string; meaning: string; action: string }[] = [
+  { level: "safe", label: "정상", flowRatio: "50% 미만 (20~50%는 징후 감시)", waterState: "평시 수위 유지 (참고: 기존 '안전' 0~80cm)", meaning: "통상적인 하천 흐름 유지 또는 강우에 의한 수위 상승 징후 관찰", action: "상시 모니터링, 시설물 정기 점검, 시스템 상태 확인 · 징후 감시 시 모니터링 강화·연락망 점검·산책로 예비 통제" },
+  { level: "warning", label: "주의", flowRatio: "50% 이상 ~ 70% 미만", waterState: "주의보 수위 도달 (참고: 기존 '경계' 80~150cm)", meaning: "수위 급상승으로 홍수주의보 수준 도달", action: "하천변 출입 통제, 하상도로 차단, 주민 안내 방송" },
+  { level: "alert", label: "경계(경보)", flowRatio: "70% 이상 ~ 100% 미만", waterState: "경보 수위 도달 (참고: 기존 '대피' 150~300cm)", meaning: "제방 유실 위험에 근접한 경계 상태", action: "제방 점검, 저지대 대피 준비, 비상근무 체계 전환" },
+  { level: "danger", label: "심각", flowRatio: "100% 이상", waterState: "계획홍수위 도달 (참고: 기존 '중대피' 300cm 이상)", meaning: "계획홍수위 도달로 범람 임박·발생", action: "즉시 주민 대피 명령, 재난문자(CBS) 발송, 긴급 차단" },
 ]
 
 /**
@@ -47,7 +48,7 @@ export const riverApprovalHistory: TimelineEntry[] = []
 export const riverSopStage = {
   current: "정상 단계",
   level: "safe" as RiskLevel,
-  next: "현재 조치 필요 없음 · 강우·수위 임계값 도달 시 관심 단계로 전환",
+  next: "현재 조치 필요 없음 · 강우·수위 임계값 도달 시 주의 단계로 전환(유량비 20% 이상은 징후 감시)",
 }
 
 export const riverRiskBasis = {
@@ -82,7 +83,7 @@ export const riverWaterLevelAiForecast = {
   currentM: null as number | null,
   trendNote: "관측값 없음",
   status: "조기경보 없음",
-  aiNote: "누적 수위 이력의 상승 기울기를 감시해 관심 단계(계획홍수량 20% 이상) 접근 시 조기 알림만 전달합니다. 최종 판단은 담당자 몫입니다.",
+  aiNote: "누적 수위 이력의 상승 기울기를 감시해 징후 감시 구간(계획홍수량 20% 이상) 접근 시 조기 알림만 전달합니다. 최종 판단은 담당자 몫입니다.",
   confirmNote: "현재 상승 추세 없음 — 담당자 조치 불필요(평시).",
 }
 

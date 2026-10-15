@@ -24,7 +24,7 @@ function conditionsOf(id: ServiceId, level: (typeof CRITERIA_STAGES)[number]["le
 }
 
 /**
- * 운영 > 위험 단계 조건 — 요구사항 '위험 단계 조건': 재난 유형별 정상·관심·주의·경계·심각 이벤트 조건을 정의하고 적용한다.
+ * 운영 > 위험 단계 조건 — 요구사항 '위험 단계 조건': 재난 유형별 정상·주의·경계·심각(4단계) 이벤트 조건을 정의하고 적용한다.
  * 하천·연안·저염분은 화면이 실제로 쓰는 판정 함수와 같은 경계값이고(시험 위젯이 둘의 결과를 나란히 보여 준다), 나머지 6종은 기상청 특보 등급을 따른다.
  * 기준을 바꾸려면 판정 함수와 이 정의를 함께 고쳐야 하므로 이 화면에는 편집 기능이 없다(확정 기준은 협의 후 반영).
  */
@@ -35,7 +35,7 @@ export function CriteriaPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-bold text-white">위험 단계 조건</h1>
-        <p className="mt-1 text-sm text-white/50">재난 유형별로 정상 → 관심 → 주의 → 경계 → 심각이 되는 조건을 한곳에서 확인하고, 값을 넣어 단계를 시험해 봅니다.</p>
+        <p className="mt-1 text-sm text-white/50">재난 유형별로 정상 → 주의 → 경계 → 심각이 되는 조건을 한곳에서 확인하고, 값을 넣어 단계를 시험해 봅니다.</p>
       </div>
       <ServicePills basePath="/criteria" current={service?.prefix} />
       {service ? <ServiceView id={service.prefix.slice(1) as ServiceId} title={service.title} /> : <Overview />}
@@ -86,7 +86,7 @@ function Overview() {
 function ServiceView({ id, title }: { id: ServiceId; title: string }) {
   return (
     <>
-      <Card title={`${title} — 단계별 조건`} subtitle={isKma(id) ? "기상청 특보 등급을 그대로 씁니다(예비특보 → 관심, 주의보 → 주의, 경보 → 경계)" : "화면이 쓰는 판정 함수의 경계값 — 여러 지표는 가장 높은 단계를 따릅니다"}>
+      <Card title={`${title} — 단계별 조건`} subtitle={isKma(id) ? "기상청 특보 등급을 그대로 씁니다(예비특보·주의보 → 주의, 경보 → 경계, 심각은 관계기관 판단)" : "화면이 쓰는 판정 함수의 경계값 — 여러 지표는 가장 높은 단계를 따릅니다"}>
         <ul className="flex flex-col divide-y divide-border-subtle">
           <li className="flex items-center gap-3 py-2.5 text-sm">
             <RiskBadge level="safe" label="정상" />

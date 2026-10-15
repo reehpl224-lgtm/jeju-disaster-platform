@@ -101,7 +101,7 @@ export function EsopStatusView(p: EsopStatusProps) {
           </dl>
         </Card>
 
-        <Card title="진행 단계 요약" subtitle="관심 → 주의 → 경계 → 심각 → 해제" dummy>
+        <Card title="진행 단계 요약" subtitle="주의 → 경계 → 심각 → 해제" dummy>
           <StageTracker stages={stages} />
         </Card>
       </div>

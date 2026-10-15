@@ -6,7 +6,8 @@
  * 이 파일은 Node에서 직접 import해 쓰므로(scripts/pilot-batch.mjs) 다른 모듈을 import하지 않는다.
  * 등급 기준은 riverAlertThresholds.ts(하천 Q%)·mockAqua.ts(염분)의 값을 그대로 옮긴 것이다 — 그쪽이 바뀌면 여기도 맞춘다.
  */
-export type SampleLevel = "safe" | "caution" | "warning" | "alert" | "danger"
+/** 4단계(정상·주의·경계·심각) — 관심 구간은 정상에 합쳤다(2026-10-15) */
+export type SampleLevel = "safe" | "warning" | "alert" | "danger"
 
 export interface RiverSamplePoint {
   id: string
@@ -43,9 +44,9 @@ export interface PilotBatch {
     crowd: { siteId: string; name: string; limit: number; series: { t: string; count: number }[] }[]
     /** VLM 10분 상황요약(최신순) */
     vlmSummaries: { at: string; siteId: string; text: string; level: SampleLevel }[]
-    /** 위험 4단계(관심·주의·경계·심각)별 조치 체크리스트 */
-    checklist: { stage: "관심" | "주의" | "경계" | "심각"; action: string; done: boolean }[]
-    currentStage: "평시" | "관심" | "주의" | "경계" | "심각"
+    /** 위험 단계(주의·경계·심각)별 조치 체크리스트 — 정상은 평시 */
+    checklist: { stage: "주의" | "경계" | "심각"; action: string; done: boolean }[]
+    currentStage: "평시" | "주의" | "경계" | "심각"
   }
   aqua: {
     /** 저염수 확산 히트맵 격자(0.02° 간격) — 육지 칸은 화면에서 가린다 */
@@ -76,9 +77,9 @@ const shift = (d: Date, minutes: number) => new Date(d.getTime() + minutes * 60_
 const r2 = (n: number) => Math.round(n * 100) / 100
 
 /** 하천 Q% → 등급 (riverAlertThresholds.ts classifyRiverRisk) */
-const riverLevel = (q: number): SampleLevel => (q < 20 ? "safe" : q < 50 ? "caution" : q < 70 ? "warning" : q < 100 ? "alert" : "danger")
+const riverLevel = (q: number): SampleLevel => (q < 50 ? "safe" : q < 70 ? "warning" : q < 100 ? "alert" : "danger")
 /** 표층 염분 → 등급 (mockAqua.ts salinityLevels) */
-const salinityLevel = (s: number): SampleLevel => (s >= 30 ? "safe" : s >= 28 ? "caution" : s >= 26 ? "warning" : s >= 24 ? "alert" : "danger")
+const salinityLevel = (s: number): SampleLevel => (s > 28 ? "safe" : s > 26 ? "warning" : s > 24 ? "alert" : "danger")
 
 // ---------------------------------------------------------------- 저염수 확산 모델(샘플)
 const PLUME_ORIGIN = { lat: 33.3, lng: 126.02 }
@@ -165,21 +166,21 @@ export function generatePilotBatch(base: Date = new Date()): PilotBatch {
       return { t: pad(t.getHours()) + "시", count: Math.round(peaks[s.id] * bell * (0.7 + 0.5 * rand())) }
     }),
   }))
-  const levelOfCrowd = (c: number): SampleLevel => (c >= 150 ? "warning" : c >= 100 ? "caution" : "safe")
+  // 수용 인원 100~150명은 징후 감시(단계 아님), 150명 이상부터 주의
+  const levelOfCrowd = (c: number): SampleLevel => (c >= 150 ? "warning" : "safe")
   const siteOffset = Math.floor(rand() * 2)
   const vlmSummaries = [0, 1, 2].map((k) => {
     const site = sites[(k + siteOffset) % 2]
     const c = Math.max(0, crowd.find((x) => x.siteId === site.id)!.series.at(-1)!.count + Math.round((rand() - 0.5) * 16))
     const lv = levelOfCrowd(c)
-    const notes = lv === "safe" ? "안전선 침범 없음 · 이안류 징후 없음" : lv === "caution" ? "이용객 다수 · 안전선 근접 1건" : "이용객 밀집 · 안전선 침범 2건 확인 필요"
+    const notes = lv === "warning" ? "이용객 밀집 · 안전선 침범 2건 확인 필요" : c >= 100 ? "이용객 다수 · 안전선 근접 1건(징후 감시)" : "안전선 침범 없음 · 이안류 징후 없음"
     return { at: fmt(shift(now, -k * 10)), siteId: site.id, text: `${site.name}: 이용객 약 ${c}명, ${notes}`, level: lv }
   })
-  const worst = vlmSummaries.reduce<SampleLevel>((w, v) => (["safe", "caution", "warning", "alert", "danger"].indexOf(v.level) > ["safe", "caution", "warning", "alert", "danger"].indexOf(w) ? v.level : w), "safe")
-  const stageIdx = worst === "safe" ? 0 : worst === "caution" ? 1 : 2
-  const currentStage = (["평시", "관심", "주의"] as const)[stageIdx]
+  const worst = vlmSummaries.reduce<SampleLevel>((w, v) => (["safe", "warning", "alert", "danger"].indexOf(v.level) > ["safe", "warning", "alert", "danger"].indexOf(w) ? v.level : w), "safe")
+  const stageIdx = worst === "safe" ? 0 : 1
+  const currentStage = (["평시", "주의"] as const)[stageIdx]
   const stageActions = [
-    ["관심", "상황 모니터링 강화(CCTV·VLM 요약 확인)"],
-    ["주의", "안전요원 배치·현장 안내방송"],
+    ["주의", "안전요원 배치·현장 안내방송(징후 감시 시: 상황 모니터링 강화)"],
     ["경계", "입수 통제·관계기관(해경) 통보"],
     ["심각", "대피 안내·출동 요청·경보 발령"],
   ] as const

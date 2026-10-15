@@ -77,8 +77,8 @@ const REGIONS = ["제주시", "서귀포시"] as const
 /** 종합상황 좌측 패널 제목 — 탭 이름과 같다(동네예보는 디자인대로 '동네 예보') */
 const SP_LEFT_TITLE: Record<string, string> = { timeline: "타임라인", advisory: "발효중 특보", forecast: "동네 예보", "live-warnings": "실시간 특보" }
 
-// 높은 등급부터 — 서비스 카드와 같은 4단계(관심 포함). 건수는 렌더 때마다 합산한다
-const RISK_ORDER = ["danger", "alert", "warning", "caution"] as const
+// 높은 등급부터 — 서비스 카드와 같은 4단계(정상·주의·경계·심각). 건수는 렌더 때마다 합산한다
+const RISK_ORDER = ["danger", "alert", "warning"] as const
 
 type TabKey = "summary" | "gis" | "cctv"
 
@@ -106,7 +106,7 @@ export function DashboardPage() {
 
   // 총 합계 — 화면에 표시하는 카드와 동일한 집계(입력값·실제 특보·샘플)를 사용한다
   const totalActiveRisk = serviceStatusCards.reduce(
-    (sum, card) => sum + card.counts.danger + card.counts.alert + card.counts.warning + (card.counts.caution ?? 0),
+    (sum, card) => sum + card.counts.danger + card.counts.alert + card.counts.warning,
     0,
   )
   const riskTotals = RISK_ORDER.map((level) => ({
@@ -195,7 +195,7 @@ export function DashboardPage() {
 
   const legend = (
     <>
-      {(["danger", "alert", "warning", "caution", "safe"] as const).map((level) => (
+      {(["danger", "alert", "warning", "safe"] as const).map((level) => (
         <span key={level} style={{ display: "contents" }}>
           <Risk level={level} />{" "}
         </span>

@@ -10,12 +10,12 @@ import { riskMarkers } from "../../data/mockDashboard"
 
 const AQUA_MARKERS = riskMarkers.filter((m) => m.domain === "aqua")
 
-/** e-SOP 5단계 번호체계(aquaStages와 동일: 관심1·주의2·경계3·심각4·해제5) 기준 표기 */
+/** e-SOP 4단계 번호체계(aquaStages와 동일: 주의1·경계2·심각3·해제4) 기준 표기 */
 const STAGE_LABEL: Record<RiskLevel, string> = {
-  danger: "4단계 — 심각",
-  alert: "3단계 — 경계",
-  warning: "2단계 — 주의",
-  caution: "1단계 — 관심",
+  danger: "3단계 — 심각",
+  alert: "2단계 — 경계",
+  warning: "1단계 — 주의",
+  caution: "징후 감시",
   safe: "해제",
   info: "정보",
   offline: "확인 불가",

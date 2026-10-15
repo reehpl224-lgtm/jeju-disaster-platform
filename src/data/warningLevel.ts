@@ -6,7 +6,8 @@ import type { WarningEntry } from "../types/warningsApi"
  * 프록시가 붙여 주는 lvlLabel은 쓰지 않고 여기서 이름과 등급을 정한다(프록시는 1=주의보·2=경보로 잘못 추정했었다).
  */
 export const warnLvlLabel = (lvl: string) => ({ "1": "예비특보", "2": "주의보", "3": "경보" })[lvl] ?? lvl
-export const warnLvlRisk = (lvl: string): RiskLevel => (lvl === "3" ? "alert" : lvl === "2" ? "warning" : "caution")
+// 4단계(정상·주의·경계·심각): 예비특보는 행안부 매뉴얼 기준으로 주의에 포함한다(관심 단계 없음, 2026-10-15)
+export const warnLvlRisk = (lvl: string): RiskLevel => (lvl === "3" ? "alert" : "warning")
 
 const RELEASE_CMD = new Set(["3", "4", "7"]) // 해제 · 대치해제 · 변경해제
 const isActive = (e: WarningEntry) => !e.state || e.state === "active"
