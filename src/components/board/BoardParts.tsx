@@ -67,7 +67,10 @@ export function SideTabsDock({
           {headExtra}
         </div>
         {topContent}
-        <div className="panel__scroll">{active?.content}</div>
+        {/* key: 탭이 바뀌면 스크롤 영역을 새로 그려 맨 위에서 시작한다 */}
+        <div className="panel__scroll" key={active?.key}>
+          {active?.content}
+        </div>
       </section>
       <div className={`rail rail--${rail}${dense ? " rail--dense" : ""}`} role="tablist" aria-orientation="vertical" aria-label="패널 탭" onKeyDown={(e) => onTabListKeyDown(e, "vertical")}>
         {tabs.map((tab) => (
@@ -127,7 +130,7 @@ export function HorizontalTabsDock({
           ))}
         </DragScrollTabs>
         {filters}
-        <div className="panel__scroll" id={`${baseId}-panel`} role="tabpanel" aria-labelledby={`${baseId}-tab-${active?.key}`}>
+        <div className="panel__scroll" key={active?.key} id={`${baseId}-panel`} role="tabpanel" aria-labelledby={`${baseId}-tab-${active?.key}`}>
           {active?.content}
         </div>
       </section>

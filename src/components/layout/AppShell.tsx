@@ -1,8 +1,27 @@
+import { useLayoutEffect } from "react"
 import { Outlet, useLocation, useSearchParams } from "react-router-dom"
 import { Crumbs, DomainSidebar } from "./DomainSidebar"
 import { currentLabel, findDomain } from "./domainSidebarUtils"
 import { Header } from "./Header"
 import type { MockUser } from "../../data/mockAuth"
+
+/** 스크롤이 생기는 본문 영역 — 화면(경로)이나 탭(?tab=…)이 바뀌면 이 영역들을 맨 위로 되돌린다 */
+const SCROLL_AREAS = ".page-content, .panel__scroll"
+
+/**
+ * 다른 페이지로 옮기거나 탭을 바꾸면 이전 화면에서 내려 둔 스크롤 위치가 남아 중간부터 보이던 것을 막는다.
+ * 경로와 검색값(?tab=…)이 바뀔 때마다 창과 본문·패널의 스크롤을 맨 위로 올린다.
+ */
+function ScrollToTop() {
+  const { pathname, search } = useLocation()
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+    document.querySelectorAll<HTMLElement>(SCROLL_AREAS).forEach((el) => {
+      el.scrollTop = 0
+    })
+  }, [pathname, search])
+  return null
+}
 
 const BOARD_PATHS = ["/dashboard", "/heavy-rain", "/typhoon", /* "/heat", "/wildfire", */ "/tsunami", "/snow", "/river", "/aqua", "/coast"]
 
@@ -24,6 +43,7 @@ export function AppShell({ user }: { user: MockUser }) {
       <a className="skip-link" href="#main-content">
         본문으로 건너뛰기
       </a>
+      <ScrollToTop />
       <Header user={user} />
       {isBoard ? (
         <Outlet />

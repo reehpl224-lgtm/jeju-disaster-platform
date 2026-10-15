@@ -47,7 +47,8 @@ export function SummaryRightDock({ tabs, activeKey, onSelect }: { tabs: SpDockTa
             </button>
           ))}
         </DragScrollTabs>
-        <div className="panel__scroll" id={`${baseId}-panel`} role="tabpanel" aria-labelledby={`${baseId}-tab-${active?.key}`}>
+        {/* key: 탭이 바뀌면 스크롤 영역을 새로 그려 맨 위에서 시작한다 */}
+        <div className="panel__scroll" key={active?.key} id={`${baseId}-panel`} role="tabpanel" aria-labelledby={`${baseId}-tab-${active?.key}`}>
           {active?.content}
         </div>
       </section>

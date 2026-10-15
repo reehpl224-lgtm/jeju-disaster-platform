@@ -313,7 +313,9 @@ export function DashboardPage() {
                     </button>
                   ))}
                 </DragScrollTabs>
-                <div className="panel__scroll">{(timelineTabs.find((t) => t.key === timelineTab) ?? timelineTabs[0]).content}</div>
+                <div className="panel__scroll" key={timelineTab}>
+                  {(timelineTabs.find((t) => t.key === timelineTab) ?? timelineTabs[0]).content}
+                </div>
               </section>
             </aside>
 
