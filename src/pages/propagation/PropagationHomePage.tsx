@@ -1,5 +1,6 @@
 import { Card } from "../../components/ui/Card"
 import { EsopPropagationCard } from "../esop/EsopPropagationCard"
+import { MessageStructureCard } from "./MessageStructureCard"
 import {
   propagationChannels,
   propagationHistory,
@@ -53,6 +54,8 @@ export function PropagationHomePage() {
       </Card>
 
       <EsopPropagationCard />
+
+      <MessageStructureCard />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card title="재난 보고체계" subtitle="행정시 → 도청 → 행안부" dummy>

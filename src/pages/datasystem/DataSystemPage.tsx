@@ -18,6 +18,7 @@ import { riverSensorCheck } from "../../data/mockRiver"
 import { IS_STAGING } from "../../data/appMode"
 import { LegacyContactLine } from "../../components/ui/LegacyContactLine"
 import { LegacyFeedTable } from "../../components/ui/LegacyFeedTable"
+import { MANUAL_ASSET_CANDIDATES } from "../../data/legacyAssetCandidates"
 
 /**
  * 연계 자료 수령 예정 — 2026년 10월 중순 도착 예정인 자료와, 도착 전 화면에서 어떻게 보이는지.
@@ -280,6 +281,21 @@ function AllSystemsView() {
             <li key={s.id} className="flex items-start justify-between gap-3 py-2 text-sm">
               <p className="text-white/80">{s.name}</p>
               <RiskBadge level={LEGACY_STATUS_LEVEL[s.linkStatus]} label={`후보 · ${s.linkStatus}`} />
+            </li>
+          ))}
+        </ul>
+        <h3 className="mt-4 text-xs font-bold text-white/70">매뉴얼에서 확인된 추가 후보 자산 — 연계 방식·난이도는 현황조사에서 확정</h3>
+        <ul className="mt-1 flex flex-col divide-y divide-border-subtle">
+          {MANUAL_ASSET_CANDIDATES.map((c) => (
+            <li key={c.name} className="flex items-start justify-between gap-3 py-2 text-sm">
+              <div>
+                <p className="text-white/80">{c.name}</p>
+                <p className="mt-0.5 text-xs text-white/35">
+                  {c.kind} · {c.owner} · {c.use}
+                </p>
+                <p className="mt-0.5 text-[11px] text-white/30">{c.note}</p>
+              </div>
+              <RiskBadge level="info" label="후보 · 미협의" />
             </li>
           ))}
         </ul>

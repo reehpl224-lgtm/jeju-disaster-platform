@@ -34,3 +34,14 @@ test("e-SOP 절차: 고친 값이 우선, 없으면 샘플, 순서 이동은 범
   assert.equal(currentLevel({ caution: 2, alert: 1, danger: 0 }), "alert")
   assert.equal(currentLevel({}), undefined)
 })
+
+test("e-SOP 초기값: 단계가 오를수록 절차가 늘고, 모든 칸이 채워지며, 심각에는 승인 권한자가 있다", () => {
+  const n = (lv) => defaultSteps("heavy-rain", lv).length
+  assert.ok(n("warning") < n("alert") && n("alert") <= n("danger"))
+  for (const lv of ["warning", "alert", "danger"]) {
+    const steps = defaultSteps("river", lv)
+    assert.equal(new Set(steps.map((x) => x.id)).size, steps.length)
+    assert.ok(steps.every((x) => x.target.trim() && x.dept.trim() && x.action.trim()))
+  }
+  assert.ok(defaultSteps("coast", "danger").some((x) => /관리자|의사결정/.test(x.target)))
+})

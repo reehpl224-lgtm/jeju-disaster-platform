@@ -1,6 +1,35 @@
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
+import { registerHooks } from "node:module"
+import { fileURLToPath } from "node:url"
 import test from "node:test"
-import { serviceCardReading } from "../src/data/serviceCardCounts.ts"
+import ts from "typescript"
+
+const src = new URL("../src/", import.meta.url).href
+registerHooks({
+  resolve(specifier, context, next) {
+    if (specifier.startsWith(".") && context.parentURL?.startsWith(src) && !/\.[a-z]+$/i.test(specifier)) {
+      for (const extension of [".ts", ".tsx"]) {
+        try { return next(specifier + extension, context) } catch (error) {
+          if (error.code !== "ERR_MODULE_NOT_FOUND") throw error
+        }
+      }
+    }
+    return next(specifier, context)
+  },
+  load(url, context, next) {
+    if (url.startsWith(src) && /\.tsx?$/.test(url)) {
+      const source = readFileSync(fileURLToPath(url), "utf8")
+      return {
+        format: "module", shortCircuit: true,
+        source: ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 } }).outputText,
+      }
+    }
+    return next(url, context)
+  },
+})
+
+const { serviceCardReading } = await import("../src/data/serviceCardCounts.ts")
 
 const samples = [{ id: "river", level: "alert", count: 3 }, { id: "aqua", level: "warning", count: 2 }]
 const entry = (extra = {}) => ({ regId: "L10913", wrn: "R", lvl: "2", tmFc: "202610120900", ...extra })
@@ -46,4 +75,10 @@ test("샘플을 넘기지 않으면(프로토타입) 받은 값이 없는 카드
   assert.equal(serviceCardReading("river", undefined, { status: "loading" }, []).sourceLabel, "조회 중")
   // 받은 값이 0건이면 그대로 0건이다(없는 것과 다르다)
   assert.equal(serviceCardReading("river", undefined, { status: "ready", entries: [] }, []).unavailable, undefined)
+})
+
+test("태풍주의보는 경계로 센다(제주도 재난대응 단계 및 요령), 호우주의보는 주의", () => {
+  const received = { status: "ready", entries: [entry({ wrn: "T", lvl: "2", regionLabel: "제주시" }), entry({ wrn: "R", lvl: "2", regionLabel: "제주시" })] }
+  assert.deepEqual(serviceCardReading("typhoon", undefined, received, []).counts, { ...empty, alert: 1 })
+  assert.deepEqual(serviceCardReading("heavy-rain", undefined, received, []).counts, { ...empty, warning: 1 })
 })

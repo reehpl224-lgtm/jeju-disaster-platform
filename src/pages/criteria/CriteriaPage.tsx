@@ -5,8 +5,8 @@ import { Card } from "../../components/ui/Card"
 import { RiskBadge } from "../../components/ui/RiskBadge"
 import { ServicePills } from "../../components/ui/ServicePills"
 import {
-  ACTUAL_CLASSIFIER, AQUA_TEMP_TEXT, CRITERIA_STAGES, KMA_SERVICES, KMA_STAGE_TEXT, METRICS,
-  aquaTempLevel, classifyMetric, kmaStageOf, levelRank, stepText, type MetricSpec,
+  ACTUAL_CLASSIFIER, AQUA_TEMP_TEXT, CRITERIA_STAGES, KMA_SERVICES, KMA_WRN, METRICS,
+  aquaTempLevel, classifyMetric, kmaStageOf, kmaStageText, levelRank, stepText, type MetricSpec,
 } from "../../data/riskCriteria"
 import type { ServiceId } from "../../data/rolesLogic"
 import type { RiskLevel } from "../../types/domain"
@@ -18,7 +18,7 @@ const isKma = (id: string) => (KMA_SERVICES as string[]).includes(id)
 
 /** 서비스의 단계별 조건 문구 목록 */
 function conditionsOf(id: ServiceId, level: (typeof CRITERIA_STAGES)[number]["level"]): string[] {
-  if (isKma(id)) return [KMA_STAGE_TEXT[level]]
+  if (isKma(id)) return [kmaStageText(id, level)]
   const lines = (METRICS[id] ?? []).map((m) => stepText(m, level))
   return id === "aqua" ? [...lines, AQUA_TEMP_TEXT[level]] : lines
 }
@@ -69,7 +69,7 @@ function Overview() {
                   </td>
                   {CRITERIA_STAGES.map((s) => (
                     <td key={s.level} className="py-2 pr-3 text-white/60">
-                      {isKma(id) && s.level === "danger" ? "관계기관 판단" : conditionsOf(id, s.level).join(" · ")}
+                      {conditionsOf(id, s.level).join(" · ")}
                     </td>
                   ))}
                   <td className="py-2 text-white/40">{isKma(id) ? "기상청 특보 등급" : "판정 함수(코드)"}</td>
@@ -86,7 +86,7 @@ function Overview() {
 function ServiceView({ id, title }: { id: ServiceId; title: string }) {
   return (
     <>
-      <Card title={`${title} — 단계별 조건`} subtitle={isKma(id) ? "기상청 특보 등급을 그대로 씁니다(예비특보·주의보 → 주의, 경보 → 경계, 심각은 관계기관 판단)" : "화면이 쓰는 판정 함수의 경계값 — 여러 지표는 가장 높은 단계를 따릅니다"}>
+      <Card title={`${title} — 단계별 조건`} subtitle={isKma(id) ? "기상청 특보 등급을 그대로 씁니다(제주도 재난대응 단계 및 요령 기준 — 심각은 상황판단회의 수동 발령)" : "화면이 쓰는 판정 함수의 경계값 — 여러 지표는 가장 높은 단계를 따릅니다"}>
         <ul className="flex flex-col divide-y divide-border-subtle">
           <li className="flex items-center gap-3 py-2.5 text-sm">
             <RiskBadge level="safe" label="정상" />
@@ -104,7 +104,7 @@ function ServiceView({ id, title }: { id: ServiceId; title: string }) {
         )}
       </Card>
       <Card title="적용 시험" subtitle="값을 넣으면 정의표 기준과 화면 판정 함수가 각각 어느 단계로 보는지 나란히 보여 줍니다">
-        {isKma(id) ? <KmaTest /> : id === "aqua" ? <AquaTest /> : <MetricTest specs={METRICS[id] ?? []} />}
+        {isKma(id) ? <KmaTest id={id} /> : id === "aqua" ? <AquaTest /> : <MetricTest specs={METRICS[id] ?? []} />}
       </Card>
     </>
   )
@@ -181,7 +181,7 @@ function AquaTest() {
   )
 }
 
-function KmaTest() {
+function KmaTest({ id }: { id: ServiceId }) {
   const [lvl, setLvl] = useState<"1" | "2" | "3">("2")
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -193,8 +193,8 @@ function KmaTest() {
           <option value="3">경보</option>
         </select>
       </label>
-      <Result label="화면 판정" level={kmaStageOf(lvl)} />
-      <span className="text-xs text-white/35">심각은 관계기관 판단으로 정하며 자동 판정하지 않습니다.</span>
+      <Result label="화면 판정" level={kmaStageOf(lvl, KMA_WRN[id])} />
+      <span className="text-xs text-white/35">심각은 상황판단회의가 수동으로 발령하며 자동 판정하지 않습니다.</span>
     </div>
   )
 }

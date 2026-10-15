@@ -25,7 +25,7 @@ export function EsopDefEditor({ serviceId, title, editable }: { serviceId: Servi
   return (
     <Card
       title={`${title} — 단계별 e-SOP 절차 정의`}
-      subtitle="위험 단계마다 상황 전파 대상 · 대응 부서 · 현장 조치를 처리 순서대로 정의합니다 (초기값은 샘플)"
+      subtitle="위험 단계마다 상황 전파 대상 · 대응 부서 · 현장 조치를 처리 순서대로 정의합니다 (초기값은 도 재난대응 매뉴얼의 단계별 조치목록을 일반화한 것 — 고치면 그 값이 우선)"
       action={
         editable && edited ? (
           <button

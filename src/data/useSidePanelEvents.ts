@@ -7,7 +7,7 @@ import { fetchTyphoonNow } from "./typhoonApi"
 import { fetchDisasterMessages, type DisasterMsg } from "./disasterMsgApi"
 import { buildSampleEvents, type SpEvent } from "./sidePanelSamples"
 import { IS_STAGING } from "./appMode"
-import { warnLvlLabel, warnLvlRisk } from "./warningLevel"
+import { warnLvlLabel, warnRisk } from "./warningLevel"
 
 /**
  * 종합상황 좌측 패널(타임라인·발효중 특보·실시간 특보)이 함께 쓰는 사건 목록 — 출처 셋: 기상청 특보(최근 24시간 발표) · 태풍 현황 ·
@@ -86,7 +86,7 @@ const WEATHER_ICON: Record<string, string> = { 강풍: "💨", 호우: "☔", �
 const hmOf = (tm: string) => `${tm.slice(8, 10)}:${tm.slice(10, 12)}`
 
 export function warningToEvent(e: WarningEntry): SpEvent {
-  const level: RiskLevel = warnLvlRisk(e.lvl)
+  const level: RiskLevel = warnRisk(e.lvl, e.wrn)
   // 해제(released)·다른 수준으로 변경(changed)돼 끝난 특보는 "해제"로 — 끝난 시각을 until·meta에 담는다
   const ended = (e.state === "released" || e.state === "changed") && !!e.endAt
   return {

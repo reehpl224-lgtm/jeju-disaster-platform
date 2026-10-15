@@ -1,6 +1,6 @@
 import type { RiskLevel } from "../types/domain"
 import type { WarningEntry } from "../types/warningsApi"
-import { warnIsActive, warnLvlLabel, warnLvlRisk } from "./warningLevel"
+import { warnIsActive, warnLvlLabel, warnRisk } from "./warningLevel"
 
 /**
  * GIS 지도 '기상/재난'·'기상모델' 패널의 체크 항목을 지도에 그리는 계산 — 요구사항 '지도 기반 통합 표출'(기상 정보를 레이어로 표출·선택).
@@ -55,7 +55,7 @@ export function warningLayerPoints(entries: WarningEntry[], checkedChips: string
         name: `${e.regionLabel} · ${e.wrnLabel}${warnLvlLabel(e.lvl)}`,
         lat: base.lat + n * 0.018,
         lng: base.lng + n * 0.018,
-        level: warnLvlRisk(e.lvl),
+        level: warnRisk(e.lvl, e.wrn),
         value: `기상청 특보 발표 · 시청 위치에 모아 표시`,
       }
     })
