@@ -21,7 +21,9 @@ type DashboardTabKey = (typeof DASHBOARD_TABS)[number]["key"]
 
 /** AX HUB 화면은 다른 회사가 만든다 — 주소(VITE_AX_HUB_URL, http/https)가 있으면 그 화면을 새 창으로 열고, 없으면 연계 전 안내 화면(/ax-hub)을 연다 */
 const AX_HUB_URL = (import.meta.env.VITE_AX_HUB_URL as string | undefined)?.trim()
-const AX_HUB_HREF = AX_HUB_URL && /^https?:\/\//.test(AX_HUB_URL) ? AX_HUB_URL : "/ax-hub"
+// 새 창 주소·이미지는 배포 경로(GitHub Pages는 /jeju-disaster-platform/ 아래)를 붙여야 한다 — 맨 앞이 /인 주소로 두면 Pages에서 404가 난다
+const BASE = import.meta.env.BASE_URL
+const AX_HUB_HREF = AX_HUB_URL && /^https?:\/\//.test(AX_HUB_URL) ? AX_HUB_URL : `${BASE}ax-hub`
 
 // 서비스 도메인 메뉴 — 순서는 통합 대시보드 하단 서비스 카드(mockDashboard.serviceStatusCards)와 동일
 const SERVICE_NAV = [
@@ -147,7 +149,7 @@ export function Header({ user }: { user: MockUser }) {
     <header className="header" ref={wrapRef}>
       <div className="header__brand">
         <Link to="/dashboard" aria-label="제주 재난 대응 플랫폼 프로토타입" style={{ display: "flex", alignItems: "center" }}>
-          <img src="/jeju_w_ci.svg" alt="" className="header__logo" aria-hidden="true" style={{ width: "auto", objectFit: "contain" }} />
+          <img src={`${BASE}jeju_w_ci.svg`} alt="" className="header__logo" aria-hidden="true" style={{ width: "auto", objectFit: "contain" }} />
           <span className="header__title">제주 재난 대응 플랫폼 프로토타입</span>
         </Link>
         <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 700, color: "var(--foreground-subtle)", whiteSpace: "nowrap" }}>
@@ -188,7 +190,7 @@ export function Header({ user }: { user: MockUser }) {
             DID 종료 (Esc)
           </Link>
         )}
-        <a href="/vlm" target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--pill" style={{ height: 32, padding: "0 .75rem", fontSize: 12 }}>
+        <a href={`${BASE}vlm`} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--pill" style={{ height: 32, padding: "0 .75rem", fontSize: 12 }}>
           VLM
         </a>
         <a href={AX_HUB_HREF} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--pill" style={{ height: 32, padding: "0 .75rem", fontSize: 12 }}>
