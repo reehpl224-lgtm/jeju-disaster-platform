@@ -11,6 +11,7 @@
  * 원본 API는 EUC-KR 인코딩의 콤마구분(disp=1) 텍스트를 반환한다(JSON 아님).
  */
 import type { VercelRequest, VercelResponse } from "@vercel/node"
+import { fetchUpstream, staleCache } from "../lib/upstream"
 
 const TYP_NOW_URL = "https://apihub.kma.go.kr/api/typ01/url/typ_now.php"
 const TYP_LST_URL = "https://apihub.kma.go.kr/api/typ01/url/typ_lst.php"
@@ -48,6 +49,9 @@ function rowsToObjects<T extends readonly string[]>(rows: string[][], columns: T
   })
 }
 
+/** 직전 정상 응답(mode별) — 기상청이 504를 줘도 10분까지는 이 값을 stale 표시와 함께 준다 */
+const stale = staleCache<{ mode: string; count: number; typhoons: Record<string, string>[] }>(10 * 60 * 1000)
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applyCors(res)
   if (req.method === "OPTIONS") {
@@ -67,23 +71,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const url = `${base}?disp=1&help=0&authKey=${encodeURIComponent(authKey)}`
-    const upstream = await fetch(url)
-    const buf = await upstream.arrayBuffer()
-    let text = new TextDecoder("euc-kr").decode(buf)
-    if (!upstream.ok) {
-      try {
-        text = new TextDecoder("utf-8").decode(buf)
-      } catch {
-        /* EUC-KR 디코딩 결과를 그대로 사용 */
-      }
-      throw new Error(`기상청 API허브 응답 오류: HTTP ${upstream.status} — ${text.slice(0, 200)}`)
-    }
+    const buf = await fetchUpstream(url)
+    const text = new TextDecoder("euc-kr").decode(buf)
     const rows = parseDelimitedText(text)
     const typhoons = rowsToObjects(rows, columns)
 
     res.setHeader("Cache-Control", "no-store")
-    res.status(200).json({ mode, count: typhoons.length, typhoons })
+    const payload = { mode, count: typhoons.length, typhoons }
+    stale.set(mode, payload)
+    res.status(200).json(payload)
   } catch (err) {
+    const hit = stale.get(mode)
+    if (hit) {
+      res.setHeader("Cache-Control", "no-store")
+      res.status(200).json({ ...hit.value, stale: true, staleSeconds: hit.ageSec })
+      return
+    }
     const message = err instanceof Error ? err.message : String(err)
     res.status(502).json({ error: message })
   }
