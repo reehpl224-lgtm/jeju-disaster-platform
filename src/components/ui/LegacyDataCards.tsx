@@ -14,7 +14,7 @@ export function LegacyAlertHistoryCard() {
   const done = LEGACY_ALERT_HISTORY.map(alertMinutes).filter((m): m is number => m !== null)
   const avg = done.length ? Math.round(done.reduce((a, b) => a + b, 0) / done.length) : null
   return (
-    <Card title="레거시 경보 발령 이력" subtitle="조기경보 통합·강우량 자동경보·자동 침수 경보가 쌓아 둔 이력 — 사후분석·임계치 설정 참고 (연계 전, 임의 샘플)">
+    <Card title="레거시 경보 발령 이력" subtitle={`조기경보 통합·강우량 자동경보·자동 침수 경보가 쌓아 둔 이력 — 사후분석·임계치 설정 참고 (연계 전${IS_STAGING ? ", 임의 샘플" : ""})`}>
       {IS_STAGING ? (
         <>
           <p className="text-xs text-white/50">
@@ -63,7 +63,7 @@ export function LegacyAlertHistoryCard() {
 export function LegacyCollectionCard() {
   const bad = LEGACY_COLLECTION.filter((c) => c.state !== "정상").length
   return (
-    <Card title="레거시 수집 상태" subtitle="레거시 시스템별 최근 수신과 수집 상태 (연계 전, 임의 샘플)">
+    <Card title="레거시 수집 상태" subtitle={`레거시 시스템별 최근 수신과 수집 상태 (연계 전${IS_STAGING ? ", 임의 샘플" : ""})`}>
       {IS_STAGING ? (
         <>
           <p className="text-xs text-white/50">

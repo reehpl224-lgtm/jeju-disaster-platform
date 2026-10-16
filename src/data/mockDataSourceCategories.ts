@@ -9,6 +9,11 @@
  * ④ missing(현재 없는 데이터) — 필요하지만 현재는 구할 방법이 없는 데이터
  */
 
+import { IS_STAGING } from "./appMode"
+
+/** 화면 값 상태 문구 — 스테이징은 임의 값(더미), 프로토타입은 값 없음(연계 전) */
+const NO_VALUE = IS_STAGING ? "더미" : "없음(연계 전)"
+
 export type DataSourceCategory = "available" | "legacy" | "requestable" | "missing"
 
 export interface DataSourceItem {
@@ -34,7 +39,7 @@ export const dataSourcesByService: Record<ServiceDataSources["serviceId"], Servi
       { id: "r-a3", label: "기상청 단기예보·호우특보", note: "실시간" },
     ],
     legacy: [
-      { id: "r-l1", label: "재난 예·경보시스템(자동침수경보·하천모니터링·자동우량정보)", note: "연계 진행중 — 화면 값은 아직 더미" },
+      { id: "r-l1", label: "재난 예·경보시스템(자동침수경보·하천모니터링·자동우량정보)", note: `연계 진행중 — 화면 값은 아직 ${NO_VALUE}` },
       { id: "r-l2", label: "레거시 침수정보센서 135개소", note: "제주시 66·서귀포시 69" },
       { id: "r-l3", label: "조기경보시스템", note: "협의 중" },
       { id: "r-l4", label: "제주시 하천 유속측정계", note: "도청 미연계, 2차년도 검토" },
@@ -48,7 +53,7 @@ export const dataSourcesByService: Record<ServiceDataSources["serviceId"], Servi
       { id: "r-r6", label: "ETRI 효돈천 수문데이터", note: "2011~2023, 실증사 이미 보유" },
     ],
     missing: [
-      { id: "r-m1", label: "실시간 하천수위 실측값", note: "현재 더미" },
+      { id: "r-m1", label: "실시간 하천수위 실측값", note: `현재 ${NO_VALUE}` },
       { id: "r-m2", label: "5초 직결 현장경보", note: "스마트폴 인허가 등 조건부" },
       { id: "r-m3", label: "컨트롤타워 전용 위젯·sLLM 연동", note: "2027년 예정" },
     ],
@@ -107,7 +112,7 @@ export const dataSourcesByService: Record<ServiceDataSources["serviceId"], Servi
       { id: "hr-a2", label: "AWS 우량 참고관측", note: "실시간" },
     ],
     legacy: [
-      { id: "hr-l1", label: "강우량 연동 자동 경보 발령시스템·자동 침수 경보시스템·하천 모니터링시스템", note: "연계 진행중이나 화면 우량계·침수센서 값은 여전히 더미" },
+      { id: "hr-l1", label: "강우량 연동 자동 경보 발령시스템·자동 침수 경보시스템·하천 모니터링시스템", note: `연계 진행중이나 화면 우량계·침수센서 값은 여전히 ${NO_VALUE}` },
       { id: "hr-l2", label: "조기경보 통합 상황관리 연계시스템·풍수해 상황 관리시스템", note: "협의 중" },
       { id: "hr-l3", label: "제주시 하천 유속측정계·서귀포시 자동 우량 경보", note: "도청 미연계" },
     ],

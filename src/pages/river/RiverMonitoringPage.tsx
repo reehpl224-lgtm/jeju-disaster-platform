@@ -1,4 +1,5 @@
 import { RainfallObservationPanel } from "../../components/ui/RainfallObservationPanel"
+import { IS_STAGING } from "../../data/appMode"
 import { Card } from "../../components/ui/Card"
 import { LIVE } from "../../components/ui/dataSource"
 import { RiverForecastBlock, RiverPointsBlock, TideBlock } from "../dashboard/PilotBatchBlocks"
@@ -14,7 +15,7 @@ export function RiverMonitoringPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-bold text-white">실시간 모니터링</h1>
-        <p className="mt-1 text-sm text-white/50">효돈천(돈내코·쇠소깍) 관측점·수위·우량 현황 — 관측점 값은 실증사 연계 전 임의 샘플입니다</p>
+        <p className="mt-1 text-sm text-white/50">효돈천(돈내코·쇠소깍) 관측점·수위·우량 현황 — {IS_STAGING ? "관측점 값은 실증사 연계 전 임의 샘플입니다" : "관측점 값은 실증사 연계 전이라 비어 있습니다"}</p>
       </div>
 
       <Card title="실시간 우량 관측 — 기상청 API허브" subtitle="apihub.kma.go.kr 실연동(AWS 매분자료)" source={LIVE}>
