@@ -9,6 +9,7 @@
  * 그래서 접두사(L10913/L10914)로 매칭한다.
  */
 import type { VercelRequest, VercelResponse } from "@vercel/node"
+import { fetchUpstream, staleCache } from "../lib/upstream"
 
 const WARNING_URL = "https://apihub.kma.go.kr/api/typ01/url/wrn_met_data.php"
 
@@ -80,6 +81,9 @@ interface WarningEntry {
   grd: string
 }
 
+/** 직전 정상 응답 — 기상청이 504를 줘도 10분까지는 이 값을 stale 표시와 함께 준다 */
+const stale = staleCache<{ windowStart: string; windowEnd: string; entries: WarningEntry[] }>(10 * 60 * 1000)
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applyCors(res)
   if (req.method === "OPTIONS") {
@@ -100,17 +104,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const tmfc2 = formatKst(now)
 
     const url = `${WARNING_URL}?reg=0&tmfc1=${tmfc1}&tmfc2=${tmfc2}&disp=1&help=0&authKey=${encodeURIComponent(authKey)}`
-    const upstream = await fetch(url)
-    const buf = await upstream.arrayBuffer()
-    let text = new TextDecoder("euc-kr").decode(buf)
-    if (!upstream.ok) {
-      try {
-        text = new TextDecoder("utf-8").decode(buf)
-      } catch {
-        /* EUC-KR 디코딩 결과를 그대로 사용 */
-      }
-      throw new Error(`기상청 API허브 응답 오류: HTTP ${upstream.status} — ${text.slice(0, 200)}`)
-    }
+    const buf = await fetchUpstream(url)
+    const text = new TextDecoder("euc-kr").decode(buf)
 
     const rows = parseDelimitedText(text)
     // 컬럼 순서(문서): TM_FC, TM_EF, TM_IN, STN, REG_ID, WRN, LVL, CMD, GRD, CNT, RPT, ...
@@ -138,8 +133,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader("Cache-Control", "no-store")
     // periodNote: 이 API는 '현재 발효 중' 플래그가 없어 최근 24시간 내 발표 이력을 보여주는 것임을
     // 명시(해제 여부까지 확정 못 하므로 "발표됨"으로만 표현 — 지어내지 않음).
-    res.status(200).json({ windowStart: tmfc1, windowEnd: tmfc2, entries })
+    const payload = { windowStart: tmfc1, windowEnd: tmfc2, entries }
+    stale.set("warnings", payload)
+    res.status(200).json(payload)
   } catch (err) {
+    const hit = stale.get("warnings")
+    if (hit) {
+      res.setHeader("Cache-Control", "no-store")
+      res.status(200).json({ ...hit.value, stale: true, staleSeconds: hit.ageSec })
+      return
+    }
     const message = err instanceof Error ? err.message : String(err)
     res.status(502).json({ error: message })
   }

@@ -6,6 +6,7 @@
  * 목록 아님. "협재"는 연안 1차년도 실증지(함덕·협재) 중 하나와 정확히 일치하는 관측지점.
  */
 import type { MarineStation } from "../types/marineApi"
+import { withLastGood } from "./lastGood"
 
 const PROXY_URL = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
 
@@ -23,7 +24,10 @@ function toNum(v: string | undefined): number | null {
   return n
 }
 
-export async function fetchMarineStations(): Promise<MarineStation[]> {
+/** 실패하면 한 번 더 시도하고, 그래도 안 되면 15분 안의 직전 성공 값을 쓴다(기상청 쪽 간헐 504) */
+export const fetchMarineStations = withLastGood(fetchMarineStationsOnce)
+
+async function fetchMarineStationsOnce(): Promise<MarineStation[]> {
   if (!PROXY_URL) {
     throw new Error("VITE_WEATHER_PROXY_URL이 설정되지 않았습니다 — .env에 kma-weather-proxy 배포 주소를 넣어주세요.")
   }

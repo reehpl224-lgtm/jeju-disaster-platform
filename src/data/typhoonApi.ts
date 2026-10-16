@@ -7,6 +7,7 @@
  * 빈 배열인 게 정상(더미데이터로 대체하지 않음 — "지금은 없음"이 실제 상태).
  */
 import type { TyphoonNameEntry, TyphoonNowEntry } from "../types/typhoonApi"
+import { withLastGood } from "./lastGood"
 
 const PROXY_URL = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
 
@@ -17,7 +18,10 @@ function requireProxyUrl() {
   return PROXY_URL
 }
 
-export async function fetchTyphoonNameList(): Promise<TyphoonNameEntry[]> {
+/** 실패하면 한 번 더 시도하고, 그래도 안 되면 15분 안의 직전 성공 값을 쓴다(기상청 쪽 간헐 504) */
+export const fetchTyphoonNameList = withLastGood(fetchTyphoonNameListOnce)
+
+async function fetchTyphoonNameListOnce(): Promise<TyphoonNameEntry[]> {
   const proxy = requireProxyUrl()
   const res = await fetch(`${proxy}/api/typhoon?mode=list`, { cache: "no-store" })
   if (!res.ok) {
@@ -37,8 +41,10 @@ export async function fetchTyphoonNameList(): Promise<TyphoonNameEntry[]> {
   }))
 }
 
-/** 현재 진행 중인 태풍의 실시간 위치·기압·풍속(+예측). 없으면 빈 배열. */
-export async function fetchTyphoonNow(): Promise<TyphoonNowEntry[]> {
+/** 현재 진행 중인 태풍의 실시간 위치·기압·풍속(+예측). 없으면 빈 배열. 실패하면 한 번 더 시도하고, 그래도 안 되면 15분 안의 직전 성공 값을 쓴다 */
+export const fetchTyphoonNow = withLastGood(fetchTyphoonNowOnce)
+
+async function fetchTyphoonNowOnce(): Promise<TyphoonNowEntry[]> {
   const proxy = requireProxyUrl()
   const res = await fetch(`${proxy}/api/typhoon`, { cache: "no-store" })
   if (!res.ok) {

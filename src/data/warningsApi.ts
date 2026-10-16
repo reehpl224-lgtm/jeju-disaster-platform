@@ -7,10 +7,14 @@
  */
 import type { WarningsResponse } from "../types/warningsApi"
 import { resolveWarnings } from "./warningLevel"
+import { withLastGood } from "./lastGood"
 
 const PROXY_URL = import.meta.env.VITE_WEATHER_PROXY_URL as string | undefined
 
-export async function fetchJejuWarnings(): Promise<WarningsResponse> {
+/** 실패하면 한 번 더 시도하고, 그래도 안 되면 15분 안의 직전 성공 값을 쓴다(기상청 쪽 간헐 504) */
+export const fetchJejuWarnings = withLastGood(fetchJejuWarningsOnce)
+
+async function fetchJejuWarningsOnce(): Promise<WarningsResponse> {
   if (!PROXY_URL) {
     throw new Error("VITE_WEATHER_PROXY_URL이 설정되지 않았습니다 — .env에 kma-weather-proxy 배포 주소를 넣어주세요.")
   }
