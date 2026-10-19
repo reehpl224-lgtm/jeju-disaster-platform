@@ -5,8 +5,8 @@ import { IS_STAGING } from "../../data/appMode"
 import { SAMPLE_CHANNELS, SAMPLE_REACH, SAMPLE_RECENT_ACTIONS } from "../../data/sidePanelSamples"
 import { SpSample } from "./primitives"
 
-const STEP_COLOR = ["var(--risk-safe)", "var(--risk-caution)", "var(--risk-warning)"]
-const STEP_BG = ["var(--risk-safe-bg)", "var(--risk-caution-bg)", "var(--risk-warning-bg)"]
+const STEP_COLOR = ["var(--risk-safe)", "var(--risk-warning)", "var(--risk-alert)"]
+const STEP_BG = ["var(--risk-safe-bg)", "var(--risk-warning-bg)", "var(--risk-alert-bg)"]
 const NODES = ["도청", "시 상황실", "읍면동"]
 
 /** R1 · 우측 · 상황전파 — 전파·보고 체계(현업 면담 기준 실데이터) + 전파·경보 수단 상태(연동 전 샘플) */

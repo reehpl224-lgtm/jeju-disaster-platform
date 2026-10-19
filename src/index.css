@@ -17,10 +17,10 @@
   /* 위험 등급 색상 (전 서비스 공통 시맨틱 토큰) — danger는 Figma Make 디자인 스펙(#ff3b30) 기준으로 조정 */
   --color-risk-danger: #ff3b30;
   --color-risk-danger-bg: #ff3b3026;
-  --color-risk-alert: #f8390d;
-  --color-risk-alert-bg: #f8390d26;
-  --color-risk-warning: #f2731a;
-  --color-risk-warning-bg: #f2731a26;
+  --color-risk-alert: #f2731a;
+  --color-risk-alert-bg: #f2731a26;
+  --color-risk-warning: #f9cd00;
+  --color-risk-warning-bg: #f9cd0026;
   --color-risk-caution: #f9cd00;
   --color-risk-caution-bg: #f9cd0026;
   --color-risk-safe: #8ec21f;

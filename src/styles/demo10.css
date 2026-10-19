@@ -96,8 +96,8 @@
    ========================================================================== */
 :root {
   --risk-danger:  #ff3b30;  --risk-danger-bg:  #ff3b3026;
-  --risk-alert:   #f8390d;  --risk-alert-bg:   #f8390d26;
-  --risk-warning: #f2731a;  --risk-warning-bg: #f2731a26;
+  --risk-alert:   #f2731a;  --risk-alert-bg:   #f2731a26;
+  --risk-warning: #f9cd00;  --risk-warning-bg: #f9cd0026;
   --risk-caution: #f9cd00;  --risk-caution-bg: #f9cd0026;
   --risk-safe:    #8ec21f;  --risk-safe-bg:    #8ec21f26;
   --risk-info:    #0054a3;  --risk-info-bg:    #0054a326;

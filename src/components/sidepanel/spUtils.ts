@@ -1,10 +1,10 @@
 import type { RiskLevel } from "../../types/domain"
 
 /** 디자인은 위험등급을 safe·caution·warning·alert 4색으로만 그린다 — 심각(danger)은 경계와 같은 빨강 */
-export type SpLevel = "safe" | "caution" | "warning" | "alert" | "offline" | "info"
-export const spLevel = (l: RiskLevel): SpLevel => (l === "danger" ? "alert" : l)
+export type SpLevel = "safe" | "caution" | "warning" | "alert" | "danger" | "offline" | "info"
+export const spLevel = (l: RiskLevel): SpLevel => l
 
-export const LEVEL_NAME: Record<SpLevel, string> = { safe: "평시", caution: "징후", warning: "주의", alert: "경계", offline: "정보 없음", info: "정보" }
+export const LEVEL_NAME: Record<SpLevel, string> = { safe: "평시", caution: "징후", warning: "주의", alert: "경계", danger: "심각", offline: "정보 없음", info: "정보" }
 
 /** 위험등급 이름 — 디자인은 색을 4가지로 그리지만 이름은 심각(danger)과 경계(alert)를 구분해 쓴다. safe는 문맥에 따라 평시/정상 */
 export const levelName = (l: RiskLevel, safe: "평시" | "정상" = "평시") => (l === "danger" ? "심각" : l === "safe" ? safe : LEVEL_NAME[spLevel(l)])
