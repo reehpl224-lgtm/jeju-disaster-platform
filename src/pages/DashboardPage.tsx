@@ -180,11 +180,11 @@ export function DashboardPage() {
     </p>
   )
 
-  // GIS 지도 분야 필터 — 지도 왼쪽 빈 해역(2026-09-23 사용자 지정 위치)에 세로 버튼열로 배치
+  // GIS 지도 분야 필터 — 지도 왼쪽 아래에 작은 세로 버튼열로 배치(2026-10-19: 크고 위쪽 안내 패널을 가려 작게·아래로)
   const mapDomainFilterChips = (
-    <div className="absolute left-3 top-[34%] z-[500] flex flex-col gap-2">
+    <div className="absolute bottom-3 left-3 z-[500] flex flex-col gap-1">
       {MAP_DOMAIN_FILTERS.map((f) => (
-        <button key={f.id} type="button" className="chip" aria-pressed={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
+        <button key={f.id} type="button" className="chip chip--sm" aria-pressed={mapDomain === f.id} onClick={() => setMapDomain(f.id)}>
           {f.label}
         </button>
       ))}
