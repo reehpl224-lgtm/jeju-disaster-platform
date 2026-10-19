@@ -8,7 +8,6 @@ import { JejuVectorMap } from "../components/ui/JejuVectorMap"
 import { ActiveWarningsPanel } from "../components/sidepanel/ActiveWarningsPanel"
 import { GisLeftPanel, type GisWhich } from "../components/sidepanel/GisLeftPanels"
 import { ForecastPanel } from "../components/sidepanel/ForecastPanel"
-import { LiveWarningsPanel } from "../components/sidepanel/LiveWarningsPanel"
 import { TimelinePanel } from "../components/sidepanel/TimelinePanel"
 import { SummaryRightDock, type SpDockTab } from "../components/sidepanel/SummaryRightDock"
 import { PropagationPanel } from "../components/sidepanel/PropagationPanel"
@@ -75,7 +74,7 @@ const CCTV_DOMAIN_LABEL = Object.fromEntries(CCTV_DOMAIN_FILTERS.map((f) => [f.i
 const REGIONS = ["제주시", "서귀포시"] as const
 
 /** 종합상황 좌측 패널 제목 — 탭 이름과 같다(동네예보는 디자인대로 '동네 예보') */
-const SP_LEFT_TITLE: Record<string, string> = { timeline: "타임라인", advisory: "발효중 특보", forecast: "동네 예보", "live-warnings": "실시간 특보" }
+const SP_LEFT_TITLE: Record<string, string> = { timeline: "타임라인", advisory: "발효중 특보", forecast: "동네 예보" }
 
 // 높은 등급부터 — 서비스 카드와 같은 4단계(정상·주의·경계·심각). 건수는 렌더 때마다 합산한다
 const RISK_ORDER = ["danger", "alert", "warning"] as const
@@ -163,12 +162,11 @@ export function DashboardPage() {
     { key: "response", label: "대응·연락" },
   ].map((t) => ({ ...t, content: <GisLeftPanel which={t.key as GisWhich} domain={mapDomain} onDomain={setMapDomain} markers={gisMarkers} /> }))
 
-  // 좌측 패널 4탭(종합상황) · GIS 우측 패널과 같은 구성 — 필터·데이터는 각 패널 컴포넌트 안에 있다
+  // 좌측 패널 3탭(종합상황) · GIS 우측 패널과 같은 구성 — 필터·데이터는 각 패널 컴포넌트 안에 있다
   const timelineTabs: DockTab[] = [
     { key: "timeline", label: "타임라인", content: <TimelinePanel /> },
     { key: "advisory", label: "발효중 특보", content: <ActiveWarningsPanel /> },
     { key: "forecast", label: "동네예보", content: <ForecastPanel /> },
-    { key: "live-warnings", label: "실시간 특보", content: <LiveWarningsPanel /> },
   ]
 
   // 관측값이 없으면(observedAt "-") 0으로 보이지 않게 "-"로 표시한다

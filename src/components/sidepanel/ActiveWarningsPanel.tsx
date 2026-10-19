@@ -18,7 +18,7 @@ interface GanttRow {
 
 /** L2 · 좌측 · 발효중 특보 — 분류별 건수 + 발효 시간 간트 + 분류별 목록. 해제·변경으로 끝난 특보는 막대 끝에 해제 시각, 아직 해제 소식이 없으면 '미정'. */
 export function ActiveWarningsPanel() {
-  const { mode, events, nullSources } = useSidePanelEvents()
+  const { mode, events, nullSources, fetchedAt } = useSidePanelEvents()
   const f = useEventFilters()
   const now = useMemo(() => new Date(), [])
   const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -36,7 +36,7 @@ export function ActiveWarningsPanel() {
   const pos = (d: Date) => Math.max(0, Math.min(1, ((d.getTime() - dayStart.getTime()) / HOUR - axisStart) / 12))
 
   const rows: GanttRow[] = recent
-    .filter((e) => e.category === "weather")
+    .filter((e) => e.category === "weather" && e.source !== "typhoon") // 태풍 위치 정보는 발효 구간이 없어 막대에서 뺀다
     .sort((a, b) => a.at.getTime() - b.at.getTime())
     .map((e) => ({ id: e.id, title: e.title.replace(" (기상특보)", ""), where: e.detail.replace(" · 기상청 발표", "").replace(" · 해제", "").replace(" · 변경", ""), start: e.at, end: e.status === "해제" ? e.until : undefined, level: e.status === "해제" ? "safe" : e.level }))
   const rangeText = `${dayStart.getFullYear()}-${pad2(dayStart.getMonth() + 1)}-${pad2(dayStart.getDate())} ~ ${dayStart.getFullYear()}-${pad2(dayStart.getMonth() + 1)}-${pad2(dayStart.getDate())}`
@@ -46,13 +46,20 @@ export function ActiveWarningsPanel() {
 
   return (
     <div className="sp">
+      <div className="sp-src">
+        <span>출처 기상청 API허브</span>
+        <span>갱신 {fetchedAt ? fmtHM(fetchedAt) : "-"}</span>
+        <span>범위 제주 전체</span>
+        <span>최근 24시간</span>
+      </div>
+
       <EventFilterBar f={f} rangeText={rangeText} />
 
-      <div className="sp-stats">
-        {(["disaster", "weather", "message"] as SpCategory[]).map((c) => (
+      <div className="sp-stats sp-stats--2">
+        {(["weather", "message"] as SpCategory[]).map((c) => (
           <div className="sp-stat" key={c}>
             <small style={{ color: "var(--foreground)", fontWeight: 700 }}>{CATEGORY_LABEL[c]}</small>
-            <b className={c === "disaster" ? "sp-c--caution" : c === "weather" ? "sp-c--warning" : "sp-c--alert"} style={{ fontSize: 22 }}>
+            <b className={c === "weather" ? "sp-c--warning" : "sp-c--alert"} style={{ fontSize: 22 }}>
               {count(c)}
             </b>
           </div>
@@ -104,7 +111,7 @@ export function ActiveWarningsPanel() {
         <p className="sp-note">막대 끝이 '지금'까지 이어지면 미정 · 해제 여부는 기상청 발표를 따릅니다</p>
       </div>
 
-      {(["disaster", "weather", "message"] as SpCategory[]).map((c) => {
+      {(["weather", "message"] as SpCategory[]).map((c) => {
         const items = active.filter((e) => e.category === c).sort((a, b) => b.at.getTime() - a.at.getTime())
         if (items.length === 0 && mode === "live") return null
         return (
@@ -129,7 +136,7 @@ export function ActiveWarningsPanel() {
           <b>현재 발효 중인 특보가 없습니다</b>
         </div>
       )}
-      <p className="sp-note">해제 여부는 기상청 발표를 따릅니다 · 실시간 특보 탭엔 같은 카드{mode === "staging" && " · 스테이징 환경 — 실제 값이 없는 출처는 임의의 값(샘플)입니다"}{nullSources.length > 0 && ` · 데이터 없음: ${nullSources.join("·")} — ${NULL_SRC_NOTE}`}</p>
+      <p className="sp-note">해제 여부는 기상청 발표를 따릅니다 · 지난 이력은 타임라인 탭{mode === "staging" && " · 스테이징 환경 — 실제 값이 없는 출처는 임의의 값(샘플)입니다"}{nullSources.length > 0 && ` · 데이터 없음: ${nullSources.join("·")} — ${NULL_SRC_NOTE}`}</p>
     </div>
   )
 }
