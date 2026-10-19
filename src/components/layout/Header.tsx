@@ -121,7 +121,8 @@ export function Header({ user }: { user: MockUser }) {
   function switchRole(account: string, home: string) {
     audit("접속", "역할 체험 전환", account)
     login(account)
-    window.location.assign(home)
+    // 라우터 밖 이동이라 배포 경로(BASE_URL)를 직접 붙인다 — GitHub Pages는 /jeju-disaster-platform 아래에 있다
+    window.location.assign(`${BASE.replace(/\/$/, "")}${home}`)
   }
 
   // DID 모드 — 종합상황 → GIS → CCTV 탭을 30초마다 돌려 보여 주고, Esc로 나간다
