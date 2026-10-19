@@ -322,7 +322,7 @@ export function FuturePanel({ kind }: { kind: "messenger" | "news" }) {
               ))}
             </>
           ) : (
-            <p style={{ color: "var(--foreground)" }}>제공하지 않습니다 — 대응 참고는 기상청 실시간 특보·예보 패널을 이용하세요</p>
+            <p style={{ color: "var(--foreground)" }}>제공하지 않습니다 — 대응 참고는 발효중 특보·동네예보 탭을 이용하세요</p>
           )}
         </div>
       </div>

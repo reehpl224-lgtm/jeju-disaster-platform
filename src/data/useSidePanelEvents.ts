@@ -10,7 +10,7 @@ import { IS_STAGING } from "./appMode"
 import { warnLvlLabel, warnRisk } from "./warningLevel"
 
 /**
- * 종합상황 좌측 패널(타임라인·발효중 특보·실시간 특보)이 함께 쓰는 사건 목록 — 출처 셋: 기상청 특보(최근 24시간 발표) · 태풍 현황 ·
+ * 종합상황 좌측 패널(타임라인·발효중 특보)이 함께 쓰는 사건 목록 — 출처 셋: 기상청 특보(최근 24시간 발표) · 태풍 현황 ·
  * 긴급재난문자(제주 수신분, 받아 둔 스냅샷 scripts/fetch-disaster-msgs.mjs).
  *
  * 표시 규칙(2026-10-07 사용자 결정 — 세 환경 레이아웃은 같고 값만 다르다):
@@ -134,7 +134,7 @@ export function typhoonToEvent(t: TyphoonNowEntry): SpEvent {
   return {
     id: `t-${t.year}-${t.typ}-${t.typTmUtc}`,
     source: "typhoon",
-    category: "disaster",
+    category: "weather", // 태풍은 기상청 정보라 기상특보로 묶는다(재난특보 구분은 숨김)
     icon: "🌀",
     level: "info",
     status: "발령",

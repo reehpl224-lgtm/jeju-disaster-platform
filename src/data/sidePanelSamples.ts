@@ -11,7 +11,7 @@ import type { RiskLevel } from "../types/domain"
  *   L1 타임라인        → SAMPLE_EVENTS            (기상청 특보·태풍을 **받지 못했을 때만** 사용 — 받았는데 0건이면 0건 그대로)
  *   L2 발효중 특보      → SAMPLE_EVENTS            (위와 같은 조건 — 간트도 이 사건의 발효 구간으로 그린다)
  *   L3 동네예보        → buildSampleForecast / SAMPLE_WEEKLY (스테이징·예보를 못 받았을 때 전체, 프로토타입은 내일 이후 주간 날씨만 — 중기예보 미연동)
- *   L4 실시간 특보      → SAMPLE_EVENTS 중 기상특보 (실데이터가 없을 때만)
+ *   L4 (삭제됨, 발효중 특보에 합침) → SAMPLE_EVENTS 중 기상특보 (실데이터가 없을 때만)
  *   R1 상황전파        → SAMPLE_CHANNELS (항상) · SAMPLE_REACH / SAMPLE_RECENT_ACTIONS (스테이징)
  *   R2 센서정보        → SAMPLE_SENSOR_SUMMARY / SAMPLE_SERVICE_SENSORS / SAMPLE_SENSOR_ALERTS
  *   R3 센서 추이       → SAMPLE_TREND_RANK / SAMPLE_TREND_CARDS
@@ -26,7 +26,8 @@ const MIN = 60 * 1000
 const HOUR = 60 * MIN
 const DAY = 24 * HOUR
 
-export type SpCategory = "disaster" | "weather" | "message"
+// [숨김 2026-10-19] "disaster"(재난특보)는 연결된 출처가 없어 뺐다(태풍은 기상특보로 합침). 산림청·홍수통제소 등 연계 시 복원
+export type SpCategory = /* "disaster" | */ "weather" | "message"
 
 /** 사건의 출처 — 기상청 특보 · 태풍 현황 · 재난문자 · 그 밖(홍수·산사태처럼 연동 API가 없는 것, 스테이징 샘플 전용) */
 export type SpSource = "warnings" | "typhoon" | "messages" | "other"
@@ -51,20 +52,20 @@ export interface SpEvent {
   sample: boolean
 }
 
-export const CATEGORY_LABEL: Record<SpCategory, string> = { disaster: "재난특보", weather: "기상특보", message: "재난문자" }
-export const CATEGORY_ICON: Record<SpCategory, string> = { disaster: "🌀", weather: "☔", message: "📩" }
+export const CATEGORY_LABEL: Record<SpCategory, string> = { /* disaster: "재난특보", */ weather: "기상특보", message: "재난문자" }
+export const CATEGORY_ICON: Record<SpCategory, string> = { /* disaster: "🌀", */ weather: "☔", message: "📩" }
 
-/** 샘플 사건 15건 — 시각은 접속 시각 기준으로 계산한다(항상 "최근"처럼 보이게). 재난특보 4·기상특보 9·재난문자 2. */
+/** 샘플 사건 15건 — 시각은 접속 시각 기준으로 계산한다(항상 "최근"처럼 보이게). 기상특보(태풍 3 포함) 11·재난문자 2. */
 export function buildSampleEvents(now = new Date()): SpEvent[] {
   const base = Math.floor(now.getTime() / MIN) * MIN // 초는 00으로 맞춘다
   const t = (minutesAgo: number) => new Date(base - minutesAgo * MIN)
   const sourceOf = (id: string, category: SpCategory): SpSource => (id.startsWith("s-ty") ? "typhoon" : category === "message" ? "messages" : id === "s-landslide" || id === "s-flood" ? "other" : "warnings")
   const ev = (e: Omit<SpEvent, "sample" | "source">): SpEvent => ({ ...e, source: sourceOf(e.id, e.category), sample: true })
   return [
-    ev({ id: "s-ty27", category: "disaster", icon: "🌀", level: "info", status: "발령", title: "제27호 초이완", detail: "일본 도쿄 동북동쪽 약 1220 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "65km/h" }, { label: "중심기압", value: "965hPa" }, { label: "최대풍속", value: "37m/s" }] }),
-    ev({ id: "s-ty28", category: "disaster", icon: "🌀", level: "info", status: "발령", title: "제28호 놀루", detail: "괌 북동쪽 약 2450 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "41km/h" }, { label: "중심기압", value: "965hPa" }, { label: "최대풍속", value: "37m/s" }] }),
-    ev({ id: "s-ty29", category: "disaster", icon: "🌀", level: "info", status: "발령", title: "제29호 고구마", detail: "괌 동쪽 약 2330 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "15km/h" }, { label: "중심기압", value: "992hPa" }, { label: "최대풍속", value: "23m/s" }] }),
-    // 최근 24시간 기상특보 4건 — 발효중 특보(간트)·실시간 특보가 같이 쓴다. 건조주의보는 해제(발효 구간 끝이 있음).
+    ev({ id: "s-ty27", category: "weather", icon: "🌀", level: "info", status: "발령", title: "제27호 초이완", detail: "일본 도쿄 동북동쪽 약 1220 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "65km/h" }, { label: "중심기압", value: "965hPa" }, { label: "최대풍속", value: "37m/s" }] }),
+    ev({ id: "s-ty28", category: "weather", icon: "🌀", level: "info", status: "발령", title: "제28호 놀루", detail: "괌 북동쪽 약 2450 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "41km/h" }, { label: "중심기압", value: "965hPa" }, { label: "최대풍속", value: "37m/s" }] }),
+    ev({ id: "s-ty29", category: "weather", icon: "🌀", level: "info", status: "발령", title: "제29호 고구마", detail: "괌 동쪽 약 2330 km 부근 해상", at: t(40), meta: [{ label: "이동", value: "15km/h" }, { label: "중심기압", value: "992hPa" }, { label: "최대풍속", value: "23m/s" }] }),
+    // 최근 24시간 기상특보 4건 — 발효중 특보(간트)·타임라인이 같이 쓴다. 건조주의보는 해제(발효 구간 끝이 있음).
     ev({ id: "s-wind-w", category: "weather", icon: "💨", level: "alert", status: "발령", title: "강풍경보 (기상특보)", detail: "제주시 북부 · 기상청 발표", at: t(40) }),
     ev({ id: "s-rain-w", category: "weather", icon: "☔", level: "warning", status: "발령", title: "호우주의보 (기상특보)", detail: "서귀포시 남부·중산간 · 기상청 발표", at: t(200) }),
     ev({ id: "s-wave-w", category: "weather", icon: "🌊", level: "warning", status: "발령", title: "풍랑주의보 (기상특보)", detail: "제주시 동부·서귀포 남부 · 기상청 발표", at: t(120) }),
@@ -72,12 +73,13 @@ export function buildSampleEvents(now = new Date()): SpEvent[] {
     ev({ id: "s-msg-wind", category: "message", icon: "📩", level: "alert", status: "발령", title: "재난문자", detail: "제주시 · 강풍경보 발령 안내 문자", at: t(21 * 60 + 55) }),
     ev({ id: "s-msg-rain", category: "message", icon: "📩", level: "warning", status: "발령", title: "재난문자 · 긴급재난", detail: "서귀포시 · 호우주의보 발효 — 하천·계곡 접근 금지", at: t(6 * 60 + 30) }),
     ev({ id: "s-wind-end", category: "weather", icon: "💨", level: "safe", status: "해제", title: "강풍주의보 (기상특보)", detail: "서귀포시 산지 · 해제", at: t(24 * 60 + 20) }),
-    ev({ id: "s-landslide", category: "disaster", icon: "⛰️", level: "warning", status: "발령", title: "산사태 위기경보 '주의'", detail: "서귀포시 · 산림청 발표", at: t(2 * DAY / MIN + 5 * 60) }),
+    // [숨김] 재난특보 — 산사태·홍수는 연동 API가 없다
+    // ev({ id: "s-landslide", category: "disaster", icon: "⛰️", level: "warning", status: "발령", title: "산사태 위기경보 '주의'", detail: "서귀포시 · 산림청 발표", at: t(2 * DAY / MIN + 5 * 60) }),
     ev({ id: "s-dry", category: "weather", icon: "🔥", level: "warning", status: "해제", title: "건조주의보 (기상특보)", detail: "제주시 중산간 · 해제", at: t(2 * DAY / MIN + 9 * 60) }),
     ev({ id: "s-wave", category: "weather", icon: "🌊", level: "warning", status: "발령", title: "풍랑주의보 (기상특보)", detail: "제주도 앞바다 · 기상청 발표", at: t(3 * DAY / MIN + 2 * 60) }),
     ev({ id: "s-rain-a", category: "weather", icon: "☔", level: "warning", status: "해제", title: "호우주의보 (기상특보)", detail: "제주시 · 해제", at: t(3 * DAY / MIN + 8 * 60) }),
     ev({ id: "s-wind-a", category: "weather", icon: "💨", level: "warning", status: "발령", title: "강풍주의보 (기상특보)", detail: "제주시 북부 · 기상청 발표", at: t(4 * DAY / MIN + 3 * 60) }),
-    ev({ id: "s-flood", category: "disaster", icon: "🌊", level: "warning", status: "해제", title: "홍수주의보", detail: "효돈천 · 해제", at: t(4 * DAY / MIN + 10 * 60) }),
+    // ev({ id: "s-flood", category: "disaster", icon: "🌊", level: "warning", status: "해제", title: "홍수주의보", detail: "효돈천 · 해제", at: t(4 * DAY / MIN + 10 * 60) }),
     ev({ id: "s-wave-b", category: "weather", icon: "🌊", level: "warning", status: "해제", title: "풍랑주의보 (기상특보)", detail: "제주도 남쪽 먼바다 · 해제", at: t(5 * DAY / MIN + 4 * 60) }),
     ev({ id: "s-fog", category: "weather", icon: "🌫️", level: "warning", status: "발령", title: "안개 (기상특보)", detail: "제주시 · 기상청 발표", at: t(5 * DAY / MIN + 12 * 60) }),
     ev({ id: "s-wind-b", category: "weather", icon: "💨", level: "warning", status: "해제", title: "강풍주의보 (기상특보)", detail: "서귀포시 · 해제", at: t(6 * DAY / MIN + 6 * 60) }),
