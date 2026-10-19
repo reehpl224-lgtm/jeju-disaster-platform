@@ -65,11 +65,12 @@ const Tag = ({ sample }: { sample: "none" | "sample" | "noData" | "input" }) =>
   sample === "sample" ? <SpSample /> : sample === "noData" ? <SpSample noData /> : sample === "input" ? <SpInputTag /> : null
 
 /** 범위·서비스·기준 시각 줄 — 서비스 칩은 지도 분야 칩과 같은 상태 */
-function Scope({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) => void }) {
+/** noSelect: 서비스 선택을 이 줄이 아니라 본문(대시보드 카드)의 셀렉트박스로 둘 때 */
+function Scope({ domain, onDomain, noSelect }: { domain: Domain; onDomain: (d: Domain) => void; noSelect?: boolean }) {
   return (
     <div className="sp-pills">
       <span className="sp-pill sp-pill--static">범위 제주 전체</span>
-      <label className="sp-pill" style={{ padding: 0 }}>
+      {!noSelect && <label className="sp-pill" style={{ padding: 0 }}>
         <select
           aria-label="서비스 선택"
           value={domain}
@@ -82,7 +83,7 @@ function Scope({ domain, onDomain }: { domain: Domain; onDomain: (d: Domain) => 
             </option>
           ))}
         </select>
-      </label>
+      </label>}
       <span className="sp-pill sp-pill--static">기준 {hm(new Date())}</span>
     </div>
   )
@@ -129,11 +130,10 @@ function StatusTab({ domain, onDomain, markers }: { domain: Domain; onDomain: (d
   const safe = list.filter((t) => t.level === "safe")
   const rows = [...staged, ...safe.slice(0, safeShown)]
   const safeLeft = safe.length - safeShown
-  const byDomain = (d: string) => all.filter((t) => t.domain === d).length
 
   return (
     <div className="sp">
-      <Scope domain={domain} onDomain={onDomain} />
+      <Scope domain={domain} onDomain={onDomain} noSelect />
       <Card title={`지도 표시 위험 대상 ${list.length}곳`} tag={<Tag sample={tag} />}>
         <div className="sp-pills">
           {LEVELS.map((l) => (
@@ -143,21 +143,16 @@ function StatusTab({ domain, onDomain, markers }: { domain: Domain; onDomain: (d
             </span>
           ))}
         </div>
-        <div className="sp-pills">
-          {VISIBLE_DOMAINS.map(([d, label]) => (
-            <button
-              key={d}
-              type="button"
-              className="sp-chip"
-              aria-pressed={domain === d}
-              style={{ cursor: "pointer", ...(domain === d ? { fontWeight: 700, color: "var(--foreground)", borderColor: "var(--foreground)", background: "var(--background-lighter)" } : null) }}
-              onClick={() => onDomain(domain === d ? "all" : (d as Domain))}
-            >
-              {label} {byDomain(d)}
-            </button>
-          ))}
-        </div>
-        <p className="sp-note">서비스 칩 = 지도 분야 칩 · 누르면 서비스 선택 상태</p>
+        <label className="sp-field">
+          <select aria-label="서비스 선택" value={domain} onChange={(e) => onDomain(e.target.value as Domain)}>
+            {SERVICE_OPTIONS.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="sp-note">서비스 선택 = 지도 분야 칩 · 고르면 서비스 선택 상태</p>
       </Card>
       {list.length === 0 && <p className="sp-note">이 서비스는 지도에 표시되는 대상이 없습니다</p>}
       {rows.map((t) => (
