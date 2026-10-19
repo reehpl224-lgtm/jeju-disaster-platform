@@ -51,8 +51,8 @@ const SERVICE_OPTIONS: { id: Domain; label: string }[] = [
   { id: "snow", label: "대설" },
 ]
 const RANK: Record<RiskLevel, number> = { danger: 5, alert: 4, warning: 3, caution: 2, safe: 1, info: 0, offline: -1 }
-// 위험 단계 태그는 심각·경계·주의·정상 4단계만 — 징후(관심)는 단계가 아니라 정상 안의 참고 표시라 정상으로 센다
-const LEVELS: RiskLevel[] = ["danger", "alert", "warning", "safe"]
+// 위험 단계 태그는 정상·주의·경계·심각 4단계만(요약 칩은 정상부터 — 목록은 심각 먼저) — 징후(관심)는 단계가 아니라 정상 안의 참고 표시라 정상으로 센다
+const LEVELS: RiskLevel[] = ["safe", "warning", "alert", "danger"]
 /** 정상은 처음 이만큼만 보이고, "더보기"를 누를 때마다 이만큼씩 더 보인다 */
 const SAFE_FIRST = 3
 const SAFE_MORE = 5
@@ -148,9 +148,9 @@ function StatusTab({ domain, onDomain, markers }: { domain: Domain; onDomain: (d
             <button
               key={d}
               type="button"
-              className="sp-risk sp-risk--warning"
+              className="sp-chip"
               aria-pressed={domain === d}
-              style={{ cursor: "pointer", fontWeight: domain === d ? 700 : 500, boxShadow: domain === d ? "0 0 0 1px var(--risk-warning)" : undefined }}
+              style={{ cursor: "pointer", ...(domain === d ? { fontWeight: 700, color: "var(--foreground)", borderColor: "var(--foreground)", background: "var(--background-lighter)" } : null) }}
               onClick={() => onDomain(domain === d ? "all" : (d as Domain))}
             >
               {label} {byDomain(d)}
