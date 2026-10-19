@@ -43,8 +43,8 @@ const DOMAIN_LABEL: Record<RiskMarker["domain"], string> = {
 
 const MARKER_COLOR: Record<RiskLevel, string> = {
   danger: "#ff3b30",
-  alert: "#f8390d",
-  warning: "#f2731a",
+  alert: "#f2731a",
+  warning: "#f9cd00",
   caution: "#f9cd00",
   safe: "#8ec21f",
   info: "#0054a3",

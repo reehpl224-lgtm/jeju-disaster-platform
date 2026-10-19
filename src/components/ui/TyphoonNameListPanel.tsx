@@ -57,7 +57,7 @@ export function TyphoonNameListPanel() {
                 </p>
                 <span
                   className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                    active ? "bg-risk-alert text-white" : "bg-inset text-white/35"
+                    active ? "bg-risk-danger text-white" : "bg-inset text-white/35"
                   }`}
                 >
                   {active ? "활성" : "종료"}

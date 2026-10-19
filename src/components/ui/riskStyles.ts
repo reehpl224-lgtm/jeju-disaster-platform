@@ -32,7 +32,7 @@ export const riskStyles: Record<RiskLevel, RiskStyle> = {
     bg: "bg-risk-warning-bg",
     border: "border-risk-warning/40",
     dot: "bg-risk-warning",
-    solidBg: "bg-risk-warning text-white",
+    solidBg: "bg-risk-warning text-black",
   },
   caution: {
     label: "관심",

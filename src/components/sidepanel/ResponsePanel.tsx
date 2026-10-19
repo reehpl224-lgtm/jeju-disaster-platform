@@ -35,6 +35,8 @@ export function ResponsePanel() {
     return { id: sv.id, title: sv.title, level: x?.level ?? null, count: x?.count ?? null, done: x?.done ?? 0, total: (x?.done ?? 0) + (x?.doing ?? 0) + (x?.waiting ?? 0) }
   }).sort((a, b) => (b.level ? LEVEL_RANK[b.level] : -1) - (a.level ? LEVEL_RANK[a.level] : -1)).map((t) => (t.level === "caution" ? { ...t, level: "safe" as InputLevel } : t)) // 징후는 단계가 아니라 평시로 표시
   const top = tiles[0]
+  // 최고 단계가 같은 서비스가 여럿이면(예: 호우·태풍 모두 경계) 전부 보여준다
+  const topNames = top.level ? tiles.filter((t) => t.level === top.level).map((t) => t.title).join(" · ") : ""
   // 범례 = 전체 서비스의 단계별 건수 합(타일 숫자의 합). 숫자가 없는 서비스는 0건
   const countOf = (l: InputLevel[]) => tiles.reduce((n, t) => n + (t.level && l.includes(t.level) ? (t.count ?? 0) : 0), 0)
 
@@ -65,14 +67,14 @@ export function ResponsePanel() {
           <b className="sp-h2">최고 단계</b>
           {top.level ? <SpRisk level={top.level}>{levelName(top.level)}</SpRisk> : <span className="sp-risk sp-risk--offline">정보 없음</span>}
           <span className="sp-sub" style={{ color: "var(--foreground)" }}>
-            {top.level ? top.title : ""}
+            {topNames}
           </span>
           <PartTag sample={stSample} fully={fully} />
           <span className="sp-spacer" />
           <span className="sp-note">높은 단계 순</span>
         </div>
         <div className="sp-legend">
-          <span><i className="sp-dot sp-bg--alert" />심각 {countOf(["danger"])}</span>
+          <span><i className="sp-dot sp-bg--danger" />심각 {countOf(["danger"])}</span>
           <span><i className="sp-dot sp-bg--alert" />경계 {countOf(["alert"])}</span>
           <span><i className="sp-dot sp-bg--warning" />주의 {countOf(["warning"])}</span>
           <span><i className="sp-dot sp-bg--safe" />평시 {countOf(["safe", "caution"])}</span>

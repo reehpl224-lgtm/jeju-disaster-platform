@@ -9,7 +9,7 @@ import { levelName, spLevel } from "./spUtils"
 
 // 눈금은 정상·주의·경계·심각 4칸 — 징후(관심)는 정상 칸에 둔다
 const SEG_INDEX: Record<string, number> = { safe: 0, caution: 0, warning: 1, alert: 2, danger: 3 }
-const SEG_COLOR = ["var(--risk-safe)", "var(--risk-warning)", "var(--risk-alert)", "var(--risk-alert)"]
+const SEG_COLOR = ["var(--risk-safe)", "var(--risk-warning)", "var(--risk-alert)", "var(--risk-danger)"]
 
 interface SvcTile {
   id: string
@@ -79,7 +79,7 @@ export function SensorSummaryPanel() {
         <div className="sp-segbar" role="img" aria-label="수집 상태 비율">
           <i style={{ width: pct(s.normal), background: "var(--risk-safe)" }} />
           <i style={{ width: pct(s.delayed), background: "var(--risk-caution)" }} />
-          <i style={{ width: pct(s.error), background: "var(--risk-alert)" }} />
+          <i style={{ width: pct(s.error), background: "var(--risk-danger)" }} />
           <i style={{ width: pct(s.unlinked), background: "var(--foreground-subtle)" }} />
         </div>
         <div className="sp-legend">
@@ -298,7 +298,7 @@ function TrendCard({ c }: { c: SpTrendCard }) {
       </div>
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={`${c.name} 추이`}>
         {c.forecast.length > 0 && <rect x={x(c.observed.length - 1)} y={0} width={W - x(c.observed.length - 1)} height={H} fill="var(--foreground-ghost)" />}
-        {(c.threshold !== undefined || c.thresholdAt) && <line x1={0} x2={W} y1={tY} y2={tY} stroke="var(--risk-alert)" strokeDasharray="3 3" strokeWidth={1} />}
+        {(c.threshold !== undefined || c.thresholdAt) && <line x1={0} x2={W} y1={tY} y2={tY} stroke="var(--risk-danger)" strokeDasharray="3 3" strokeWidth={1} />}
         {c.observed.length > 1 ? <polyline points={obs} fill="none" stroke={col} strokeWidth={2} strokeLinejoin="round" /> : <circle cx={x(0)} cy={y(c.observed[0] ?? lo)} r={3} fill={col} />}
         {fc && <polyline points={fc} fill="none" stroke={col} strokeWidth={2} strokeDasharray="3 3" />}
       </svg>
